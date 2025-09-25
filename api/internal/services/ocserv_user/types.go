@@ -12,17 +12,17 @@ type CreateOcservUserData struct {
 	ExpireAt    string                   `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
 	TrafficType string                   `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive TotallyTransmit TotallyReceive" example:"MonthlyTransmit"`
 	TrafficSize int                      `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"` // 10 GiB
-	Description string                   `json:"description,omitempty" validate:"omitempty,max=1024" example:"User for testing VPN access"`
-	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+	Description string                   `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config      *models.OcservUserConfig `json:"config" validate:"required"`
 }
 
 type UpdateOcservUserData struct {
 	Group       *string                  `json:"group" example:"default"`
-	Password    *string                  `json:"password" validate:"min=2,max=32" example:"strongpassword123"`
-	ExpireAt    *string                  `json:"expire_at"  example:"2025-12-31"`
+	Password    *string                  `json:"password" validate:"min=2,max=32"`
+	ExpireAt    *string                  `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
 	TrafficType *string                  `json:"traffic_type" validate:"oneof=Free MonthlyTransmit MonthlyReceive TotallyTransmit TotallyReceive" example:"MonthlyTransmit"`
-	TrafficSize *int                     `json:"traffic_size" validate:"gt=0" example:"10737418240"` // 10 GiB
-	Description *string                  `json:"description,omitempty" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	TrafficSize *int                     `json:"traffic_size" validate:"gte=0" example:"10737418240"` // 10 GiB
+	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
 	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 

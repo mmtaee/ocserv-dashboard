@@ -75,6 +75,32 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 	})
 }
 
+// OcservUser 	 Ocserv user detail
+//
+// @Summary      Ocserv user detail
+// @Description  Ocserv user detail
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      json
+// @Param 		 uid path string true "Ocserv User UID"
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object}  models.OcservUser
+// @Router       /ocserv/users/{uid} [get]
+func (ctl *Controller) OcservUser(c echo.Context) error {
+	userUID := c.Param("uid")
+	if userUID == "" {
+		return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+	}
+
+	user, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userUID)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
 // CreateOcservUser 	     Ocserv User creation
 //
 // @Summary      Ocserv User creation

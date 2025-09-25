@@ -510,6 +510,7 @@ definitions:
         minLength: 2
         type: string
     required:
+    - config
     - group
     - password
     - traffic_type
@@ -541,7 +542,6 @@ definitions:
         example: default
         type: string
       password:
-        example: strongpassword123
         maxLength: 32
         minLength: 2
         type: string
@@ -1219,6 +1219,39 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv User delete
+      tags:
+      - Ocserv(Users)
+    get:
+      consumes:
+      - application/json
+      description: Ocserv user detail
+      parameters:
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv user detail
       tags:
       - Ocserv(Users)
     patch:

@@ -754,6 +754,55 @@ const docTemplate = `{
             }
         },
         "/ocserv/users/{uid}": {
+            "get": {
+                "description": "Ocserv user detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Ocserv user detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ocserv User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Ocserv User delete",
                 "consumes": [
@@ -2336,6 +2385,7 @@ const docTemplate = `{
         "ocserv_user.CreateOcservUserData": {
             "type": "object",
             "required": [
+                "config",
                 "group",
                 "password",
                 "traffic_type",
@@ -2425,8 +2475,7 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "maxLength": 32,
-                    "minLength": 2,
-                    "example": "strongpassword123"
+                    "minLength": 2
                 },
                 "traffic_size": {
                     "description": "10 GiB",

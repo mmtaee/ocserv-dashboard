@@ -10,6 +10,7 @@ func Routes(e *echo.Group) {
 	g := e.Group("/ocserv/users", middlewares.AuthMiddleware())
 
 	g.GET("", ctl.OcservUsers)
+	g.GET("/:uid", ctl.OcservUser)
 	g.POST("", ctl.CreateOcservUser)
 	g.PATCH("/:uid", ctl.UpdateOcservUser)
 	g.DELETE("/:uid", ctl.DeleteOcservUser)
