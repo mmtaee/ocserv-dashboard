@@ -1485,6 +1485,45 @@ paths:
       summary: Ocserv Users Statistics
       tags:
       - Ocserv(Statistics)
+  /ocserv/users/total-bandwidth:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Users TotalBandwidth calculating
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        required: true
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.TotalBandwidths'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users TotalBandwidth calculating
+      tags:
+      - Ocserv(Bandwidth)
   /system:
     get:
       consumes:

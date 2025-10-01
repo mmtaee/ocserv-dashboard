@@ -41,3 +41,8 @@ type StatisticsResponse struct {
 	Statistics      *[]models.DailyTraffic     `json:"statistics" validate:"required"`
 	TotalBandwidths repository.TotalBandwidths `json:"total_bandwidths" validate:"required"`
 }
+
+type TotalBandwidthData struct {
+	DateStart string `json:"date_start" query:"date_start" validate:"omitempty" example:"2025-1-31"`
+	DateEnd   string `json:"date_end" query:"date_end" validate:"omitempty" example:"2025-12-31"`
+}

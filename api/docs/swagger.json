@@ -746,6 +746,64 @@
                 }
             }
         },
+        "/ocserv/users/total-bandwidth": {
+            "get": {
+                "description": "Ocserv Users TotalBandwidth calculating",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Bandwidth)"
+                ],
+                "summary": "Ocserv Users TotalBandwidth calculating",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "date_start",
+                        "name": "date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "date_end",
+                        "name": "date_end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repository.TotalBandwidths"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/{uid}": {
             "get": {
                 "description": "Ocserv user detail",

@@ -19,4 +19,5 @@ func Routes(e *echo.Group) {
 	g.POST("/:username/disconnect", ctl.DisconnectOcservUser)
 	g.GET("/:uid/statistics", ctl.StatisticsOcservUser)
 	g.GET("/statistics", ctl.Statistics)
+	g.GET("/total-bandwidth", ctl.TotalBandwidth)
 }

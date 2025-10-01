@@ -42,6 +42,7 @@ type OcservUserRepositoryInterface interface {
 	TopBandwidthUser(ctx context.Context) (TopBandwidthUsers, error)
 	TotalBandwidthUser(ctx context.Context, id string) (TotalBandwidths, error)
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
+	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -338,6 +339,30 @@ func (o *OcservUserRepository) TotalBandwidth(ctx context.Context) (TotalBandwid
         COALESCE(SUM(rx),0) / 1073741824.0 AS rx,
         COALESCE(SUM(tx),0) / 1073741824.0 AS tx`).
 		Scan(&total).Error
+	if err != nil {
+		return total, err
+	}
+	return total, nil
+}
+
+func (o *OcservUserRepository) TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error) {
+	var total TotalBandwidths
+
+	query := o.db.WithContext(ctx).
+		Model(&models.OcservUserTrafficStatistics{}).
+		Select(`
+			COALESCE(SUM(rx),0) / 1073741824.0 AS rx,
+			COALESCE(SUM(tx),0) / 1073741824.0 AS tx`)
+
+	// Apply filters based on dateStart and dateEnd
+	if dateStart != nil {
+		query = query.Where("created_at >= ?", *dateStart)
+	}
+	if dateEnd != nil {
+		query = query.Where("created_at <= ?", *dateEnd)
+	}
+
+	err := query.Scan(&total).Error
 	if err != nil {
 		return total, err
 	}

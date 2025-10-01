@@ -452,3 +452,53 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, stats)
 }
+
+// TotalBandwidth 	 Ocserv Users TotalBandwidth calculating
+//
+// @Summary      Ocserv Users TotalBandwidth calculating
+// @Description  Ocserv Users TotalBandwidth calculating
+// @Tags         Ocserv(Bandwidth)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 date_start query string true "date_start"
+// @Param 		 date_end query string true "date_end"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} repository.TotalBandwidths
+// @Router       /ocserv/users/total-bandwidth [get]
+func (ctl *Controller) TotalBandwidth(c echo.Context) error {
+	var data TotalBandwidthData
+	if err := c.Bind(&data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	var startDate, endDate *time.Time
+
+	if data.DateStart != "" {
+		t, err := time.Parse("2006-01-02", data.DateStart)
+		if err != nil {
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+		}
+		startDate = &t
+	}
+
+	if data.DateEnd != "" {
+		t, err := time.Parse("2006-01-02", data.DateEnd)
+		if err != nil {
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+		}
+		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second + 999999999*time.Nanosecond)
+		endDate = &t
+	}
+
+	if startDate != nil && endDate != nil && startDate.After(*endDate) {
+		return ctl.request.BadRequest(c, errors.New("date start is after end"))
+	}
+
+	bandwidth, err := ctl.ocservUserRepo.TotalBandwidthDateRange(c.Request().Context(), startDate, endDate)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, bandwidth)
+}
