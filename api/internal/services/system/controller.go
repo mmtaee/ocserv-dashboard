@@ -250,7 +250,7 @@ func (ctl *Controller) Login(c echo.Context) error {
 // @Success      201  {object}  models.User
 // @Router       /system/users [post]
 func (ctl *Controller) CreateUser(c echo.Context) error {
-	userUID := c.Param("userUID")
+	//userUID := c.Param("userUID")
 
 	var data CreateUserData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
@@ -262,11 +262,11 @@ func (ctl *Controller) CreateUser(c echo.Context) error {
 		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
 		Salt:     passwd.Salt,
-		IsAdmin:  data.Admin,
+		IsAdmin:  false,
 	}
 
-	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
-	newUser, err := ctl.userRepo.CreateUser(ctx, user)
+	//ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
+	newUser, err := ctl.userRepo.CreateUser(c.Request().Context(), user)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

@@ -34,7 +34,7 @@ type UserLoginResponse struct {
 type CreateUserData struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
-	Admin    bool   `json:"admin"`
+	//Admin    bool   `json:"admin"`
 }
 
 type UsersResponse struct {

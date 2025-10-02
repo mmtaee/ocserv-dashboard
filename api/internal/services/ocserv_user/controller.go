@@ -16,6 +16,7 @@ import (
 
 type Controller struct {
 	request         request.CustomRequestInterface
+	userRepo        repository.UserRepositoryInterface
 	ocservUserRepo  repository.OcservUserRepositoryInterface
 	ocservOcctlRepo repository.OcctlRepositoryInterface
 }
@@ -45,9 +46,20 @@ func New() *Controller {
 // @Success      200  {object}  OcservUsersResponse
 // @Router       /ocserv/users [get]
 func (ctl *Controller) OcservUsers(c echo.Context) error {
+	owner := ""
+
+	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
+		username := c.Get("username").(string)
+		if username == "" {
+			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+		}
+
+		owner = username
+	}
+
 	pagination := ctl.request.Pagination(c)
 
-	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination)
+	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination, owner)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -90,6 +102,7 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 // @Success      200  {object}  models.OcservUser
 // @Router       /ocserv/users/{uid} [get]
 func (ctl *Controller) OcservUser(c echo.Context) error {
+	// TODO: add staff filter to get ocserv user for same owner
 	userUID := c.Param("uid")
 	if userUID == "" {
 		return ctl.request.BadRequest(c, errors.New("invalid user uid"))
@@ -117,6 +130,12 @@ func (ctl *Controller) OcservUser(c echo.Context) error {
 // @Router       /ocserv/users [post]
 func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 	var data CreateOcservUserData
+
+	owner := c.Get("username").(string)
+	if owner == "" {
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+	}
+
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -134,6 +153,7 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 	}
 
 	ocUser := &models.OcservUser{
+		Owner:       owner,
 		Username:    data.Username,
 		Password:    data.Password,
 		Group:       data.Group,

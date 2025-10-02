@@ -283,6 +283,8 @@ definitions:
         type: boolean
       is_online:
         type: boolean
+      owner:
+        type: string
       password:
         type: string
       rx:
@@ -313,6 +315,7 @@ definitions:
     - group
     - is_locked
     - is_online
+    - owner
     - password
     - rx
     - traffic_size
@@ -639,8 +642,6 @@ definitions:
     type: object
   system.CreateUserData:
     properties:
-      admin:
-        type: boolean
       password:
         type: string
       username:

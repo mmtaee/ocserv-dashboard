@@ -27,7 +27,7 @@ type OcservUserRepository struct {
 }
 
 type OcservUserRepositoryInterface interface {
-	Users(ctx context.Context, pagination *request.Pagination) (*[]models.OcservUser, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, owner string) (*[]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
@@ -53,7 +53,7 @@ func NewtOcservUserRepository() *OcservUserRepository {
 }
 
 func (o *OcservUserRepository) Users(
-	ctx context.Context, pagination *request.Pagination,
+	ctx context.Context, pagination *request.Pagination, owner string,
 ) (*[]models.OcservUser, int64, error) {
 	var totalRecords int64
 
@@ -64,7 +64,14 @@ func (o *OcservUserRepository) Users(
 
 	var ocservUser []models.OcservUser
 	txPaginator := request.Paginator(ctx, o.db, pagination)
-	err = txPaginator.Model(&ocservUser).Find(&ocservUser).Error
+
+	query := txPaginator.Model(&ocservUser)
+
+	if owner != "" {
+		query = query.Where("owner = ?", owner)
+	}
+
+	err = query.Find(&ocservUser).Error
 	if err != nil {
 		return nil, 0, err
 	}

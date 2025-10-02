@@ -2159,6 +2159,7 @@ const docTemplate = `{
                 "group",
                 "is_locked",
                 "is_online",
+                "owner",
                 "password",
                 "rx",
                 "traffic_size",
@@ -2191,6 +2192,9 @@ const docTemplate = `{
                 },
                 "is_online": {
                     "type": "boolean"
+                },
+                "owner": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -2674,9 +2678,6 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
                 "password": {
                     "type": "string"
                 },

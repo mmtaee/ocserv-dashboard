@@ -59,6 +59,7 @@ type OcservUserConfig struct {
 type OcservUser struct {
 	ID            uint              `json:"-" gorm:"primaryKey;autoIncrement" `
 	UID           string            `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
+	Owner         string            `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
 	Group         string            `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
 	Username      string            `json:"username" gorm:"type:varchar(16);not null;unique" validate:"required"`
 	Password      string            `json:"password" gorm:"type:varchar(16);not null" validate:"required"`
