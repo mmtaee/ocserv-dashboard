@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/time/rate"
-	"net/http"
 	"strings"
 	"sync"
 )
@@ -50,9 +49,7 @@ func RateLimitMiddleware(count int, per string, burst int) echo.MiddlewareFunc {
 			}
 			limiter := getLimiter(key, r, burst)
 			if !limiter.Allow() {
-				return c.JSON(http.StatusTooManyRequests, map[string]string{
-					"message": "Rate limit exceeded",
-				})
+				return TooManyRequestsError(c, "too many requests. try again later")
 			}
 			return next(c)
 		}

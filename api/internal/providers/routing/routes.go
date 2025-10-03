@@ -2,6 +2,7 @@ package routing
 
 import (
 	"github.com/labstack/echo/v4"
+	customerRoutes "github.com/mmtaee/ocserv-users-management/api/internal/services/customer"
 	homeRoutes "github.com/mmtaee/ocserv-users-management/api/internal/services/home"
 	occtlRoutes "github.com/mmtaee/ocserv-users-management/api/internal/services/occtl"
 	ocservGroupRoutes "github.com/mmtaee/ocserv-users-management/api/internal/services/ocserv_group"
@@ -16,4 +17,7 @@ func Register(e *echo.Echo) {
 	ocservUserRoutes.Routes(group)
 	occtlRoutes.Routes(group)
 	homeRoutes.Routes(group)
+
+	// customers
+	customerRoutes.Routes(group)
 }

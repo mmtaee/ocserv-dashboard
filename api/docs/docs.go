@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/customers/summary": {
+            "post": {
+                "description": "Customer summary account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Customer summary account",
+                "parameters": [
+                    {
+                        "description": "customer username and password (same ocserv account).",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.SummaryData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.SummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.TooManyRequests"
+                        }
+                    }
+                }
+            }
+        },
         "/home": {
             "get": {
                 "description": "Content of home",
@@ -1787,6 +1833,112 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "customer.ModelCustomer": {
+            "type": "object",
+            "required": [
+                "deactivated_at",
+                "expire_at",
+                "is_locked",
+                "owner",
+                "rx",
+                "traffic_size",
+                "traffic_type",
+                "tx",
+                "username"
+            ],
+            "properties": {
+                "deactivated_at": {
+                    "type": "string"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "is_locked": {
+                    "type": "boolean"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "rx": {
+                    "description": "Receive in bytes",
+                    "type": "integer"
+                },
+                "traffic_size": {
+                    "description": "in GiB  \u003e\u003e x * 1024 ** 3",
+                    "type": "integer"
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ]
+                },
+                "tx": {
+                    "description": "Transmit in bytes",
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.SummaryData": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                }
+            }
+        },
+        "customer.SummaryResponse": {
+            "type": "object",
+            "required": [
+                "ocserv_user",
+                "usage"
+            ],
+            "properties": {
+                "ocserv_user": {
+                    "$ref": "#/definitions/customer.ModelCustomer"
+                },
+                "usage": {
+                    "$ref": "#/definitions/customer.UsageResponse"
+                }
+            }
+        },
+        "customer.UsageResponse": {
+            "type": "object",
+            "required": [
+                "bandwidths",
+                "date_end",
+                "date_start"
+            ],
+            "properties": {
+                "bandwidths": {
+                    "$ref": "#/definitions/repository.TotalBandwidths"
+                },
+                "date_end": {
+                    "type": "string"
+                },
+                "date_start": {
+                    "type": "string"
+                }
+            }
+        },
         "home.CurrentStats": {
             "type": "object",
             "properties": {
@@ -1965,6 +2117,14 @@ const docTemplate = `{
             }
         },
         "middlewares.PermissionDenied": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "middlewares.TooManyRequests": {
             "type": "object",
             "properties": {
                 "error": {

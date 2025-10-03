@@ -1,5 +1,82 @@
 basePath: /api
 definitions:
+  customer.ModelCustomer:
+    properties:
+      deactivated_at:
+        type: string
+      expire_at:
+        type: string
+      is_locked:
+        type: boolean
+      owner:
+        type: string
+      rx:
+        description: Receive in bytes
+        type: integer
+      traffic_size:
+        description: in GiB  >> x * 1024 ** 3
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        type: string
+      tx:
+        description: Transmit in bytes
+        type: integer
+      username:
+        type: string
+    required:
+    - deactivated_at
+    - expire_at
+    - is_locked
+    - owner
+    - rx
+    - traffic_size
+    - traffic_type
+    - tx
+    - username
+    type: object
+  customer.SummaryData:
+    properties:
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  customer.SummaryResponse:
+    properties:
+      ocserv_user:
+        $ref: '#/definitions/customer.ModelCustomer'
+      usage:
+        $ref: '#/definitions/customer.UsageResponse'
+    required:
+    - ocserv_user
+    - usage
+    type: object
+  customer.UsageResponse:
+    properties:
+      bandwidths:
+        $ref: '#/definitions/repository.TotalBandwidths'
+      date_end:
+        type: string
+      date_start:
+        type: string
+    required:
+    - bandwidths
+    - date_end
+    - date_start
+    type: object
   home.CurrentStats:
     properties:
       _Last stats reset:
@@ -118,6 +195,11 @@ definitions:
         $ref: '#/definitions/home.GeneralInfo'
     type: object
   middlewares.PermissionDenied:
+    properties:
+      error:
+        type: string
+    type: object
+  middlewares.TooManyRequests:
     properties:
       error:
         type: string
@@ -750,6 +832,36 @@ info:
   title: Ocserv User management Example Api
   version: "1.0"
 paths:
+  /customers/summary:
+    post:
+      consumes:
+      - application/json
+      description: Customer summary account
+      parameters:
+      - description: customer username and password (same ocserv account).
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/customer.SummaryData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.SummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/middlewares.TooManyRequests'
+      summary: Customer summary account
+      tags:
+      - Customers
   /home:
     get:
       consumes:
