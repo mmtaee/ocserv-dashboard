@@ -4,13 +4,19 @@ A simple, efficient, and scalable solution to deploy and manage an **OpenConnect
 Easily manage users, groups, and server configurations while keeping your VPN secure and performant.
 
 <p align="center">
-  <img alt="Dashboard screenshot" src="docs/home.png" width="800"/>
+  <img alt="GitHub stars" src="https://img.shields.io/github/stars/mmtaee/ocserv-users-management">
+  <img alt="GitHub forks" src="https://img.shields.io/github/forks/mmtaee/ocserv-users-management">
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/mmtaee/ocserv-users-management">
+  <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/mmtaee/ocserv-users-management">
+  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/mmtaee/ocserv-users-management">
+  <img alt="Repo size" src="https://img.shields.io/github/repo-size/mmtaee/ocserv-users-management">
 </p>
 
 <p align="center">
-  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/mmtaee/ocserv-users-management">
-  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/mmtaee/ocserv-users-management">
+  <img alt="Dashboard screenshot" src="docs/home.png" width="800"/>
 </p>
+
+
 
 ---
 
