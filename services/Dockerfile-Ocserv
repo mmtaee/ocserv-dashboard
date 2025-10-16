@@ -8,16 +8,16 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 RUN mkdir /common
-COPY ./common /common
+COPY common /common
 
 WORKDIR /app
 
 # Copy Go modules first for caching
-COPY ./api/go.mod ./api/go.sum ./
+COPY api/go.mod ./api/go.sum ./
 RUN go mod download
 
 # Copy source code and build
-COPY ./api .
+COPY api .
 RUN go build -ldflags="-s -w" -o api main.go
 
 # -----------------------------
@@ -45,8 +45,8 @@ WORKDIR /app
 
 # Copy API binary and scripts
 COPY --from=builder /app/api /usr/local/bin/api
-COPY scripts/ocserv_entrypoint.sh /entrypoint.sh
-COPY scripts/ocserv_server.sh /server.sh
+COPY ../scripts/ocserv_entrypoint.sh /entrypoint.sh
+COPY ../scripts/ocserv_server.sh /server.sh
 
 # Make binaries and scripts executable
 RUN chmod +x /entrypoint.sh /server.sh /usr/local/bin/api

@@ -66,4 +66,4 @@ require (
 	gorm.io/driver/sqlite v1.6.0 // indirect
 )
 
-replace github.com/mmtaee/ocserv-users-management/common => ../common
+replace github.com/mmtaee/ocserv-users-management/common => ./../common

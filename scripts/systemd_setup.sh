@@ -77,21 +77,21 @@ log "Installing base packages..."
 sudo apt-get update -y
 sudo apt-get install -y gcc curl openssl ca-certificates jq less
 
-# Go toolchain (if missing)
-if ! command -v go >/dev/null 2>&1; then
-  warn "Go not found, installing golang..."
-  sudo apt-get install -y golang
-  ok "Installed Go: $(go version)"
-else
-  ok "Go is present: $(go version)"
-fi
+## Go toolchain (if missing)
+#if ! command -v go >/dev/null 2>&1; then
+#  warn "Go not found, installing golang..."
+#  sudo apt-get install -y golang
+#  ok "Installed Go: $(go version)"
+#else
+#  ok "Go is present: $(go version)"
+#fi
 
 # -----------------------
 # Services configuration (collections)
 # -----------------------
 declare -A SERVICES=(
-  ["api"]="./api"
-  ["stream_log"]="./stream_log"
+  ["api"]="./services/api"
+  ["stream_log"]="./services/stream_log"
 )
 
 # -----------------------

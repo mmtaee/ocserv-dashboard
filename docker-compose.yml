@@ -2,7 +2,7 @@ services:
   ocserv:
     build:
       context: .
-      dockerfile: Dockerfile-Ocserv
+      dockerfile: services/Dockerfile-Ocserv
     image: ocserv_users_management:ocserv_with_api
     container_name: ocserv
     privileged: true
@@ -21,7 +21,7 @@ services:
     ports:
       - ${OCSERV_PORT:-443}:443/tcp
       - ${OCSERV_PORT:-443}:443/udp
-      - "8080:8080"
+#      - "8080:8080"
     networks:
       - shared-app
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
     image: ocserv_users_management:stream_log
     build:
       context: .
-      dockerfile: Dockerfile-Stream-Log
+      dockerfile: services/Dockerfile-Stream-Log
     container_name: stream_log
     volumes:
       - ./volumes/db:/usr/local/bin/db
@@ -44,32 +44,31 @@ services:
       - shared-app
     depends_on:
       - ocserv
-    ports:
-      - "8081:8080"
-    restart: unless-stopped
-#
-#  web:
-#    image: ocserv_users_management:web
-#    build:
-#      context: .
-#      dockerfile: Dockerfile-Web
-#      args:
-#        - LANGUAGES=${LANGUAGES}
-#    container_name: web
-#    volumes:
-#      - ./volumes/nginx/certs:/etc/nginx/certs
-#    env_file:
-#      - ./.env
 #    ports:
-#      - "3000:3000"
-#      - "3443:3443"
-#    networks:
-#      - shared-app
-#    depends_on:
-#      - ocserv
-#      - stream_log
-#    restart: unless-stopped
+#      - "8081:8080"
+    restart: unless-stopped
 
+  web:
+    image: ocserv_users_management:web
+    build:
+      context: .
+      dockerfile: web/Dockerfile-Web
+      args:
+        - LANGUAGES=${LANGUAGES}
+    container_name: web
+    volumes:
+      - ./volumes/nginx/certs:/etc/nginx/certs
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+    networks:
+      - shared-app
+    depends_on:
+      - ocserv
+      - stream_log
+    restart: unless-stopped
 
 networks:
   shared-app:

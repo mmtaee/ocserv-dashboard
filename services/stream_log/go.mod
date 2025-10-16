@@ -47,4 +47,4 @@ require (
 	gotest.tools/v3 v3.5.2 // indirect
 )
 
-replace github.com/mmtaee/ocserv-users-management/common => ../common
+replace github.com/mmtaee/ocserv-users-management/common => ./../common

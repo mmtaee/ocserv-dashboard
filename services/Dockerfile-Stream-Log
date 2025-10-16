@@ -10,17 +10,17 @@ ENV GOARCH=amd64
 
 # Optional: copy common packages if used
 RUN mkdir /common
-COPY ./common /common
+COPY common /common
 
 # Set working directory
 WORKDIR /app
 
 # Copy Go module files first for caching
-COPY ./stream_log/go.mod ./stream_log/go.sum ./
+COPY stream_log/go.mod ./stream_log/go.sum ./
 RUN go mod download
 
 # Copy the rest of the source
-COPY ./stream_log .
+COPY stream_log .
 
 # Build the binary with optional size optimization
 RUN go build -ldflags="-s -w" -o stream_log main.go
@@ -44,7 +44,7 @@ WORKDIR /app
 # Copy the Go binary from the builder stage
 COPY --from=builder /app/stream_log /usr/local/bin/stream_log
 
-COPY ./stream_log/scripts/server.sh /server.sh
+COPY stream_log/scripts/server.sh /server.sh
 
 RUN chmod +x /server.sh
 

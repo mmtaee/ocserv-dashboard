@@ -34,9 +34,9 @@ RUN apk add --no-cache bash gettext openssl \
     && mkdir -p /var/www/site /etc/nginx/certs
 
 # Copy custom Nginx startup script
-COPY scripts/nginx_docker.conf  /etc/nginx/conf.d/site.conf
+COPY ../scripts/nginx_docker.conf  /etc/nginx/conf.d/site.conf
 
-COPY scripts/nginx_entrypoint.sh /entrypoint.sh
+COPY ../scripts/nginx_entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
