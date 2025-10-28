@@ -38,26 +38,55 @@ const loader = useLoadingStore();
 }
 
 .loading-text.typing::after {
-    content: "";
+    content: '';
     animation: typing 2s steps(14, end) infinite;
 }
 
 @keyframes typing {
-    0%   { content: "R"; }
-    7%   { content: "Re"; }
-    14%  { content: "Req"; }
-    21%  { content: "Requ"; }
-    28%  { content: "Reque"; }
-    35%  { content: "Reques"; }
-    42%  { content: "Request"; }
-    50%  { content: "Requesti"; }
-    57%  { content: "Requestin"; }
-    64%  { content: "Requesting"; }
-    71%  { content: "Requesting."; }
-    79%  { content: "Requesting.."; }
-    86%  { content: "Requesting..."; }
-    93%  { content: "Requesting..."; }
-    100% { content: "Requesting..."; }
+    0% {
+        content: 'R';
+    }
+    7% {
+        content: 'Re';
+    }
+    14% {
+        content: 'Req';
+    }
+    21% {
+        content: 'Requ';
+    }
+    28% {
+        content: 'Reque';
+    }
+    35% {
+        content: 'Reques';
+    }
+    42% {
+        content: 'Request';
+    }
+    50% {
+        content: 'Requesti';
+    }
+    57% {
+        content: 'Requestin';
+    }
+    64% {
+        content: 'Requesting';
+    }
+    71% {
+        content: 'Requesting.';
+    }
+    79% {
+        content: 'Requesting..';
+    }
+    86% {
+        content: 'Requesting...';
+    }
+    93% {
+        content: 'Requesting...';
+    }
+    100% {
+        content: 'Requesting...';
+    }
 }
-
 </style>

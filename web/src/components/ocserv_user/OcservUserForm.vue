@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+    type ModelsOcservGroupConfig,
     type ModelsOcservUser,
     type ModelsOcservUserConfig,
     ModelsOcservUserTrafficTypeEnum,
@@ -260,12 +261,19 @@ watch(
                 <v-col cols="12" lg="4" md="6">
                     <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
                     <v-text-field
-                        v-model="createData.config[field.key as keyof ModelsOcservUserConfig] as number"
+                        v-model.number="createData.config[field.key as keyof ModelsOcservUserConfig]"
                         :hint="field.hint"
                         color="primary"
                         min="0"
                         type="number"
                         variant="outlined"
+                        @update:modelValue="
+                            (val: any) => {
+                                createData.config[field.key as keyof ModelsOcservUserConfig] = Boolean(val)
+                                    ? (Number(val) as any)
+                                    : null;
+                            }
+                        "
                     />
                 </v-col>
             </template>

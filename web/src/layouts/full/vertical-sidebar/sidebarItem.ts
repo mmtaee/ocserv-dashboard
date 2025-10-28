@@ -32,6 +32,11 @@ export function getSidebarItems(): Menu[] {
 
         { header: 'OCSERV' },
         {
+            title: t('GROUP_DEFAULTS'),
+            icon: 'mdi-router',
+            to: '/ocserv/management/groups/defaults'
+        },
+        {
             title: t('GROUPS'),
             icon: 'mdi-router-network',
             to: '/ocserv/management/groups'

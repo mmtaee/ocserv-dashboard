@@ -66,7 +66,7 @@ const { t } = useI18n();
                                 <span v-if="result.ocserv_user.expire_at" class="ms-1">
                                     {{ formatDate(result.ocserv_user.expire_at) }}
                                 </span>
-                                <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                             </v-col>
 
                             <v-col cols="12" md="6">
@@ -76,7 +76,7 @@ const { t } = useI18n();
                                 <span v-if="result.ocserv_user.deactivated_at" class="ms-1">
                                     {{ formatDate(result.ocserv_user.deactivated_at) }}
                                 </span>
-                                <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                             </v-col>
                         </v-row>
                     </div>

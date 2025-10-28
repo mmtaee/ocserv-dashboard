@@ -157,7 +157,7 @@ onMounted(() => {
                                         <span v-if="result.expire_at" class="ms-1">
                                             {{ formatDate(result.expire_at) }}
                                         </span>
-                                        <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
@@ -167,7 +167,7 @@ onMounted(() => {
                                         <span v-if="result.created_at" class="ms-1">
                                             {{ formatDate(result.created_at) }}
                                         </span>
-                                        <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
@@ -177,7 +177,7 @@ onMounted(() => {
                                         <span v-if="result.deactivated_at" class="ms-1">
                                             {{ formatDate(result.deactivated_at) }}
                                         </span>
-                                        <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
@@ -187,7 +187,7 @@ onMounted(() => {
                                         <span v-if="result.description" class="ms-1">
                                             {{ result.description }}
                                         </span>
-                                        <span v-else class="ms-1 text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
@@ -222,7 +222,7 @@ onMounted(() => {
                                     <span v-if="!Array.isArray(val)">
                                         <span class="w-40 font-medium text-gray-600">{{ key }}: </span>
                                         <span v-if="val">{{ val }}</span>
-                                        <span v-else class="text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="text-warning italic">{{ t('NOT_SET') }}</span>
                                     </span>
                                 </v-col>
                             </v-row>
@@ -249,7 +249,6 @@ onMounted(() => {
                                             >
                                                 {{ v }} <br />
                                             </span>
-                                            <span v-else class="text-info italic">{{ t('NOT_SET') }}</span>
                                         </v-card-text>
                                     </v-card>
                                 </v-col>

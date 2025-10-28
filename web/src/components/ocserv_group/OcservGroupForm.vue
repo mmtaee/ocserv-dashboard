@@ -1,11 +1,6 @@
 <script lang="ts" setup>
 import { reactive, ref, watch } from 'vue';
-import {
-    type ModelsOcservGroup,
-    type ModelsOcservGroupConfig,
-    type OcservGroupCreateOcservGroupData,
-    type OcservGroupUpdateOcservGroupData
-} from '@/api';
+import { type ModelsOcservGroup, type ModelsOcservGroupConfig, type OcservGroupCreateOcservGroupData } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { requiredRule } from '@/utils/rules';
 import { getFormFields } from '@/components/ocserv_group/items';
@@ -39,7 +34,6 @@ const rules = {
 };
 
 const createData = reactive<OcservGroupCreateOcservGroupData>({ config: {}, name: '' });
-const updateData = reactive<OcservGroupUpdateOcservGroupData>({ config: {} });
 
 const fieldItems = getFormFields();
 const chipInputs = reactive<Record<string, string>>({
@@ -54,7 +48,7 @@ const createGroup = () => {
 };
 
 const updateGroup = () => {
-    emit('updateGroup', props.initData?.id , updateData.config);
+    emit('updateGroup', props.initData?.id, createData.config);
 };
 
 const addRoutes = (key: string) => {
@@ -88,6 +82,7 @@ const removeRoute = (key: string, value: string) => {
 watch(
     () => props.initData,
     () => {
+        console.log('props.initData: ', props.initData);
         if (props.initData !== undefined) {
             Object.assign(createData, props.initData);
             isUpdate.value = true;
@@ -100,10 +95,10 @@ watch(
 <template>
     <v-form v-model="valid">
         <v-row align="center" justify="start">
-            <v-col cols="12">
+            <v-col cols="12" v-if="createData.name">
                 <h3 class="text-capitalize">{{ t('MAIN') }}</h3>
             </v-col>
-            <v-col cols="12" lg="4" md="6">
+            <v-col cols="12" lg="4" md="6" v-if="createData.name">
                 <v-label class="font-weight-bold mb-1 text-capitalize">{{ t('GROUP_NAME') }}</v-label>
                 <v-text-field
                     v-model="createData.name"
@@ -138,12 +133,19 @@ watch(
                 <v-col cols="12" lg="4" md="6">
                     <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
                     <v-text-field
-                        v-model="createData.config[field.key as keyof ModelsOcservGroupConfig] as number"
+                        v-model.number="createData.config[field.key as keyof ModelsOcservGroupConfig]"
                         :hint="field.hint"
                         color="primary"
                         min="0"
                         type="number"
                         variant="outlined"
+                        @update:modelValue="
+                            (val: any) => {
+                                createData.config[field.key as keyof ModelsOcservGroupConfig] = Boolean(val)
+                                    ? (Number(val) as any)
+                                    : null;
+                            }
+                        "
                     />
                 </v-col>
             </template>

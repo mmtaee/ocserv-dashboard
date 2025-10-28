@@ -14,6 +14,11 @@ const MainRoutes = {
             component: () => import('@/views/dashboard/index.vue')
         },
         {
+            name: 'Ocserv Group Defaults',
+            path: '/ocserv/management/groups/defaults',
+            component: () => import('@/views/ocserv_group/OcservGroupDefaults.vue')
+        },
+        {
             name: 'Ocserv Groups',
             path: '/ocserv/management/groups',
             component: () => import('@/views/ocserv_group/index.vue')

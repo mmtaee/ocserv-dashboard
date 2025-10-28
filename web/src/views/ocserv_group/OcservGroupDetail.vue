@@ -80,7 +80,7 @@ onMounted(() => {
                             <div class="grid grid-cols-2 gap-4 mx-5">
                                 <v-row align="center" justify="start">
                                     <v-col cols="12" md="4">
-                                        <span class="font-medium text-gray-600">{{ t('ID') }}:</span>
+                                        <span class="font-medium text-gray-600">ID :</span>
                                         <span class="ml-2 me-15">{{ result.id }}</span>
                                     </v-col>
                                     <v-col cols="12" md="4">
@@ -108,8 +108,10 @@ onMounted(() => {
                                 >
                                     <span v-if="!Array.isArray(val)">
                                         <span class="w-40 font-medium text-gray-600">{{ key }}: </span>
-                                        <span v-if="val">{{ val }}</span>
-                                        <span v-else class="text-info italic">{{ t('NOT_SET') }}</span>
+                                        <span v-if="val" class="text-primary">
+                                            {{ val }}
+                                        </span>
+                                        <span v-else class="text-warning italic">{{ t('NOT_SET') }}</span>
                                     </span>
                                 </v-col>
                             </v-row>
@@ -132,11 +134,10 @@ onMounted(() => {
                                                 v-for="(v, index) in val"
                                                 v-if="Array.isArray(val)"
                                                 :key="index"
-                                                class="mx-1"
+                                                class="mx-1 text-primary"
                                             >
                                                 {{ v }} <br />
                                             </span>
-                                            <span v-else class="text-info italic">{{ t('NOT_SET') }}</span>
                                         </v-card-text>
                                     </v-card>
                                 </v-col>
