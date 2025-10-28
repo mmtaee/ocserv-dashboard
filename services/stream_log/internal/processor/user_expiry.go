@@ -47,7 +47,9 @@ func ExpireUsers(ctx context.Context, db *gorm.DB) {
 
 	pastDay := time.Now().AddDate(0, 0, -1)
 	err := db.WithContext(ctx).
-		Where("expire_at < ? AND deactivated_at IS NULL", pastDay).
+		Where("expire_at IS NOT NULL").
+		Where("deactivated_at IS NULL").
+		Where("expire_at < ?", pastDay).
 		Find(&users).Error
 	if err != nil {
 		log.Printf("Failed to find users: %v", err)
@@ -79,10 +81,16 @@ func ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 	var users []models.OcservUser
 	today := time.Now().Format("2006-01-02")
 
-	err := db.WithContext(ctx).Where(
-		"expire_at IS NOT NULL AND expire_at > ? AND deactivated_at IS NOT NULL AND traffic_type IN ?",
-		today, []string{models.MonthlyReceive, models.MonthlyTransmit},
-	).Find(&users).Error
+	err := db.WithContext(ctx).
+		Where("expire_at IS NOT NULL").
+		Where("expire_at > ?", today).
+		Where("deactivated_at IS NOT NULL").
+		Where("traffic_type IN ?", []string{
+			models.MonthlyReceive,
+			models.MonthlyTransmit,
+		}).
+		Find(&users).Error
+
 	if err != nil {
 		log.Printf("Failed to find users: %v", err)
 	}
