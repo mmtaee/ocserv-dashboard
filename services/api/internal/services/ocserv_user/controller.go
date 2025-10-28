@@ -8,7 +8,6 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"golang.org/x/sync/errgroup"
-	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -217,18 +216,11 @@ func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 		ocservUser.TrafficType = *data.TrafficType
 	}
 	if data.Config != nil {
-		log.Println("\n\n")
-		log.Println(data.Config)
 		ocservUser.Config = data.Config
 	}
-
 	if data.ExpireAt != nil {
 		expire, err := time.Parse("2006-01-02", *data.ExpireAt)
-		if err != nil {
-			expire, _ = time.Parse(
-				"2006-01-02",
-				time.Now().AddDate(0, 0, 30).Format("2006-01-02"),
-			)
+		if err == nil {
 			ocservUser.ExpireAt = &expire
 		}
 	}
