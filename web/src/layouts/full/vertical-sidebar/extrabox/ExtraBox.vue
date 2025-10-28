@@ -2,7 +2,7 @@
 
 <template>
     <v-sheet class="ExtraBox hide-menu mx-3 px-6 pb-5 pt-5" color="lightprimary" rounded="md">
-        <div class="d-inline-block align-center text-center">
+        <div class="align-center text-center">
             <div class="side-profile-text align-center">Need More Help!</div>
             <div>
                 <v-btn color="primary" flat href="https://github.com/mmtaee/ocserv-users-management" target="_blank">
