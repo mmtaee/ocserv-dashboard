@@ -63,7 +63,7 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 
 ## ⚠️ Legacy Version Note
 
-- **Branch name:** `legacy`
+- **Branch name:** [legacy](https://github.com/mmtaee/ocserv-users-management/tree/legacy)
 - **Old version:** Developed using **Python backend** with **Vue 2 frontend**.
 - **Features:** Minimal, limited functionality compared to the current version — only basic user and group management existed.
 
@@ -77,7 +77,7 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 
 - **Systemd-based:**
   - **Supported Operating Systems:**
-    - [Debian 12 / 13](https://www.debian.org/download)
+    - [Debian 12 or higher](https://www.debian.org/download)
     - [Ubuntu 20.04 or higher](https://ubuntu.com/download/server)
 
   - **Programming Language:**
