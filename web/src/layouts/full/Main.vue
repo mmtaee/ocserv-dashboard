@@ -26,10 +26,10 @@ watch(mdAndDown, (val) => {
 
 <template>
     <v-navigation-drawer v-model="sDrawer" :width="300" app class="leftSidebar" elevation="0" left>
-        <div class="pa-3 bg-primary text-h5">
-            Ocserv Admin Dashboard
-            <v-btn class="mx-1" icon size="small" variant="text" @click="sDrawer = !sDrawer">
-                <v-icon size="25">mdi-chevron-left</v-icon>
+        <div class="py-3 bg-primary text-h5">
+            <span class="mx-5">Ocserv Dashboard</span>
+            <v-btn class="mx-7" icon size="small" variant="text" @click="sDrawer = !sDrawer">
+                <v-icon size="25" end>mdi-chevron-left</v-icon>
             </v-btn>
         </div>
         <perfect-scrollbar class="scrollnavbar">

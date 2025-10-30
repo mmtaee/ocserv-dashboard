@@ -94,7 +94,6 @@ const isValid = computed(() => {
                     flat
                     size="large"
                     @click="emit('signIn', data)"
-
                 >
                     {{ t('SIGN_IN') }}
                 </v-btn>

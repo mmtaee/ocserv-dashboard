@@ -11,9 +11,9 @@ const loading = ref(false);
 const showOverlay = ref(true);
 const currentMessage = ref('');
 const messages = [
-    'Welcome to the <span class="text-primary">Ocserv Admin Dashboard</span>',
+    'Welcome to the <span class="text-primary">Ocserv Dashboard</span>',
     'Before you can use this panel, create an <span class="text-primary">Admin</span> user',
-    'Optionally, you can set up <span class="text-primary">reCAPTCHA v2</span> for the admin login page',
+    'Optionally, you can set up <span class="text-primary">reCAPTCHA v2</span> for the login page',
     "Let's Go"
 ];
 

@@ -15,13 +15,27 @@ const app = createApp(App);
 
 const stopLoader = async () => {
     const preloader = document.getElementById('preloader');
+    const preloaderScript = document.getElementById('preloader-script');
+    const preloaderStyle = document.getElementById('preloader-style');
+
     if (preloader) {
         preloader.style.opacity = '0';
-        setTimeout(() => preloader.remove(), 500);
+        setTimeout(() => {
+            preloader.remove(); // remove loader div
+        }, 500);
+    }
+
+    if (preloaderScript) {
+        preloaderScript.remove();
+    }
+
+    if (preloaderStyle) {
+        preloaderStyle.remove();
     }
 };
 
 app.use(createPinia());
+
 (async () => {
     const serverStore = useServerStore();
     await serverStore.getServerInfo();

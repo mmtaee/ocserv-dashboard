@@ -1,18 +1,37 @@
 <script lang="ts" setup>
+import { ref, onMounted, watch } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
-import logoUrl from '@/assets/images/logo-circule.png';
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
+import logoUrl from '@/assets/images/logo-square.png';
 
 const loader = useLoadingStore();
+
+const loadingText = 'Loading...';
+const letters = ref<string[]>(loadingText.split(''));
+const activeIndex = ref(0);
+
+onMounted(() => {
+    const interval = setInterval(() => {
+        activeIndex.value = (activeIndex.value + 1) % letters.value.length;
+    }, 300);
+
+    watch(
+        () => loader.isLoading,
+        (val) => {
+            if (!val) clearInterval(interval);
+        }
+    );
+});
 </script>
 
 <template>
     <v-overlay v-model="loader.isLoading" class="d-flex align-center justify-center" persistent>
         <div class="loader">
             <img :src="logoUrl" alt="Logo" class="logo" />
-            <p class="loading-text typing text-capitalize"></p>
+            <p class="loading-text">
+                <span v-for="(letter, index) in letters" :key="index" :class="{ active: index === activeIndex }">{{
+                    letter
+                }}</span>
+            </p>
         </div>
     </v-overlay>
 </template>
@@ -30,63 +49,24 @@ const loader = useLoadingStore();
 }
 
 .loading-text {
-    color: #fff;
+    color: black;
     font-size: 0.9rem;
     font-weight: 500;
-    letter-spacing: 1px;
-    animation: wobble 1s infinite;
+    display: inline-flex;
+    gap: 2px;
 }
 
-.loading-text.typing::after {
-    content: '';
-    animation: typing 2s steps(14, end) infinite;
+.loading-text span {
+    display: inline-block;
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease;
+    opacity: 0.5;
 }
 
-@keyframes typing {
-    0% {
-        content: 'R';
-    }
-    7% {
-        content: 'Re';
-    }
-    14% {
-        content: 'Req';
-    }
-    21% {
-        content: 'Requ';
-    }
-    28% {
-        content: 'Reque';
-    }
-    35% {
-        content: 'Reques';
-    }
-    42% {
-        content: 'Request';
-    }
-    50% {
-        content: 'Requesti';
-    }
-    57% {
-        content: 'Requestin';
-    }
-    64% {
-        content: 'Requesting';
-    }
-    71% {
-        content: 'Requesting.';
-    }
-    79% {
-        content: 'Requesting..';
-    }
-    86% {
-        content: 'Requesting...';
-    }
-    93% {
-        content: 'Requesting...';
-    }
-    100% {
-        content: 'Requesting...';
-    }
+.loading-text span.active {
+    transform: translateY(-6px);
+    opacity: 1;
+    color: black;
 }
 </style>

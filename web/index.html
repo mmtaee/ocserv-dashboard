@@ -2,72 +2,102 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link href="/favicon.png" rel="icon" />
+        <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+        <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
+        <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
+        <link href="/site.webmanifest" rel="manifest" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <link
             href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
-        <title>Ocserv Admin Dashboard</title>
+        <title>Ocserv Dashboard</title>
 
-        <style>
-            .loader-body {
+        <style id="preloader-style">
+            #preloader {
                 margin: 0;
             }
 
-            .loader-container {
+            #preloader .loader-container {
                 height: 100vh;
                 width: 100vw;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                font-family: sans-serif;
+                font-family: 'Plus Jakarta Sans', sans-serif;
             }
 
-            .loader {
+            #preloader .loader {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 10px;
             }
 
-            .loader img {
+            #preloader .loader img {
                 width: 450px;
                 border-radius: 100px;
             }
 
-            .loader-text {
+            #preloader .loader-text {
                 font-size: 16px;
-                color: #539bff;
-                margin-top: 5px;
-                animation: pulse 1.8s infinite ease-in-out;
+                color: black;
+                margin-top: 10px;
+                display: inline-flex;
+                gap: 2px;
+                letter-spacing: 5px;
             }
 
-            @keyframes pulse {
-                0%,
-                100% {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-                50% {
-                    transform: scale(1.1);
-                    opacity: 0.8;
-                }
+            #preloader .loader-text span {
+                display: inline-block;
+                transition:
+                    transform 0.25s ease,
+                    color 0.25s ease;
+            }
+
+            #preloader .loader-text span.active {
+                transform: translateY(-8px);
+                color: #1a73e8;
             }
         </style>
     </head>
 
     <body>
-        <div id="app"></div>
-
-        <div class="loader-body" id="preloader">
+        <div id="preloader">
             <div class="loader-container">
                 <div class="loader">
-                    <img src="/logo-square.png" alt="Logo" />
-                    <span class="loader-text"> Loading App, Please wait... </span>
+                    <img alt="Logo" src="/logo-square.png" />
+                    <span id="loaderText" class="loader-text">Loading...</span>
                 </div>
             </div>
         </div>
+
+        <script type="text/javascript" id="preloader-script">
+            const loaderText = document.getElementById('loaderText');
+            const text = loaderText.textContent.split('');
+            loaderText.textContent = '';
+
+            text.forEach((char) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                loaderText.appendChild(span);
+            });
+
+            const spans = loaderText.querySelectorAll('span');
+            let index = 0;
+
+            function animateNext() {
+                spans.forEach((s) => s.classList.remove('active'));
+                spans[index].classList.add('active');
+                setTimeout(() => {
+                    spans[index].classList.remove('active');
+                    index = (index + 1) % spans.length; // next character or loop
+                    animateNext();
+                }, 300);
+            }
+            animateNext();
+        </script>
+
+        <div id="app"></div>
 
         <script src="/src/main.ts" type="module"></script>
     </body>
