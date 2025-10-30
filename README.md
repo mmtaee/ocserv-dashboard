@@ -1,7 +1,7 @@
-# OpenConnect VPN Server (Ocserv) with Web Admin Dashboard
+# OpenConnect VPN Server (Ocserv) with Dashboard
 
 A simple, efficient, and scalable solution to deploy and manage an **OpenConnect VPN server (ocserv)** 
-with a powerful **web-based admin dashboard**.  
+with a powerful **web-based dashboard**.  
 Easily manage users, groups, and server configurations while keeping your VPN secure and performant.
 
 <p align="center">
@@ -89,9 +89,9 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/mmtaee/ocserv-users-management.git
+git clone https://github.com/mmtaee/ocserv-dashboard.git
 
-cd ocserv-users-management
+cd ocserv-dashboard
 
 chmod +x install.sh
 
