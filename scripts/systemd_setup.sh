@@ -75,8 +75,7 @@ log "Detected OS: $OS, ARCH: $ARCH"
 # -----------------------
 log "Installing base packages..."
 sudo apt update -y
-sudo apt install -y gcc curl openssl ca-certificates jq less
-
+sudo apt install -y gcc curl openssl ca-certificates jq less build-essential libc6-dev pkg-config
 ## Go toolchain (if missing)
 #if ! command -v go >/dev/null 2>&1; then
 #  warn "Go not found, installing golang..."
@@ -210,6 +209,10 @@ sudo npm install -g yarn
 # Build frontend
 # -----------------------
 cd ./web
+
+log "Cleaning yarn caches..."
+yarn cache clean
+
 log "Installing yarn dependencies..."
 yarn install
 
