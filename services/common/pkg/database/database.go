@@ -29,8 +29,14 @@ func Connect() {
 	}
 
 	dbPath = filepath.Join(dbPath, "ocserv.db")
-	log.Printf("Connecting to database %s ...", dbPath)
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+
+	absPath, err := filepath.Abs(dbPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Connecting to database %s ...", absPath)
+	db, err := gorm.Open(sqlite.Open(absPath), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
