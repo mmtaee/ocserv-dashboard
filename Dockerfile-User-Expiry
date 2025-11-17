@@ -15,15 +15,15 @@ COPY services/common /common
 WORKDIR /app
 
 # Copy Go module files first for caching
-COPY services/log_stream/go.mod services/log_stream/go.sum ./
+COPY services/user_expiry/go.mod services/user_expiry/go.sum ./
 
 RUN go mod download
 
 # Copy the rest of the source
-COPY services/log_stream .
+COPY services/user_expiry .
 
 # Build the binary with optional size optimization
-RUN go build -ldflags="-s -w" -o log_stream main.go
+RUN go build -ldflags="-s -w" -o user_expiry main.go
 
 # -----------------------------
 # Final Stage
@@ -42,20 +42,17 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy the Go binary from the builder stage
-COPY --from=builder /app/log_stream /usr/local/bin/log_stream
+COPY --from=builder /app/user_expiry /usr/local/bin/user_expiry
 
-COPY services/log_stream/scripts/server.sh /server.sh
+COPY services/user_expiry/scripts/start.sh /start.sh
 
-RUN chmod +x /server.sh
+RUN chmod +x /start.sh
 
 # Make binary executable
-RUN chmod +x /usr/local/bin/log_stream
+RUN chmod +x /usr/local/bin/user_expiry
 
 # Set up volume for database persistence
 VOLUME ["/usr/local/bin/db"]
 
-# Expose application port
-EXPOSE 8080
-
 # Default command
-CMD ["/server.sh"]
+CMD ["/start.sh"]

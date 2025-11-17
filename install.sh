@@ -363,13 +363,6 @@ get_site_lang() {
 set_environment() {
     ENV_FILE=".env"
 
-#    if [[ "$DEPLOY_METHOD" == "docker" ]]; then
-#        DB_HOST=db
-#    else
-#        DB_HOST=127.0.0.1
-#    fi
-
-
     print_message info "Creating environment file at $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOL
 HOST=${HOST}
@@ -517,7 +510,6 @@ deploy(){
     if [[ "$DEPLOY_METHOD" == "docker" ]]; then
         setup_docker
     else
-#        export DB_HOST=127.0.0.1
         setup_systemd
     fi
 }

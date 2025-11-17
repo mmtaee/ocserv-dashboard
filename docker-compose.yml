@@ -1,3 +1,7 @@
+networks:
+  shared-app:
+
+
 services:
   ocserv:
     build:
@@ -17,35 +21,42 @@ services:
     volumes:
       - ./volumes/ocserv:/etc/ocserv
       - ./volumes/db:/app/db
-      # - ./volumes/db_tmp:/root/ocserv_db
     ports:
       - ${OCSERV_PORT:-443}:443/tcp
       - ${OCSERV_PORT:-443}:443/udp
-#      - "8080:8080"
     networks:
       - shared-app
     restart: unless-stopped
 
-  stream_log:
-    image: ocserv_users_management:stream_log
+  log_stream:
+    image: ocserv_users_management:log_stream
     build:
       context: .
       dockerfile: Dockerfile-Stream-Log
-    container_name: stream_log
+    container_name: log_stream
     volumes:
-      # - ./volumes/db:/usr/local/bin/db
       - ./volumes/db:/app/db
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - ./.env
-    environment:
-      DB_HOST: db
     networks:
       - shared-app
     depends_on:
       - ocserv
-#    ports:
-#      - "8081:8080"
+    restart: unless-stopped
+
+  user_expiry:
+    image: ocserv_users_management:user_expiry
+    build:
+      context: .
+      dockerfile: Dockerfile-User-Expiry
+    container_name: user_expiry
+    volumes:
+      - ./volumes/db:/app/db
+    env_file:
+      - ./.env
+    depends_on:
+      - ocserv
     restart: unless-stopped
 
   web:
@@ -70,5 +81,3 @@ services:
       - stream_log
     restart: unless-stopped
 
-networks:
-  shared-app:

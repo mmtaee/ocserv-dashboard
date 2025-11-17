@@ -24,13 +24,11 @@ var (
 )
 
 func main() {
-
 	flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	//config.Init(debug, "0.0.0.0", 8000)
 	database.Connect()
 
 	go func() {
