@@ -49,7 +49,8 @@ func main() {
 func UserExpiryCron(ctx context.Context) {
 	c := cron.New(cron.WithSeconds())
 	db := database.GetConnection()
-
+	
+	// Every day at 00:01:00 — expire users
 	_, err := c.AddFunc("0 1 0 * * *", func() {
 		ExpireUsers(ctx, db)
 	})
