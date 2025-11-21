@@ -268,20 +268,26 @@ onMounted(() => {
                                     <div class="text-capitalize">
                                         {{ t('STATUS') }}:<br />
                                         <!-- Locked -->
-                                        <span v-if="item.is_locked">
-                                            <v-icon color="warning">mdi-lock</v-icon>
+                                        <span v-if="item.is_locked && item.deactivated_at == null">
+                                            <v-icon color="warning" start>mdi-lock</v-icon>
                                             <span class="text-warning text-capitalize">{{ t('LOCKED') }}</span>
+                                        </span>
+
+                                        <!-- Deactivated -->
+                                        <span v-if="item.is_locked && item.deactivated_at">
+                                            <v-icon color="accent" start>mdi-close-network-outline</v-icon>
+                                            <span class="text-accent text-capitalize">{{ t('DEACTIVATED') }}</span>
                                         </span>
 
                                         <!-- Disconnected -->
                                         <span v-else-if="!item.is_online">
-                                            <v-icon color="error">mdi-lan-disconnect</v-icon>
+                                            <v-icon color="error" start>mdi-lan-disconnect</v-icon>
                                             <span class="text-error text-capitalize">{{ t('DISCONNECTED') }}</span>
                                         </span>
 
                                         <!-- Online -->
                                         <span v-else>
-                                            <v-icon color="success">mdi-lan-connect</v-icon>
+                                            <v-icon color="success" start>mdi-lan-connect</v-icon>
                                             <span class="text-success text-capitalize">{{ t('ONLINE') }}</span>
                                         </span>
                                     </div>
@@ -302,7 +308,10 @@ onMounted(() => {
                                                 </template>
                                             </v-list-item>
 
-                                            <v-list-item @click="editUser(item?.uid)">
+                                            <v-list-item
+                                                @click="editUser(item?.uid)"
+                                                v-if="!(item.is_locked && item.deactivated_at)"
+                                            >
                                                 <v-list-item-title class="text-info text-capitalize me-5">
                                                     {{ t('UPDATE') }}
                                                 </v-list-item-title>
@@ -312,7 +321,7 @@ onMounted(() => {
                                             </v-list-item>
 
                                             <v-list-item
-                                                v-if="item.is_online && !item.is_locked"
+                                                v-if="item.is_online && !item.is_locked && !item.deactivated_at"
                                                 @click="disconnect(item?.username)"
                                             >
                                                 <v-list-item-title class="text-grey text-capitalize me-5">
@@ -323,7 +332,10 @@ onMounted(() => {
                                                 </template>
                                             </v-list-item>
 
-                                            <v-list-item v-if="!item.is_locked" @click="lock(item?.uid)">
+                                            <v-list-item
+                                                v-if="!item.is_locked && !item.deactivated_at"
+                                                @click="lock(item?.uid)"
+                                            >
                                                 <v-list-item-title class="text-warning text-capitalize me-5">
                                                     {{ t('LOCK') }}
                                                 </v-list-item-title>
@@ -332,7 +344,10 @@ onMounted(() => {
                                                 </template>
                                             </v-list-item>
 
-                                            <v-list-item v-if="item.is_locked" @click="unlock(item?.uid)">
+                                            <v-list-item
+                                                v-if="item.is_locked && !item.deactivated_at"
+                                                @click="unlock(item?.uid)"
+                                            >
                                                 <v-list-item-title class="text-grey text-capitalize me-5">
                                                     {{ t('UNLOCK') }}
                                                 </v-list-item-title>
