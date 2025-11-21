@@ -53,6 +53,7 @@ services:
     container_name: user_expiry
     volumes:
       - ./volumes/db:/app/db
+      - ./volumes/cron_journal:/app/cron_journal
     env_file:
       - ./.env
     depends_on:

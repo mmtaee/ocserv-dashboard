@@ -52,7 +52,7 @@ RUN chmod +x /start.sh
 RUN chmod +x /usr/local/bin/user_expiry
 
 # Set up volume for database persistence
-VOLUME ["/usr/local/bin/db"]
+VOLUME ["/usr/local/bin/db", "/usr/local/bin/cron_journal"]
 
 # Default command
 CMD ["/start.sh"]

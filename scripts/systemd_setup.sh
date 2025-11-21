@@ -485,6 +485,7 @@ ok "Deployment completed successfully!"
 # -----------------------
 log "Cleaning unused packages..."
 
-sudo apt autoremove
+sudo apt autoremove -y
+sudo apt autoclean -y
 
 ok "Cleaning completed."
