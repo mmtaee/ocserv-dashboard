@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"os"
 	"strings"
 )
@@ -25,12 +25,13 @@ func Init(debug bool, host string, port int, ignore ...bool) {
 
 	allowOrigins := os.Getenv("ALLOW_ORIGINS")
 	if allowOrigins == "" {
-		log.Println("Warning: ALLOW_ORIGINS environment variable not set")
+		logger.Warn("Warning: ALLOW_ORIGINS environment variable not set")
 	}
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		log.Fatal("JWT_SECRET environment variable not set")
+		logger.Warn("Warning: JWT_SECRET environment variable not set, Default value set to secret")
+		jwtSecret = "secret1234"
 	}
 
 	cfg = &Config{

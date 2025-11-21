@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
-	"log"
 	"net"
 	"os/exec"
 	"strings"
@@ -90,13 +89,11 @@ func (o *OcservOcctl) DisconnectUser(username string) (string, error) {
 // ReloadConfigs reloads the ocserv configuration.
 // Executes: occtl reload
 func (o *OcservOcctl) ReloadConfigs() (string, error) {
-	log.Println("reloading service in progres ....")
 	cmd := exec.Command(occtlExec, "reload")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", err
 	}
-	log.Println(string(out))
 	return string(out), nil
 }
 
@@ -170,8 +167,6 @@ func (o *OcservOcctl) ShowIRoutes() (*[]models.IRoute, error) {
 	if version == "1.2.4" { // has bug on IRoute Command
 		return &routes, nil
 	}
-
-	log.Println("common ShowIRoutes version: ", version)
 
 	cmd := exec.Command(occtlExec, "-j", "show", "iroutes")
 	out, err := cmd.CombinedOutput()

@@ -6,6 +6,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	stateManager "github.com/mmtaee/ocserv-users-management/user_expiry/pkg/state"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -34,7 +35,7 @@ func (c *CornService) MissedCron() {
 
 	// daily missed job
 	if state.DailyLastRun.IsZero() || state.DailyLastRun.Before(today) {
-		log.Println("Running missed DAILY cron...")
+		logger.Info("Running missed DAILY cron...")
 		c.ExpireUsers(context.Background(), db)
 		state.DailyLastRun = today
 	}
@@ -44,13 +45,13 @@ func (c *CornService) MissedCron() {
 	newMonth := state.MonthlyLastRun.IsZero() || state.MonthlyLastRun.Month() != today.Month()
 
 	if firstDay && newMonth {
-		log.Println("Running missed MONTHLY cron...")
+		logger.Info("Running missed MONTHLY cron...")
 		c.ActiveMonthlyUsers(context.Background(), db)
 		state.MonthlyLastRun = today
 	}
 
 	if err := state.Save(); err != nil {
-		log.Fatalf("Failed to save state: %v", err)
+		logger.Fatal("Failed to save state: %v", err)
 	}
 }
 
@@ -66,14 +67,13 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 
 		state.DailyLastRun = time.Now().Truncate(24 * time.Hour)
 		if err := state.Save(); err != nil {
-			log.Println("Failed to update state file:", err)
+			logger.Error("Failed to save state: %v", err)
 		}
 	})
 	if err != nil {
-		log.Printf("Failed to schedule cron: %v", err)
-		return
+		logger.Fatal("Failed to add cron job: %v", err)
 	}
-	log.Println("UserExpiry Cron starting...")
+	logger.Info("Running user expiry cron...")
 
 	// First and second day of each month at 00:01:00 — activate monthly users
 	_, err = cronJob.AddFunc("0 1 0 1,2 * *", func() {
@@ -81,9 +81,13 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 
 		state.MonthlyLastRun = time.Now().Truncate(24 * time.Hour)
 		if err = state.Save(); err != nil {
-			log.Println("Failed to update state file:", err)
+			logger.Error("Failed to update state: %v", err)
 		}
 	})
+	if err != nil {
+		logger.Fatal("Failed to add cron job: %v", err)
+	}
+
 	log.Println("User activating Cron starting...")
 
 	//// Test: run every minute at second 0
@@ -94,9 +98,9 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 	cronJob.Start()
 
 	<-ctx.Done()
-	log.Println("Stopping Cron service ...")
+	logger.Warn("Received context cancel, shutting down...")
 	cronJob.Stop()
-	log.Println("Cron stopped")
+	logger.Info("User activating Cron stopped...")
 }
 
 func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
@@ -109,7 +113,7 @@ func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
 		Where("expire_at < ?", pastDay).
 		Find(&users).Error
 	if err != nil {
-		log.Printf("Failed to find users: %v", err)
+		logger.Error("Failed to get users: %v", err)
 	}
 
 	var wg sync.WaitGroup
@@ -128,19 +132,19 @@ func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
 				"deactivated_at": time.Now(),
 				"is_locked":      true,
 			}).Error; err2 != nil {
-				log.Printf("Failed to update user %s: %v", u.Username, err2)
+				logger.Error("Failed to update user: %v", err)
 				return
 			}
 
 			// Disconnect user from ocserv
 			if _, err2 := c.occtlHandler.DisconnectUser(u.Username); err2 != nil {
-				log.Printf("Failed to disconnect user %s: %v", u.Username, err2)
+				logger.Error("Failed to disconnect user %s: %v", u.Username, err2)
 				return
 			}
 
 			// Lock user in ocserv
 			if _, err2 := c.ocservUserHandler.Lock(u.Username); err2 != nil {
-				log.Printf("Failed to lock user %s: %v", u.Username, err2)
+				logger.Error("Failed to lock user %s: %v", u.Username, err2)
 				return
 			}
 
@@ -164,7 +168,7 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 		}).
 		Find(&users).Error
 	if err != nil {
-		log.Printf("Failed to find users: %v", err)
+		logger.Error("Failed to get users: %v", err)
 		return
 	}
 
@@ -185,12 +189,12 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 				"deactivated_at": nil,
 				"is_locked":      false,
 			}).Error; err2 != nil {
-				log.Printf("Failed to activate user %s: %v", u.Username, err2)
+				logger.Error("Failed to update user %s: %v", u.Username, err2)
 				return
 			}
 
 			if _, err2 := c.ocservUserHandler.UnLock(u.Username); err2 != nil {
-				log.Printf("Failed to unlock user %s: %v", u.Username, err2)
+				logger.Error("Failed to unlock user %s: %v", u.Username, err2)
 			}
 
 		}(u)

@@ -8,7 +8,6 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
-	"log"
 )
 
 type OcservGroupRepository struct {
@@ -144,7 +143,6 @@ func (o *OcservGroupRepository) Delete(ctx context.Context, id string) (*models.
 		}
 
 		if err := tx.Delete(&ocservGroup).Error; err != nil {
-			log.Println("err: ", err)
 			return err
 		}
 

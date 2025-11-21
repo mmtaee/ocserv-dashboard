@@ -2,9 +2,9 @@ package database
 
 import (
 	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -18,33 +18,33 @@ func Connect() {
 	if conf.Debug {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal("error getting user home directory: %v", err)
 		}
 		dbPath = filepath.Join(home, "ocserv_db")
 	}
 
 	err := os.MkdirAll(dbPath, os.ModePerm)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("error creating db path: %v", err)
 	}
 
 	dbPath = filepath.Join(dbPath, "ocserv.db")
 
 	absPath, err := filepath.Abs(dbPath)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("error getting abs path: %v", err)
 	}
 
-	log.Printf("Connecting to database %s ...", absPath)
+	logger.Info("Connecting to database [%s] ...", absPath)
 	db, err := gorm.Open(sqlite.Open(absPath), &gorm.Config{})
 	if err != nil {
-		log.Fatal("failed to connect database")
+		logger.Fatal("error connecting to database: %v", err)
 	}
 	if conf.Debug {
 		db = db.Debug()
 	}
 	DB = db
-	log.Println("Connected to database")
+	logger.Info("Connected to database [%s] successfully ...", absPath)
 }
 
 func GetConnection() *gorm.DB {
@@ -56,8 +56,8 @@ func CloseConnection() {
 		sqlDB, _ := DB.DB()
 		err := sqlDB.Close()
 		if err != nil {
-			log.Fatal("failed to close database")
+			logger.Fatal("error closing database connection: %v", err)
 		}
-		log.Println("database closed successfully")
+		logger.Info("Closed database connection")
 	}
 }

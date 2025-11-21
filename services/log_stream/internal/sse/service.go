@@ -2,7 +2,7 @@ package sse
 
 import (
 	"fmt"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"net/http"
 	"sync"
 	"time"
@@ -23,7 +23,7 @@ func (s *Server) AddClient(client chan string, ip string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.clients[client] = ip
-	log.Printf("Client %v (%s) connected", client, ip)
+	logger.Info("Added new client %v with ip %s", client, ip)
 }
 
 // RemoveClient removes a client connection
@@ -31,7 +31,7 @@ func (s *Server) RemoveClient(client chan string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if ip, ok := s.clients[client]; ok {
-		log.Printf("Client %v (%s) disconnected", client, ip)
+		logger.Info("Client %v with ip %s disconnected", client, ip)
 		delete(s.clients, client)
 		close(client)
 	}
@@ -45,7 +45,7 @@ func (s *Server) StartBroadcast(broadcaster <-chan string) {
 				select {
 				case ch <- msg:
 				default:
-					log.Println("Dropped message for client", s.clients[ch])
+					logger.Error("Broadcast channel full, Dropped message for client %s", s.clients[ch])
 					continue
 				}
 			}
@@ -88,7 +88,7 @@ func (s *Server) SSEHandler() http.HandlerFunc {
 				}
 				_, err := fmt.Fprintf(w, "data: %s\n\n", message)
 				if err != nil {
-					log.Println("Error writing to client:", err)
+					logger.Error("Error writing to client %s", s.clients[clientChan])
 					return
 				}
 				flusher.Flush()

@@ -2,11 +2,10 @@ package bootstrap
 
 import (
 	"context"
-	"fmt"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,9 +13,14 @@ import (
 )
 
 func Serve(debug bool, host string, port int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	logger.Init(ctx, 100)
+
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("panic recovered: %v", r)
+			logger.Error("panic recovered: %v", r)
 		}
 	}()
 
@@ -35,19 +39,16 @@ func Serve(debug bool, host string, port int) {
 
 	go func() {
 		<-quit
-		log.Println("Second signal received, forcing exit")
+		logger.Warn("Forcing shutting down...")
 		os.Exit(1)
 	}()
 
 	sig := <-quit
-	fmt.Println()
-	log.Printf("signal %v received", sig)
-	log.Println("initiating shutdown...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	logger.Warn("Shutting down... Reason:", sig)
+
 	routing.Shutdown(ctx)
 	database.CloseConnection()
 
-	log.Println("api service shutdown complete")
+	logger.Info("Api service shutdown complete")
 }

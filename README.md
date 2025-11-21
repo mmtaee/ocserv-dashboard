@@ -110,10 +110,18 @@ then select an option to continue:
 
 ## 🌐 Access the Admin Dashboard
 
-1. **Open your web browser**.
-2. **Navigate to** `https://YOUR-DOMAIN-OR-IP:3443` in the browser.
-3. **Complete the administrative setup wizard**.
-4. **Start managing users, groups, and VPN settings from the dashboard**.
+1. Open your web browser.
+2. Navigate to `https://YOUR-DOMAIN-OR-IP:3443` in the browser.
+3. Complete the administrative setup wizard.
+4. Start managing users, groups, and VPN settings from the dashboard.
+
+---
+
+## 🌐 Access the Customers page for quick insights
+
+1. Open your web browser.
+2. Navigate to `https://YOUR-DOMAIN-OR-IP:3443/summary/` in the browser.
+3. Enter your Ocserv username and password to see insights.
 
 ---
 

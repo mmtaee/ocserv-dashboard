@@ -8,7 +8,6 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -326,7 +325,6 @@ func (o *OcservUserRepository) TotalUsers(ctx context.Context) (int64, error) {
 
 	err := o.db.WithContext(ctx).Model(&models.OcservUser{}).Count(&totalRecords).Error
 	if err != nil {
-		log.Println("error on TotalUsers: ", err)
 		return 0, err
 	}
 	return totalRecords, nil

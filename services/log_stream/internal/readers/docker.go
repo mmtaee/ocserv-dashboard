@@ -7,7 +7,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"io"
-	"log"
 	"strings"
 )
 
@@ -45,7 +44,6 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 			return nil
 		default:
 			text := strings.TrimSpace(scanner.Text())
-			log.Println("docker proccessor log: ", text)
 			if strings.HasPrefix(text, "ocserv[") {
 				streamChan <- text
 			}

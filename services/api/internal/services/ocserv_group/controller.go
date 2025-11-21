@@ -1,24 +1,29 @@
 package ocserv_group
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"net/http"
+	"sync"
+	"time"
 )
 
 type Controller struct {
 	request         request.CustomRequestInterface
 	ocservGroupRepo repository.OcservGroupRepositoryInterface
+	ocservUserRepo  repository.OcservUserRepositoryInterface
 }
 
 func New() *Controller {
 	return &Controller{
 		request:         request.NewCustomRequest(),
 		ocservGroupRepo: repository.NewOcservGroupRepository(),
+		ocservUserRepo:  repository.NewtOcservUserRepository(),
 	}
 }
 
@@ -211,7 +216,7 @@ func (ctl *Controller) UpdateOcservGroup(c echo.Context) error {
 func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 	groupID := c.Param("id")
 	if groupID == "" {
-		return ctl.request.BadRequest(c, errors.New("group uid is empty"))
+		return ctl.request.BadRequest(c, errors.New("group id is empty"))
 	}
 
 	group, err := ctl.ocservGroupRepo.Delete(c.Request().Context(), groupID)
@@ -219,25 +224,34 @@ func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	// TODO: uncomment after create user repository
-	log.Println(group)
-	//go func() {
-	//	ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second*20)
-	//	defer cancel()
-	//	users, err := ctl.ocservUserRepo.UpdateUsersByDeleteGroup(ctx, group.Name)
-	//	if err != nil {
-	//		log.Println("error getting users by group", err)
-	//	}
-	//	for _, user := range *users {
-	//		user.Group = "defaults"
-	//
-	//		go func(ocservUser models.OcservUser) {
-	//			if err := ctl.ocApi.CreateUserApi(ctx, ocservUser.Group, ocservUser.Username, ocservUser.Password); err != nil {
-	//				log.Printf("CreateUserApi error for %s: %v", ocservUser.Username, err)
-	//			}
-	//		}(user)
-	//	}
-	//}()
+	go func(groupName string) {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		var wg sync.WaitGroup
+
+		users, err := ctl.ocservUserRepo.UpdateUsersByDeleteGroup(ctx, groupName)
+		if err != nil {
+			logger.Error("Failed to load users for removed group %s: %v", groupName, err)
+			return
+		}
+
+		for _, u := range *users {
+			// create local copy for goroutine
+			ocservUser := u
+			ocservUser.Group = "defaults"
+
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if _, err2 := ctl.ocservUserRepo.Update(ctx, &ocservUser); err2 != nil {
+					logger.Warn("DeleteGroup: failed to update user %s: %v", ocservUser.Username, err2)
+				}
+			}()
+		}
+
+		wg.Wait()
+	}(group.Name)
 
 	return c.JSON(http.StatusNoContent, nil)
 }

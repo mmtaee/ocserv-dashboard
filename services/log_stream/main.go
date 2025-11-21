@@ -7,10 +7,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"github.com/mmtaee/ocserv-users-management/log_stream/internal/readers"
 	"github.com/mmtaee/ocserv-users-management/log_stream/internal/sse"
 	"github.com/mmtaee/ocserv-users-management/log_stream/internal/stats"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,25 +25,24 @@ var (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment")
-	}
-
 	flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.StringVar(&host, "h", "0.0.0.0", "Server Host")
 	flag.IntVar(&port, "p", 8080, "Server Port")
 	flag.BoolVar(&systemd, "systemd", false, "Systemd Mode")
 	flag.Parse()
 
-	if debug {
-		log.SetFlags(log.LstdFlags | log.Lshortfile)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	service := "ocserv"
 
+	logger.Init(ctx, 100)
+
+	if err := godotenv.Load(); err != nil {
+		logger.Warn("Error loading .env file, using system environment")
+	}
+
 	config.Init(debug, host, port)
 	cfg := config.Get()
+
 	database.Connect()
 
 	streamChan := make(chan string, 1000)
@@ -51,17 +50,17 @@ func main() {
 	broadcastChan := make(chan string, 1000)
 
 	if systemd {
-		log.Println("Running on host – using systemd logs")
+		logger.Info("Systemd Mode")
 		go func() {
 			if err := readers.SystemdStreamLogs(ctx, service, streamChan); err != nil {
-				log.Printf("Systemd log error: %v\n", err)
+				logger.Error("Systemd Stream Logs Error: %v", err)
 			}
 		}()
 	} else {
-		log.Println("Running in Docker – using Docker logs")
+		logger.Info("Docker Mode")
 		go func() {
 			if err := readers.DockerStreamLogs(ctx, service, streamChan); err != nil {
-				log.Println(err)
+				logger.Error("Docker Stream Logs Error: %v", err)
 			}
 		}()
 	}
@@ -77,9 +76,10 @@ func main() {
 	go func() {
 		server := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 		http.HandleFunc("/logs", sseServer.SSEHandler())
-		log.Println("Starting server on ", server)
+
+		logger.Info("Starting server on ", server)
 		if err := http.ListenAndServe(server, nil); err != nil {
-			log.Fatalf("ListenAndServe failed: %v", err)
+			logger.Error("Error starting server: %v", err)
 		}
 	}()
 
@@ -92,12 +92,12 @@ func main() {
 
 	go func() {
 		sig := <-sigChan
-		log.Printf("\nReceived signal: %s\n", sig)
+		logger.Warn("Received shutdown signal %s", sig)
 		cancel()
 	}()
 
 	<-ctx.Done()
-	log.Println("Service shutting down successfully")
+	logger.Info("Log stream service shutting down successfully")
 }
 
 func start(ctx context.Context, streamText <-chan string, broadcaster, lineLogChan chan<- string) {

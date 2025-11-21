@@ -5,7 +5,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"net/http"
 	"sync"
 )
@@ -129,7 +129,7 @@ func (ctl *Controller) Home(c echo.Context) error {
 	close(errs)
 
 	if err := <-errs; err != nil {
-		log.Println("error in Home handler:", err)
+		logger.Warn("error in Home handler: %v", err)
 		return ctl.request.BadRequest(c, err)
 	}
 

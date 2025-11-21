@@ -7,8 +7,8 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
-	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -37,34 +37,30 @@ func (s *StatService) CalculateUserStats() {
 	for {
 		select {
 		case <-s.ctx.Done():
-			log.Println("stopping: context cancelled")
+			logger.Warn("stopping: context cancelled")
 			return
 
 		case msg, ok := <-s.stream:
 			if !ok {
-				log.Println("stream closed, exiting")
+				logger.Warn("stream closed, exiting ...")
 				return
 			}
 
 			cleanMsg := strings.TrimSpace(msg) // remove whitespace/newlines and normalize case
 
-			log.Println("msg received: ", cleanMsg)
-
 			if strings.Contains(cleanMsg, "user disconnected") {
 				u, err := s.extractUser(cleanMsg)
 				if err != nil {
-					log.Printf("Error extracting user stats from msg: %q, err: %v", cleanMsg, err)
+					logger.Error("Error extracting user msg (%q): %v", cleanMsg, err)
 					continue
 				}
-
-				log.Printf("User found: %v", u)
 
 				if err = s.save(s.ctx, u); err != nil {
-					log.Printf("Failed to save user %v: %v", u, err)
+					logger.Error("Error saving user msg (%v): %v", u, err)
 					continue
 				}
 
-				log.Printf("Processed user: %v successfully", u)
+				logger.Info("Processed user: %v successfully", u)
 			}
 		}
 	}
@@ -78,7 +74,7 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 
 	err := db.Where("username = ? ", u.Username).First(&ocUser).Error
 	if err != nil {
-		log.Println(err)
+		logger.Error("Error finding oc user: %v", err)
 		return err
 	}
 
@@ -90,7 +86,7 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 
 	err = db.Create(&traffic).Error
 	if err != nil {
-		log.Println(err)
+		logger.Error("Error creating traffic stats: %v", err)
 		return err
 	}
 
@@ -101,7 +97,7 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 
 	totalMonthStats, err := s.getCurrentMonthTotals(db, ocUser.ID)
 	if err != nil {
-		log.Println(err)
+		logger.Error("Error getting current month stats: %v", err)
 		return err
 	}
 
@@ -119,20 +115,20 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 		ocUser.IsLocked = totalMonthStats.TotalRx >= trafficSizeBytes
 
 	default:
-		log.Printf("free traffic type")
+		logger.Error("Unknown traffic type: %v", ocUser.TrafficType)
 	}
 
 	now := time.Now()
 	if ocUser.IsLocked {
 		_, err = s.ocservUserRepo.Lock(ocUser.Username)
 		if err != nil {
-			log.Println(err)
+			logger.Error("Error locking user: %v", err)
 		}
 		ocUser.DeactivatedAt = &now
 	}
 	err = db.Save(&ocUser).Error
 	if err != nil {
-		log.Println(err)
+		logger.Error("Error updating user stats: %v", err)
 		return err
 	}
 	return nil
@@ -159,7 +155,7 @@ func (s *StatService) extractUser(text string) (UserStats, error) {
 	)
 
 	if strings.Contains(text, "server shutdown complete") {
-		log.Println("Ocserv server shutdown abnormally")
+		logger.Error("Ocserv server shutdown abnormally")
 		p, _ := os.FindProcess(os.Getpid())
 		_ = p.Signal(syscall.SIGTERM)
 		return stats, errors.New("shutdown signal sent")

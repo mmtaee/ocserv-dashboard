@@ -1,6 +1,6 @@
 # TODO:
 
-- [ ] backend log pkg
+- [X] backend log pkg
 - [ ] sync ocpassw and add OS-user to dashboard users
 - [ ] rescan groups and add to dashboard groups
 - [ ] staff activities and logs

@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,7 +62,7 @@ func ConfigWriter(file *os.File, config map[string]interface{}) error {
 		if v == "" {
 			continue
 		}
-		
+
 		if k == "dns" {
 			for _, dns := range v.([]interface{}) {
 				if _, err := file.WriteString(fmt.Sprintf("dns=%s\n", dns)); err != nil {
@@ -233,7 +233,7 @@ func GetOcservVersion() string {
 
 	err := cmd.Run()
 	if err != nil {
-		log.Println("Command error:", err)
+		logger.Error("Command error: %v", err)
 		return ""
 	}
 	// Combine stdout and stderr for pattern matching
@@ -261,7 +261,7 @@ func GetOCCTLVersion() string {
 
 	err := cmd.Run()
 	if err != nil {
-		log.Println("Command error:", err)
+		logger.Error("Command error: %v", err)
 		return ""
 	}
 

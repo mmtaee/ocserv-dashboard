@@ -1,13 +1,12 @@
 package captcha
 
 import (
+	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGoogleCaptcha_Verify_Success(t *testing.T) {

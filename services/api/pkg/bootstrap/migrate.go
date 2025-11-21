@@ -1,11 +1,10 @@
 package bootstrap
 
 import (
-	"fmt"
 	"github.com/mmtaee/ocserv-users-management/api/internal/models"
 	commonModels "github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
-	"log"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 )
 
 var tables = []interface{}{
@@ -18,11 +17,11 @@ var tables = []interface{}{
 }
 
 func Migrate() {
-	log.Println("starting migrations...")
+	logger.Info("starting migrations...")
 	engine := database.GetConnection()
 	err := engine.AutoMigrate(tables...)
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("error sync tables: %v", err))
+		logger.Fatal("error in AutoMigrate: %v", err)
 	}
-	log.Println("migrating tables successfully")
+	logger.Info("migration complete")
 }

@@ -2,8 +2,8 @@ package captcha
 
 import (
 	"encoding/json"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -50,7 +50,7 @@ func (g *GoogleCaptcha) Verify(token string) {
 	}
 	defer func() {
 		if err = resp.Body.Close(); err != nil {
-			log.Printf("Error closing response body: %v", err)
+			logger.Error("Error closing resp.Body: %v", err)
 		}
 	}()
 	body, err := io.ReadAll(resp.Body)

@@ -10,11 +10,11 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/internal/providers/routing"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
 	"github.com/olekukonko/tablewriter/tw"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"log"
 	"net/http"
 	"os"
 	"slices"
@@ -102,7 +102,7 @@ func Shutdown(ctx context.Context) {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
-	log.Println("server shutdown complete")
+	logger.Info("server shutdown complete")
 }
 
 func verboseLog(service string) {
