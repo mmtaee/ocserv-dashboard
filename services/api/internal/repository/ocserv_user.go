@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
@@ -19,6 +20,11 @@ type TopBandwidthUsers struct {
 type TotalBandwidths struct {
 	RX float64 `json:"rx" validate:"required"`
 	TX float64 `json:"tx" validate:"required"`
+}
+
+type OcpasswdUser struct {
+	Username string `json:"username" validate:"required"`
+	Group    string `json:"group" validate:"required"`
 }
 
 type OcservUserRepository struct {
@@ -46,6 +52,8 @@ type OcservUserRepositoryInterface interface {
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
 	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
 	TotalBandwidthUserDateRange(ctx context.Context, id string, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
+	Ocpasswd(ctx context.Context) (*[]user.Ocpasswd, error)
+	OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -455,4 +463,77 @@ func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, 
 		return total, err
 	}
 	return total, nil
+}
+
+func (o *OcservUserRepository) Ocpasswd(ctx context.Context) (*[]user.Ocpasswd, error) {
+	return o.commonOcservUserRepo.Ocpasswd(ctx)
+}
+
+func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error) {
+	if len(users) == 0 {
+		return nil, errors.New("no users provided")
+	}
+
+	// Collect all input usernames
+	usernames := make([]string, len(users))
+	for i, u := range users {
+		usernames[i] = u.Username
+	}
+
+	// Fetch existing usernames from DB
+	var existing []string
+	if err := o.db.WithContext(ctx).
+		Model(&models.OcservUser{}).
+		Where("username IN ?", usernames).
+		Pluck("username", &existing).Error; err != nil {
+		return nil, err
+	}
+
+	// Build set of existing usernames for quick lookup
+	existingSet := make(map[string]struct{}, len(existing))
+	for _, u := range existing {
+		existingSet[u] = struct{}{}
+	}
+
+	// Filter only new users
+	newUsers := make([]models.OcservUser, 0, len(users))
+	for _, u := range users {
+		if _, exists := existingSet[u.Username]; !exists {
+			newUsers = append(newUsers, u)
+		}
+	}
+
+	if len(newUsers) == 0 {
+		return nil, errors.New("no new users provided")
+	}
+
+	// Transaction: DB insert + ocpasswd/config creation
+	if err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&newUsers).Error; err != nil {
+			return err
+		}
+
+		for i := range newUsers {
+			u := &newUsers[i]
+			if err := o.commonOcservUserRepo.Create(u.Group, u.Username, u.Password, u.Config); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	// Reload configs if any user has a custom config
+	for _, u := range newUsers {
+		if u.Config != nil {
+			go func() {
+				_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
+			}()
+			break
+		}
+	}
+
+	return newUsers, nil
 }

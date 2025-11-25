@@ -7,9 +7,11 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
+	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"golang.org/x/sync/errgroup"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 )
 
@@ -512,4 +514,79 @@ func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, bandwidth)
+}
+
+// OcpasswdUsers  Ocserv Users from ocpasswd file
+//
+// @Summary      Ocserv Users from ocpasswd file
+// @Description  Ocserv Users from ocpasswd file
+// @Tags         Ocserv(Ocpasswd)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} user.Ocpasswd
+// @Router       /ocserv/users/ocpasswd [get]
+func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
+	users, err := ctl.ocservUserRepo.Ocpasswd(c.Request().Context())
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, users)
+}
+
+// SyncToDB      Ocserv Users from ocpasswd file to db
+//
+// @Summary      Ocserv Users from ocpasswd file to db
+// @Description  Ocserv Users from ocpasswd file to db
+// @Tags         Ocserv(Ocpasswd Sync)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        request    body  SyncOcpasswdRequest  true "list of users with config to sync in db"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} []models.OcservUser
+// @Router       /ocserv/users/ocpasswd/sync [post]
+func (ctl *Controller) SyncToDB(c echo.Context) error {
+	var data SyncOcpasswdRequest
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	expireAt, err := time.Parse("2006-01-02", *data.ExpireAt)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	var users []models.OcservUser
+
+	var wg sync.WaitGroup
+	for _, u := range data.users {
+		wg.Add(1)
+
+		go func(u user.Ocpasswd) {
+			defer wg.Done()
+			newUser := models.OcservUser{
+				Username:    u.Username,
+				Password:    "Secret-Ocpasswd",
+				Group:       u.Groups[0],
+				ExpireAt:    &expireAt,
+				TrafficSize: *data.TrafficSize,
+				TrafficType: *data.TrafficType,
+				Config:      data.Config,
+			}
+			users = append(users, newUser)
+		}(u)
+
+	}
+	wg.Wait()
+
+	syncUsers, err := ctl.ocservUserRepo.OcpasswdSyncToDB(c.Request().Context(), users)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, syncUsers)
 }

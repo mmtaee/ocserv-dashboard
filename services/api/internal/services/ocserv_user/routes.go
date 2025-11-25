@@ -20,4 +20,6 @@ func Routes(e *echo.Group) {
 	g.GET("/:uid/statistics", ctl.StatisticsOcservUser)
 	g.GET("/statistics", ctl.Statistics, middlewares.AdminPermission())
 	g.GET("/total-bandwidth", ctl.TotalBandwidth, middlewares.AdminPermission())
+	g.GET("/ocpasswd", ctl.OcpasswdUsers, middlewares.AdminPermission())
+	g.POST("/ocpasswd/sync", ctl.SyncToDB, middlewares.AdminPermission())
 }

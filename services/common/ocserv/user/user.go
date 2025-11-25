@@ -1,15 +1,24 @@
 package user
 
 import (
+	"bufio"
 	"bytes"
+	"context"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type OcservUser struct{}
+
+type Ocpasswd struct {
+	Username string   `json:"username"`
+	Groups   []string `json:"groups"`
+	RawLine  string   `json:"raw_line"`
+}
 
 type OcservUserInterface interface {
 	Create(username, group, password string, config *models.OcservUserConfig) error
@@ -18,6 +27,7 @@ type OcservUserInterface interface {
 	Delete(username string) (string, error)
 	CreateConfig(username string, config *models.OcservUserConfig) error
 	DeleteConfig(username string) error
+	Ocpasswd(ctx context.Context) (*[]OcpasswdSync, error)
 }
 
 func NewOcservUser() *OcservUser {
@@ -118,4 +128,71 @@ func (u *OcservUser) DeleteConfig(username string) error {
 		return err
 	}
 	return nil
+}
+
+// Ocpasswd reads the ocpasswd file and returns a list of all user entries.
+// Each line of the ocpasswd file describes one user, including their username,
+// password hash information, and optional attributes such as assigned groups.
+//
+// For each valid user entry, Sync parses the username and extracts the list of
+// groups from the "groups=" attribute if present. Commented or malformed lines
+// are skipped silently.
+//
+// The returned slice contains one OcpasswdSync object per user, including the
+// raw line from the file for debugging or additional processing.
+//
+// If the ocpasswd file cannot be opened or read, an error is returned.
+func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, error) {
+	f, err := os.Open(utils.OcpasswdPath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	var users []Ocpasswd
+
+	for scanner.Scan() {
+		if err = ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		line := strings.TrimSpace(scanner.Text())
+
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.Split(line, ":")
+		if len(parts) < 3 {
+			continue // malformed
+		}
+
+		username := parts[0]
+		attrs := parts[2]
+
+		var groups []string
+		if strings.Contains(attrs, "groups=") {
+			for _, kv := range strings.Split(attrs, ",") {
+				if strings.HasPrefix(kv, "groups=") {
+					v := strings.TrimPrefix(kv, "groups=")
+					if v != "" {
+						groups = strings.Split(v, ",")
+					}
+				}
+			}
+		}
+
+		users = append(users, Ocpasswd{
+			Username: username,
+			Groups:   groups,
+			RawLine:  line,
+		})
+	}
+
+	if err = scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return &users, nil
 }

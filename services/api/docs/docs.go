@@ -738,6 +738,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/users/ocpasswd": {
+            "get": {
+                "description": "Ocserv Users from ocpasswd file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Ocpasswd)"
+                ],
+                "summary": "Ocserv Users from ocpasswd file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.Ocpasswd"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/ocpasswd/sync": {
+            "post": {
+                "description": "Ocserv Users from ocpasswd file to db",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Ocpasswd Sync)"
+                ],
+                "summary": "Ocserv Users from ocpasswd file to db",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "list of users with config to sync in db",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.SyncOcpasswdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OcservUser"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/statistics": {
             "get": {
                 "description": "Ocserv Users Statistics",
@@ -2694,6 +2794,40 @@ const docTemplate = `{
                 }
             }
         },
+        "ocserv_user.SyncOcpasswdRequest": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expireAt": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ],
+                    "example": "MonthlyTransmit"
+                }
+            }
+        },
         "ocserv_user.UpdateOcservUserData": {
             "type": "object",
             "properties": {
@@ -2984,6 +3118,23 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "user.Ocpasswd": {
+            "type": "object",
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "raw_line": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }

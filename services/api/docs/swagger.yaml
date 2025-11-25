@@ -627,6 +627,32 @@ definitions:
     - statistics
     - total_bandwidths
     type: object
+  ocserv_user.SyncOcpasswdRequest:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expireAt:
+        example: "2025-12-31"
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        example: MonthlyTransmit
+        type: string
+    type: object
   ocserv_user.UpdateOcservUserData:
     properties:
       config:
@@ -828,6 +854,17 @@ definitions:
         type: array
     required:
     - meta
+    type: object
+  user.Ocpasswd:
+    properties:
+      groups:
+        items:
+          type: string
+        type: array
+      raw_line:
+        type: string
+      username:
+        type: string
     type: object
 info:
   contact: {}
@@ -1560,6 +1597,72 @@ paths:
       summary: Disconnect Ocserv User
       tags:
       - Ocserv(Users)
+  /ocserv/users/ocpasswd:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Users from ocpasswd file
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.Ocpasswd'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users from ocpasswd file
+      tags:
+      - Ocserv(Ocpasswd)
+  /ocserv/users/ocpasswd/sync:
+    post:
+      consumes:
+      - application/json
+      description: Ocserv Users from ocpasswd file to db
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: list of users with config to sync in db
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.SyncOcpasswdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OcservUser'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users from ocpasswd file to db
+      tags:
+      - Ocserv(Ocpasswd Sync)
   /ocserv/users/statistics:
     get:
       consumes:
