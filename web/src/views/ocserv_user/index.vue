@@ -161,10 +161,10 @@ onMounted(() => {
         <v-col cols="12" md="12">
             <UiParentCard :title="t('OCSERV_USERS')" :spacing="false">
                 <template #action>
-                    <v-row align="center" justify="end" class="mb-3 me-lg-5 me-lg-5 mx-3">
+                    <v-row align="center" justify="space-between" class="my-5 mx-15">
                         <v-btn
                             class="me-lg-5"
-                            color="info"
+                            color="lightprimary"
                             size="small"
                             variant="flat"
                             @click="router.push({ name: 'Ocserv User Sync' })"
@@ -172,6 +172,7 @@ onMounted(() => {
                             {{ t('SYNC') }} Ocpasswd
                         </v-btn>
                         <v-btn
+                            class="me-lg-2 me-lg-2"
                             color="grey"
                             size="small"
                             variant="flat"

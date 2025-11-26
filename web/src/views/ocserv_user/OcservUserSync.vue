@@ -95,7 +95,7 @@ onMounted(() => {
                     <v-progress-linear :active="loading" indeterminate></v-progress-linear>
 
                     <div v-if="!loading && users.length > 0">
-                        <v-row align="center" justify="space-between" class="my-3 mx-15">
+                        <v-row align="center" justify="space-between" class="my-3 mx-lg-15">
                             <v-col cols="auto" class="ma-0 pa-0">
                                 {{ t('SELECTED_USERS') }}: {{ selectedUsers.length }}
                             </v-col>
