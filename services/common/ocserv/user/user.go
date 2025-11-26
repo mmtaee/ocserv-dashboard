@@ -26,7 +26,7 @@ type OcservUserInterface interface {
 	Delete(username string) (string, error)
 	CreateConfig(username string, config *models.OcservUserConfig) error
 	DeleteConfig(username string) error
-	Ocpasswd(ctx context.Context, page int, PageSize int) (*[]Ocpasswd, int, error)
+	Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error)
 }
 
 func NewOcservUser() *OcservUser {
@@ -141,7 +141,7 @@ func (u *OcservUser) DeleteConfig(username string) error {
 // raw line from the file for debugging or additional processing.
 //
 // If the ocpasswd file cannot be opened or read, an error is returned.
-func (u *OcservUser) Ocpasswd(ctx context.Context, page, pageSize int) (*[]Ocpasswd, int, error) {
+func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error) {
 	f, err := os.Open(utils.OcpasswdPath)
 	if err != nil {
 		return nil, 0, err
@@ -154,9 +154,6 @@ func (u *OcservUser) Ocpasswd(ctx context.Context, page, pageSize int) (*[]Ocpas
 	scanner.Buffer(buf, maxCapacity)
 
 	var users []Ocpasswd
-	lineIndex := 0
-	start := (page - 1) * pageSize
-	end := start + pageSize
 
 	for scanner.Scan() {
 		if err = ctx.Err(); err != nil {
@@ -167,11 +164,6 @@ func (u *OcservUser) Ocpasswd(ctx context.Context, page, pageSize int) (*[]Ocpas
 
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
-		}
-
-		if lineIndex < start {
-			lineIndex++
-			continue // Skip until we reach the start index
 		}
 
 		parts := strings.Split(line, ":")
@@ -199,10 +191,6 @@ func (u *OcservUser) Ocpasswd(ctx context.Context, page, pageSize int) (*[]Ocpas
 			Groups:   groups,
 		})
 
-		lineIndex++
-		if lineIndex >= end {
-			break // reached the end of this page
-		}
 	}
 
 	if err = scanner.Err(); err != nil {
