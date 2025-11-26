@@ -34,8 +34,6 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { MiddlewaresUnauthorized } from '../models';
 // @ts-ignore
-import type { ModelsOcservUser } from '../models';
-// @ts-ignore
 import type { OcservUserOcservUsersSyncResponse } from '../models';
 // @ts-ignore
 import type { OcservUserSyncOcpasswdRequest } from '../models';
@@ -220,7 +218,7 @@ export const OcservOcpasswdApiFp = function (configuration?: Configuration) {
             authorization: string,
             request: OcservUserSyncOcpasswdRequest,
             options?: RawAxiosRequestConfig
-        ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsOcservUser>>> {
+        ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersOcpasswdSyncPost(
                 authorization,
                 request,
@@ -283,7 +281,7 @@ export const OcservOcpasswdApiFactory = function (
         ocservUsersOcpasswdSyncPost(
             requestParameters: OcservOcpasswdApiOcservUsersOcpasswdSyncPostRequest,
             options?: RawAxiosRequestConfig
-        ): AxiosPromise<Array<ModelsOcservUser>> {
+        ): AxiosPromise<Array<string>> {
             return localVarFp
                 .ocservUsersOcpasswdSyncPost(requestParameters.authorization, requestParameters.request, options)
                 .then((request) => request(axios, basePath));

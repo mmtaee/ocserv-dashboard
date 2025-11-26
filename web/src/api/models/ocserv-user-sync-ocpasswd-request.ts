@@ -15,6 +15,9 @@
 // May contain unused imports in some cases
 // @ts-ignore
 import type { ModelsOcservUserConfig } from './models-ocserv-user-config';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { UserOcpasswd } from './user-ocpasswd';
 
 /**
  *
@@ -39,7 +42,7 @@ export interface OcservUserSyncOcpasswdRequest {
      * @type {string}
      * @memberof OcservUserSyncOcpasswdRequest
      */
-    expireAt?: string;
+    expire_at?: string;
     /**
      * 10 GiB
      * @type {number}
@@ -52,6 +55,12 @@ export interface OcservUserSyncOcpasswdRequest {
      * @memberof OcservUserSyncOcpasswdRequest
      */
     traffic_type?: OcservUserSyncOcpasswdRequestTrafficTypeEnum;
+    /**
+     *
+     * @type {Array<UserOcpasswd>}
+     * @memberof OcservUserSyncOcpasswdRequest
+     */
+    users: Array<UserOcpasswd>;
 }
 
 export const OcservUserSyncOcpasswdRequestTrafficTypeEnum = {
