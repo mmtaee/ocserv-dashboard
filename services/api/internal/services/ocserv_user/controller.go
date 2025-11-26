@@ -581,15 +581,10 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 		go func(u user.Ocpasswd) {
 			defer wg.Done()
 
-			group := "defaults"
-			if u.Groups != nil {
-				group = u.Groups[0]
-			}
-
 			newUser := models.OcservUser{
 				Username:    u.Username,
 				Password:    "Secret-Ocpasswd",
-				Group:       group,
+				Group:       u.Group,
 				ExpireAt:    &expireAt,
 				TrafficSize: *data.TrafficSize,
 				TrafficType: *data.TrafficType,

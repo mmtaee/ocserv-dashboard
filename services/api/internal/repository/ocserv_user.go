@@ -496,7 +496,7 @@ func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request
 		if _, exists := existingSet[u.Username]; !exists {
 			newUsers = append(newUsers, user.Ocpasswd{
 				Username: u.Username,
-				Groups:   u.Groups,
+				Group:    u.Group,
 			})
 		}
 	}

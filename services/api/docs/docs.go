@@ -3181,11 +3181,8 @@ const docTemplate = `{
         "user.Ocpasswd": {
             "type": "object",
             "properties": {
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "group": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

@@ -14,11 +14,6 @@ import (
 
 type OcservUser struct{}
 
-type Ocpasswd struct {
-	Username string   `json:"username"`
-	Groups   []string `json:"groups"`
-}
-
 type OcservUserInterface interface {
 	Create(username, group, password string, config *models.OcservUserConfig) error
 	Lock(username string) (string, error)
@@ -172,23 +167,14 @@ func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error) {
 		}
 
 		username := parts[0]
-		attrs := parts[2]
-
-		var groups []string
-		if strings.Contains(attrs, "groups=") {
-			for _, kv := range strings.Split(attrs, ",") {
-				if strings.HasPrefix(kv, "groups=") {
-					v := strings.TrimPrefix(kv, "groups=")
-					if v != "" {
-						groups = strings.Split(v, ",")
-					}
-				}
-			}
+		group := parts[1]
+		if group == "*" {
+			group = "defaults"
 		}
 
 		users = append(users, Ocpasswd{
 			Username: username,
-			Groups:   groups,
+			Group:    group,
 		})
 
 	}
