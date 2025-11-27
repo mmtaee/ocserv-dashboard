@@ -53,6 +53,12 @@ export function getSidebarItems(): Menu[] {
             to: '/ocserv/management/users'
         },
         {
+            title: `${t('SYNC')} Ocpasswd`,
+            // icon: 'mdi-account-convert-outline',
+            icon: 'mdi-file-sync-outline',
+            to: '/ocserv/management/users/sync'
+        },
+        {
             title: 'OCCTL',
             icon: 'mdi-console',
             to: '/ocserv/occtl'

@@ -17,7 +17,7 @@ const loading = ref(false);
 const api = new OcservUsersApi();
 const meta = reactive<Meta>({
     page: 1,
-    size: 5,
+    size: 10,
     sort: 'ASC',
     total_records: 0
 });

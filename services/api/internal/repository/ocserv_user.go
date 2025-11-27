@@ -21,6 +21,11 @@ type TotalBandwidths struct {
 	TX float64 `json:"tx" validate:"required"`
 }
 
+type OcpasswdUser struct {
+	Username string `json:"username" validate:"required"`
+	Group    string `json:"group" validate:"required"`
+}
+
 type OcservUserRepository struct {
 	db                    *gorm.DB
 	commonOcservUserRepo  user.OcservUserInterface
@@ -46,6 +51,8 @@ type OcservUserRepositoryInterface interface {
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
 	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
 	TotalBandwidthUserDateRange(ctx context.Context, id string, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
+	Ocpasswd(ctx context.Context, pagination *request.Pagination) (*[]user.Ocpasswd, int, error)
+	OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error)
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -455,4 +462,92 @@ func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, 
 		return total, err
 	}
 	return total, nil
+}
+
+func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request.Pagination) (*[]user.Ocpasswd, int, error) {
+	users, _, err := o.commonOcservUserRepo.Ocpasswd(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(*users) == 0 {
+		return &[]user.Ocpasswd{}, 0, nil
+	}
+
+	usernames := make([]string, len(*users))
+	for i, u := range *users {
+		usernames[i] = u.Username
+	}
+
+	var existing []string
+	if err = o.db.WithContext(ctx).
+		Model(&models.OcservUser{}).
+		Where("username IN ?", usernames).
+		Pluck("username", &existing).Error; err != nil {
+		return nil, 0, err
+	}
+
+	existingSet := make(map[string]struct{}, len(existing))
+	for _, u := range existing {
+		existingSet[u] = struct{}{}
+	}
+
+	newUsers := make([]user.Ocpasswd, 0)
+	for _, u := range *users {
+		if _, exists := existingSet[u.Username]; !exists {
+			newUsers = append(newUsers, user.Ocpasswd{
+				Username: u.Username,
+				Group:    u.Group,
+			})
+		}
+	}
+
+	totalNew := len(newUsers)
+	if totalNew == 0 {
+		return &[]user.Ocpasswd{}, 0, nil
+	}
+
+	start := (pagination.Page - 1) * pagination.PageSize
+	if start >= totalNew {
+		return &[]user.Ocpasswd{}, totalNew, nil
+	}
+
+	end := start + pagination.PageSize
+	if end > totalNew {
+		end = totalNew
+	}
+
+	paged := newUsers[start:end]
+
+	return &paged, totalNew, nil
+}
+
+func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error) {
+	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&users).Error; err != nil {
+			return err
+		}
+
+		for _, i := range users {
+			if err := o.commonOcservUserRepo.Create(i.Group, i.Username, i.Password, i.Config); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Reload configs if any user has a custom config
+	for _, u := range users {
+		if u.Config != nil {
+			go func() {
+				_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
+			}()
+			break
+		}
+	}
+
+	return users, nil
 }

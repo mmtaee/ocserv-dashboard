@@ -240,6 +240,8 @@ watch(
                             readonly
                             v-bind="props"
                             variant="outlined"
+                            clearable
+                            @click:clear="createData.expire_at = ''"
                         />
                     </template>
                     <v-date-picker

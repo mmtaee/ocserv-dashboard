@@ -1,5 +1,5 @@
 // Usage // function updateMeta(newMeta: Meta) { // Object.assign(meta, newMeta); // getUsers(); // } //
-<Pagination :meta="meta" @update="updateMeta" />
+<!--<Pagination :meta="meta" @update="updateMeta" />-->
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';

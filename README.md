@@ -27,8 +27,10 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 ## 🌟 Key Features
 
 ### 1. Ocserv User Management
-- Create, update, remove, block, and disconnect users.
-- Set traffic usage limits (e.g., GB or monthly usage).
+- Create, update, remove, block, and disconnect users with ease.
+- Sync the `ocpasswd` file with the database to keep user credentials consistent.
+- Set traffic usage limits per user (e.g., GB or monthly quotas).
+- Manage account expiration to automatically deactivate users when their subscription ends.
 
 ### 2. Ocserv Group Management
 - Create, update, and delete user groups.

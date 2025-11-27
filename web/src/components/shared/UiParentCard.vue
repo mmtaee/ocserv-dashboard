@@ -4,6 +4,10 @@ defineProps({
     titleColor: {
         type: String,
         default: 'grey'
+    },
+    spacing: {
+        type: Boolean,
+        default: true
     }
 });
 </script>
@@ -11,7 +15,7 @@ defineProps({
 <template>
     <v-card elevation="10">
         <v-card-item class="pa-0">
-            <div class="d-sm-flex align-center justify-space-between">
+            <div :class="spacing ? 'd-sm-flex align-center justify-space-between' : ''">
                 <h5 v-if="title" :class="`text-${titleColor}`" class="text-h3 mb-6 pl-7 pt-7 text-capitalize">
                     <slot name="header-prepend"></slot>
                     {{ title }}

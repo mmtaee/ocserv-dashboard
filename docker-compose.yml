@@ -13,7 +13,7 @@ services:
     env_file:
       - ./.env
     environment:
-      ALLOW_ORIGINS: "http://${HOST}:3000,https://${HOST}:3443"
+      ALLOW_ORIGINS: "${ALLOW_ORIGINS}"
     cap_add:
       - NET_ADMIN
     devices:

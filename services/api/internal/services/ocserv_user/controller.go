@@ -7,9 +7,11 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
+	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"golang.org/x/sync/errgroup"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 )
 
@@ -68,9 +70,9 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 		}
 
 		for i := range *ocservUsers {
-			user := &(*ocservUsers)[i]
-			if slices.Contains(*onlineUsers, user.Username) {
-				user.IsOnline = true
+			u := &(*ocservUsers)[i]
+			if slices.Contains(*onlineUsers, u.Username) {
+				u.IsOnline = true
 			}
 		}
 	}
@@ -139,10 +141,7 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 
 	expireAt, err := time.Parse("2006-01-02", data.ExpireAt)
 	if err != nil {
-		expireAt, _ = time.Parse(
-			"2006-01-02",
-			time.Now().AddDate(0, 0, 30).Format("2006-01-02"),
-		)
+		expireAt, _ = time.Parse("2006-01-02", time.Now().AddDate(0, 0, 30).Format("2006-01-02"))
 	}
 
 	if data.TrafficType == models.Free {
@@ -512,4 +511,107 @@ func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, bandwidth)
+}
+
+// OcpasswdUsers  Ocserv Users from ocpasswd file
+//
+// @Summary      Ocserv Users from ocpasswd file
+// @Description  Ocserv Users from ocpasswd file
+// @Tags         Ocserv(Ocpasswd)
+// @Accept       json
+// @Produce      json
+// @Param 		 page query int false "Page number, starting from 1" minimum(1)
+// @Param 		 size query int false "Number of items per page" minimum(1) maximum(100) name(size)
+// @Param 		 order query string false "Field to order by"
+// @Param 		 sort query string false "Sort order, either ASC or DESC" Enums(ASC, DESC)
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} OcservUsersSyncResponse
+// @Router       /ocserv/users/ocpasswd [get]
+func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
+	pagination := ctl.request.Pagination(c)
+
+	users, total, err := ctl.ocservUserRepo.Ocpasswd(c.Request().Context(), pagination)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, OcservUsersSyncResponse{
+		Meta: request.Meta{
+			Page:         pagination.Page,
+			TotalRecords: int64(total),
+			PageSize:     pagination.PageSize,
+		},
+		Result: users,
+	})
+}
+
+// SyncToDB      Ocserv Users from ocpasswd file to db
+//
+// @Summary      Ocserv Users from ocpasswd file to db
+// @Description  Ocserv Users from ocpasswd file to db
+// @Tags         Ocserv(Ocpasswd)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        request    body  SyncOcpasswdRequest  true "list of users with config to sync in db"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} []string
+// @Router       /ocserv/users/ocpasswd/sync [post]
+func (ctl *Controller) SyncToDB(c echo.Context) error {
+	var data SyncOcpasswdRequest
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	expireAt, err := time.Parse("2006-01-02", *data.ExpireAt)
+	if err != nil {
+		expireAt, _ = time.Parse("2006-01-02", time.Now().AddDate(0, 0, 30).Format("2006-01-02"))
+	}
+
+	var users []models.OcservUser
+	var wg sync.WaitGroup
+	var mux sync.Mutex
+
+	for _, u := range data.Users {
+		wg.Add(1)
+
+		go func(u user.Ocpasswd) {
+			defer wg.Done()
+
+			newUser := models.OcservUser{
+				Username:    u.Username,
+				Password:    "Secret-Ocpasswd",
+				Group:       u.Group,
+				ExpireAt:    &expireAt,
+				TrafficSize: *data.TrafficSize,
+				TrafficType: *data.TrafficType,
+				Config:      data.Config,
+			}
+
+			mux.Lock()
+			users = append(users, newUser)
+			mux.Unlock()
+		}(u)
+	}
+	wg.Wait()
+
+	if len(users) == 0 {
+		return ctl.request.BadRequest(c, errors.New("no users found"))
+	}
+
+	syncUsers, err := ctl.ocservUserRepo.OcpasswdSyncToDB(c.Request().Context(), users)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	var syncUsernames []string
+
+	for _, u := range syncUsers {
+		syncUsernames = append(syncUsernames, u.Username)
+	}
+
+	return c.JSON(http.StatusOK, syncUsernames)
 }

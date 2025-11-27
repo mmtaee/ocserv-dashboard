@@ -6,6 +6,7 @@ api/home-api.ts
 api/occtlapi.ts
 api/ocserv-bandwidth-api.ts
 api/ocserv-groups-api.ts
+api/ocserv-ocpasswd-api.ts
 api/ocserv-statistics-api.ts
 api/ocserv-users-api.ts
 api/system-api.ts
@@ -43,7 +44,9 @@ models/ocserv-group-ocserv-groups-response.ts
 models/ocserv-group-update-ocserv-group-data.ts
 models/ocserv-user-create-ocserv-user-data.ts
 models/ocserv-user-ocserv-users-response.ts
+models/ocserv-user-ocserv-users-sync-response.ts
 models/ocserv-user-statistics-response.ts
+models/ocserv-user-sync-ocpasswd-request.ts
 models/ocserv-user-update-ocserv-user-data.ts
 models/repository-top-bandwidth-users.ts
 models/repository-total-bandwidths.ts
@@ -60,3 +63,4 @@ models/system-setup-system-response.ts
 models/system-setup-system.ts
 models/system-user-login-response.ts
 models/system-users-response.ts
+models/user-ocpasswd.ts
