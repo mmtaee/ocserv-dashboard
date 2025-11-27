@@ -77,6 +77,18 @@ definitions:
     - date_end
     - date_start
     type: object
+  group.UnsyncedGroup:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+      path:
+        type: string
+    required:
+    - config
+    - name
+    type: object
   home.CurrentStats:
     properties:
       _Last stats reset:
@@ -554,6 +566,15 @@ definitions:
         type: array
     required:
     - meta
+    type: object
+  ocserv_group.SyncGroupRequest:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/group.UnsyncedGroup'
+        type: array
+    required:
+    - groups
     type: object
   ocserv_group.UpdateOcservGroupData:
     properties:
@@ -1283,6 +1304,74 @@ paths:
       summary: List of Ocserv group names
       tags:
       - Ocserv(Groups)
+  /ocserv/groups/sync:
+    post:
+      consumes:
+      - application/json
+      description: Ocserv Groups from file
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: list of groups with config to sync in db
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.SyncGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Groups from file
+      tags:
+      - Ocserv(UnsyncedGroup)
+  /ocserv/groups/unsynced:
+    get:
+      consumes:
+      - application/json
+      description: list of Unsynced Groups
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/group.UnsyncedGroup'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: list of Unsynced Groups
+      tags:
+      - Ocserv(UnsyncedGroup)
   /ocserv/users:
     get:
       consumes:

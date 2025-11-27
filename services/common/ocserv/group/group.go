@@ -1,9 +1,11 @@
 package group
 
 import (
-	"encoding/json"
+	"context"
 	"github.com/mmtaee/ocserv-users-management/common/models"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +19,7 @@ type OcservGroupInterface interface {
 	Delete(name string) error
 	DefaultsGroup() (*models.OcservGroupConfig, error)
 	UpdateDefaultsGroup(config *models.OcservGroupConfig) error
+	GroupList(ctx context.Context) ([]UnsyncedGroup, error)
 }
 
 func NewOcservGroup() *OcservGroup {
@@ -82,17 +85,10 @@ func (g *OcservGroup) DefaultsGroup() (*models.OcservGroupConfig, error) {
 		return nil, err
 	}
 
-	configJson, err := json.Marshal(configInterface)
+	config, err := utils.GroupConfigToModel(configInterface)
 	if err != nil {
 		return nil, err
 	}
-
-	var config models.OcservGroupConfig
-
-	if err = json.Unmarshal(configJson, &config); err != nil {
-		return nil, err
-	}
-
 	return &config, nil
 }
 
@@ -111,4 +107,50 @@ func (g *OcservGroup) UpdateDefaultsGroup(config *models.OcservGroupConfig) erro
 		return err
 	}
 	return nil
+}
+
+// GroupList scans the ConfigGroupBaseDir for directories and returns their configurations.
+// It respects context cancellation.
+func (g *OcservGroup) GroupList(ctx context.Context) ([]UnsyncedGroup, error) {
+	var groups []UnsyncedGroup
+
+	err := filepath.WalkDir(utils.ConfigGroupBaseDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			logger.Error("Failed to access path %s error %v", path, err)
+			return nil
+		}
+
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		group := UnsyncedGroup{
+			Name: d.Name(),
+			Path: path,
+		}
+
+		conf, err := utils.ParseOcservConfigFile(path)
+		if err != nil {
+			return nil
+		}
+
+		config, err := utils.GroupConfigToModel(conf)
+		if err != nil {
+			return nil
+		}
+
+		group.Config = &config
+		groups = append(groups, group)
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return groups, nil
 }
