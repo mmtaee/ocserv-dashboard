@@ -8,6 +8,7 @@ api/ocserv-bandwidth-api.ts
 api/ocserv-groups-api.ts
 api/ocserv-ocpasswd-api.ts
 api/ocserv-statistics-api.ts
+api/ocserv-unsynced-group-api.ts
 api/ocserv-users-api.ts
 api/system-api.ts
 api/system-users-api.ts
@@ -19,6 +20,7 @@ models/customer-model-customer.ts
 models/customer-summary-data.ts
 models/customer-summary-response.ts
 models/customer-usage-response.ts
+models/group-unsynced-group.ts
 models/home-current-stats.ts
 models/home-general-info.ts
 models/home-get-home-response.ts
@@ -41,6 +43,7 @@ models/models-user.ts
 models/models-users-lookup.ts
 models/ocserv-group-create-ocserv-group-data.ts
 models/ocserv-group-ocserv-groups-response.ts
+models/ocserv-group-sync-group-request.ts
 models/ocserv-group-update-ocserv-group-data.ts
 models/ocserv-user-create-ocserv-user-data.ts
 models/ocserv-user-ocserv-users-response.ts

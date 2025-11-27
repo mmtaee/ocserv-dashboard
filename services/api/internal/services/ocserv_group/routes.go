@@ -16,4 +16,6 @@ func Routes(e *echo.Group) {
 	g.DELETE("/:id", ctl.DeleteOcservGroup)
 	g.GET("/defaults", ctl.GetDefaultsGroup, middlewares.AdminPermission())
 	g.PATCH("/defaults", ctl.UpdateDefaultsGroup, middlewares.AdminPermission())
+	g.GET("/unsynced", ctl.ListUnsyncedGroups, middlewares.AdminPermission())
+	g.POST("/sync", ctl.SyncGroup, middlewares.AdminPermission())
 }

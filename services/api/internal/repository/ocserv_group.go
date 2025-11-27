@@ -25,6 +25,8 @@ type OcservGroupRepositoryInterface interface {
 	Delete(ctx context.Context, id string) (*models.OcservGroup, error)
 	DefaultGroup() (*models.OcservGroupConfig, error)
 	UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error
+	ListUnsyncedGroups(ctx context.Context) ([]group.UnsyncedGroup, error)
+	GroupSyncToDB(ctx context.Context, groups []models.OcservGroup) ([]models.OcservGroup, error)
 }
 
 func NewOcservGroupRepository() *OcservGroupRepository {
@@ -178,4 +180,66 @@ func (o *OcservGroupRepository) UpdateDefaultGroup(groupConfig *models.OcservGro
 		_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
 	}()
 	return nil
+}
+
+func (o *OcservGroupRepository) ListUnsyncedGroups(ctx context.Context) ([]group.UnsyncedGroup, error) {
+	groups, err := o.commonOcservGroupRepo.GroupList(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(groups) == 0 {
+		return []group.UnsyncedGroup{}, nil
+	}
+
+	var groupsName []string
+	for _, g := range groups {
+		groupsName = append(groupsName, g.Name)
+	}
+
+	var existing []string
+	if err = o.db.WithContext(ctx).
+		Model(&models.OcservGroup{}).
+		Where("name IN ?", groupsName).
+		Pluck("name", &existing).Error; err != nil {
+		return nil, err
+	}
+
+	existingMap := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		existingMap[name] = struct{}{}
+	}
+
+	var unsynced []group.UnsyncedGroup
+
+	for _, g := range groups {
+		if _, found := existingMap[g.Name]; !found {
+			unsynced = append(unsynced, group.UnsyncedGroup{
+				Name:   g.Name,
+				Path:   g.Path,
+				Config: g.Config,
+			})
+		}
+	}
+
+	return unsynced, nil
+}
+
+func (o *OcservGroupRepository) GroupSyncToDB(ctx context.Context, groups []models.OcservGroup) ([]models.OcservGroup, error) {
+	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&groups).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
+	}()
+
+	return groups, nil
 }

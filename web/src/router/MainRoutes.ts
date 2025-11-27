@@ -41,6 +41,12 @@ const MainRoutes = {
             props: true
         },
         {
+            name: 'Ocserv Group Sync',
+            path: '/ocserv/management/groups/sync',
+            component: () => import('@/views/ocserv_group/OcservGroupSync.vue'),
+            props: false
+        },
+        {
             name: 'Ocserv Users',
             path: '/ocserv/management/users',
             component: () => import('@/views/ocserv_user/index.vue')

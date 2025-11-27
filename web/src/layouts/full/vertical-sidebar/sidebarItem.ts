@@ -29,7 +29,7 @@ export function getSidebarItems(): Menu[] {
             icon: 'mdi-monitor-dashboard',
             to: '/'
         },
-        { header: 'OCSERV' }
+        { header: 'OCSERV' + ' ' + t('GROUPS') }
     ];
 
     if (profileStore.isAdmin) {
@@ -48,6 +48,12 @@ export function getSidebarItems(): Menu[] {
             to: '/ocserv/management/groups'
         },
         {
+            title: `${t('SYNC')} ${t('GROUPS')}`,
+            icon: 'mdi-folder-sync-outline',
+            to: '/ocserv/management/groups/sync'
+        },
+        { header: 'OCSERV' + ' ' + t('USERS') },
+        {
             title: t('USERS'),
             icon: 'mdi-account-network',
             to: '/ocserv/management/users'
@@ -58,6 +64,7 @@ export function getSidebarItems(): Menu[] {
             icon: 'mdi-file-sync-outline',
             to: '/ocserv/management/users/sync'
         },
+        { header: 'OCCTL' },
         {
             title: 'OCCTL',
             icon: 'mdi-console',

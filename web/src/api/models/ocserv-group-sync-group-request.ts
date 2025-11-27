@@ -13,24 +13,21 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { GroupUnsyncedGroup } from './group-unsynced-group';
 
 /**
  * 
  * @export
- * @interface CustomerSummaryData
+ * @interface OcservGroupSyncGroupRequest
  */
-export interface CustomerSummaryData {
+export interface OcservGroupSyncGroupRequest {
     /**
      * 
-     * @type {string}
-     * @memberof CustomerSummaryData
+     * @type {Array<GroupUnsyncedGroup>}
+     * @memberof OcservGroupSyncGroupRequest
      */
-    'password': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof CustomerSummaryData
-     */
-    'username': string;
+    'groups': Array<GroupUnsyncedGroup>;
 }
 

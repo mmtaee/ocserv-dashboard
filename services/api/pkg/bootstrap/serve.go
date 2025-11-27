@@ -45,7 +45,7 @@ func Serve(debug bool, host string, port int) {
 
 	sig := <-quit
 
-	logger.Warn("Shutting down... Reason:", sig)
+	logger.Warn("Shutting down... Signal Reason: %s", sig.String())
 
 	routing.Shutdown(ctx)
 	database.CloseConnection()

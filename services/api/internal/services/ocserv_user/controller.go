@@ -561,6 +561,11 @@ func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
 // @Success      200 {object} []string
 // @Router       /ocserv/users/ocpasswd/sync [post]
 func (ctl *Controller) SyncToDB(c echo.Context) error {
+	owner := c.Get("username").(string)
+	if owner == "" {
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+	}
+
 	var data SyncOcpasswdRequest
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -585,6 +590,7 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 				Username:    u.Username,
 				Password:    "Secret-Ocpasswd",
 				Group:       u.Group,
+				Owner:       owner,
 				ExpireAt:    &expireAt,
 				TrafficSize: *data.TrafficSize,
 				TrafficType: *data.TrafficType,

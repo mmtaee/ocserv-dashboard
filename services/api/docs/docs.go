@@ -457,6 +457,109 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/groups/sync": {
+            "post": {
+                "description": "Ocserv Groups from file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(UnsyncedGroup)"
+                ],
+                "summary": "Ocserv Groups from file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "list of groups with config to sync in db",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.SyncGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/groups/unsynced": {
+            "get": {
+                "description": "list of Unsynced Groups",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(UnsyncedGroup)"
+                ],
+                "summary": "list of Unsynced Groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/group.UnsyncedGroup"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/groups/{id}": {
             "get": {
                 "description": "Ocserv group detail",
@@ -2070,6 +2173,24 @@ const docTemplate = `{
                 }
             }
         },
+        "group.UnsyncedGroup": {
+            "type": "object",
+            "required": [
+                "config",
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
         "home.CurrentStats": {
             "type": "object",
             "properties": {
@@ -2721,6 +2842,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.OcservGroup"
+                    }
+                }
+            }
+        },
+        "ocserv_group.SyncGroupRequest": {
+            "type": "object",
+            "required": [
+                "groups"
+            ],
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/group.UnsyncedGroup"
                     }
                 }
             }

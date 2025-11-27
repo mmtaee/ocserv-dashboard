@@ -13,24 +13,33 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ModelsOcservGroupConfig } from './models-ocserv-group-config';
 
 /**
  * 
  * @export
- * @interface CustomerSummaryData
+ * @interface GroupUnsyncedGroup
  */
-export interface CustomerSummaryData {
+export interface GroupUnsyncedGroup {
+    /**
+     * 
+     * @type {ModelsOcservGroupConfig}
+     * @memberof GroupUnsyncedGroup
+     */
+    'config': ModelsOcservGroupConfig;
     /**
      * 
      * @type {string}
-     * @memberof CustomerSummaryData
+     * @memberof GroupUnsyncedGroup
      */
-    'password': string;
+    'name': string;
     /**
      * 
      * @type {string}
-     * @memberof CustomerSummaryData
+     * @memberof GroupUnsyncedGroup
      */
-    'username': string;
+    'path'?: string;
 }
 

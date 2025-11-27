@@ -100,7 +100,7 @@ func (u *OcservUser) Delete(username string) (string, error) {
 // The configuration is serialized from OcservUserConfig using pkg.ConfigWriter.
 // The file is created with permission 0640 and stored in the user config directory.
 func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConfig) error {
-	filename := utils.ConfigFilePathCreator(username)
+	filename := utils.UserConfigFilePathCreator(username)
 	// Open file with create, truncate, write-only flags and permission 0640
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {
@@ -114,10 +114,10 @@ func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConf
 }
 
 // DeleteConfig removes the per-user configuration file for the given username.
-// The config file path is derived from ConfigFilePathCreator. If the file does
+// The config file path is derived from UserConfigFilePathCreator. If the file does
 // not exist or cannot be removed, an error is returned.
 func (u *OcservUser) DeleteConfig(username string) error {
-	filename := utils.ConfigFilePathCreator(username)
+	filename := utils.UserConfigFilePathCreator(username)
 	if err := os.Remove(filename); err != nil {
 		return err
 	}

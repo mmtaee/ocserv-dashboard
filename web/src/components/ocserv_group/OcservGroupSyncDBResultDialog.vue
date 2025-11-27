@@ -6,8 +6,9 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-    usernames: {
-        type: Array as () => string[]
+    groupNames: {
+        type: Array as () => string[],
+        required: true
     }
 });
 
@@ -20,12 +21,12 @@ const { t } = useI18n();
     <v-dialog v-model="props.show" max-width="450">
         <v-card>
             <v-card-title class="bg-primary text-capitalize">
-                {{ t('SYNC_DB_RESULT_TITLE_DIALOG') }}
+                {{ t('OCSERV_GROUP_SYNC_DB_RESULT_TITLE_DIALOG') }}
             </v-card-title>
 
             <v-card-text>
-                <span v-for="(username, index) in usernames" :key="`users-${index}`">
-                    <v-icon color="secondary" start>mdi-database-check-outline</v-icon> {{ username }} <br />
+                <span v-for="(name, index) in groupNames" :key="`users-${index}`">
+                    <v-icon color="secondary" start>mdi-database-check-outline</v-icon> {{ name }} <br />
                 </span>
             </v-card-text>
 

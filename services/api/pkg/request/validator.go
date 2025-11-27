@@ -54,7 +54,7 @@ func errorWrapper(err error) interface{} {
 
 	if errors.As(err, &invalidValidationError) {
 		return map[string]interface{}{
-			"error": "validation error",
+			"error": err.Error(),
 		}
 	}
 

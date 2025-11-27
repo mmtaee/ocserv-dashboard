@@ -527,11 +527,11 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 			return err
 		}
 
-		for _, i := range users {
-			if err := o.commonOcservUserRepo.Create(i.Group, i.Username, i.Password, i.Config); err != nil {
-				return err
-			}
-		}
+		//for _, i := range users {
+		//	if err := o.commonOcservUserRepo.Create(i.Group, i.Username, i.Password, i.Config); err != nil {
+		//		return err
+		//	}
+		//}
 
 		return nil
 	})
