@@ -6,7 +6,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { type GroupUnsyncedGroup, OcservUnsyncedGroupApi } from '@/api';
 import { getAuthorization } from '@/utils/request';
 import OcservGroupConfigDialog from '@/components/ocserv_group/OcservGroupConfigDialog.vue';
-import OcservGroupSyncDBResultDialog from '@/components/ocserv_group/OcservGroupSyncDBResultDialog.vue';
+import OcservGroupSyncDBResultDialog from '@/components/ocserv/sync/ocserv_group/OcservGroupSyncDBResultDialog.vue';
 
 const { t } = useI18n();
 
@@ -39,7 +39,7 @@ const saveToDB = () => {
     api.ocservGroupsSyncPost({
         ...getAuthorization(),
         request: {
-            groups: selectedGroupsFilter,
+            groups: selectedGroupsFilter
         }
     })
         .then((res) => {

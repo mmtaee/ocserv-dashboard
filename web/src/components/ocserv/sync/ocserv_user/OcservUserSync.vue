@@ -7,8 +7,8 @@ import { getAuthorization } from '@/utils/request';
 import { onMounted, reactive, ref } from 'vue';
 import Pagination from '@/components/shared/Pagination.vue';
 import type { Meta } from '@/types/metaTypes/MetaType';
-import OcservUserSaveDBDialog from '@/components/ocserv_user/OcservUserSaveDBDialog.vue';
-import OcservUserSyncDBResultDialog from '@/components/ocserv_user/OcservUserSyncDBResultDialog.vue';
+import OcservUserSaveDBDialog from '@/components/ocserv/ocserv_user/OcservUserSaveDBDialog.vue';
+import OcservUserSyncDBResultDialog from '@/components/ocserv/ocserv_user/OcservUserSyncDBResultDialog.vue';
 
 const { t } = useI18n();
 const meta = reactive<Meta>({
