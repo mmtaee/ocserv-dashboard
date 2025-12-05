@@ -34,6 +34,7 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 
 ### 2. Ocserv Group Management
 - Create, update, and delete user groups.
+- Sync the `/etc/ocserv/groups/*` files with the database to ensure consistent group configurations.
 - Organize users into logical groups for easier management.
 
 ### 3. Ocserv Command-Line Tools
