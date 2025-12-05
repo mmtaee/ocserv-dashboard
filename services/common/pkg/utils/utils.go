@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"os"
 	"os/exec"
@@ -301,10 +302,34 @@ func RunOcpasswd(args ...string) (string, error) {
 	return output, nil
 }
 
-// ConfigFilePathCreator constructs the absolute file path for a
-// user-specific config file using ocserv.ConfigUserBaseDir.
-func ConfigFilePathCreator(username string) string {
+// UserConfigFilePathCreator constructs the absolute file path for a
+// user-specific config file using ConfigUserBaseDir.
+func UserConfigFilePathCreator(username string) string {
 	return filepath.Join(ConfigUserBaseDir, username)
+}
+
+// GroupConfigFilePathCreator constructs the absolute file path for a
+// group-specific config file using ConfigGroupBaseDir.
+func GroupConfigFilePathCreator(groupName string) string {
+	return filepath.Join(ConfigGroupBaseDir, groupName)
+}
+
+// GroupConfigToModel converts a generic interface{} containing a group configuration
+// into a strongly-typed models.OcservGroupConfig structure.
+// It first marshals the interface to JSON, then unmarshals it into the target struct.
+// Returns an error if either the marshaling or unmarshaling fails.
+func GroupConfigToModel(configInterface interface{}) (models.OcservGroupConfig, error) {
+	configJson, err := json.Marshal(configInterface)
+	if err != nil {
+		return models.OcservGroupConfig{}, err
+	}
+
+	var config models.OcservGroupConfig
+
+	if err = json.Unmarshal(configJson, &config); err != nil {
+		return models.OcservGroupConfig{}, err
+	}
+	return config, nil
 }
 
 //// FixTrailingComma removes a trailing comma after the "in_use" key

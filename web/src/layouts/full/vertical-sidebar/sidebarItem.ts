@@ -51,19 +51,24 @@ export function getSidebarItems(): Menu[] {
             title: t('USERS'),
             icon: 'mdi-account-network',
             to: '/ocserv/management/users'
-        },
-        {
-            title: `${t('SYNC')} Ocpasswd`,
-            // icon: 'mdi-account-convert-outline',
-            icon: 'mdi-file-sync-outline',
-            to: '/ocserv/management/users/sync'
-        },
-        {
-            title: 'OCCTL',
-            icon: 'mdi-console',
-            to: '/ocserv/occtl'
         }
     );
+
+    if (profileStore.isAdmin) {
+        defaultSidebarItems.push(
+            {
+                title: 'OCCTL',
+                icon: 'mdi-console',
+                to: '/ocserv/occtl'
+            },
+            {
+                title: t('SYNC'),
+                // icon: 'mdi-account-convert-outline',
+                icon: 'mdi-file-sync-outline',
+                to: '/ocserv/management/ocserv/sync'
+            }
+        );
+    }
 
     // Admin-only extra sections
     if (profileStore.isAdmin) {

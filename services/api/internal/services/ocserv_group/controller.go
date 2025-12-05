@@ -3,6 +3,7 @@ package ocserv_group
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
@@ -300,4 +301,79 @@ func (ctl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+// ListUnsyncedGroups list of Unsynced Groups from os.dir
+//
+// @Summary      list of Unsynced Groups
+// @Description  list of Unsynced Groups
+// @Tags         Ocserv(UnsyncedGroup)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200  {object} []group.UnsyncedGroup
+// @Router       /ocserv/groups/unsynced [get]
+func (ctl *Controller) ListUnsyncedGroups(c echo.Context) error {
+	unsyncedGroups, err := ctl.ocservGroupRepo.ListUnsyncedGroups(c.Request().Context())
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, unsyncedGroups)
+}
+
+// SyncGroup     Ocserv Groups from file to db
+//
+// @Summary      Ocserv Groups from file
+// @Description  Ocserv Groups from file
+// @Tags         Ocserv(UnsyncedGroup)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        request    body  SyncGroupRequest  true "list of groups with config to sync in db"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} []string
+// @Router       /ocserv/groups/sync [post]
+func (ctl *Controller) SyncGroup(c echo.Context) error {
+	owner := c.Get("username").(string)
+	if owner == "" {
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+	}
+
+	var data SyncGroupRequest
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		fmt.Println("error on validate: \n", err)
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if len(data.Groups) == 0 {
+		return ctl.request.BadRequest(c, errors.New("no groups found"))
+	}
+
+	// Convert UnsyncedGroup -> OcservGroup
+	groups := make([]models.OcservGroup, 0, len(data.Groups))
+	for _, g := range data.Groups {
+		groups = append(groups, models.OcservGroup{
+			Name:   g.Name,
+			Config: g.Config,
+			Owner:  owner,
+		})
+	}
+
+	// Sync to database
+	syncGroups, err := ctl.ocservGroupRepo.GroupSyncToDB(c.Request().Context(), groups)
+	if err != nil {
+		fmt.Println("SyncGroup: failed to sync groups: ", err)
+		return ctl.request.BadRequest(c, err)
+	}
+
+	// Prepare names to return
+	syncGroupNames := make([]string, 0, len(syncGroups))
+	for _, g := range syncGroups {
+		syncGroupNames = append(syncGroupNames, g.Name)
+	}
+
+	return c.JSON(http.StatusOK, syncGroupNames)
 }

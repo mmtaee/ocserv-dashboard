@@ -28,9 +28,9 @@ onMounted(() => {
         <div class="loader">
             <img :src="logoUrl" alt="Logo" class="logo" />
             <p class="loading-text">
-                <span v-for="(letter, index) in letters" :key="index" :class="{ active: index === activeIndex }">{{
-                    letter
-                }}</span>
+                <span v-for="(letter, index) in letters" :key="index" :class="{ active: index === activeIndex }">
+                    {{ letter }}
+                </span>
             </p>
         </div>
     </v-overlay>
@@ -46,6 +46,12 @@ onMounted(() => {
 
 .logo {
     width: 120px;
+}
+
+@media (max-width: 600px) {
+    .logo {
+        width: 80px;
+    }
 }
 
 .loading-text {

@@ -4,11 +4,11 @@ import { useI18n } from 'vue-i18n';
 import UiChildCard from '@/components/shared/UiChildCard.vue';
 import { OcservOcpasswdApi, type OcservUserSyncOcpasswdRequest, type UserOcpasswd } from '@/api';
 import { getAuthorization } from '@/utils/request';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import Pagination from '@/components/shared/Pagination.vue';
 import type { Meta } from '@/types/metaTypes/MetaType';
-import SaveDBDialog from '@/components/ocserv_user/SaveDBDialog.vue';
-import SyncDBResultDialog from '@/components/ocserv_user/SyncDBResultDialog.vue';
+import OcservUserSaveDBDialog from '@/components/ocserv/sync/ocserv_user/OcservUserSaveDBDialog.vue';
+import OcservUserSyncDBResultDialog from '@/components/ocserv/sync/ocserv_user/OcservUserSyncDBResultDialog.vue';
 
 const { t } = useI18n();
 const meta = reactive<Meta>({
@@ -84,24 +84,24 @@ onMounted(() => {
 <template>
     <v-row>
         <v-col cols="12" md="12">
-            <UiParentCard :title="t('SYNC_PAGE_TITLE')">
+            <UiParentCard :title="t('SYNC_PAGE_TITLE')" variant="plain" :minHeight="650">
                 <template #action>
                     <v-btn class="me-lg-5" color="primary" size="small" variant="flat" @click="sync">
                         {{ t('RELOAD') }}
                     </v-btn>
                 </template>
 
-                <div class="mx-10 text-justify text-muted text-subtitle-1">
-                    {{ t('OCSERV_USER_SYNC_HELP_1') }}
-                    {{ t('OCSERV_USER_SYNC_HELP_2') }}.
-                </div>
-                <div class="mx-10 mb-5 text-justify text-muted text-subtitle-1 mt-2">
-                    <v-icon color="info" size="small" class="me-1 mb-1">mdi-information-outline</v-icon>
-                    <span class="text-capitalize text-info">{{ t('NOTE') }}</span
-                    >: {{ t('OCSERV_USER_SYNC_HELP_3') }}.
-                </div>
-
                 <UiChildCard>
+                    <div class="mx-10 text-justify text-muted text-subtitle-1">
+                        {{ t('OCSERV_USER_SYNC_HELP_1') }}
+                        {{ t('OCSERV_USER_SYNC_HELP_2') }}.
+                    </div>
+                    <div class="mx-10 mb-5 text-justify text-muted text-subtitle-1 mt-2">
+                        <v-icon color="info" size="small" class="me-1 mb-1">mdi-information-outline</v-icon>
+                        <span class="text-capitalize text-info">{{ t('NOTE') }}</span
+                        >: {{ t('OCSERV_USER_SYNC_HELP_3') }}.
+                    </div>
+
                     <v-progress-linear :active="loading" indeterminate></v-progress-linear>
 
                     <div v-if="!loading && users.length > 0">
@@ -181,7 +181,11 @@ onMounted(() => {
         </v-col>
     </v-row>
 
-    <SaveDBDialog :show="showDBDialog" @saveToDB="saveToDB" @close="showDBDialog = false" :loading="loading" />
+    <OcservUserSaveDBDialog :show="showDBDialog" @saveToDB="saveToDB" @close="showDBDialog = false" :loading="loading" />
 
-    <SyncDBResultDialog :show="showSyncResultDialog" :usernames="syncedUsernames" @close="showSyncResultDialog = false" />
+    <OcservUserSyncDBResultDialog
+        :show="showSyncResultDialog"
+        :usernames="syncedUsernames"
+        @close="showSyncResultDialog = false"
+    />
 </template>
