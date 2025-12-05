@@ -41,12 +41,6 @@ const MainRoutes = {
             props: true
         },
         {
-            name: 'Ocserv Group Sync',
-            path: '/ocserv/management/groups/sync',
-            component: () => import('@/views/ocserv_group/OcservGroupSync.vue'),
-            props: false
-        },
-        {
             name: 'Ocserv Users',
             path: '/ocserv/management/users',
             component: () => import('@/views/ocserv_user/index.vue')
@@ -78,15 +72,15 @@ const MainRoutes = {
             })
         },
         {
-            name: 'Ocserv User Sync',
-            path: '/ocserv/management/users/sync',
-            component: () => import('@/views/ocserv_user/OcservUserSync.vue'),
+            name: 'Ocserv Sync',
+            path: '/ocserv/management/ocserv/sync',
+            component: () => import('@/views/ocserv/Sync.vue'),
             props: false
         },
         {
             name: 'OCCTL',
             path: '/ocserv/occtl',
-            component: () => import('@/views/ocserv/occtl.vue')
+            component: () => import('@/views/ocserv/Occtl.vue')
         },
         {
             name: 'Stats',
