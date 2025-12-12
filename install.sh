@@ -30,19 +30,19 @@ source ./scripts/lib.sh
 # ===============================
 # Default Configuration
 # ===============================
-HOST=$(hostname -I | awk '{print $1}')  # Default host IP (local)
-SSL_CN="End-way-Cisco-VPN"
-SSL_ORG="End-way"
-SSL_EXPIRE=3650
-OC_NET="172.16.24.0/24"
-OCSERV_PORT=443
-OCSERV_DNS="8.8.8.8"
-LANGUAGES="en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية"
-SECRET_KEY=$(openssl rand -hex 32)
-JWT_SECRET=$(openssl rand -hex 32)
-SSL_C=US
-SSL_ST=CA
-SSL_L=SanFrancisco
+HOST=$(hostname -I | awk '{print $1}')                        # Default host IP (local)
+SSL_CN="End-way-Cisco-VPN"                                    # Default SSL common name
+SSL_ORG="End-way"                                             # Default organization name
+SSL_EXPIRE=3650                                               # SSL certificate expiration in days
+OC_NET="172.16.24.0/24"                                       # Default VPN subnet
+OCSERV_PORT=443                                               # Default VPN port
+OCSERV_DNS="8.8.8.8"                                          # Default DNS server
+LANGUAGES="en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية"  # Supported languages
+SECRET_KEY=$(openssl rand -hex 32)                            # Secret key for app encryption (32 hex chars)
+JWT_SECRET=$(openssl rand -hex 32)                            # JWT signing secret (32 hex chars)
+SSL_C=US                                                      # SSL Country iso2
+SSL_ST=CA                                                     # SSL State name
+SSL_L=SanFrancisco                                            # SSl City name
 
 # ===============================
 # Function: ensure_root
