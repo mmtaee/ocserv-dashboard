@@ -67,11 +67,11 @@ ensure_root() {
 #   Sets the global variable DEPLOY_METHOD
 # ===============================
 choose_deployment() {
-    print_message info "🚀 Deployment options:"
+    print_message info "🚀 Deployment Options:"
     print_message highlight "   [1] Docker"
-    print_message highlight "   [2] Systemd service"
-    print_message highlight "   [3] Systemd standalone dashboard"
-    print_message highlight "   [4] uninstall"
+    print_message highlight "   [2] Systemd Full (Ocserv + Dashboard)"
+    print_message highlight "   [3] Systemd Dashboard (Standalone Setup/Upgrade)"
+    print_message highlight "   [4] Uninstall"
 
     read -rp "Choose deployment method [1-4] (default = 1): " choice
     choice=${choice:-1}
