@@ -8,6 +8,6 @@
 - [ ] Add a refresh button on Staffs, Ocserv Groups, and Ocserv Users pages
 - [ ] Implement staff activities tracking and logs
 - [ ] Manage `systemd` services: restart and check statuses in dashboard
-- [ ] Refactor large interfaces into smaller, focused, single-responsibility interfaces
+- [x] Refactor large interfaces into smaller, focused, single-responsibility interfaces
 
 
