@@ -491,7 +491,7 @@ setup_systemd() {
     export OCSERV_DNS
 
     # Run the systemd ocserv setup script
-    ./scripts/systemd/full_setup.sh
+    ./scripts/systemd_setup.sh
 }
 
 

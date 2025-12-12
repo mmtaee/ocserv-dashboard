@@ -48,8 +48,8 @@ WORKDIR /app
 
 # Copy API binary and scripts
 COPY --from=builder /app/api /usr/local/bin/api
-COPY scripts/docker/ocserv_entrypoint.sh /entrypoint.sh
-COPY scripts/docker/ocserv_server.sh /server.sh
+COPY scripts/ocserv_entrypoint.sh /entrypoint.sh
+COPY scripts/ocserv_server.sh /server.sh
 
 # Make binaries and scripts executable
 RUN chmod +x /entrypoint.sh /server.sh /usr/local/bin/api
