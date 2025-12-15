@@ -231,33 +231,60 @@ get_ip() {
 # Description:
 #   Prompt user for ocserv and SSL environment configurations.
 # ===============================
-get_envs() {
-    read -rp "ocserv port [${OCSERV_PORT}]: " port
+get_envs(){
+    # ocserv port
+    read -rp "Enter your ocserv port or leave blank to use ${OCSERV_PORT}: " port
     [[ -n "$port" ]] && OCSERV_PORT=$port
+    print_message highlight "✅ Using port: ${OCSERV_PORT}"
+    printf "\n"
 
-    read -rp "Company name [${SSL_CN}]: " cn
+    # Company Name
+    read -rp "Enter your company name or leave blank to use '${SSL_CN}': " cn
     [[ -n "$cn" ]] && SSL_CN=$cn
+    print_message highlight "✅ Using company name: ${SSL_CN}"
+    printf "\n"
 
-    read -rp "Organization [${SSL_ORG}]: " org
+    # Organization Name
+    read -rp "Enter your organization name or leave blank to use '${SSL_ORG}': " org
     [[ -n "$org" ]] && SSL_ORG=$org
+    print_message highlight "✅ Using organization name: ${SSL_ORG}"
+    printf "\n"
 
-    read -rp "Country [${SSL_C}]: " country
+    # Country
+    read -rp "Enter your country code (2 letters) or leave blank to use '${SSL_C}': " country
     [[ -n "$country" ]] && SSL_C=$country
+    print_message highlight "✅ Using country: ${SSL_C}"
+    printf "\n"
 
-    read -rp "State [${SSL_ST}]: " state
+    # State / Province
+    read -rp "Enter your state or leave blank to use '${SSL_ST}': " state
     [[ -n "$state" ]] && SSL_ST=$state
+    print_message highlight "✅ Using state: ${SSL_ST}"
+    printf "\n"
 
-    read -rp "City [${SSL_L}]: " locality
+    # Locality / City
+    read -rp "Enter your city or leave blank to use '${SSL_L}': " locality
     [[ -n "$locality" ]] && SSL_L=$locality
+    print_message highlight "✅ Using city: ${SSL_L}"
+    printf "\n"
 
-    read -rp "SSL expire days [${SSL_EXPIRE}]: " expire
+    # SSL Expiration Days
+    read -rp "Enter SSL expire days or leave blank to use ${SSL_EXPIRE} days: " expire
     [[ -n "$expire" ]] && SSL_EXPIRE=$expire
+    print_message highlight "✅ Using SSL expiration days: ${SSL_EXPIRE}"
+    printf "\n"
 
-    read -rp "ocserv IPv4 network [${OC_NET}]: " oc_net
+    # ocserv IPv4 Network
+    read -rp "Enter ocserv IPv4 network or leave blank to use ${OC_NET}: " oc_net
     [[ -n "$oc_net" ]] && OC_NET=$oc_net
+    print_message highlight "✅ Using ocserv IPv4 network: ${OC_NET}"
+    printf "\n"
 
-    read -rp "DNS server [${OCSERV_DNS}]: " dns
-    [[ -n "$dns" ]] && OCSERV_DNS=$dns
+    # ocserv DNS
+    read -rp "Enter your DNS server or leave blank to use default (${OCSERV_DNS}): " dns
+    [[ -n "$dns" ]] && OCSERV_DNS="$dns"
+    print_message highlight "✅ Using ocserv DNS: ${OCSERV_DNS}"
+    printf "\n"
 }
 
 # ===============================
@@ -365,7 +392,6 @@ get_interface() {
     fi
 }
 
-
 # ===============================
 # Function: setup_docker
 # Description:
@@ -424,7 +450,6 @@ setup_systemd() {
         ./scripts/systemd_ocserv.sh
     fi
 }
-
 
 # ===============================
 # Function: uninstall
