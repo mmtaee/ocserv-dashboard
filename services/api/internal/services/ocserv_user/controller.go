@@ -69,9 +69,9 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 			return ctl.request.BadRequest(c, err)
 		}
 
-		for i := range *ocservUsers {
-			u := &(*ocservUsers)[i]
-			if slices.Contains(*onlineUsers, u.Username) {
+		for i := range ocservUsers {
+			u := ocservUsers[i]
+			if slices.Contains(onlineUsers, u.Username) {
 				u.IsOnline = true
 			}
 		}
@@ -107,11 +107,11 @@ func (ctl *Controller) OcservUser(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid user uid"))
 	}
 
-	user, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userUID)
+	u, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userUID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, u)
 }
 
 // CreateOcservUser 	     Ocserv User creation
@@ -159,12 +159,12 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 		Config:      data.Config,
 	}
 
-	user, err := ctl.ocservUserRepo.Create(c.Request().Context(), ocUser)
+	u, err := ctl.ocservUserRepo.Create(c.Request().Context(), ocUser)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, u)
 }
 
 // UpdateOcservUser 	     Ocserv User update
@@ -379,7 +379,7 @@ func (ctl *Controller) StatisticsOcservUser(c echo.Context) error {
 
 	ctx := c.Request().Context()
 	var (
-		stats *[]models.DailyTraffic
+		stats []models.DailyTraffic
 		total repository.TotalBandwidths
 	)
 

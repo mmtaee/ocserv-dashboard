@@ -16,8 +16,8 @@ type UpdateOcservGroupData struct {
 }
 
 type OcservGroupsResponse struct {
-	Meta   request.Meta          `json:"meta" validate:"required"`
-	Result *[]models.OcservGroup `json:"result" validate:"omitempty"`
+	Meta   request.Meta         `json:"meta" validate:"required"`
+	Result []models.OcservGroup `json:"result" validate:"omitempty"`
 }
 
 type SyncGroupRequest struct {

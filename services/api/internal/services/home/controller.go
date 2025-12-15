@@ -72,7 +72,7 @@ func (ctl *Controller) Home(c echo.Context) error {
 			errs <- err
 			return
 		}
-		statistics = data
+		statistics = &data
 	}()
 
 	go func() {

@@ -9,22 +9,34 @@ type OcctlRepository struct {
 	commonOcservOcctlRepo occtl.OcservOcctlInterface
 }
 
-type OcctlRepositoryInterface interface {
+type OcctlServerInfo interface {
 	Version() *models.ServerVersion
 	Status() (interface{}, error)
-	OnlineUsers() (*[]string, error)
+	ShowEvent() string
+}
+
+type OcctlUserManager interface {
+	OnlineUsers() ([]string, error)
 	OnlineUsersInfo() (*[]models.OnlineUserSession, error)
-	IPBans() (*[]models.IPBanPoints, error)
-	IRoutes() (*[]models.IRoute, error)
-	Reload() (string, error)
-	Disconnect(username string) (string, error)
 	ShowUserByUsername(username string) (models.OnlineUserSession, error)
 	ShowUserByID(uid string) (models.OnlineUserSession, error)
 	ShowSessionsAll() (*[]interface{}, error)
 	ShowSessionsValid() (*[]interface{}, error)
 	ShowSessionBySID(sid string) (map[string]interface{}, error)
+	Disconnect(username string) (string, error)
+}
+
+type OcctlSecurityManager interface {
+	IPBans() (*[]models.IPBanPoints, error)
 	UnbanIP(ip string) (string, error)
-	ShowEvent() string
+	IRoutes() (*[]models.IRoute, error)
+	Reload() (string, error)
+}
+
+type OcctlRepositoryInterface interface {
+	OcctlServerInfo
+	OcctlUserManager
+	OcctlSecurityManager
 }
 
 func NewOcctlRepository() *OcctlRepository {
@@ -43,7 +55,7 @@ func (o *OcctlRepository) Status() (interface{}, error) {
 	return status, nil
 }
 
-func (o *OcctlRepository) OnlineUsers() (*[]string, error) {
+func (o *OcctlRepository) OnlineUsers() ([]string, error) {
 	users, err := o.commonOcservOcctlRepo.OnlineUsers()
 	if err != nil {
 		return nil, err

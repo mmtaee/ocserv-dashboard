@@ -29,8 +29,8 @@ type UpdateOcservUserData struct {
 }
 
 type OcservUsersResponse struct {
-	Meta   request.Meta         `json:"meta" validate:"required"`
-	Result *[]models.OcservUser `json:"result" validate:"omitempty"`
+	Meta   request.Meta        `json:"meta" validate:"required"`
+	Result []models.OcservUser `json:"result" validate:"omitempty"`
 }
 
 type StatisticsData struct {
@@ -39,7 +39,7 @@ type StatisticsData struct {
 }
 
 type StatisticsResponse struct {
-	Statistics      *[]models.DailyTraffic     `json:"statistics" validate:"required"`
+	Statistics      []models.DailyTraffic      `json:"statistics" validate:"required"`
 	TotalBandwidths repository.TotalBandwidths `json:"total_bandwidths" validate:"required"`
 }
 
@@ -58,6 +58,6 @@ type SyncOcpasswdRequest struct {
 }
 
 type OcservUsersSyncResponse struct {
-	Meta   request.Meta     `json:"meta" validate:"required"`
-	Result *[]user.Ocpasswd `json:"result" validate:"omitempty"`
+	Meta   request.Meta    `json:"meta" validate:"required"`
+	Result []user.Ocpasswd `json:"result" validate:"omitempty"`
 }

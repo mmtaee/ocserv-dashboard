@@ -16,17 +16,29 @@ type OcservGroupRepository struct {
 	commonOcservOcctlRepo occtl.OcservOcctlInterface
 }
 
-type OcservGroupRepositoryInterface interface {
-	Groups(ctx context.Context, pagination *request.Pagination, owner string) (*[]models.OcservGroup, int64, error)
+type OcservGroupCRUD interface {
+	Groups(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservGroup, int64, error)
 	GroupsLookup(ctx context.Context, owner string) ([]string, error)
 	GetByID(ctx context.Context, id string) (*models.OcservGroup, error)
 	Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Delete(ctx context.Context, id string) (*models.OcservGroup, error)
+}
+
+type OcservDefaultGroup interface {
 	DefaultGroup() (*models.OcservGroupConfig, error)
 	UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error
+}
+
+type OcservGroupSync interface {
 	ListUnsyncedGroups(ctx context.Context) ([]group.UnsyncedGroup, error)
 	GroupSyncToDB(ctx context.Context, groups []models.OcservGroup) ([]models.OcservGroup, error)
+}
+
+type OcservGroupRepositoryInterface interface {
+	OcservGroupCRUD
+	OcservDefaultGroup
+	OcservGroupSync
 }
 
 func NewOcservGroupRepository() *OcservGroupRepository {
@@ -37,9 +49,9 @@ func NewOcservGroupRepository() *OcservGroupRepository {
 	}
 }
 
-func (o *OcservGroupRepository) Groups(
-	ctx context.Context, pagination *request.Pagination, owner string,
-) (*[]models.OcservGroup, int64, error) {
+func (o *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination, owner string) (
+	[]models.OcservGroup, int64, error,
+) {
 	var totalRecords int64
 
 	totalQuery := o.db.WithContext(ctx).Model(&models.OcservGroup{})
@@ -62,7 +74,7 @@ func (o *OcservGroupRepository) Groups(
 	if err != nil {
 		return nil, 0, err
 	}
-	return &ocservGroups, totalRecords, nil
+	return ocservGroups, totalRecords, nil
 }
 
 func (o *OcservGroupRepository) GroupsLookup(ctx context.Context, owner string) ([]string, error) {

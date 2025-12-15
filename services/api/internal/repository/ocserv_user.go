@@ -32,8 +32,8 @@ type OcservUserRepository struct {
 	commonOcservOcctlRepo occtl.OcservOcctlInterface
 }
 
-type OcservUserRepositoryInterface interface {
-	Users(ctx context.Context, pagination *request.Pagination, owner string) (*[]models.OcservUser, int64, error)
+type OcservUserCRUD interface {
+	Users(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
@@ -41,18 +41,34 @@ type OcservUserRepositoryInterface interface {
 	Lock(ctx context.Context, uid string) error
 	UnLock(ctx context.Context, uid string) error
 	Delete(ctx context.Context, uid string) error
-	TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error)
-	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error)
-	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
-	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+}
+
+type OcservUserStats interface {
+	TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error)
+	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
+	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
 	TotalUsers(ctx context.Context) (int64, error)
 	TopBandwidthUser(ctx context.Context) (TopBandwidthUsers, error)
 	TotalBandwidthUser(ctx context.Context, uid string) (TotalBandwidths, error)
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
 	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
 	TotalBandwidthUserDateRange(ctx context.Context, id string, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
-	Ocpasswd(ctx context.Context, pagination *request.Pagination) (*[]user.Ocpasswd, int, error)
+}
+
+type OcservUserPassword interface {
+	Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error)
 	OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error)
+}
+
+type OcservUserGroup interface {
+	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) ([]models.OcservUser, error)
+}
+
+type OcservUserRepositoryInterface interface {
+	OcservUserCRUD
+	OcservUserStats
+	OcservUserPassword
+	OcservUserGroup
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -63,9 +79,9 @@ func NewtOcservUserRepository() *OcservUserRepository {
 	}
 }
 
-func (o *OcservUserRepository) Users(
-	ctx context.Context, pagination *request.Pagination, owner string,
-) (*[]models.OcservUser, int64, error) {
+func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pagination, owner string) (
+	[]models.OcservUser, int64, error,
+) {
 	var totalRecords int64
 
 	totalQuery := o.db.WithContext(ctx).Model(&models.OcservUser{})
@@ -91,7 +107,7 @@ func (o *OcservUserRepository) Users(
 	if err != nil {
 		return nil, 0, err
 	}
-	return &ocservUser, totalRecords, nil
+	return ocservUser, totalRecords, nil
 }
 
 func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
@@ -228,7 +244,7 @@ func (o *OcservUserRepository) Delete(ctx context.Context, uid string) error {
 	return err
 }
 
-func (o *OcservUserRepository) TenDaysStats(ctx context.Context) (*[]models.DailyTraffic, error) {
+func (o *OcservUserRepository) TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 
 	start := time.Now().AddDate(0, 0, -10).Truncate(24 * time.Hour)
@@ -247,10 +263,10 @@ func (o *OcservUserRepository) TenDaysStats(ctx context.Context) (*[]models.Dail
 	if err != nil {
 		return nil, err
 	}
-	return &results, nil
+	return results, nil
 }
 
-func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, groupName string) (*[]models.OcservUser, error) {
+func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, groupName string) ([]models.OcservUser, error) {
 	var users []models.OcservUser
 
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -271,10 +287,10 @@ func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, gro
 		_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
 	}()
 
-	return &users, err
+	return users, err
 }
 
-func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
+func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 
 	query := o.db.WithContext(ctx).
@@ -302,10 +318,10 @@ func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, d
 	if err != nil {
 		return nil, err
 	}
-	return &results, nil
+	return results, nil
 }
 
-func (o *OcservUserRepository) Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
+func (o *OcservUserRepository) Statistics(ctx context.Context, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 	err := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
@@ -324,7 +340,7 @@ func (o *OcservUserRepository) Statistics(ctx context.Context, dateStart, dateEn
 	if err != nil {
 		return nil, err
 	}
-	return &results, nil
+	return results, nil
 }
 
 func (o *OcservUserRepository) TotalUsers(ctx context.Context) (int64, error) {
@@ -464,13 +480,13 @@ func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, 
 	return total, nil
 }
 
-func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request.Pagination) (*[]user.Ocpasswd, int, error) {
+func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error) {
 	users, _, err := o.commonOcservUserRepo.Ocpasswd(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 	if len(*users) == 0 {
-		return &[]user.Ocpasswd{}, 0, nil
+		return []user.Ocpasswd{}, 0, nil
 	}
 
 	usernames := make([]string, len(*users))
@@ -503,12 +519,12 @@ func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request
 
 	totalNew := len(newUsers)
 	if totalNew == 0 {
-		return &[]user.Ocpasswd{}, 0, nil
+		return []user.Ocpasswd{}, 0, nil
 	}
 
 	start := (pagination.Page - 1) * pagination.PageSize
 	if start >= totalNew {
-		return &[]user.Ocpasswd{}, totalNew, nil
+		return []user.Ocpasswd{}, totalNew, nil
 	}
 
 	end := start + pagination.PageSize
@@ -518,7 +534,7 @@ func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request
 
 	paged := newUsers[start:end]
 
-	return &paged, totalNew, nil
+	return paged, totalNew, nil
 }
 
 func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error) {

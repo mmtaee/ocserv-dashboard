@@ -12,22 +12,38 @@ import (
 
 type OcservOcctl struct{}
 
-type OcservOcctlInterface interface {
-	OnlineUsers() (*[]string, error)
+type OcservOcctlUsers interface {
+	OnlineUsers() ([]string, error)
 	OnlineSessions() (*[]models.OnlineUserSession, error)
-	DisconnectUser(username string) (string, error)
-	ReloadConfigs() (string, error)
-	ShowIPBans() (*[]models.IPBanPoints, error)
-	UnbanIP(ip string) (string, error)
-	ShowStatus(raw bool) (interface{}, error)
-	ShowIRoutes() (*[]models.IRoute, error)
 	ShowUser(username string) (models.OnlineUserSession, error)
-	Version() *models.ServerVersion
 	ShowUserByID(id string) (models.OnlineUserSession, error)
+	DisconnectUser(username string) (string, error)
+}
+
+type OcservOcctlSessions interface {
 	ShowSession(sid string) (map[string]interface{}, error)
 	ShowSessionAll() (*[]interface{}, error)
 	ShowSessionsValid() (*[]interface{}, error)
+}
+
+type OcservOcctlIPBans interface {
+	ShowIPBans() (*[]models.IPBanPoints, error)
+	UnbanIP(ip string) (string, error)
+}
+
+type OcservOcctlServer interface {
+	ShowStatus(raw bool) (interface{}, error)
+	ReloadConfigs() (string, error)
+	ShowIRoutes() (*[]models.IRoute, error)
 	ShowEvent() string
+	Version() *models.ServerVersion
+}
+
+type OcservOcctlInterface interface {
+	OcservOcctlUsers
+	OcservOcctlSessions
+	OcservOcctlIPBans
+	OcservOcctlServer
 }
 
 const occtlExec = "/usr/bin/occtl"
@@ -38,7 +54,7 @@ func NewOcservOcctl() *OcservOcctl {
 
 // OnlineUsers returns a list of currently connected usernames.
 // Executes: occtl -j show users | jq -r '.[].Username'
-func (o *OcservOcctl) OnlineUsers() (*[]string, error) {
+func (o *OcservOcctl) OnlineUsers() ([]string, error) {
 	var users []string
 
 	command := "-j show users | jq -r '.[].Username'"
@@ -55,7 +71,7 @@ func (o *OcservOcctl) OnlineUsers() (*[]string, error) {
 		}
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 // OnlineSessions returns a list of currently connected user info.

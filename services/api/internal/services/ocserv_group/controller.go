@@ -237,7 +237,7 @@ func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 			return
 		}
 
-		for _, u := range *users {
+		for _, u := range users {
 			// create local copy for goroutine
 			ocservUser := u
 			ocservUser.Group = "defaults"

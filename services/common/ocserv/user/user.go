@@ -14,14 +14,25 @@ import (
 
 type OcservUser struct{}
 
-type OcservUserInterface interface {
+type OcservUserManagement interface {
 	Create(username, group, password string, config *models.OcservUserConfig) error
 	Lock(username string) (string, error)
 	UnLock(username string) (string, error)
 	Delete(username string) (string, error)
+}
+
+type OcservUserConfigManagement interface {
 	CreateConfig(username string, config *models.OcservUserConfig) error
 	DeleteConfig(username string) error
+}
+type OcservUserPasswords interface {
 	Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error)
+}
+
+type OcservUserInterface interface {
+	OcservUserManagement
+	OcservUserConfigManagement
+	OcservUserPasswords
 }
 
 func NewOcservUser() *OcservUser {
