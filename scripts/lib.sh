@@ -79,6 +79,7 @@ print_message() {
 #   die  "Fatal error occurred"
 # ==============================================================
 log()  { print_message info    "$*"; }
+info() { print_message info    "$*"; }
 ok()   { print_message success "$*"; }
 warn() { print_message warn    "$*"; }
 die()  { print_message error   "$*"; exit 1; }

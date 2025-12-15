@@ -418,8 +418,6 @@ setup_docker() {
 setup_systemd() {
     local full_setup="$1"
 
-    export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS
-
     # If not full setup, ensure ocserv is installed and configured
     if [[ "$full_setup" != true ]]; then
         if ! command -v ocserv >/dev/null 2>&1; then
@@ -445,9 +443,9 @@ setup_systemd() {
           # Select network interface for NAT/firewall
           get_interface
 
-          export ETH
+          export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH
 
-        ./scripts/systemd_ocserv.sh
+          ./scripts/systemd_ocserv.sh
     fi
 }
 

@@ -27,6 +27,12 @@ services:
     networks:
       - shared-app
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   log_stream:
     image: ocserv_users_management:log_stream
@@ -42,7 +48,8 @@ services:
     networks:
       - shared-app
     depends_on:
-      - ocserv
+      ocserv:
+        condition: service_healthy
     restart: unless-stopped
 
   user_expiry:
@@ -57,7 +64,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - ocserv
+      ocserv:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -78,7 +86,7 @@ services:
     networks:
       - shared-app
     depends_on:
-      - ocserv
-      - log_stream
+      ocserv:
+        condition: service_healthy
     restart: unless-stopped
 
