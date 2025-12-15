@@ -1,109 +1,86 @@
 #!/bin/bash
+# ==============================================================
+# Script: install.sh
+# Description:
+#   Interactive installer for the OpenConnect VPN dashboard
+#   and backend services (ocserv + web UI). Provides options
+#   for Docker-based or systemd-based deployments.
+#
+# Features:
+#   - Detects system public IP and network interface
+#   - Configures environment variables (.env)
+#   - Checks prerequisites (Docker, Docker Compose, Go, OS)
+#   - Builds frontend (Vite/React/Vue) and backend Go services
+#   - Deploys via Docker Compose or systemd services
+#   - Supports SSL certificate creation and VPN configuration
+#
+# Usage:
+#   sudo ./install.sh
+#
+# Dependencies:
+#   - Bash 5+
+#   - sudo, curl, openssl
+#   - Docker / Docker Compose (if Docker deployment)
+#   - Go >= 1.25 (if systemd deployment)
+# ==============================================================
 
-# ========================================
-# Script: setup-ocserv-env.sh
-# Description: Interactive script to set up environment variables
-#              for an OpenConnect VPN (ocserv) server.
-# Author: [Your Name]
-# Date: [Date]
-# License: MIT (or your preferred license)
-# ========================================
-
-# Exit immediately if a command exits with a non-zero status
-set -e
+# Load shared helpers
+source ./scripts/lib.sh
 
 # ===============================
 # Default Configuration
 # ===============================
-HOST=$(hostname -I | awk '{print $1}')  # Default host IP (local IP)
-SSL_CN="End-way-Cisco-VPN"              # Default SSL common name
-SSL_ORG="End-way"                       # Default organization name
-SSL_EXPIRE=3650                         # SSL certificate expiration in days
-OC_NET="172.16.24.0/24"             # Default VPN subnet
-OCSERV_PORT=443                         # Default VPN port
-OCSERV_DNS="8.8.8.8"                    # Default DNS server
-LANGUAGES=en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية  # Supported languages
-SECRET_KEY=$(openssl rand -hex 32)      # Secret key for app encryption (32 hex chars)
-JWT_SECRET=$(openssl rand -hex 32)      # JWT signing secret (32 hex chars)
-SSL_C=US
-SSL_ST=CA
-SSL_L=SanFrancisco
+HOST=$(hostname -I | awk '{print $1}')                        # Default host IP (local)
+SSL_CN="End-way-Cisco-VPN"                                    # Default SSL common name
+SSL_ORG="End-way"                                             # Default organization name
+SSL_EXPIRE=3650                                               # SSL certificate expiration in days
+OC_NET="172.16.24.0/24"                                       # Default VPN subnet
+OCSERV_PORT=443                                               # Default VPN port
+OCSERV_DNS="8.8.8.8"                                          # Default DNS server
+LANGUAGES="en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية"  # Supported languages
+SECRET_KEY=$(openssl rand -hex 32)                            # Secret key for app encryption (32 hex chars)
+JWT_SECRET=$(openssl rand -hex 32)                            # JWT signing secret (32 hex chars)
+SSL_C=US                                                      # SSL Country iso2
+SSL_ST=CA                                                     # SSL State name
+SSL_L=SanFrancisco                                            # SSl City name
 
 # ===============================
-# Functions
-# ===============================
-
-# ===============================
-# Ensure root or sudo access
+# Function: ensure_root
+# Description:
+#   Ensure script is run with root privileges.
+#   Exits if sudo is not installed or accessible.
 # ===============================
 ensure_root() {
     if ! command -v sudo >/dev/null 2>&1; then
-        print_message error "❌ Error: sudo is not installed on this system."
+        print_message error "❌ Error: sudo is not installed."
         exit 1
     fi
 }
 
 # ===============================
-# Function: print_message
-# Description: Print formatted messages with colors
-# Parameters:
-#   $1 - type: info, success, warn, error, highlight
-#   $2 - message string
-# ===============================
-print_message() {
-    local type="$1"
-    local message="$2"
-
-    local RED="\e[31m"
-    local GREEN="\e[32m"
-    local YELLOW="\e[33m"
-    local BLUE="\e[34m"
-    local MAGENTA="\e[35m"
-    local RESET="\e[0m"
-
-    case "$type" in
-        info)
-            echo -e "${BLUE}[INFO]${RESET} $message"
-            ;;
-        success)
-            echo -e "${GREEN}[SUCCESS]${RESET} $message"
-            ;;
-        warn)
-            echo -e "${YELLOW}[WARN]${RESET} $message"
-            ;;
-        error)
-            echo -e "${RED}[ERROR]${RESET} $message"
-            ;;
-        highlight)
-            echo -e "${MAGENTA}$message${RESET}"
-            ;;
-        *)
-            echo "$message"
-            ;;
-    esac
-}
-
-# ===============================
 # Function: choose_deployment
-# Description: Ask user whether to deploy via Docker or systemd
+# Description:
+#   Prompt user to select deployment method:
+#     1) Docker
+#     2) Systemd service
+#     3) Standalone systemd dashboard
+#   Sets the global variable DEPLOY_METHOD
 # ===============================
 choose_deployment() {
-    print_message info "🚀 Deployment options:"
+    print_message info "🚀 Deployment Options:"
     print_message highlight "   [1] Docker"
-    print_message highlight "   [2] systemd service"
+    print_message highlight "   [2] Systemd Full (Ocserv + Dashboard)"
+    print_message highlight "   [3] Systemd Dashboard (Standalone Setup/Upgrade)"
+    print_message highlight "   [4] Uninstall"
 
-    read -rp "Choose deployment method [1-2] (default = 1): " choice
-    if [[ -z "$choice" ]]; then
-        choice=1
-    fi
+    read -rp "Choose deployment method [1-4] (default = 1): " choice
+    choice=${choice:-1}
 
     case "$choice" in
-        1)
-            DEPLOY_METHOD="docker"
-            ;;
-        2)
-            DEPLOY_METHOD="systemd"
-            ;;
+        1) DEPLOY_METHOD="docker" ;;
+        2) DEPLOY_METHOD="systemd" ;;
+        3) DEPLOY_METHOD="standalone" ;;
+        4) DEPLOY_METHOD="uninstall" ;;
         *)
             print_message warn "Invalid choice, defaulting to Docker."
             DEPLOY_METHOD="docker"
@@ -116,25 +93,22 @@ choose_deployment() {
 
 # ===============================
 # Function: check_docker
-# Description: Check if Docker and Docker Compose (plugin) are installed.
-#              Show Docker info if installed.
-#              If missing, show installation links and exit.
+# Description:
+#   Verify that Docker and Docker Compose plugin are installed.
+#   Show version info. If missing, display installation links and exit.
 # ===============================
 check_docker() {
     local missing=0
 
-    # Check Docker
     if ! command -v sudo docker &> /dev/null; then
         print_message error "❌ Docker is not installed."
         missing=1
     else
         print_message success "✅ Docker is installed."
-        # Show Docker version and info
         docker_info=$(sudo docker info --format 'Server Version: {{.ServerVersion}}')
         print_message highlight "🔹 $docker_info"
     fi
 
-    # Check Docker Compose plugin
     if ! sudo docker compose version &> /dev/null; then
         print_message error "❌ Docker Compose (plugin) is not installed."
         missing=1
@@ -144,9 +118,8 @@ check_docker() {
         print_message highlight "🔹 $compose_version"
     fi
 
-    # If either is missing, show installation instructions and exit
     if [[ $missing -eq 1 ]]; then
-        print_message info "🔗 Please follow the official installation guides:"
+        print_message info "🔗 Installation guides:"
         print_message highlight "   Docker: https://docs.docker.com/get-docker/"
         print_message highlight "   Docker Compose: https://docs.docker.com/compose/install/"
         exit 1
@@ -155,107 +128,97 @@ check_docker() {
 
 # ===============================
 # Function: check_systemd_os
-# Description: Validate OS for systemd deployment.
-#              Supported: Ubuntu 20.04/22.04/24.04, Debian 11/12/13
+# Description:
+#   Validate that the host OS is supported for systemd deployment.
+#   Supported OS: Ubuntu 20.04/22.04/24.04, Debian 11/12/13
 # ===============================
 check_systemd_os() {
-    # Detect OS
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
-        OS_NAME=$ID         # ubuntu or debian
-        OS_VERSION=$VERSION_ID
+        OS_NAME=$ID
+        OS_VERSION="${VERSION_ID//\"/}"
     else
-        print_message error "❌ Cannot detect OS. /etc/os-release not found."
-        exit 1
+        die "Cannot detect OS. /etc/os-release not found."
     fi
 
-    # Normalize version number (remove quotes if present)
-    OS_VERSION="${OS_VERSION//\"/}"
-
-    # Check supported OS
     if [[ "$OS_NAME" == "ubuntu" ]]; then
-        if [[ "$OS_VERSION" != "20.04" && "$OS_VERSION" != "22.04" && "$OS_VERSION" != "24.04" ]]; then
-            print_message error "❌ Unsupported Ubuntu version: $OS_VERSION"
-            print_message info "Supported versions: 20.04, 22.04, 24.04"
-            exit 1
-        fi
+        [[ "$OS_VERSION" =~ ^(20.04|22.04|24.04)$ ]] || \
+            die "Unsupported Ubuntu version: $OS_VERSION"
     elif [[ "$OS_NAME" == "debian" ]]; then
-        if [[ "$OS_VERSION" != "11" && "$OS_VERSION" != "12" && "$OS_VERSION" != "13" ]]; then
-            print_message error "❌ Unsupported Debian version: $OS_VERSION"
-            print_message info "Supported versions: 11, 12, 13"
-            exit 1
-        fi
+        [[ "$OS_VERSION" =~ ^(11|12|13)$ ]] || \
+            die "Unsupported Debian version: $OS_VERSION"
     else
-        print_message error "❌ Unsupported OS: $OS_NAME $OS_VERSION"
-        print_message info "Supported: Ubuntu 20.04/22.04/24.04, Debian 11/12/13"
-        exit 1
+        die "Unsupported OS: $OS_NAME $OS_VERSION"
     fi
 
-    print_message success "✅ OS is supported for systemd deployment: $OS_NAME $OS_VERSION"
+    print_message success "✅ OS supported for systemd deployment: $OS_NAME $OS_VERSION"
 }
 
 # ===============================
 # Function: check_go_version
-# Description: Check if Go is installed and meets minimum version requirement
+# Description:
+#   Verify that Go is installed and meets minimum version requirement.
 # Parameters:
 #   $1 - minimum Go version (default: 1.25)
 # ===============================
 check_go_version() {
-    local required_version="1.25"
+    local go_mod_file="services/api/go.mod"
+
+    if [[ ! -f "$go_mod_file" ]]; then
+        die "❌ go.mod not found at $go_mod_file"
+    fi
+
+    # Extract Go version from the go.mod file (e.g., "1.25")
+    local required_version
+    required_version=$(grep '^go ' "$go_mod_file" | awk '{print $2}')
+    [[ -n "$required_version" ]] || die "❌ Could not read Go version from $go_mod_file"
+
+    # Normalize required_version to include patch if missing
+    if [[ ! "$required_version" =~ \.[0-9]+$ ]]; then
+        required_version="${required_version}.0"
+    fi
 
     if ! command -v go >/dev/null 2>&1; then
-        echo "❌ Go is not installed."
-        echo "Install Go from: https://go.dev/doc/install"
-        exit 1
+        die "Go is not installed. Install from: https://go.dev/doc/install"
     fi
 
+    # Get current Go version (e.g., 1.25.5)
     local current_version
-    current_version=$(go version | awk '{print $3}' | sed 's/^go//')  # e.g., 1.25.3
-    local current_major_minor="${current_version%.*}"                     # 1.25
+    current_version=$(go version | awk '{print $3}' | sed 's/^go//')
+
+    # Ensure current_version includes patch number for comparison
+    if [[ ! "$current_version" =~ \.[0-9]+$ ]]; then
+        current_version="${current_version}.0"
+    fi
 
     # Compare versions
-    if dpkg --compare-versions "$current_major_minor" "lt" "$required_version"; then
-        echo "❌ Go version $current_version is less than required $required_version."
-        echo "Please upgrade Go: https://go.dev/doc/install"
-        exit 1
+    if dpkg --compare-versions "$current_version" "lt" "$required_version"; then
+        die "Go version $current_version < required $required_version. Upgrade at https://go.dev/doc/install"
     fi
 
-    echo "✅ Go version $current_version meets requirement (≥ $required_version)."
+    print_message success "✅ Go version $current_version meets requirement (≥ $required_version)"
 }
-
 
 # ===============================
 # Function: get_ip
-# Description: Detects the public IP of the VPS
-#              and allows user to confirm or override.
+# Description:
+#   Detects public IP and prompts user to confirm or override
 # ===============================
 get_ip() {
     print_message info "🔍 Detecting public IP ..."
-#    set -x
-
     local detected_ip
     detected_ip=$(curl -s --max-time 5 https://api.ipify.org || \
                   curl -s --max-time 5 https://ifconfig.me || \
                   curl -s --max-time 5 https://checkip.amazonaws.com)
-#    set +x
+
     print_message info "Detected IP: $detected_ip"
 
-    if [[ -n "$detected_ip" && "$detected_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        print_message highlight "✅ Detected public IP: ${detected_ip}"
-        read -rp "👉 Do you want to use this IP? [Y/n]: " choice
-        case "$choice" in
-            [Nn]*)
-                read -rp "🌐 Enter your VPS host or IP: " manual_ip
-                HOST=${manual_ip:-$(hostname -I | awk '{print $1}')}
-                ;;
-            *)
-                HOST=$detected_ip
-                ;;
-        esac
+    if [[ "$detected_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        read -rp "Use this IP? [Y/n]: " choice
+        HOST=${detected_ip}
+        [[ "$choice" =~ [Nn] ]] && read -rp "Enter your VPS host or IP: " HOST
     else
-        print_message warn "⚠️ Failed to detect public IP automatically."
-        read -rp "🌐 Enter your VPS host or IP: " manual_ip
-        HOST=${manual_ip:-$(hostname -I | awk '{print $1}')}
+        read -rp "Enter your VPS host or IP: " HOST
     fi
 
     print_message highlight "🔧 Using host IP: ${HOST}"
@@ -264,8 +227,8 @@ get_ip() {
 
 # ===============================
 # Function: get_envs
-# Description: Prompt user for environment configurations
-#              and set default values if left blank.
+# Description:
+#   Prompt user for ocserv and SSL environment configurations.
 # ===============================
 get_envs(){
     # ocserv port
@@ -325,44 +288,36 @@ get_envs(){
 
 # ===============================
 # Function: get_site_lang
-# Description: Allow user to select the preferred site language
+# Description:
+#   Prompt user to select the preferred site language from LANGUAGES
 # ===============================
 get_site_lang() {
     print_message info "🌐 Available languages:"
     IFS=',' read -ra langs <<< "$LANGUAGES"
     local i=1
     for entry in "${langs[@]}"; do
-        code="${entry%%:*}"
-        name="${entry#*:}"
-        print_message highlight "   [$i] $name ($code)"
-        i=$((i+1))
+        print_message highlight "   [$i] ${entry#*:} (${entry%%:*})"
+        ((i++))
     done
 
-    printf "\n"
     read -rp "Choose a language [1-${#langs[@]}] (default = all): " choice
-    printf "\n"
-
     if [[ -z "$choice" ]]; then
-        print_message highlight "✅ Using all available languages: $LANGUAGES"
-        printf "\n"
+        print_message highlight "✅ Using all languages: $LANGUAGES"
     else
-        if [[ ! "$choice" =~ ^[0-9]+$ || "$choice" -lt 1 || "$choice" -gt ${#langs[@]} ]]; then
-            choice=1
-        fi
-        selected="${langs[$((choice-1))]}"
-        LANGUAGES=$selected
-        print_message highlight "✅ Selected site language: ${selected#*:} (${selected%%:*})"
-        printf "\n"
+        [[ "$choice" -lt 1 || "$choice" -gt ${#langs[@]} ]] && choice=1
+        LANGUAGES="${langs[$((choice-1))]}"
+        print_message highlight "✅ Selected language: ${LANGUAGES#*:} (${LANGUAGES%%:*})"
     fi
+    printf "\n"
 }
 
 # ===============================
 # Function: set_environment
-# Description: Generate a .env file with the configured environment variables
+# Description:
+#   Create .env file containing all environment variables
 # ===============================
 set_environment() {
     ENV_FILE=".env"
-
     print_message info "Creating environment file at $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOL
 HOST=${HOST}
@@ -380,48 +335,14 @@ OCSERV_DNS=${OCSERV_DNS}
 LANGUAGES="${LANGUAGES}"
 ALLOW_ORIGINS=https://${HOST}:3443
 EOL
-
     print_message success "✅ Environment file created successfully."
-    print_message info "🔧 Environments written to .env:"
-    print_message highlight "   HOST             = ${HOST}"
-    print_message highlight "   SECRET_KEY       = ${SECRET_KEY:0:8}..."
-    print_message highlight "   JWT_SECRET       = ${JWT_SECRET:0:8}..."
-    print_message highlight "   SSL_CN           = ${SSL_CN}"
-    print_message highlight "   SSL_ORG          = ${SSL_ORG}"
-    print_message highlight "   SSL_C            = ${SSL_C}"
-    print_message highlight "   SSL_ST           = ${SSL_ST}"
-    print_message highlight "   SSL_L            = ${SSL_L}"
-    print_message highlight "   OC_NET           = ${OC_NET}"
-    print_message highlight "   SSL_EXPIRE       = ${SSL_EXPIRE}"
-    print_message highlight "   OCSERV_PORT      = ${OCSERV_PORT}"
-    print_message highlight "   OCSERV_DNS       = ${OCSERV_DNS}"
-    print_message highlight "   LANGUAGES        = ${LANGUAGES}"
-    print_message highlight "   ALLOW_ORIGINS    = https://${HOST}:3443"
-    printf "\n"
 }
 
 # ===============================
-# Function: setup_docker
-# Description: Pull required Docker images and start Docker Compose stack
-# ===============================
-setup_docker() {
-    print_message info "🚀 Pulling required Docker images..."
-    sudo docker pull golang:1.25.0
-    sudo docker pull debian:trixie-slim
-    sudo docker pull nginx:alpine
-    print_message success "🎉 All Docker images pulled successfully!"
-
-    print_message info "🛠 Starting Docker Compose..."
-    sleep 3
-    sudo docker compose up --build -d
-    print_message success "✅ Docker Compose deployment completed!"
-}
-
-
-# ===============================
-# Function: GetInterface
-# Description: List physical network interfaces and let user select one.
-#              If only one interface exists, automatically select it.
+# Function: get_interface
+# Description:
+#   Lists physical network interfaces and lets user select one.
+#   Automatically selects if only one exists.
 # Sets:
 #   ETH - selected network interface
 # ===============================
@@ -429,15 +350,15 @@ get_interface() {
     printf "\n"
 
     # Get all physical interfaces (exclude lo, docker bridges, veth, tun, br-*, vethe*)
+    local interface_list
     interface_list=$(ip -o link show | awk '{print $2}' | tr -d ':' | grep -Ev '^(lo|docker|br-|veth|tun|vethe)')
 
     if [[ -z "$interface_list" ]]; then
-        print_message error "❌ No physical network interfaces found!"
-        exit 1
+        die "❌ No physical network interfaces found!"
     fi
 
     # Convert to array
-    numbered_interfaces=()
+    local numbered_interfaces=()
     for iface in $interface_list; do
         numbered_interfaces+=("$iface")
     done
@@ -451,7 +372,7 @@ get_interface() {
 
     # Multiple interfaces: show numbered list
     print_message highlight "Available physical network interfaces:"
-    i=1
+    local i=1
     for iface in "${numbered_interfaces[@]}"; do
         print_message highlight "$(printf "%4d: %s" "$i" "$iface")"
         ((i++))
@@ -466,66 +387,131 @@ get_interface() {
     else
         print_message error "❌ Invalid selection: $interface_number. Please try again."
         printf "\n"
-        GetInterface
+        get_interface
     fi
 }
 
+# ===============================
+# Function: setup_docker
+# Description:
+#   Pull required Docker images and start Docker Compose stack
+# ===============================
+setup_docker() {
+    print_message info "🚀 Pulling required Docker images..."
+    sudo docker pull golang:1.25.0
+    sudo docker pull debian:trixie-slim
+    sudo docker pull nginx:alpine
+    print_message success "🎉 All Docker images pulled successfully!"
+    print_message info "🛠 Starting Docker Compose..."
+    sudo docker compose up --build -d
+    print_message success "✅ Docker Compose deployment completed!"
+}
 
 # ===============================
 # Function: setup_systemd
-# Description: Setup systemd deployment and check Go environment.
+# Description:
+#   Sets up systemd deployment for backend, UI, and optionally ocserv VPN.
+#   - full_setup = true  : deploy backend + UI + VPN (ocserv)
+#   - full_setup = false : deploy backend + UI only, but ensures ocserv is configured
 # ===============================
 setup_systemd() {
-    print_message info "⚙️ Setting up systemd service..."
+    local full_setup="$1"
 
-    # Let user select physical interface
-    get_interface
+    # If not full setup, ensure ocserv is installed and configured
+    if [[ "$full_setup" != true ]]; then
+        if ! command -v ocserv >/dev/null 2>&1; then
+            die "⚠️ Ocserv not installed. Standalone dashboard requires ocserv."
+        elif [[ ! -f /etc/ocserv/ocserv.conf ]]; then
+            die "⚠️ Ocserv config not found (/etc/ocserv/ocserv.conf)."
+        else
+            # Check if auth line exists
+            if ! grep -q '^auth\s*=\s*"plain\[passwd=/etc/ocserv/ocpasswd\]"' /etc/ocserv/ocserv.conf; then
+                die "⚠️ Ocserv auth config missing (auth=plain[passwd])."
+            else
+                ok "✅ Ocserv is installed and properly configured."
+            fi
+        fi
+    fi
 
-    # Export environment variables for child script
-    export ETH
-    export OCSERV_PORT
-    export SSL_OC_NET
-    export SSL_CN
-    export SSL_ORG
-    export SSL_EXPIRE
-    export OCSERV_DNS
+    # Deploy backend and UI systemd services
+    ./scripts/systemd_backend.sh
+    ./scripts/systemd_ui.sh
 
-    # Run the systemd ocserv setup script
-    ./scripts/systemd_setup.sh
-}
+    # Deploy VPN (ocserv) only if full setup requested
+    if [[ "$full_setup" == true ]]; then
+          # Select network interface for NAT/firewall
+          get_interface
 
+          export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH
 
-# ===============================
-# Function: deploy
-# Description: Deploy the application based on the chosen deployment method.
-#              - If Docker is selected:
-#                  1. Pulls required Docker images (golang, debian, nginx)
-#                  2. Builds and starts the Docker Compose stack
-#              - If systemd is selected:
-#                  Calls the systemd setup function (placeholder for now)
-# Parameters:
-#   DEPLOY_METHOD - must be either "docker" or "systemd"
-# ===============================
-deploy(){
-    if [[ "$DEPLOY_METHOD" == "docker" ]]; then
-        setup_docker
-    else
-        setup_systemd
+          ./scripts/systemd_ocserv.sh
     fi
 }
 
+# ===============================
+# Function: uninstall
+# Description:
+#   Runs the uninstall script to remove all deployed components.
+#   Handles both Docker and systemd deployments, including:
+#     - Stopping services
+#     - Removing binaries
+#     - Cleaning Nginx and SSL
+#     - Cleaning iptables rules
+#     - Optionally purging /opt/ocserv_dashboard or Docker volumes
+# ===============================
+uninstall() {
+    ./scripts/uninstall.sh
+}
 
 # ===============================
-# Main Execution
+# Function: deploy
+# Description:
+#   Deploys the application based on the selected DEPLOY_METHOD.
+#   Supported methods:
+#     - docker: pulls Docker images and runs Docker Compose stack
+#     - systemd: sets up systemd services (full mode)
+#     - standalone: sets up systemd dashboard only (no VPN)
+#     - uninstall: removes all deployed components
+# ===============================
+deploy() {
+    case "$DEPLOY_METHOD" in
+        docker) setup_docker ;;
+        systemd) setup_systemd true ;;
+        standalone) setup_systemd false ;;
+    esac
+}
+
+# ===============================
+# Function: main
+# Description:
+#   Entry point for the deployment script.
+#   1. Ensures root privileges.
+#   2. Prompts the user to choose a deployment method:
+#        - docker: deploy via Docker Compose
+#        - systemd: deploy systemd services (full mode)
+#        - standalone: deploy systemd dashboard only (no VPN)
+#        - uninstall: remove all deployed components
+#   3. Skips all setup logic if 'uninstall' is selected.
+#   4. Installs prerequisites (curl), checks environment.
+#   5. Loads or interactively generates .env environment file.
+#   6. Calls the deployment function based on the selected method.
+#   7. Prints final service access information.
 # ===============================
 main() {
-    # Ensure script is running as root or sudo
-    ensure_root "$@"
+    # Ensure script is running with root privileges
+    ensure_root
 
-    # Deployment choice: docker or systemd
+    # Let user choose deployment method
     choose_deployment
 
-    # install curl
+    # If uninstall mode, run uninstall and exit immediately
+    if [[ "$DEPLOY_METHOD" == "uninstall" ]]; then
+        print_message info "⚠️ Uninstall mode selected. Removing deployed components..."
+        uninstall
+        exit 0
+    fi
+
+    # Install required tools
     sudo apt install -y curl
 
     # Check prerequisites based on deployment method
@@ -536,31 +522,36 @@ main() {
         check_go_version
     fi
 
-    # Load existing .env or run interactive setup
+    # Load existing environment file or run interactive setup
     ENV_FILE=".env"
     if [[ -f "$ENV_FILE" ]]; then
-        print_message info "✅ .env file detected. Loading environment variables..."
+        print_message info "✅ Loading environment from $ENV_FILE"
         set -o allexport
         # shellcheck disable=SC1090
-        source "${ENV_FILE}"
+        source "$ENV_FILE"
         set +o allexport
-        print_message success "✅ Environment loaded from ${ENV_FILE}"
+        print_message success "✅ Environment loaded"
     else
-        print_message info "⚡ No .env file found. Running interactive setup..."
+        print_message info "⚡ No .env found. Running interactive setup..."
         get_ip
         get_envs
         get_site_lang
         set_environment
     fi
 
-    # Deploy application
+    # Deploy based on selected method
     deploy
 
-    # Show service URL
-    print_message highlight "🌐 Web service is up and running!"
-    print_message highlight "🔗 Access it at: https://${HOST}:3443 or http://${HOST}:3000"
-    print_message highlight "⚡ Tip: Make sure your firewall allows ports 3000 and 3443"
+    # Show final access information
+    print_message highlight "🌐 Web service is running at:"
+    print_message highlight "   https://${HOST}:3443 or http://${HOST}:3000"
+    print_message highlight "⚡ Ensure firewall allows ports 3000 and 3443"
+
     exit 0
 }
 
+# ===============================
+# Run the main function
+# ===============================
 main
+

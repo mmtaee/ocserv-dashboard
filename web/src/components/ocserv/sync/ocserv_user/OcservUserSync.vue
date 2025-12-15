@@ -84,7 +84,7 @@ onMounted(() => {
 <template>
     <v-row>
         <v-col cols="12" md="12">
-            <UiParentCard :title="t('SYNC_PAGE_TITLE')" variant="plain" :minHeight="650">
+            <UiParentCard :title="t('SYNC_PAGE_TITLE')" variant="text" :minHeight="650">
                 <template #action>
                     <v-btn class="me-lg-5" color="primary" size="small" variant="flat" @click="sync">
                         {{ t('RELOAD') }}
