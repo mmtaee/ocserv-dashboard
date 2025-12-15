@@ -79,9 +79,9 @@ func NewtOcservUserRepository() *OcservUserRepository {
 	}
 }
 
-func (o *OcservUserRepository) Users(
-	ctx context.Context, pagination *request.Pagination, owner string,
-) ([]models.OcservUser, int64, error) {
+func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pagination, owner string) (
+	[]models.OcservUser, int64, error,
+) {
 	var totalRecords int64
 
 	totalQuery := o.db.WithContext(ctx).Model(&models.OcservUser{})

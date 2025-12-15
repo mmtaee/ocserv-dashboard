@@ -27,7 +27,7 @@ type OcservGroupCRUD interface {
 
 type OcservDefaultGroup interface {
 	DefaultGroup() (*models.OcservGroupConfig, error)
-	UpdateDefaultGroup(config *models.OcservGroupConfig) error
+	UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error
 }
 
 type OcservGroupSync interface {
@@ -49,9 +49,9 @@ func NewOcservGroupRepository() *OcservGroupRepository {
 	}
 }
 
-func (o *OcservGroupRepository) Groups(
-	ctx context.Context, pagination *request.Pagination, owner string,
-) ([]models.OcservGroup, int64, error) {
+func (o *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination, owner string) (
+	[]models.OcservGroup, int64, error,
+) {
 	var totalRecords int64
 
 	totalQuery := o.db.WithContext(ctx).Model(&models.OcservGroup{})

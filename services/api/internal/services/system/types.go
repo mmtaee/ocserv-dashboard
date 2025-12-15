@@ -38,8 +38,8 @@ type CreateUserData struct {
 }
 
 type UsersResponse struct {
-	Meta   request.Meta   `json:"meta" validate:"required"`
-	Result *[]models.User `json:"result" validate:"omitempty"`
+	Meta   request.Meta  `json:"meta" validate:"required"`
+	Result []models.User `json:"result" validate:"omitempty"`
 }
 
 type ChangeUserPassword struct {
