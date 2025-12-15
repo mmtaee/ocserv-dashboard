@@ -199,7 +199,6 @@ check_go_version() {
     print_message success "✅ Go version $current_version meets requirement (≥ $required_version)"
 }
 
-
 # ===============================
 # Function: get_ip
 # Description:
@@ -421,13 +420,13 @@ setup_systemd() {
     # If not full setup, ensure ocserv is installed and configured
     if [[ "$full_setup" != true ]]; then
         if ! command -v ocserv >/dev/null 2>&1; then
-            warn "⚠️ Ocserv is not installed. Skipping VPN setup."
+            die "⚠️ Ocserv not installed. Standalone dashboard requires ocserv."
         elif [[ ! -f /etc/ocserv/ocserv.conf ]]; then
-            warn "⚠️ /etc/ocserv/ocserv.conf not found. Skipping VPN setup."
+            die "⚠️ Ocserv config not found (/etc/ocserv/ocserv.conf)."
         else
             # Check if auth line exists
             if ! grep -q '^auth\s*=\s*"plain\[passwd=/etc/ocserv/ocpasswd\]"' /etc/ocserv/ocserv.conf; then
-                warn "⚠️ Ocserv config found, but auth line is missing. Skipping VPN setup."
+                die "⚠️ Ocserv auth config missing (auth=plain[passwd])."
             else
                 ok "✅ Ocserv is installed and properly configured."
             fi

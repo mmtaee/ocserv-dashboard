@@ -20,7 +20,7 @@ uninstall_docker() {
     sudo docker compose down 2>/dev/null || true
 
     read -rp "Do you want to remove pulled Docker images? [y/N]: " remove_images
-    remove_images=${remove_images:-N}   # default NO
+    remove_images=${remove_images:-N}
 
     if [[ "$remove_images" =~ ^[Yy]$ ]]; then
         log "🗑️ Removing pulled Docker images..."
@@ -30,14 +30,15 @@ uninstall_docker() {
         log "⏭️ Skipping removal of Docker images."
     fi
 
-    if [[ -d "./volumes" ]]; then
-        warn "📦 Docker Volume found in ./volumes"
-        read -rp "Do you want to remove Docker volumes under ./volumes? [y/N]: " remove_vol
-        remove_vol=${remove_vol:-N}  # default no
+    local volume_dir="/opt/ocserv_dashboard/docker_volumes"
+    if [[ -d "$volume_dir" ]]; then
+        warn "📦 Docker Volume found in $volume_dir"
+        read -rp "Do you want to remove Docker volumes under $volume_dir? [y/N]: " remove_vol
+        remove_vol=${remove_vol:-N}
         if [[ "$remove_vol" =~ ^[Yy]$ ]]; then
-            log "🗑️ Removing Docker volumes in ./volumes..."
-            sudo rm -rf ./volumes
-            ok "✅ Docker volumes removed."
+            log "🗑️ Removing Docker volumes in $volume_dir..."
+            sudo rm -rf $volume_dir
+            ok "✅ Docker volumes $volume_dir removed."
         else
             log "⏭️ Skipping removal of Docker volumes."
         fi
@@ -66,7 +67,7 @@ uninstall_systemd() {
     if [[ -d "$bin_dir" ]]; then
         warn "📂 found data in $bin_dir"
         read -rp "Do you want to purge all data in $bin_dir? [y/N]: " purge_data
-        purge_data=${purge_data:-N}  # default No
+        purge_data=${purge_data:-N}
         if [[ "$purge_data" =~ ^[Yy]$ ]]; then
             log "🗑️ Purging $bin_dir ..."
             sudo rm -rf "$bin_dir"
