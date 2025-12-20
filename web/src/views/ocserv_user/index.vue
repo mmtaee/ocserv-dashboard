@@ -268,15 +268,21 @@ onMounted(() => {
                                     <div class="text-capitalize">
                                         {{ t('STATUS') }}:<br />
                                         <!-- Locked -->
-                                        <span v-if="item.is_locked && item.deactivated_at == null">
+                                        <span v-if="item.is_locked && !item.deactivated_at">
                                             <v-icon color="warning" start>mdi-lock</v-icon>
                                             <span class="text-warning text-capitalize">{{ t('LOCKED') }}</span>
                                         </span>
 
                                         <!-- Deactivated -->
-                                        <span v-if="item.is_locked && item.deactivated_at">
+                                        <span v-else-if="item.deactivated_at">
                                             <v-icon color="accent" start>mdi-close-network-outline</v-icon>
                                             <span class="text-accent text-capitalize">{{ t('DEACTIVATED') }}</span>
+                                        </span>
+
+                                        <!-- Online -->
+                                        <span v-else-if="item.is_online">
+                                            <v-icon color="success" start>mdi-lan-connect</v-icon>
+                                            <span class="text-success text-capitalize">{{ t('ONLINE') }}</span>
                                         </span>
 
                                         <!-- Disconnected -->
@@ -285,11 +291,6 @@ onMounted(() => {
                                             <span class="text-error text-capitalize">{{ t('DISCONNECTED') }}</span>
                                         </span>
 
-                                        <!-- Online -->
-                                        <span v-else>
-                                            <v-icon color="success" start>mdi-lan-connect</v-icon>
-                                            <span class="text-success text-capitalize">{{ t('ONLINE') }}</span>
-                                        </span>
                                     </div>
                                 </td>
                                 <td>
@@ -324,11 +325,11 @@ onMounted(() => {
                                                 v-if="item.is_online && !item.is_locked && !item.deactivated_at"
                                                 @click="disconnect(item?.username)"
                                             >
-                                                <v-list-item-title class="text-grey text-capitalize me-5">
+                                                <v-list-item-title class="text-error text-capitalize me-5">
                                                     {{ t('DISCONNECT') }}
                                                 </v-list-item-title>
                                                 <template v-slot:prepend>
-                                                    <v-icon class="ms-2" color="grey">mdi-lan-disconnect</v-icon>
+                                                    <v-icon class="ms-2" color="error">mdi-lan-disconnect</v-icon>
                                                 </template>
                                             </v-list-item>
 
