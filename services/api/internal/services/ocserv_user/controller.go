@@ -254,10 +254,15 @@ func (ctl *Controller) DeleteOcservUser(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
+	username, err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
+
+	go func() {
+		_, _ = ctl.ocservOcctlRepo.Disconnect(username)
+	}()
+
 	return c.JSON(http.StatusNoContent, nil)
 }
 
