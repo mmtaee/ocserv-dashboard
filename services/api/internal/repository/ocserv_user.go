@@ -204,10 +204,7 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 		if err := tx.
 			Model(&models.OcservUser{}).
 			Where("uid = ?", uid).
-			Updates(map[string]interface{}{
-				"is_locked":      false,
-				"deactivated_at": nil,
-			}).Error; err != nil {
+			Updates(map[string]interface{}{"is_locked": false}).Error; err != nil {
 			return err
 		}
 
