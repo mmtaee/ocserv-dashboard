@@ -234,6 +234,13 @@ get_ip() {
 # ===============================
 generate_secret() {
     local len=64
+    # Check if openssl is installed
+    if ! command -v openssl >/dev/null 2>&1; then
+        print_message info "🔧 openssl not found, installing..."
+        sudo apt-get update
+        sudo apt-get install -y openssl
+    fi
+
     openssl rand -base64 96 | tr -dc -- '-A-Za-z0-9!@#%^_=+.' | head -c "$len"
 }
 
