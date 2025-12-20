@@ -225,6 +225,21 @@ get_ip() {
     printf "\n"
 }
 
+
+# ===============================
+# Function: generate_secret
+# Description:
+#   Generate a cryptographically secure secret key.
+#   - Length: 64 characters
+#   - Characters: A–Z a–z 0–9 and special symbols
+# ===============================
+generate_secret() {
+    local len=64
+    openssl rand -base64 96 \
+        | tr -dc 'A-Za-z0-9!@#%^_+=-.' \
+        | head -c "$len"
+}
+
 # ===============================
 # Function: get_envs
 # Description:
@@ -284,6 +299,28 @@ get_envs(){
     [[ -n "$dns" ]] && OCSERV_DNS="$dns"
     print_message highlight "✅ Using ocserv DNS: ${OCSERV_DNS}"
     printf "\n"
+
+    # SECRET_KEY
+    read -rsp "Enter SECRET_KEY (leave blank to auto-generate): " secret_key
+    printf "\n"
+    if [[ -n "$secret_key" ]]; then
+        SECRET_KEY="$secret_key"
+    else
+        SECRET_KEY="$(generate_secret)"
+    fi
+    print_message highlight "✅ SECRET_KEY set (length: ${#SECRET_KEY})"
+    printf "\n"
+
+    # JWT_SECRET
+    read -rsp "Enter JWT_SECRET (leave blank to auto-generate): " jwt_secret
+    printf "\n"
+    if [[ -n "$jwt_secret" ]]; then
+        JWT_SECRET="$jwt_secret"
+    else
+        JWT_SECRET="$(generate_secret)"
+    fi
+    print_message highlight "✅ JWT_SECRET set (length: ${#JWT_SECRET})"
+    printf "\n"
 }
 
 # ===============================
@@ -334,6 +371,8 @@ OCSERV_PORT=${OCSERV_PORT}
 OCSERV_DNS=${OCSERV_DNS}
 LANGUAGES="${LANGUAGES}"
 ALLOW_ORIGINS=https://${HOST}:3443
+JWT_SECRET=${JWT_SECRET}
+SECRET_KEY=${SECRET_KEY}
 EOL
     print_message success "✅ Environment file created successfully."
 }
@@ -419,7 +458,7 @@ setup_systemd() {
 
     # If not full setup, ensure ocserv is installed and configured
     if [[ "$full_setup" != true ]]; then
-        if ! command -v ocserv >/dev/null 2>&1; then
+        if ! command -v /usr/sbin/ocserv >/dev/null 2>&1; then
             die "⚠️ Ocserv not installed. Standalone dashboard requires ocserv."
         elif [[ ! -f /etc/ocserv/ocserv.conf ]]; then
             die "⚠️ Ocserv config not found (/etc/ocserv/ocserv.conf)."
@@ -543,6 +582,7 @@ main() {
     deploy
 
     # Show final access information
+    print_message success "🎉 Deployment ($DEPLOY_METHOD) completed successfully"
     print_message highlight "🌐 Web service is running at:"
     print_message highlight "   https://${HOST}:3443 or http://${HOST}:3000"
     print_message highlight "⚡ Ensure firewall allows ports 3000 and 3443"

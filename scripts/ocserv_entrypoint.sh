@@ -14,8 +14,16 @@ if [ -z "$OC_NET" ]; then
 fi
 
 
-cat <<EOT >/etc/ocserv/ocserv.conf
-# custom config
+OCSERV_CONF="/etc/ocserv/ocserv.conf"
+MANAGED_HEADER="# Managed by ocserv-dashboard install.sh"
+
+write_ocserv_conf() {
+  log "Writing Ocserv configuration..."
+  cat <<EOT >"$OCSERV_CONF"
+# ===============================================
+# Managed by ocserv-dashboard install.sh
+# DO NOT edit or remove this file header
+# ===============================================
 auth="plain[passwd=/etc/ocserv/ocpasswd]"
 run-as-user=root
 run-as-group=root
@@ -29,8 +37,6 @@ switch-to-tcp-timeout=5
 try-mtu-discovery=true
 server-cert=/etc/ocserv/certs/cert.pem
 server-key=/etc/ocserv/certs/cert.key
-#tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-VERS-SSL3.0"
-#tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1"
 tls-priorities="NORMAL:%SERVER_PRECEDENCE:%COMPAT:-RSA:-VERS-SSL3.0:-ARCFOUR-128"
 auth-timeout=40
 min-reauth-time=300
@@ -59,10 +65,36 @@ config-per-user=/etc/ocserv/users/
 log-level=3
 rate-limit-ms=100
 EOT
+}
+
+# ------------------------------------------------
+# Validate existing config
+# ------------------------------------------------
+if [[ ! -f "$OCSERV_CONF" ]]; then
+    print_message info "📄 ocserv.conf not found, creating new file"
+    write_ocserv_conf
+elif ! head -n 5 "$OCSERV_CONF" | grep -q "$MANAGED_HEADER"; then
+    print_message warning "⚠️ ocserv.conf not managed by dashboard, overwriting"
+    write_ocserv_conf
+else
+    print_message success "✅ ocserv.conf already managed, no changes needed"
+fi
 
 mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users/
 
->/etc/ocserv/defaults/group.conf
+sudo mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users
+
+# Ensure parent directory exists
+GROUP_CONF="/etc/ocserv/defaults/group.conf"
+sudo mkdir -p "$(dirname "$GROUP_CONF")"
+
+if [[ ! -f "$GROUP_CONF" ]]; then
+    print_message info "📄 Creating default group configuration"
+    sudo touch "${GROUP_CONF}"
+else
+    print_message success "✅ Default group configuration already exists"
+fi
+
 
 if [ ! -f /etc/ocserv/certs/cert.pem ]; then
     mkdir -p /etc/ocserv/certs

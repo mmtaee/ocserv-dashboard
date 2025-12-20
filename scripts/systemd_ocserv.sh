@@ -123,12 +123,17 @@ fi
 # ==============================================================
 # 3. Ocserv Main Configuration
 # ==============================================================
-log "Writing Ocserv configuration..."
+OCSERV_CONF="/etc/ocserv/ocserv.conf"
+MANAGED_HEADER="# Managed by ocserv-dashboard install.sh"
 
-sudo tee /etc/ocserv/ocserv.conf >/dev/null <<EOT
-# -----------------------
-# Ocserv Configuration
-# -----------------------
+write_ocserv_conf_systemd() {
+  log "Writing Ocserv configuration..."
+  sudo tee "$OCSERV_CONF" >/dev/null <<EOT
+# ===============================================
+# Managed by ocserv-dashboard install.sh
+# DO NOT edit or remove this file header
+# ===============================================
+
 auth = "plain[passwd=/etc/ocserv/ocpasswd]"
 run-as-user = root
 run-as-group = root
@@ -179,9 +184,30 @@ ipv4-network = ${OC_NET}
 config-per-group = /etc/ocserv/groups/
 config-per-user  = /etc/ocserv/users/
 EOT
+}
+
+if [[ ! -f "$OCSERV_CONF" ]]; then
+    print_message info "📄 ocserv.conf not found, creating new systemd config"
+    write_ocserv_conf_systemd
+elif ! head -n 5 "$OCSERV_CONF" | grep -q "$MANAGED_HEADER"; then
+    print_message warning "⚠️ ocserv.conf not managed by dashboard, overwriting"
+    write_ocserv_conf_systemd
+else
+    print_message success "✅ ocserv.conf already managed (systemd mode)"
+fi
 
 sudo mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users
-sudo touch /etc/ocserv/defaults/group.conf
+
+# Ensure parent directory exists
+GROUP_CONF="/etc/ocserv/defaults/group.conf"
+sudo mkdir -p "$(dirname "$GROUP_CONF")"
+
+if [[ ! -f "$GROUP_CONF" ]]; then
+    print_message info "📄 Creating default group configuration"
+    sudo touch "${GROUP_CONF}"
+else
+    print_message success "✅ Default group configuration already exists"
+fi
 
 # ==============================================================
 # 4. Firewall Rules / NAT
