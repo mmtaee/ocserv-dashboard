@@ -40,7 +40,7 @@ type OcservUserCRUD interface {
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
 	Lock(ctx context.Context, uid string) error
 	UnLock(ctx context.Context, uid string) error
-	Delete(ctx context.Context, uid string) error
+	Delete(ctx context.Context, uid string) (string, error)
 }
 
 type OcservUserStats interface {
@@ -183,10 +183,7 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 		if err := tx.
 			Model(&models.OcservUser{}).
 			Where("uid = ?", uid).
-			Updates(map[string]interface{}{
-				"is_locked":      true,
-				"deactivated_at": time.Now(),
-			}).Error; err != nil {
+			Updates(map[string]interface{}{"is_locked": true}).Error; err != nil {
 			return err
 		}
 
@@ -207,10 +204,7 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 		if err := tx.
 			Model(&models.OcservUser{}).
 			Where("uid = ?", uid).
-			Updates(map[string]interface{}{
-				"is_locked":      false,
-				"deactivated_at": nil,
-			}).Error; err != nil {
+			Updates(map[string]interface{}{"is_locked": false}).Error; err != nil {
 			return err
 		}
 
@@ -222,7 +216,7 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 	return err
 }
 
-func (o *OcservUserRepository) Delete(ctx context.Context, uid string) error {
+func (o *OcservUserRepository) Delete(ctx context.Context, uid string) (string, error) {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
@@ -241,7 +235,7 @@ func (o *OcservUserRepository) Delete(ctx context.Context, uid string) error {
 		_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
 	}()
 
-	return err
+	return ocservUser.Username, err
 }
 
 func (o *OcservUserRepository) TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error) {

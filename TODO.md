@@ -6,7 +6,6 @@
 - [x] Add an option in the `install.sh` script to support standalone dashboard installation or upgrade
 - [ ] Restore users with full traffic data and reset monthly status (reset `RX/TX` counters and active status)
 - [ ] search ocserv users by username (#88)
-- [ ] disconnect ocserv user after delete (#88)
 - [ ] admin can add user for staffs (#88)
 - [ ] Add a refresh button on Staffs, Ocserv Groups, and Ocserv Users pages
 - [ ] Implement staff activities tracking and logs

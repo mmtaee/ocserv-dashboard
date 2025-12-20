@@ -63,16 +63,22 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	if ocservUsers != nil {
+	if len(ocservUsers) > 0 {
 		onlineUsers, err := ctl.ocservOcctlRepo.OnlineUsers()
+
 		if err != nil {
 			return ctl.request.BadRequest(c, err)
 		}
 
+		// it change O(n²) to O(n) for user count grows
+		onlineMap := make(map[string]struct{}, len(onlineUsers))
+		for _, u := range onlineUsers {
+			onlineMap[u] = struct{}{}
+		}
+
 		for i := range ocservUsers {
-			u := ocservUsers[i]
-			if slices.Contains(onlineUsers, u.Username) {
-				u.IsOnline = true
+			if _, ok := onlineMap[ocservUsers[i].Username]; ok {
+				ocservUsers[i].IsOnline = true
 			}
 		}
 	}
@@ -248,10 +254,15 @@ func (ctl *Controller) DeleteOcservUser(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
+	username, err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
+
+	go func() {
+		_, _ = ctl.ocservOcctlRepo.Disconnect(username)
+	}()
+
 	return c.JSON(http.StatusNoContent, nil)
 }
 
