@@ -21,12 +21,6 @@
  */
 export interface ModelsOcservUserConfig {
     /**
-     * Text message shown to users when they connect to the VPN. Example: \'Welcome to the company VPN!\'
-     * @type {string}
-     * @memberof ModelsOcservUserConfig
-     */
-    'banner'?: string;
-    /**
      * Comma-separated list of DNS servers to assign to the user. Example: \'8.8.8.8,1.1.1.1\'
      * @type {Array<string>}
      * @memberof ModelsOcservUserConfig

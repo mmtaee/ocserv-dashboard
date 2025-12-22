@@ -77,7 +77,6 @@ function getFormFields() {
             type: 'switch',
             hint: t('ALLOW_CLIENT_ACCESS_ONLY_TO_DEFINED_ROUTES')
         },
-        { key: 'banner', label: 'Banner', type: 'text', hint: t('BANNER_HINT') }
     ];
 
     const textFields = [
