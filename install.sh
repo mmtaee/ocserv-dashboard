@@ -37,6 +37,8 @@ SSL_EXPIRE=3650                                               # SSL certificate 
 OC_NET="172.16.24.0/24"                                       # Default VPN subnet
 OCSERV_PORT=443                                               # Default VPN port
 OCSERV_DNS="8.8.8.8"                                          # Default DNS server
+OCSERV_BANNER="Welcome to the VPN service"                    # Default Ocserv banner
+OCSERV_PRE_LOGIN_BANNER="Welcome"                             # Default Ocserv pre login banner
 LANGUAGES="en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية"  # Supported languages
 SECRET_KEY=$(openssl rand -hex 32)                            # Secret key for app encryption (32 hex chars)
 JWT_SECRET=$(openssl rand -hex 32)                            # JWT signing secret (32 hex chars)
@@ -304,6 +306,82 @@ get_envs(){
     print_message highlight "✅ Using ocserv DNS: ${OCSERV_DNS}"
     printf "\n"
 
+    # ocserv Pre-login Banner (single-line only)
+    MAX_PRE_LOGIN_BANNER=100
+
+    while true; do
+        read -rp "Enter pre-login banner or leave blank to use default (${OCSERV_PRE_LOGIN_BANNER}): " pre_login_banner
+
+        # Use default if blank
+        [[ -z "$pre_login_banner" ]] && pre_login_banner="$OCSERV_PRE_LOGIN_BANNER"
+
+        # Check length
+        PRE_LOGIN_BANNER_LENGTH=${#pre_login_banner}
+        if (( PRE_LOGIN_BANNER_LENGTH > MAX_PRE_LOGIN_BANNER )); then
+            echo "❌ Pre-login banner too long: ${PRE_LOGIN_BANNER_LENGTH}/${MAX_PRE_LOGIN_BANNER} characters"
+            echo "Please shorten the banner and try again."
+            continue
+        fi
+
+        OCSERV_PRE_LOGIN_BANNER="$pre_login_banner"
+
+        # Escape quotes for ocserv.conf
+        OCSERV_PRE_LOGIN_BANNER=${OCSERV_PRE_LOGIN_BANNER//\"/\\\"}
+
+        print_message highlight "✅ Using pre-login banner: ${OCSERV_PRE_LOGIN_BANNER}"
+        printf "\n"
+        break
+    done
+
+    # ocserv Banner Message (editor-based with auto-detect + size check)
+    MAX_BANNER_SIZE=190
+
+    while true; do
+        print_message highlight "📝 Enter ocserv banner message (save & close editor when done)"
+        print_message info "⚠️ Maximum banner size: ${MAX_BANNER_SIZE} characters"
+
+        sleep 3
+
+        TMP_BANNER_FILE=$(mktemp)
+        printf "%s\n" "${OCSERV_BANNER:-Welcome to Masoud VPN}" > "$TMP_BANNER_FILE"
+
+        # Detect editor
+        if [[ -n "${EDITOR:-}" && -x "$(command -v "$EDITOR")" ]]; then
+            SELECTED_EDITOR="$EDITOR"
+        elif command -v nano >/dev/null 2>&1; then
+            SELECTED_EDITOR="nano"
+        elif command -v vim >/dev/null 2>&1; then
+            SELECTED_EDITOR="vim"
+        elif command -v vi >/dev/null 2>&1; then
+            SELECTED_EDITOR="vi"
+        else
+            echo "❌ No editor found (nano/vim/vi)"
+            rm -f "$TMP_BANNER_FILE"
+            exit 1
+        fi
+
+        echo "✏️ Using editor: $SELECTED_EDITOR"
+        "$SELECTED_EDITOR" "$TMP_BANNER_FILE"
+
+        # Convert multiline → single-line escaped
+        OCSERV_BANNER=$(sed ':a;N;$!ba;s/\n/\\n/g' "$TMP_BANNER_FILE")
+        rm -f "$TMP_BANNER_FILE"
+
+        # Escape quotes for ocserv.conf
+        OCSERV_BANNER=${OCSERV_BANNER//\"/\\\"}
+
+        # Size check in total characters (including spaces)
+        BANNER_SIZE=${#OCSERV_BANNER}
+        if (( BANNER_SIZE > MAX_BANNER_SIZE )); then
+            echo "❌ Banner too long: ${BANNER_SIZE}/${MAX_BANNER_SIZE} characters"
+            echo "Please shorten the banner and try again."
+            continue
+        fi
+
+        print_message highlight "✅ Banner accepted (${BANNER_SIZE}/${MAX_BANNER_SIZE} characters)"
+        break
+    done
+
     # SECRET_KEY
     read -rsp "Enter SECRET_KEY (leave blank to auto-generate): " secret_key
     printf "\n"
@@ -361,24 +439,26 @@ set_environment() {
     ENV_FILE=".env"
     print_message info "Creating environment file at $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOL
-HOST=${HOST}
-SECRET_KEY=${SECRET_KEY}
-JWT_SECRET=${JWT_SECRET}
-SSL_CN=${SSL_CN}
-SSL_ORG=${SSL_ORG}
-OC_NET=${OC_NET}
-SSL_C=${SSL_C}
-SSL_ST=${SSL_ST}
-SSL_L=${SSL_L}
-SSL_EXPIRE=${SSL_EXPIRE}
-OCSERV_PORT=${OCSERV_PORT}
-OCSERV_DNS=${OCSERV_DNS}
+HOST="${HOST}"
+SECRET_KEY="${SECRET_KEY}"
+JWT_SECRET="${JWT_SECRET}"
+SSL_CN="${SSL_CN}"
+SSL_ORG="${SSL_ORG}"
+OC_NET="${OC_NET}"
+SSL_C="${SSL_C}"
+SSL_ST="${SSL_ST}"
+SSL_L="${SSL_L}"
+SSL_EXPIRE="${SSL_EXPIRE}"
+OCSERV_PORT="${OCSERV_PORT}"
+OCSERV_DNS="${OCSERV_DNS}"
 LANGUAGES="${LANGUAGES}"
-ALLOW_ORIGINS=https://${HOST}:3443
-JWT_SECRET=${JWT_SECRET}
-SECRET_KEY=${SECRET_KEY}
+ALLOW_ORIGINS="https://${HOST}:3443"
+JWT_SECRET="${JWT_SECRET}"
+SECRET_KEY="${SECRET_KEY}"
+OCSERV_BANNER="${OCSERV_BANNER}"
+OCSERV_PRE_LOGIN_BANNER="${OCSERV_PRE_LOGIN_BANNER}"
 EOL
-    print_message success "✅ Environment file created successfully."
+    print_message success "✅ Environment file created successfully in $ENV_FILE."
 }
 
 # ===============================
@@ -485,7 +565,7 @@ setup_systemd() {
           # Select network interface for NAT/firewall
           get_interface
 
-          export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH
+          export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH OCSERV_BANNER
 
           ./scripts/systemd_ocserv.sh
     fi

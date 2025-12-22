@@ -64,20 +64,29 @@ config-per-group=/etc/ocserv/groups/
 config-per-user=/etc/ocserv/users/
 log-level=3
 rate-limit-ms=100
+pre-login-banner="$OCSERV_PRE_LOGIN_BANNER"
+
 EOT
+
+OCSERV_BANNER=$(echo "$OCSERV_BANNER" | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')
+printf 'banner="%s"\n' "$OCSERV_BANNER" >> "$OCSERV_CONF"
 }
+
+
+
+
 
 # ------------------------------------------------
 # Validate existing config
 # ------------------------------------------------
 if [[ ! -f "$OCSERV_CONF" ]]; then
-    print_message info "📄 ocserv.conf not found, creating new file"
+    echo "📄 ocserv.conf not found, creating new file"
     write_ocserv_conf
 elif ! head -n 5 "$OCSERV_CONF" | grep -q "$MANAGED_HEADER"; then
-    print_message warning "⚠️ ocserv.conf not managed by dashboard, overwriting"
+    echo "⚠️ ocserv.conf not managed by dashboard, overwriting"
     write_ocserv_conf
 else
-    print_message success "✅ ocserv.conf already managed, no changes needed"
+    echo "✅ ocserv.conf already managed, no changes needed"
 fi
 
 mkdir -p /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users/
@@ -89,10 +98,10 @@ GROUP_CONF="/etc/ocserv/defaults/group.conf"
 sudo mkdir -p "$(dirname "$GROUP_CONF")"
 
 if [[ ! -f "$GROUP_CONF" ]]; then
-    print_message info "📄 Creating default group configuration"
+    echo "📄 Creating default group configuration"
     sudo touch "${GROUP_CONF}"
 else
-    print_message success "✅ Default group configuration already exists"
+    echo "✅ Default group configuration already exists"
 fi
 
 

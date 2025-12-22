@@ -183,7 +183,13 @@ ipv4-network = ${OC_NET}
 
 config-per-group = /etc/ocserv/groups/
 config-per-user  = /etc/ocserv/users/
+
+pre-login-banner="$OCSERV_PRE_LOGIN_BANNER"
+
 EOT
+
+OCSERV_BANNER=$(echo "$OCSERV_BANNER" | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')
+printf 'banner="%s"\n' "$OCSERV_BANNER" >> "$OCSERV_CONF"
 }
 
 if [[ ! -f "$OCSERV_CONF" ]]; then
