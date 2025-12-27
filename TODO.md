@@ -15,3 +15,4 @@
 - [ ] Research and implement a new permission strategy for staff roles, introducing super-admin, admin, and staff levels (#97)
 - [ ] Implement super-admin, admin, and staff activities tracking and logs (#97)
 - [ ] super-admin can add user for admin (#88) updated with (#97)
+- [ ] Publish official pre-built Docker images (#100)
