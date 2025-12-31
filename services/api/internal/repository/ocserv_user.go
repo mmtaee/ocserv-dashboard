@@ -568,11 +568,17 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 }
 
 func (o *OcservUserRepository) RestoreExpired(ctx context.Context, users []string, expireAt time.Time) error {
+	if len(users) == 0 {
+		return nil
+	}
+
 	return o.db.
 		WithContext(ctx).
 		Model(&models.OcservUser{}).
 		Where("username IN ?", users).
 		Updates(map[string]interface{}{
 			"expire_at": expireAt,
+			"rx":        0,
+			"tx":        0,
 		}).Error
 }
