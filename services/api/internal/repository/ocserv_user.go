@@ -577,8 +577,9 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, users []strin
 		Model(&models.OcservUser{}).
 		Where("username IN ?", users).
 		Updates(map[string]interface{}{
-			"expire_at": expireAt,
-			"rx":        0,
-			"tx":        0,
+			"expire_at":      expireAt,
+			"deactivated_at": nil,
+			"rx":             0,
+			"tx":             0,
 		}).Error
 }
