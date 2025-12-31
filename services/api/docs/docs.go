@@ -972,6 +972,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/ocserv/users/restore": {
+            "post": {
+                "description": "Restore expired Ocserv User accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Restore expired Ocserv User accounts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "list of ocserv users and expire time",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.ExpiredUsersData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/statistics": {
             "get": {
                 "description": "Ocserv Users Statistics",
@@ -2918,6 +2968,24 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                }
+            }
+        },
+        "ocserv_user.ExpiredUsersData": {
+            "type": "object",
+            "required": [
+                "users"
+            ],
+            "properties": {
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

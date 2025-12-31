@@ -1,6 +1,7 @@
 package ocserv_user
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -8,6 +9,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"golang.org/x/sync/errgroup"
 	"net/http"
 	"slices"
@@ -631,4 +633,71 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, syncUsernames)
+}
+
+// RestoreExpiredOcservUsers     Restore expired Ocserv User accounts
+//
+// @Summary      Restore expired Ocserv User accounts
+// @Description  Restore expired Ocserv User accounts
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        request    body  ExpiredUsersData  true "list of ocserv users and expire time"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} nil
+// @Router       /ocserv/users/restore [post]
+func (ctl *Controller) RestoreExpiredOcservUsers(c echo.Context) error {
+	var data ExpiredUsersData
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if len(data.Users) == 0 {
+		return ctl.request.BadRequest(c, errors.New("no users found"))
+	}
+
+	if data.ExpireAt == nil {
+		return ctl.request.BadRequest(c, errors.New("expire_at is required"))
+	}
+	expireAt, err := time.Parse("2006-01-02", *data.ExpireAt)
+	if err != nil {
+		return ctl.request.BadRequest(c, fmt.Errorf("invalid expire_at: %w", err))
+	}
+
+	err = ctl.ocservUserRepo.RestoreExpired(c.Request().Context(), data.Users, expireAt)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	go func() {
+		ctx, cancel := context.WithTimeout(c.Request().Context(), 30*time.Second)
+		defer cancel()
+
+		sem := make(chan struct{}, 10)
+		var wg sync.WaitGroup
+
+		for _, u := range data.Users {
+			sem <- struct{}{}
+			wg.Add(1)
+			go func(user string) {
+				defer wg.Done()
+				defer func() { <-sem }()
+				defer func() {
+					if r := recover(); r != nil {
+						logger.Error("panic unlocking user %s: %v", user, r)
+					}
+				}()
+
+				if err3 := ctl.ocservUserRepo.UnLock(ctx, user); err3 != nil {
+					logger.Error("Failed to unlock user %s: %v", user, err3)
+				}
+			}(u)
+		}
+
+		wg.Wait()
+	}()
+
+	return c.JSON(http.StatusOK, nil)
 }

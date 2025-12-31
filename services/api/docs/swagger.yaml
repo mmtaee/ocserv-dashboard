@@ -621,6 +621,18 @@ definitions:
     - traffic_type
     - username
     type: object
+  ocserv_user.ExpiredUsersData:
+    properties:
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      users:
+        items:
+          type: string
+        type: array
+    required:
+    - users
+    type: object
   ocserv_user.OcservUsersResponse:
     properties:
       meta:
@@ -1783,6 +1795,39 @@ paths:
       summary: Ocserv Users from ocpasswd file to db
       tags:
       - Ocserv(Ocpasswd)
+  /ocserv/users/restore:
+    post:
+      consumes:
+      - application/json
+      description: Restore expired Ocserv User accounts
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: list of ocserv users and expire time
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.ExpiredUsersData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Restore expired Ocserv User accounts
+      tags:
+      - Ocserv(Users)
   /ocserv/users/statistics:
     get:
       consumes:
