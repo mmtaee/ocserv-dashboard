@@ -155,7 +155,7 @@ All web dashboard translation files are located at:
 
 [web/src/locales/](https://github.com/mmtaee/ocserv-dashboard/tree/master/web/src/locales)
 
-Each language has its own JSON file (e.g., `en.json`, `zh.json`, `ru.json`, etc.).
+Each language has its own JSON file (e.g., `en.json`, `it.json`, `zh.json`, `ru.json`, etc.).
 
 ### 🛠️ How to Contribute
 
@@ -174,7 +174,7 @@ Find the line that defines supported languages, and add your new language in the
 
 Example (adding Spanish):
 
-**LANGUAGES=en:English,zh:中文,ru:Русский,fa:فارسی,ar:العربية,es:Español**
+**LANGUAGES=en:English,it:Italianozh:中文,ru:Русский,fa:فارسی,ar:العربية,es:Español**
 
 Contributing translations and updating the installer helps ensure the dashboard supports users around the world.
 
