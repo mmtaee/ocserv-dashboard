@@ -45,6 +45,7 @@ models/ocserv-group-create-ocserv-group-data.ts
 models/ocserv-group-ocserv-groups-response.ts
 models/ocserv-group-sync-group-request.ts
 models/ocserv-group-update-ocserv-group-data.ts
+models/ocserv-user-activate-user-data.ts
 models/ocserv-user-create-ocserv-user-data.ts
 models/ocserv-user-ocserv-users-response.ts
 models/ocserv-user-ocserv-users-sync-response.ts

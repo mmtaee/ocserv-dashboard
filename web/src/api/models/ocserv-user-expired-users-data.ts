@@ -12,20 +12,22 @@
  * Do not edit the class manually.
  */
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { ModelsOcservGroupConfig } from './models-ocserv-group-config';
-
 /**
  *
  * @export
- * @interface OcservGroupUpdateOcservGroupData
+ * @interface OcservUserExpiredUsersData
  */
-export interface OcservGroupUpdateOcservGroupData {
+export interface OcservUserExpiredUsersData {
     /**
      *
-     * @type {ModelsOcservGroupConfig}
-     * @memberof OcservGroupUpdateOcservGroupData
+     * @type {string}
+     * @memberof OcservUserExpiredUsersData
      */
-    config: ModelsOcservGroupConfig;
+    expire_at?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof OcservUserExpiredUsersData
+     */
+    username: string;
 }
