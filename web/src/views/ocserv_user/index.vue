@@ -134,13 +134,17 @@ const activateUser = (expireAt: string) => {
         .then(() => {
             let index = users.findIndex((i) => (i.uid = activateUserUID.value));
             if (index > -1) {
-                users.splice(index, 1, reactive({
-                    ...users[index],
-                    is_locked: false,
-                    deactivated_at: undefined,
-                    expire_at: expireAt,
-                    is_online: false
-                }));
+                users.splice(
+                    index,
+                    1,
+                    reactive({
+                        ...users[index],
+                        is_locked: false,
+                        deactivated_at: undefined,
+                        expire_at: expireAt,
+                        is_online: false
+                    })
+                );
             }
         })
         .finally(() => {
