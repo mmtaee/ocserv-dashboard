@@ -41,6 +41,11 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
+# Copy occtl from ocserv image
+COPY --from=ocserv_users_management:ocserv_with_api \
+     /usr/bin/occtl \
+     /usr/bin/occtl
+
 # Copy the Go binary from the builder stage
 COPY --from=builder /app/log_stream /usr/local/bin/log_stream
 

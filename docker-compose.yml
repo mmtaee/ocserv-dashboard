@@ -43,6 +43,7 @@ services:
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/db:/app/db
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv
     env_file:
       - ./.env
     networks:
@@ -61,6 +62,7 @@ services:
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/db:/app/db
       - /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal
+      - /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv
     env_file:
       - ./.env
     depends_on:
