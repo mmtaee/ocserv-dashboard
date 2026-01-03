@@ -1,7 +1,6 @@
 package models
 
 import (
-	"crypto/rand"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -113,8 +112,6 @@ func (o *OcservUser) BeforeUpdate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-var entropy = ulid.Monotonic(rand.Reader, 0)
-
 func (o *OcservUser) BeforeCreate(tx *gorm.DB) (err error) {
 	if !validateTrafficType(o.TrafficType) {
 		return fmt.Errorf("invalid TrafficType: %s", o.TrafficType)
@@ -124,7 +121,7 @@ func (o *OcservUser) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 
 	if o.UID == "" {
-		o.UID = ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String()
+		o.UID = ulid.Make().String()
 	}
 	return
 }
