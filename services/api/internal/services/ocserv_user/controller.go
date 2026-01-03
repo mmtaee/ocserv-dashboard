@@ -632,3 +632,47 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, syncUsernames)
 }
+
+// ActivateExpiredOcservUsers     Restore and activate expired Ocserv User accounts
+//
+// @Summary      Restore and activate expired Ocserv User accounts
+// @Description  Restore and activate expired Ocserv User accounts
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 uid path string true "Ocserv User UID"
+// @Param        request    body  ActivateUserData  true "list of ocserv users and expire time"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {object} nil
+// @Router       /ocserv/users/{uid}/activate [post]
+func (ctl *Controller) ActivateExpiredOcservUsers(c echo.Context) error {
+	userID := c.Param("uid")
+	if userID == "" {
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
+	}
+
+	var data ActivateUserData
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	var (
+		expireAt time.Time
+		err      error
+	)
+	if data.ExpireAt != nil {
+		expireAt, err = time.Parse("2006-01-02", *data.ExpireAt)
+		if err != nil {
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid expire_at: %w", err))
+		}
+	}
+
+	err = ctl.ocservUserRepo.RestoreExpired(c.Request().Context(), userID, expireAt)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}

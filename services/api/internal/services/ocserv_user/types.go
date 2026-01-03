@@ -61,3 +61,7 @@ type OcservUsersSyncResponse struct {
 	Meta   request.Meta    `json:"meta" validate:"required"`
 	Result []user.Ocpasswd `json:"result" validate:"omitempty"`
 }
+
+type ActivateUserData struct {
+	ExpireAt *string `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+}

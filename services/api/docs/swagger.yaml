@@ -579,6 +579,12 @@ definitions:
     required:
     - config
     type: object
+  ocserv_user.ActivateUserData:
+    properties:
+      expire_at:
+        example: "2025-12-31"
+        type: string
+    type: object
   ocserv_user.CreateOcservUserData:
     properties:
       config:
@@ -1555,6 +1561,44 @@ paths:
           schema:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Ocserv User update
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{uid}/activate:
+    post:
+      consumes:
+      - application/json
+      description: Restore and activate expired Ocserv User accounts
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      - description: list of ocserv users and expire time
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.ActivateUserData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Restore and activate expired Ocserv User accounts
       tags:
       - Ocserv(Users)
   /ocserv/users/{uid}/lock:

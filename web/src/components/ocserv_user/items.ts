@@ -76,7 +76,7 @@ function getFormFields() {
             label: 'Restrict User To Routes',
             type: 'switch',
             hint: t('ALLOW_CLIENT_ACCESS_ONLY_TO_DEFINED_ROUTES')
-        },
+        }
     ];
 
     const textFields = [

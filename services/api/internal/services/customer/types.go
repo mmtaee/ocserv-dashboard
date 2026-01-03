@@ -12,7 +12,7 @@ type SummaryData struct {
 
 type ModelCustomer struct {
 	Owner         string     `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
-	Username      string     `json:"username" gorm:"type:varchar(16);not null;unique" validate:"required"`
+	Username      string     `json:"username" gorm:"type:varchar(16);not null;uniqueIndex" validate:"required"`
 	IsLocked      bool       `json:"is_locked" gorm:"default(false)" validate:"required"`
 	ExpireAt      *time.Time `json:"expire_at" gorm:"type:date" validate:"required"`
 	DeactivatedAt *time.Time `json:"deactivated_at" gorm:"type:date" validate:"required"`

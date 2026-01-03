@@ -38,8 +38,6 @@ type OcservUserCRUD interface {
 	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
-	Lock(ctx context.Context, uid string) error
-	UnLock(ctx context.Context, uid string) error
 	Delete(ctx context.Context, uid string) (string, error)
 }
 
@@ -64,11 +62,18 @@ type OcservUserGroup interface {
 	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) ([]models.OcservUser, error)
 }
 
+type OcservUserActions interface {
+	Lock(ctx context.Context, uid string) error
+	UnLock(ctx context.Context, uid string) error
+	RestoreExpired(ctx context.Context, uid string, expireAt time.Time) error
+}
+
 type OcservUserRepositoryInterface interface {
 	OcservUserCRUD
 	OcservUserStats
 	OcservUserPassword
 	OcservUserGroup
+	OcservUserActions
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
@@ -560,4 +565,33 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 	}
 
 	return users, nil
+}
+
+func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, expireAt time.Time) error {
+	return o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var u models.OcservUser
+		if err := tx.
+			Where("uid = ?", uid).
+			First(&u).Error; err != nil {
+			return err
+		}
+
+		if _, err := o.commonOcservUserRepo.UnLock(u.Username); err != nil {
+			return err
+		}
+		
+		if err := tx.
+			Model(&u).
+			Updates(map[string]interface{}{
+				"expire_at":      expireAt,
+				"deactivated_at": nil,
+				"is_locked":      false,
+				"rx":             0,
+				"tx":             0,
+			}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

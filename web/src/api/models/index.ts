@@ -26,6 +26,7 @@ export * from './ocserv-group-create-ocserv-group-data';
 export * from './ocserv-group-ocserv-groups-response';
 export * from './ocserv-group-sync-group-request';
 export * from './ocserv-group-update-ocserv-group-data';
+export * from './ocserv-user-activate-user-data';
 export * from './ocserv-user-create-ocserv-user-data';
 export * from './ocserv-user-ocserv-users-response';
 export * from './ocserv-user-ocserv-users-sync-response';

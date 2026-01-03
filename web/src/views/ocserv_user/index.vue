@@ -11,6 +11,7 @@ import Pagination from '@/components/shared/Pagination.vue';
 import type { Meta } from '@/types/metaTypes/MetaType';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useProfileStore } from '@/stores/profile';
+import ActivateDialog from '@/components/ocserv_user/ActivateDialog.vue';
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -25,7 +26,11 @@ const deleteDialog = ref(false);
 const deleteUserName = ref('');
 const deleteUserUID = ref('');
 
-const users = reactive<ModelsOcservUser[]>([]);
+const activateDialog = ref(false);
+const activateUserName = ref('');
+const activateUserUID = ref('');
+
+const users = ref<ModelsOcservUser[]>([]);
 const snackbar = useSnackbarStore();
 
 const profileStore = useProfileStore();
@@ -38,7 +43,7 @@ const getUsers = () => {
         ...meta
     })
         .then((res) => {
-            users.splice(0, users.length, ...(res.data.result ?? []));
+            users.value = res.data.result ?? [];
             Object.assign(meta, res.data.meta);
         })
         .finally(() => {
@@ -60,9 +65,9 @@ const disconnect = (username: string) => {
         username: username
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.username = username));
+            let index = users.value.findIndex((i) => i.username === username);
             if (index > -1) {
-                users[index].is_online = false;
+                users.value[index].is_online = false;
             }
         })
         .finally(() => {
@@ -81,9 +86,9 @@ const lock = (uid: string) => {
         uid: uid
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.uid = uid));
+            let index = users.value.findIndex((i) => i.uid === uid);
             if (index > -1) {
-                users[index].is_locked = true;
+                users.value[index].is_locked = true;
             }
         })
         .finally(() => {
@@ -102,9 +107,9 @@ const unlock = (uid: string) => {
         uid: uid
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.uid = uid));
+            let index = users.value.findIndex((i) => i.uid === uid);
             if (index > -1) {
-                users[index].is_locked = false;
+                users.value[index].is_locked = false;
             }
         })
         .finally(() => {
@@ -117,20 +122,62 @@ const unlock = (uid: string) => {
         });
 };
 
+const activateUser = (expireAt: string) => {
+    expireAt = formatDate(expireAt);
+    api.ocservUsersUidActivatePost({
+        ...getAuthorization(),
+        uid: activateUserUID.value,
+        request: {
+            expire_at: expireAt
+        }
+    })
+        .then(() => {
+            let index = users.value.findIndex((i) => i.uid === activateUserUID.value);
+            if (index > -1) {
+                users.value[index].is_locked = false;
+                users.value[index].deactivated_at = undefined;
+                users.value[index].expire_at = expireAt;
+                users.value[index].is_online = false;
+            }
+        })
+        .finally(() => {
+            cancelActivateUser();
+            snackbar.show({
+                id: 1,
+                message: t('USER_ACTIVATE_SUCCESSFULLY_SNACK'),
+                color: 'success',
+                timeout: 4000
+            });
+        });
+};
+
 const statistics = async (uid: string, username: string) => {
     await router.push({ name: 'Ocserv User Statistics', params: { uid: uid }, query: { username: username } });
 };
 
-const deleteUserHandler = (uid: string, name: string) => {
+const deleteUserHandler = (uid: string, username: string) => {
     deleteUserUID.value = uid;
-    deleteUserName.value = name;
+    deleteUserName.value = username;
     deleteDialog.value = true;
+};
+
+const activateUserHandler = (uid: string, username: string) => {
+    console.log('activateUserHandler', uid, username);
+    activateUserUID.value = uid;
+    activateUserName.value = username;
+    activateDialog.value = true;
 };
 
 const cancelDeleteUser = () => {
     deleteUserUID.value = '';
     deleteUserName.value = '';
     deleteDialog.value = false;
+};
+
+const cancelActivateUser = () => {
+    activateUserUID.value = '';
+    activateUserName.value = '';
+    activateDialog.value = false;
 };
 
 const deleteUser = () => {
@@ -257,10 +304,10 @@ onMounted(() => {
                                             {{ formatDate(item.expire_at) }}
                                         </span>
                                     </div>
-                                    <div>
+                                    <div v-if="item.deactivated_at">
                                         {{ t('DEACTIVATED_AT') }}:<br />
                                         <span class="text-info text-capitalize">
-                                            {{ formatDate(item.deactivated_at) || t('USER_IS_ACTIVE_NOW') }}
+                                            {{ formatDate(item.deactivated_at) }}
                                         </span>
                                     </div>
                                 </td>
@@ -268,15 +315,15 @@ onMounted(() => {
                                     <div class="text-capitalize">
                                         {{ t('STATUS') }}:<br />
                                         <!-- Locked -->
-                                        <span v-if="item.is_locked && !item.deactivated_at">
+                                        <span v-if="item.is_locked && !Boolean(item.deactivated_at)">
                                             <v-icon color="warning" start>mdi-lock</v-icon>
                                             <span class="text-warning text-capitalize">{{ t('LOCKED') }}</span>
                                         </span>
 
                                         <!-- Deactivated -->
-                                        <span v-else-if="item.deactivated_at">
-                                            <v-icon color="accent" start>mdi-close-network-outline</v-icon>
-                                            <span class="text-accent text-capitalize">{{ t('DEACTIVATED') }}</span>
+                                        <span v-else-if="Boolean(item.deactivated_at)">
+                                            <v-icon color="error" start>mdi-close-network-outline</v-icon>
+                                            <span class="text-error text-capitalize">{{ t('DEACTIVATED') }}</span>
                                         </span>
 
                                         <!-- Online -->
@@ -287,10 +334,9 @@ onMounted(() => {
 
                                         <!-- Disconnected -->
                                         <span v-else-if="!item.is_online">
-                                            <v-icon color="error" start>mdi-lan-disconnect</v-icon>
-                                            <span class="text-error text-capitalize">{{ t('DISCONNECTED') }}</span>
+                                            <v-icon color="grey" start>mdi-lan-disconnect</v-icon>
+                                            <span class="text-grey text-capitalize">{{ t('DISCONNECTED') }}</span>
                                         </span>
-
                                     </div>
                                 </td>
                                 <td>
@@ -357,7 +403,19 @@ onMounted(() => {
                                                 </template>
                                             </v-list-item>
 
-                                            <v-list-item @click="statistics(item?.uid, item.username)">
+                                            <v-list-item
+                                                v-if="item.deactivated_at"
+                                                @click="activateUserHandler(item.uid, item.username)"
+                                            >
+                                                <v-list-item-title class="text-success text-capitalize me-5">
+                                                    {{ t('ACTIVATE') }}
+                                                </v-list-item-title>
+                                                <template v-slot:prepend>
+                                                    <v-icon class="ms-2" color="success">mdi-network-outline</v-icon>
+                                                </template>
+                                            </v-list-item>
+
+                                            <v-list-item @click="statistics(item.uid, item.username)">
                                                 <v-list-item-title class="text-grey text-capitalize me-5">
                                                     {{ t('STATISTICS') }}
                                                 </v-list-item-title>
@@ -391,6 +449,12 @@ onMounted(() => {
         </v-col>
     </v-row>
 
+    <ActivateDialog
+        :show="activateDialog"
+        :username="activateUserName"
+        @close="cancelActivateUser"
+        @activateUser="activateUser"
+    />
     <DeleteDialog :show="deleteDialog" :username="deleteUserName" @close="cancelDeleteUser" @deleteUser="deleteUser" />
 </template>
 
