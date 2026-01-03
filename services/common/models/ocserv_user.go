@@ -55,10 +55,10 @@ type OcservUserConfig struct {
 
 type OcservUser struct {
 	ID            uint              `json:"-" gorm:"primaryKey;autoIncrement" `
-	UID           string            `json:"uid" gorm:"type:varchar(26);not null;unique" validate:"required"`
+	UID           string            `json:"uid" gorm:"gorm:type:char(26);not null;uniqueIndex" validate:"required"`
 	Owner         string            `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
 	Group         string            `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
-	Username      string            `json:"username" gorm:"type:varchar(16);not null;unique" validate:"required"`
+	Username      string            `json:"username" gorm:"type:varchar(16);not null;uniqueIndex" validate:"required"`
 	Password      string            `json:"password" gorm:"type:varchar(16);not null" validate:"required"`
 	IsLocked      bool              `json:"is_locked" gorm:"default(false)" validate:"required"`
 	CreatedAt     time.Time         `json:"created_at" gorm:"autoCreateTime" validate:"required"`
@@ -120,7 +120,9 @@ func (o *OcservUser) BeforeCreate(tx *gorm.DB) (err error) {
 		o.TrafficSize = 0
 	}
 
-	o.UID = ulid.Make().String()
+	if o.UID == "" {
+		o.UID = ulid.Make().String()
+	}
 	return
 }
 
