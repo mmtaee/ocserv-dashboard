@@ -30,7 +30,7 @@ const activateDialog = ref(false);
 const activateUserName = ref('');
 const activateUserUID = ref('');
 
-const users = reactive<ModelsOcservUser[]>([]);
+const users = ref<ModelsOcservUser[]>([]);
 const snackbar = useSnackbarStore();
 
 const profileStore = useProfileStore();
@@ -43,7 +43,7 @@ const getUsers = () => {
         ...meta
     })
         .then((res) => {
-            users.splice(0, users.length, ...(res.data.result ?? []));
+            users.value = res.data.result ?? [];
             Object.assign(meta, res.data.meta);
         })
         .finally(() => {
@@ -65,9 +65,9 @@ const disconnect = (username: string) => {
         username: username
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.username = username));
+            let index = users.value.findIndex((i) => i.username === username);
             if (index > -1) {
-                users[index].is_online = false;
+                users.value[index].is_online = false;
             }
         })
         .finally(() => {
@@ -86,9 +86,9 @@ const lock = (uid: string) => {
         uid: uid
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.uid = uid));
+            let index = users.value.findIndex((i) => i.uid = uid);
             if (index > -1) {
-                users[index].is_locked = true;
+                users.value[index].is_locked = true;
             }
         })
         .finally(() => {
@@ -107,9 +107,9 @@ const unlock = (uid: string) => {
         uid: uid
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.uid = uid));
+            let index = users.value.findIndex((i) => i.uid = uid);
             if (index > -1) {
-                users[index].is_locked = false;
+                users.value[index].is_locked = false;
             }
         })
         .finally(() => {
@@ -132,19 +132,12 @@ const activateUser = (expireAt: string) => {
         }
     })
         .then(() => {
-            let index = users.findIndex((i) => (i.uid = activateUserUID.value));
+            let index = users.value.findIndex((i) => i.uid = activateUserUID.value);
             if (index > -1) {
-                users.splice(
-                    index,
-                    1,
-                    reactive({
-                        ...users[index],
-                        is_locked: false,
-                        deactivated_at: undefined,
-                        expire_at: expireAt,
-                        is_online: false
-                    })
-                );
+                users.value[index].is_locked = false
+                users.value[index].deactivated_at = undefined;
+                users.value[index].expire_at = expireAt;
+                users.value[index].is_online = false
             }
         })
         .finally(() => {
