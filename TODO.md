@@ -4,10 +4,7 @@
 - [x] sync ocpassw and add OS-user to dashboard users
 - [x] rescan groups and add to dashboard groups
 - [x] Add an option in the `install.sh` script to support standalone dashboard installation or upgrade
-- [x] Restore users with full traffic data and reset monthly status (reset `RX/TX` counters and active status)
-- [ ] Bind the Home or Return button in the web interface to
-    - Navigate using window.history (back/forward)
-    - Or reconstruct the previous list state using query parameters
+- [ ] Restore users with full traffic data and reset monthly status (reset `RX/TX` counters and active status)
 - [ ] search ocserv users by username (#88)
 - [ ] Add a refresh button on Staffs, Ocserv Groups, and Ocserv Users pages
 - [ ] Manage `systemd` services: restart and check statuses in dashboard
@@ -19,3 +16,4 @@
 - [ ] Implement super-admin, admin, and staff activities tracking and logs (#97)
 - [ ] super-admin can add user for admin (#88) updated with (#97)
 - [ ] Publish official pre-built Docker images (#100)
+- [ ] Add detailed user activity logs (login/logout with date & time) (#108)
