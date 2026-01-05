@@ -153,7 +153,7 @@ const updateMeta = (newMeta: Meta) => {
                     </tbody>
                 </v-table>
 
-                <div v-else class="ms-md-5 mb-md-5 text-capitalize">{{ t('NO_GROUP_FOUND_TABLE') }}!</div>
+                <div v-else class="ms-md-5 mb-md-5 text-capitalize">{{ t('NO_GROUP_FOUND_TABLE') }}</div>
 
                 <Pagination @update="updateMeta" :totalRecords="meta.total_records" v-if="meta.total_records > 0" />
             </UiParentCard>
