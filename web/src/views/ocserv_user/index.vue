@@ -15,6 +15,7 @@ import ActivateDialog from '@/components/ocserv_user/ActivateDialog.vue';
 
 const { t } = useI18n();
 const loading = ref(false);
+const q = ref(null)
 const api = new OcservUsersApi();
 const meta = reactive<Meta>({
     page: 1,
@@ -22,6 +23,7 @@ const meta = reactive<Meta>({
     sort: 'ASC',
     total_records: 0
 });
+
 const deleteDialog = ref(false);
 const deleteUserName = ref('');
 const deleteUserUID = ref('');
@@ -218,6 +220,19 @@ const updateMeta = (newMeta: Meta) => {
                 <v-progress-linear :active="loading" indeterminate></v-progress-linear>
 
                 <div v-if="!loading && users.length > 0">
+                    <v-row align="start" justify="start" class="px-md-15 mb-3">
+                        <v-col cols="12" md="3" sm="5">
+                            <v-text-field
+                                :label="t('USERNAME')"
+                                v-model="q"
+                                color="primary"
+                                hide-details
+                                variant="outlined"
+                                clearable
+                            />
+                        </v-col>
+                    </v-row>
+
                     <v-table class="px-md-15">
                         <thead>
                             <tr class="text-capitalize bg-lightprimary">
