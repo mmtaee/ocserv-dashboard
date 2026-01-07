@@ -59,9 +59,9 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 
 	pagination := ctl.request.Pagination(c)
 
-	q := c.QueryParam("username")
+	username := c.QueryParam("q")
 
-	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination, owner, q)
+	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination, owner, username)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

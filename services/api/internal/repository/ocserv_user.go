@@ -8,6 +8,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -94,7 +95,7 @@ func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pa
 			db = db.Where("owner = ?", owner)
 		}
 		if len(q) >= 2 {
-			db = db.Where("username LIKE ?", "%"+q+"%")
+			db = db.Where("LOWER(username) LIKE ?", "%"+strings.ToLower(q)+"%")
 		}
 		return db
 	}
@@ -111,7 +112,7 @@ func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pa
 	if err := query.Find(&ocservUser).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	return ocservUser, totalRecords, nil
 }
 
