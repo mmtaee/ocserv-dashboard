@@ -22,7 +22,8 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			c.Set("userUID", claims["sub"])
-			c.Set("isAdmin", claims["isAdmin"])
+			// TODO: should change to role base
+			c.Set("role", claims["role"])
 			c.Set("username", claims["username"])
 			return next(c)
 		}

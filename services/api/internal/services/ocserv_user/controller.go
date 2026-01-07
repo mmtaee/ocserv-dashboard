@@ -49,6 +49,8 @@ func New() *Controller {
 // @Router       /ocserv/users [get]
 func (ctl *Controller) OcservUsers(c echo.Context) error {
 	owner := ""
+	
+	// TODO: should change to role base
 	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
 		username := c.Get("username").(string)
 		if username == "" {

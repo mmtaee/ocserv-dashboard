@@ -42,6 +42,7 @@ func New() *Controller {
 // @Router       /ocserv/groups/lookup [get]
 func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 	owner := ""
+	// TODO: should change to role base
 	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
 		username := c.Get("username").(string)
 		if username == "" {
@@ -76,7 +77,8 @@ func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 // @Router       /ocserv/groups [get]
 func (ctl *Controller) OcservGroups(c echo.Context) error {
 	pagination := ctl.request.Pagination(c)
-
+	
+	// TODO: should change to role base
 	owner := ""
 	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
 		username := c.Get("username").(string)

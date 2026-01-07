@@ -59,7 +59,7 @@ func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rem
 		expire = expire.AddDate(0, 1, 0)
 	}
 
-	access, err := crypto.GenerateAccessToken(user.UID, user.Username, expire.Unix(), user.IsAdmin)
+	access, err := crypto.GenerateAccessToken(user.UID, user.Username, expire.Unix(), user.Role)
 	if err != nil {
 		return "", err
 	}

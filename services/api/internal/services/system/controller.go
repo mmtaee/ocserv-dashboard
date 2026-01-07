@@ -56,6 +56,7 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
+	// TODO: should change to role base
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
@@ -258,6 +259,7 @@ func (ctl *Controller) CreateUser(c echo.Context) error {
 	}
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
+	// TODO: should change to role base
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
