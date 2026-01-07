@@ -46,6 +46,7 @@ export const useProfileStore = defineStore('profile', {
         profile(state): ModelsUser | null {
             return state;
         },
+        // TODO: should change to role base
         isAdmin(state: ModelsUser) {
             return state.is_admin;
         }
