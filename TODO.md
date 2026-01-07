@@ -5,7 +5,7 @@
 - [x] rescan groups and add to dashboard groups
 - [x] Add an option in the `install.sh` script to support standalone dashboard installation or upgrade
 - [x] Restore users with full traffic data and reset monthly status (reset `RX/TX` counters and active status)
-- [ ] search ocserv users by username (#88)
+- [x] search ocserv users by username (#88)
 - [ ] Add a refresh button on Staffs, Ocserv Groups, and Ocserv Users pages
 - [ ] Manage `systemd` services: restart and check statuses in dashboard
 - [x] Refactor large interfaces into smaller, focused, single-responsibility interfaces

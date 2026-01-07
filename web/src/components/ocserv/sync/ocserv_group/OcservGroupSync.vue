@@ -168,7 +168,7 @@ onMounted(() => {
                         </v-table>
                     </div>
 
-                    <div v-else class="ms-md-5 mb-md-5 text-capitalize">
+                    <div v-if="loading || groups.length == 0" class="ms-md-5 mb-md-5 text-capitalize">
                         {{ t('NO_GROUP_FOUND_TABLE') }}
                     </div>
                 </UiChildCard>

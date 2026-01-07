@@ -8,6 +8,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -33,7 +34,7 @@ type OcservUserRepository struct {
 }
 
 type OcservUserCRUD interface {
-	Users(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservUser, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, owner string, q string) ([]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
@@ -84,34 +85,34 @@ func NewtOcservUserRepository() *OcservUserRepository {
 	}
 }
 
-func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pagination, owner string) (
+func (o *OcservUserRepository) Users(ctx context.Context, pagination *request.Pagination, owner string, q string) (
 	[]models.OcservUser, int64, error,
 ) {
 	var totalRecords int64
 
-	totalQuery := o.db.WithContext(ctx).Model(&models.OcservUser{})
-	if owner != "" {
-		totalQuery = totalQuery.Where("owner = ?", owner)
+	applyFilters := func(db *gorm.DB) *gorm.DB {
+		if owner != "" {
+			db = db.Where("owner = ?", owner)
+		}
+		if len(q) >= 2 {
+			db = db.Where("LOWER(username) LIKE ?", "%"+strings.ToLower(q)+"%")
+		}
+		return db
 	}
-	err := totalQuery.Count(&totalRecords).Error
 
-	if err != nil {
+	totalQuery := applyFilters(o.db.WithContext(ctx).Model(&models.OcservUser{}))
+	if err := totalQuery.Count(&totalRecords).Error; err != nil {
 		return nil, 0, err
 	}
 
 	var ocservUser []models.OcservUser
 	txPaginator := request.Paginator(ctx, o.db, pagination)
 
-	query := txPaginator.Model(&ocservUser)
-
-	if owner != "" {
-		query = query.Where("owner = ?", owner)
-	}
-
-	err = query.Find(&ocservUser).Error
-	if err != nil {
+	query := applyFilters(txPaginator.Model(&ocservUser))
+	if err := query.Find(&ocservUser).Error; err != nil {
 		return nil, 0, err
 	}
+
 	return ocservUser, totalRecords, nil
 }
 
@@ -579,7 +580,7 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, e
 		if _, err := o.commonOcservUserRepo.UnLock(u.Username); err != nil {
 			return err
 		}
-		
+
 		if err := tx.
 			Model(&u).
 			Updates(map[string]interface{}{

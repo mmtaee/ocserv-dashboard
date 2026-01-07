@@ -41,6 +41,7 @@ func New() *Controller {
 // @Param 		 size query int false "Number of items per page" minimum(1) maximum(100) name(size)
 // @Param 		 order query string false "Field to order by"
 // @Param 		 sort query string false "Sort order, either ASC or DESC" Enums(ASC, DESC)
+// @Param 		 q query string false "ocserv username q search" minLength(2)
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
@@ -58,7 +59,9 @@ func (ctl *Controller) OcservUsers(c echo.Context) error {
 
 	pagination := ctl.request.Pagination(c)
 
-	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination, owner)
+	q := c.QueryParam("q")
+
+	ocservUsers, total, err := ctl.ocservUserRepo.Users(c.Request().Context(), pagination, owner, q)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

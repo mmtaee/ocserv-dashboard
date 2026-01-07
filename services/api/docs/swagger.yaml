@@ -1402,6 +1402,11 @@ paths:
         in: query
         name: sort
         type: string
+      - description: ocserv username q search
+        in: query
+        minLength: 2
+        name: q
+        type: string
       - description: Bearer TOKEN
         in: header
         name: Authorization

@@ -761,6 +761,13 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "minLength": 2,
+                        "type": "string",
+                        "description": "ocserv username q search",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Bearer TOKEN",
                         "name": "Authorization",

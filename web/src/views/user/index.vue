@@ -199,7 +199,7 @@ const updateMeta = (newMeta: Meta) => {
                     </v-table>
                 </div>
 
-                <div v-else class="ms-md-5 mb-md-5 text-capitalize">
+                <div v-if="loading || staffs.length == 0" class="ms-md-5 mb-md-5 text-capitalize">
                     {{ t('NO_STAFF_FOUND_TABLE') }}
                 </div>
 
