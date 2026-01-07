@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-users-management/api/internal/models"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/captcha"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/crypto"
@@ -56,12 +57,11 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
-	// TODO: should change to role base
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
 		Salt:     passwd.Salt,
-		IsAdmin:  true,
+		Role:     apiModels.RoleSuperAdmin,
 	}
 
 	system := &models.System{
@@ -259,12 +259,11 @@ func (ctl *Controller) CreateUser(c echo.Context) error {
 	}
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
-	// TODO: should change to role base
 	user := &models.User{
 		Username: strings.ToLower(data.Username),
 		Password: passwd.Hash,
 		Salt:     passwd.Salt,
-		IsAdmin:  false,
+		Role:     apiModels.RoleAdmin,
 	}
 
 	//ctx := context.WithValue(c.Request().Context(), "userUID", userUID)

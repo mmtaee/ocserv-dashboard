@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
@@ -42,8 +43,8 @@ func New() *Controller {
 // @Router       /ocserv/groups/lookup [get]
 func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 	owner := ""
-	// TODO: should change to role base
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
+	role := c.Get("role").(apiModels.UserRole)
+	if role == apiModels.RoleAdmin {
 		username := c.Get("username").(string)
 		if username == "" {
 			return ctl.request.BadRequest(c, errors.New("invalid username context"))
@@ -77,10 +78,9 @@ func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 // @Router       /ocserv/groups [get]
 func (ctl *Controller) OcservGroups(c echo.Context) error {
 	pagination := ctl.request.Pagination(c)
-	
-	// TODO: should change to role base
 	owner := ""
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
+	role := c.Get("role").(apiModels.UserRole)
+	if role != apiModels.RoleSuperAdmin {
 		username := c.Get("username").(string)
 		if username == "" {
 			return ctl.request.BadRequest(c, errors.New("invalid username context"))

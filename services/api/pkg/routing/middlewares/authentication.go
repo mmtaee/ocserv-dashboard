@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/token"
 	"strings"
 )
@@ -22,8 +23,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			c.Set("userUID", claims["sub"])
-			// TODO: should change to role base
-			c.Set("role", claims["role"])
+			c.Set("role", apiModels.UserRole(claims["role"].(string)))
 			c.Set("username", claims["username"])
 			return next(c)
 		}
