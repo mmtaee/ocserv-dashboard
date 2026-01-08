@@ -77,6 +77,26 @@ definitions:
     - date_end
     - date_start
     type: object
+  github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData:
+    properties:
+      password:
+        example: doe123456
+        maxLength: 16
+        minLength: 2
+        type: string
+      remember_me:
+        type: boolean
+      token:
+        type: string
+      username:
+        example: john_doe
+        maxLength: 16
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
   group.UnsyncedGroup:
     properties:
       config:
@@ -496,6 +516,26 @@ definitions:
       Username:
         type: string
     type: object
+  models.Permission:
+    properties:
+      action:
+        $ref: '#/definitions/models.UserAction'
+      createdAt:
+        type: string
+      id:
+        type: integer
+      service:
+        allOf:
+        - $ref: '#/definitions/models.UserService'
+        description: e.g., "user_management", "ocserv_group"
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: staff user
+        type: integer
+    type: object
   models.ServerVersion:
     properties:
       occtl_version:
@@ -514,12 +554,19 @@ definitions:
     type: object
   models.User:
     properties:
+      admin_id:
+        description: Hierarchy
+        type: integer
       created_at:
         type: string
-      is_admin:
-        type: boolean
       last_login:
         type: string
+      role:
+        $ref: '#/definitions/models.UserRole'
+      staff:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
       uid:
         type: string
       updated_at:
@@ -527,11 +574,44 @@ definitions:
       username:
         type: string
     required:
-    - is_admin
     - last_login
     - uid
     - username
     type: object
+  models.UserAction:
+    enum:
+    - get
+    - post
+    - delete
+    - patch
+    type: string
+    x-enum-varnames:
+    - ActionGet
+    - ActionPost
+    - ActionDelete
+    - ActionPatch
+  models.UserRole:
+    enum:
+    - super-admin
+    - admin
+    - staff
+    type: string
+    x-enum-varnames:
+    - RoleSuperAdmin
+    - RoleAdmin
+    - RoleStaff
+  models.UserService:
+    enum:
+    - ocserv-groups.crud
+    - ocserv-users.crud
+    - ocserv-users.action
+    - ocserv-user.stats
+    type: string
+    x-enum-varnames:
+    - OcservGroupsCRUDService
+    - OcservUsersCRUDService
+    - OcservUsersActionService
+    - OcservUserStatsService
   models.UsersLookup:
     properties:
       uid:
@@ -793,13 +873,32 @@ definitions:
     type: object
   system.CreateUserData:
     properties:
+      admin_id:
+        type: integer
       password:
         type: string
+      permissions:
+        items:
+          $ref: '#/definitions/system.PermissionData'
+        type: array
+      role:
+        $ref: '#/definitions/models.UserRole'
       username:
         type: string
     required:
     - password
     - username
+    type: object
+  system.CreateUserResponse:
+    properties:
+      permission:
+        items:
+          $ref: '#/definitions/models.Permission'
+        type: array
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - user
     type: object
   system.GetSystemInitResponse:
     properties:
@@ -813,26 +912,6 @@ definitions:
       google_captcha_site_key:
         type: string
     type: object
-  system.LoginData:
-    properties:
-      password:
-        example: doe123456
-        maxLength: 16
-        minLength: 2
-        type: string
-      remember_me:
-        type: boolean
-      token:
-        type: string
-      username:
-        example: john_doe
-        maxLength: 16
-        minLength: 2
-        type: string
-    required:
-    - password
-    - username
-    type: object
   system.PatchSystemUpdateData:
     properties:
       google_captcha_secret_key:
@@ -842,6 +921,16 @@ definitions:
     required:
     - google_captcha_secret_key
     - google_captcha_site_key
+    type: object
+  system.PermissionData:
+    properties:
+      action:
+        $ref: '#/definitions/models.UserAction'
+      service:
+        $ref: '#/definitions/models.UserService'
+    required:
+    - action
+    - service
     type: object
   system.SetupSystem:
     properties:
@@ -873,6 +962,13 @@ definitions:
     - system
     - token
     - user
+    type: object
+  system.UpdatePermissionData:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/system.PermissionData'
+        type: array
     type: object
   system.UserLoginResponse:
     properties:
@@ -1994,6 +2090,21 @@ paths:
       summary: Get panel System init Config
       tags:
       - System
+  /system/permissions:
+    get:
+      consumes:
+      - application/json
+      description: list of available permissions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: list of available permissions
+      tags:
+      - System
   /system/setup:
     post:
       consumes:
@@ -2020,11 +2131,11 @@ paths:
       summary: Setup user and system config
       tags:
       - System
-  /system/users:
+  /users:
     get:
       consumes:
       - application/json
-      description: List of Admin or simple users
+      description: List of Admin or staff users
       parameters:
       - description: Page number, starting from 1
         in: query
@@ -2072,9 +2183,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: List of Admin or simple users
+      summary: List of Admin or staff users
       tags:
-      - System(Users)
+      - Users
     post:
       consumes:
       - application/json
@@ -2085,7 +2196,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: create user data
+      - description: create admin user or staff data
         in: body
         name: request
         required: true
@@ -2097,7 +2208,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/system.CreateUserResponse'
         "400":
           description: Bad Request
           schema:
@@ -2112,8 +2223,8 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Create user
       tags:
-      - System(Users)
-  /system/users/{uid}:
+      - Users
+  /users/{uid}:
     delete:
       consumes:
       - application/json
@@ -2148,8 +2259,8 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Delete simple user
       tags:
-      - System(Users)
-  /system/users/{uid}/password:
+      - Users
+  /users/{uid}/password:
     post:
       consumes:
       - application/json
@@ -2192,8 +2303,50 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Change user password by admin
       tags:
-      - System(Users)
-  /system/users/login:
+      - Users
+  /users/{uid}/permissions:
+    patch:
+      consumes:
+      - application/json
+      description: Update staff user permission
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      - description: staff user permission data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.UpdatePermissionData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Update staff user permission
+      tags:
+      - Users
+  /users/login:
     post:
       consumes:
       - application/json
@@ -2205,7 +2358,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.LoginData'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData'
       produces:
       - application/json
       responses:
@@ -2219,8 +2372,8 @@ paths:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Admin users login
       tags:
-      - System(Users)
-  /system/users/lookup:
+      - Users
+  /users/lookup:
     get:
       consumes:
       - application/json
@@ -2254,8 +2407,8 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: List of Users Lookup
       tags:
-      - System(Users)
-  /system/users/password:
+      - Users
+  /users/password:
     post:
       consumes:
       - application/json
@@ -2289,8 +2442,8 @@ paths:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Change user password by self
       tags:
-      - System(Users)
-  /system/users/profile:
+      - Users
+  /users/profile:
     get:
       consumes:
       - application/json
@@ -2318,5 +2471,5 @@ paths:
             $ref: '#/definitions/middlewares.Unauthorized'
       summary: Get User Profile
       tags:
-      - System(Users)
+      - Users
 swagger: "2.0"
