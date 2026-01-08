@@ -14,15 +14,13 @@ func Routes(e *echo.Group) {
 	g := e.Group("/system")
 
 	g.GET("/init", ctl.SystemInit)
-	g.GET("/permissions", ctl.AvailablePermissions)
-
 	g.POST("/setup", ctl.SetupSystem, middlewares.RateLimitMiddleware(2, "h", 3))
 
 	// --------------------
 	// Authenticated /system routes
 	// --------------------
 	gAuth := g.Group("", middlewares.AuthMiddleware())
-
+	gAuth.GET("/permissions", ctl.AvailablePermissions)
 	gAuth.PATCH("", ctl.SystemUpdate, middlewares.SuperAdminPermission())
 	gAuth.GET("", ctl.System)
 }
