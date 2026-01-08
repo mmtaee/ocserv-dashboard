@@ -36,6 +36,8 @@ const users = ref<ModelsOcservUser[]>([]);
 const snackbar = useSnackbarStore();
 
 const profileStore = useProfileStore();
+
+// TODO: should change to role base
 const isAdmin = ref(profileStore.isAdmin);
 
 const getUsers = () => {
@@ -256,6 +258,7 @@ const search = (clear: boolean = false)=>{
                         <thead>
                             <tr class="text-capitalize bg-lightprimary">
                                 <th class="text-left">{{ t('USERNAME') }}</th>
+<!--                                // TODO: should change to role base-->
                                 <th class="text-left" v-if="isAdmin">{{ t('OWNER') }}</th>
                                 <th class="text-left">{{ t('GROUP') }}</th>
                                 <th class="text-left">{{ t('TRAFFIC') }}</th>
@@ -268,6 +271,7 @@ const search = (clear: boolean = false)=>{
                         <tbody>
                             <tr v-for="item in users" :key="item.username">
                                 <td>{{ item.username }}</td>
+<!--                                // TODO: should change to role base-->
                                 <td v-if="isAdmin">{{ item.owner || '' }}</td>
                                 <td>{{ item.group }}</td>
                                 <td class="text-capitalize">

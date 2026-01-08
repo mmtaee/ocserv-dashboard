@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/token"
 	"strings"
 )
@@ -22,7 +23,8 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			c.Set("userUID", claims["sub"])
-			c.Set("isAdmin", claims["isAdmin"])
+			c.Set("ID", claims["sub-id"].(uint))
+			c.Set("role", apiModels.UserRole(claims["role"].(string)))
 			c.Set("username", claims["username"])
 			return next(c)
 		}

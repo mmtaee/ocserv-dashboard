@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/api/internal/repository"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
@@ -49,7 +50,9 @@ func New() *Controller {
 // @Router       /ocserv/users [get]
 func (ctl *Controller) OcservUsers(c echo.Context) error {
 	owner := ""
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
+	role := c.Get("role").(apiModels.UserRole)
+	
+	if role == apiModels.RoleAdmin {
 		username := c.Get("username").(string)
 		if username == "" {
 			return ctl.request.BadRequest(c, errors.New("invalid user uid"))

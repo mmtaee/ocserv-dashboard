@@ -1641,6 +1641,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/permissions": {
+            "get": {
+                "description": "list of available permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "list of available permissions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
         "/system/setup": {
             "post": {
                 "description": "Setup user and system config",
@@ -1681,9 +1704,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users": {
+        "/users": {
             "get": {
-                "description": "List of Admin or simple users",
+                "description": "List of Admin or staff users",
                 "consumes": [
                     "application/json"
                 ],
@@ -1691,9 +1714,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
-                "summary": "List of Admin or simple users",
+                "summary": "List of Admin or staff users",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1770,7 +1793,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Create user",
                 "parameters": [
@@ -1782,7 +1805,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "create user data",
+                        "description": "create admin user or staff data",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1795,7 +1818,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/system.CreateUserResponse"
                         }
                     },
                     "400": {
@@ -1819,7 +1842,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/login": {
+        "/users/login": {
             "post": {
                 "description": "Admin users login with Google captcha(captcha site key required in get config api)",
                 "consumes": [
@@ -1829,7 +1852,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Admin users login",
                 "parameters": [
@@ -1839,7 +1862,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.LoginData"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData"
                         }
                     }
                 ],
@@ -1859,7 +1882,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/lookup": {
+        "/users/lookup": {
             "get": {
                 "description": "List of Users Lookup",
                 "consumes": [
@@ -1869,7 +1892,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "List of Users Lookup",
                 "parameters": [
@@ -1912,7 +1935,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/password": {
+        "/users/password": {
             "post": {
                 "description": "Change user password by self",
                 "consumes": [
@@ -1922,7 +1945,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Change user password by self",
                 "parameters": [
@@ -1965,7 +1988,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/profile": {
+        "/users/profile": {
             "get": {
                 "description": "Get User Profile",
                 "consumes": [
@@ -1975,7 +1998,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Get User Profile",
                 "parameters": [
@@ -2009,7 +2032,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/{uid}": {
+        "/users/{uid}": {
             "delete": {
                 "description": "Delete simple user",
                 "consumes": [
@@ -2019,7 +2042,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Delete simple user",
                 "parameters": [
@@ -2063,7 +2086,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/users/{uid}/password": {
+        "/users/{uid}/password": {
             "post": {
                 "description": "Change user password by admin",
                 "consumes": [
@@ -2073,7 +2096,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "System(Users)"
+                    "Users"
                 ],
                 "summary": "Change user password by admin",
                 "parameters": [
@@ -2107,6 +2130,69 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/system.UsersResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{uid}/permissions": {
+            "patch": {
+                "description": "Update staff user permission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update staff user permission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "staff user permission data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.UpdatePermissionData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2234,6 +2320,33 @@ const docTemplate = `{
                 },
                 "date_start": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "doe123456"
+                },
+                "remember_me": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "john_doe"
                 }
             }
         },
@@ -2805,6 +2918,38 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Permission": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/models.UserAction"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "service": {
+                    "description": "e.g., \"user_management\", \"ocserv_group\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserService"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "staff user",
+                    "type": "integer"
+                }
+            }
+        },
         "models.ServerVersion": {
             "type": "object",
             "properties": {
@@ -2833,20 +2978,29 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "required": [
-                "is_admin",
                 "last_login",
                 "uid",
                 "username"
             ],
             "properties": {
+                "admin_id": {
+                    "description": "Hierarchy",
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
-                "is_admin": {
-                    "type": "boolean"
-                },
                 "last_login": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.UserRole"
+                },
+                "staff": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 },
                 "uid": {
                     "type": "string"
@@ -2858,6 +3012,49 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.UserAction": {
+            "type": "string",
+            "enum": [
+                "get",
+                "post",
+                "delete",
+                "patch"
+            ],
+            "x-enum-varnames": [
+                "ActionGet",
+                "ActionPost",
+                "ActionDelete",
+                "ActionPatch"
+            ]
+        },
+        "models.UserRole": {
+            "type": "string",
+            "enum": [
+                "super-admin",
+                "admin",
+                "staff"
+            ],
+            "x-enum-varnames": [
+                "RoleSuperAdmin",
+                "RoleAdmin",
+                "RoleStaff"
+            ]
+        },
+        "models.UserService": {
+            "type": "string",
+            "enum": [
+                "ocserv-groups.crud",
+                "ocserv-users.crud",
+                "ocserv-users.action",
+                "ocserv-user.stats"
+            ],
+            "x-enum-varnames": [
+                "OcservGroupsCRUDService",
+                "OcservUsersCRUDService",
+                "OcservUsersActionService",
+                "OcservUserStatsService"
+            ]
         },
         "models.UsersLookup": {
             "type": "object",
@@ -3237,11 +3434,40 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "admin_id": {
+                    "type": "integer"
+                },
                 "password": {
                     "type": "string"
                 },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.PermissionData"
+                    }
+                },
+                "role": {
+                    "$ref": "#/definitions/models.UserRole"
+                },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "system.CreateUserResponse": {
+            "type": "object",
+            "required": [
+                "user"
+            ],
+            "properties": {
+                "permission": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Permission"
+                    }
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },
@@ -3264,33 +3490,6 @@ const docTemplate = `{
                 }
             }
         },
-        "system.LoginData": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "doe123456"
-                },
-                "remember_me": {
-                    "type": "boolean"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "john_doe"
-                }
-            }
-        },
         "system.PatchSystemUpdateData": {
             "type": "object",
             "required": [
@@ -3303,6 +3502,21 @@ const docTemplate = `{
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                }
+            }
+        },
+        "system.PermissionData": {
+            "type": "object",
+            "required": [
+                "action",
+                "service"
+            ],
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/models.UserAction"
+                },
+                "service": {
+                    "$ref": "#/definitions/models.UserService"
                 }
             }
         },
@@ -3347,6 +3561,17 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "system.UpdatePermissionData": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.PermissionData"
+                    }
                 }
             }
         },
