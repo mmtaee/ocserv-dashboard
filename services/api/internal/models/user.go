@@ -7,11 +7,28 @@ import (
 )
 
 type UserRole string
+type UserAction string
+type UserService string
 
 const (
 	RoleSuperAdmin UserRole = "super-admin"
 	RoleAdmin      UserRole = "admin"
 	RoleStaff      UserRole = "staff"
+)
+
+const (
+	ActionGet    UserAction = "get"
+	ActionPost   UserAction = "post"
+	ActionDelete UserAction = "delete"
+	ActionPatch  UserAction = "patch"
+)
+
+const (
+	OcservGroupsCRUDService UserService = "ocserv-groups.crud"
+	
+	OcservUsersCRUDService   UserService = "ocserv-users.crud"
+	OcservUsersActionService UserService = "ocserv-users.action"
+	OcservUserStatsService   UserService = "ocserv-user.stats"
 )
 
 type User struct {
@@ -21,17 +38,30 @@ type User struct {
 	Password string `json:"-" gorm:"type:varchar(64); not null"`
 
 	Role UserRole `gorm:"type:varchar(16);not null;index"`
-	
+
 	// Hierarchy
-	AdminID *uint  `json:"admin_id" gorm:"index"` // NULL for superadmin
-	Admin   *User  `json:"-" gorm:"foreignKey:AdminID"`
-	Staff   []User `json:"staff" gorm:"foreignKey:AdminID"`
+	AdminID *uint `json:"admin_id" gorm:"index"` // NULL for superadmin
+
+	Admin *User  `json:"-" gorm:"foreignKey:AdminID"`
+	Staff []User `json:"staff" gorm:"foreignKey:AdminID"`
 
 	Salt      string      `json:"-" gorm:"type:varchar(8);not null"`
 	LastLogin *time.Time  `json:"last_login"  validate:"required"`
 	CreatedAt time.Time   `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time   `json:"updated_at" gorm:"autoUpdateTime"`
 	Token     []UserToken `json:"-"`
+}
+
+type Permission struct {
+	ID      uint        `gorm:"primaryKey;autoIncrement"`
+	UserID  uint        `gorm:"not null;index"`                  // staff user
+	Service UserService `gorm:"type:varchar(64);not null;index"` // e.g., "user_management", "ocserv_group"
+	Action  UserAction  `gorm:"type:varchar(1);not null"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+
+	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
 
 type UserToken struct {
@@ -42,18 +72,6 @@ type UserToken struct {
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	ExpireAt  time.Time `json:"expire_at"`
 	User      User      `json:"user"`
-}
-
-type Permission struct {
-	ID      uint   `gorm:"primaryKey;autoIncrement"`
-	UserID  uint   `gorm:"not null;index"`                  // staff user
-	Service string `gorm:"type:varchar(64);not null;index"` // e.g., "user_management", "ocserv_group"
-	Action  string `gorm:"type:varchar(1);not null"`        // "C", "U", "D"
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
-
-	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
 
 type UsersLookup struct {

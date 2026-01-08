@@ -1,12 +1,14 @@
 package middlewares
 
 import (
+	"errors"
 	"github.com/labstack/echo/v4"
 	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
+	"gorm.io/gorm"
 )
 
-func AdminPermission() echo.MiddlewareFunc {
+func SuperAdminOrAdminPermission() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			role := c.Get("role").(apiModels.UserRole)
@@ -30,31 +32,85 @@ func SuperAdminPermission() echo.MiddlewareFunc {
 	}
 }
 
-// StaffPermissionMiddleware returns a middleware that checks if the user
-// has permission to perform a given action on a given service.
-// usage:    StaffPermissionMiddleware("ocserv-user", "R"),
-func StaffPermissionMiddleware(service string, action string) echo.MiddlewareFunc {
+// StaffPermissionMiddleware returns a middleware that checks
+// if the user has permission to perform a given action on a given service.
+// Usage: StaffPermissionMiddleware(apiModels.OcservUsersCRUDService)
+func StaffPermissionMiddleware(UserService apiModels.UserService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			userID := c.Get("userUID").(string)
-			roleVal := c.Get("role")
-			role, _ := roleVal.(apiModels.UserRole)
+			// -----------------------
+			// Safe type assertions
+			// -----------------------
+			userIDI := c.Get("userUID")
+			roleI := c.Get("role")
 
-			if role == apiModels.RoleSuperAdmin {
+			userID, ok := userIDI.(string)
+			if !ok || userID == "" {
+				return PermissionDeniedError(c, "invalid user context")
+			}
+
+			role, ok := roleI.(apiModels.UserRole)
+			if !ok {
+				return PermissionDeniedError(c, "invalid role context")
+			}
+
+			// -----------------------
+			// Admin bypass
+			// -----------------------
+			if role == apiModels.RoleSuperAdmin || role == apiModels.RoleAdmin {
 				return next(c)
 			}
 
-			db := database.GetConnection()
-			var count int64
-			if err := db.Model(&apiModels.Permission{}).
-				Where("uid = ? AND service = ? AND action = ?", userID, service, action).
-				Count(&count).Error; err != nil {
-				return echo.NewHTTPError(500, "failed to check permission")
+			// -----------------------
+			// Resolve action from HTTP method
+			// -----------------------
+			action, ok := actionFromMethod(c.Request().Method)
+			if !ok {
+				return PermissionDeniedError(c, "unsupported HTTP method")
 			}
 
-			if count == 0 {
-				return echo.NewHTTPError(403, "permission denied")
+			// -----------------------
+			// Wildcard handling
+			// -----------------------
+			service := string(UserService)
+			parentService := serviceParentWildcard(service) // e.g. "ocserv-groups.*"
+
+			// -----------------------
+			// Permission check (optimized)
+			// -----------------------
+			db := database.GetConnection()
+			var exists bool
+
+			err := db.Model(&apiModels.Permission{}).
+				Select("1").
+				Where(`
+					uid = ?
+					AND (
+						(service = ? AND action = ?)          -- exact match
+						OR (service = ? AND action = '*')     -- service-level wildcard action
+						OR (service = ?)                       -- full service wildcard (ocserv-groups.*)
+						OR (service = '*' AND action = '*')   -- global admin (optional)
+					)
+				`,
+					userID,
+					service, action,
+					service,
+					parentService,
+				).
+				Limit(1).
+				Scan(&exists).Error
+
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) || !exists {
+					return PermissionDeniedError(c, "You do not have permission to access this route")
+				}
+				return PermissionDeniedError(c, "permission check failed")
 			}
+
+			if !exists {
+				return PermissionDeniedError(c, "You do not have permission to access this route")
+			}
+
 			return next(c)
 		}
 	}

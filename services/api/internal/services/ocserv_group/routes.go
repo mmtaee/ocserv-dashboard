@@ -2,20 +2,35 @@ package ocserv_group
 
 import (
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
 )
 
 func Routes(e *echo.Group) {
 	ctl := New()
+
+	// Base group (auth only)
 	g := e.Group("/ocserv/groups", middlewares.AuthMiddleware())
-	g.GET("", ctl.OcservGroups)
-	g.GET("/lookup", ctl.OcservGroupsLookup)
-	g.GET("/:id", ctl.OcservGroup)
-	g.POST("", ctl.CreateOcservGroup)
-	g.PATCH("/:id", ctl.UpdateOcservGroup)
-	g.DELETE("/:id", ctl.DeleteOcservGroup)
-	g.GET("/defaults", ctl.GetDefaultsGroup, middlewares.SuperAdminPermission())
-	g.PATCH("/defaults", ctl.UpdateDefaultsGroup, middlewares.SuperAdminPermission())
-	g.GET("/unsynced", ctl.ListUnsyncedGroups, middlewares.SuperAdminPermission())
-	g.POST("/sync", ctl.SyncGroup, middlewares.SuperAdminPermission())
+
+	// =========================
+	// CRUD permissions (staff)
+	// =========================
+	actionGroup := g.Group("", middlewares.StaffPermissionMiddleware(apiModels.OcservGroupsCRUDService))
+
+	actionGroup.GET("", ctl.OcservGroups)
+	actionGroup.GET("/lookup", ctl.OcservGroupsLookup)
+	actionGroup.GET("/:id", ctl.OcservGroup)
+	actionGroup.POST("", ctl.CreateOcservGroup)
+	actionGroup.PATCH("/:id", ctl.UpdateOcservGroup)
+	actionGroup.DELETE("/:id", ctl.DeleteOcservGroup)
+
+	// =========================
+	// SuperAdmin only
+	// =========================
+	superadminGroup := g.Group("", middlewares.SuperAdminPermission())
+
+	superadminGroup.GET("/defaults", ctl.GetDefaultsGroup)
+	superadminGroup.PATCH("/defaults", ctl.UpdateDefaultsGroup)
+	superadminGroup.GET("/unsynced", ctl.ListUnsyncedGroups)
+	superadminGroup.POST("/sync", ctl.SyncGroup)
 }

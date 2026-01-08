@@ -23,6 +23,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			c.Set("userUID", claims["sub"])
+			c.Set("ID", claims["sub-id"].(uint))
 			c.Set("role", apiModels.UserRole(claims["role"].(string)))
 			c.Set("username", claims["username"])
 			return next(c)
