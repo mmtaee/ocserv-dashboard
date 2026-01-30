@@ -18,13 +18,6 @@ type PatchSystemUpdateData struct {
 	GoogleCaptchaSecretKey *string `json:"google_captcha_secret_key" validate:"required"`
 }
 
-type LoginData struct {
-	Username   string `json:"username" validate:"required,min=2,max=16" example:"john_doe" `
-	Password   string `json:"password" validate:"required,min=2,max=16" example:"doe123456"`
-	RememberMe bool   `json:"remember_me" desc:"remember for a month"`
-	Token      string `json:"token" desc:"captcha v2 token"`
-}
-
 type SetupSystem struct {
 	Username               string `json:"username" validate:"required,min=2,max=16"`
 	Password               string `json:"password" validate:"required,min=4,max=16"`

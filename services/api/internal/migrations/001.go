@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -94,7 +95,7 @@ var Migration001 = &gormigrate.Migration{
 		if err := tx.Exec(`CREATE INDEX IF NOT EXISTS idx_traffic_statistics_oc_user_id ON ocserv_user_traffic_statistics(oc_user_id);`).Error; err != nil {
 			return err
 		}
-
+		logger.Info("migration 0001 complete successfully")
 		return nil
 	},
 }

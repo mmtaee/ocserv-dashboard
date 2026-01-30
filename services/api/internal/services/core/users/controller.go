@@ -79,7 +79,8 @@ func (ctl *Controller) Login(c echo.Context) error {
 	}
 
 	go func() {
-		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", user.UID), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		ctx = context.WithValue(ctx, "userUID", user.UID)
 		ctx = context.WithValue(ctx, "username", user.Username)
 		defer cancel()
 

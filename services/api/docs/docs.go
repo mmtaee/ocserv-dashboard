@@ -1862,7 +1862,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData"
+                            "$ref": "#/definitions/system.LoginData"
                         }
                     }
                 ],
@@ -2320,33 +2320,6 @@ const docTemplate = `{
                 },
                 "date_start": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "doe123456"
-                },
-                "remember_me": {
-                    "type": "boolean"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "john_doe"
                 }
             }
         },
@@ -3487,6 +3460,33 @@ const docTemplate = `{
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                }
+            }
+        },
+        "system.LoginData": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "doe123456"
+                },
+                "remember_me": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "john_doe"
                 }
             }
         },

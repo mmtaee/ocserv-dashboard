@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -28,20 +29,7 @@ var Migration002 = &gormigrate.Migration{
 		`).Error; err != nil {
 			return err
 		}
-
-		// 4️⃣ Backfill Role from is_admin
-		// is_admin = true  → superadmin
-		// is_admin = false → admin
-		if err := tx.Exec(`
-			UPDATE users
-			SET role = CASE
-				WHEN is_admin = 1 THEN 'superadmin'
-				ELSE 'admin'
-			END
-		`).Error; err != nil {
-			return err
-		}
-
+		logger.Info("migration 0002 complete successfully")
 		return nil
 	},
 }

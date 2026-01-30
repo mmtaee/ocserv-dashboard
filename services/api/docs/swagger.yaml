@@ -77,26 +77,6 @@ definitions:
     - date_end
     - date_start
     type: object
-  github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData:
-    properties:
-      password:
-        example: doe123456
-        maxLength: 16
-        minLength: 2
-        type: string
-      remember_me:
-        type: boolean
-      token:
-        type: string
-      username:
-        example: john_doe
-        maxLength: 16
-        minLength: 2
-        type: string
-    required:
-    - password
-    - username
-    type: object
   group.UnsyncedGroup:
     properties:
       config:
@@ -911,6 +891,26 @@ definitions:
         type: string
       google_captcha_site_key:
         type: string
+    type: object
+  system.LoginData:
+    properties:
+      password:
+        example: doe123456
+        maxLength: 16
+        minLength: 2
+        type: string
+      remember_me:
+        type: boolean
+      token:
+        type: string
+      username:
+        example: john_doe
+        maxLength: 16
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
     type: object
   system.PatchSystemUpdateData:
     properties:
@@ -2358,7 +2358,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_mmtaee_ocserv-users-management_api_internal_services_core_users.LoginData'
+          $ref: '#/definitions/system.LoginData'
       produces:
       - application/json
       responses:

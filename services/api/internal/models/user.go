@@ -25,7 +25,7 @@ const (
 
 const (
 	OcservGroupsCRUDService UserService = "ocserv-groups.crud"
-	
+
 	OcservUsersCRUDService   UserService = "ocserv-users.crud"
 	OcservUsersActionService UserService = "ocserv-users.action"
 	OcservUserStatsService   UserService = "ocserv-user.stats"
@@ -37,7 +37,7 @@ type User struct {
 	Username string `json:"username" gorm:"type:varchar(16);not null;uniqueIndex"  validate:"required"`
 	Password string `json:"-" gorm:"type:varchar(64); not null"`
 
-	Role UserRole `gorm:"type:varchar(16);not null;index"`
+	Role UserRole `json:"role" gorm:"type:varchar(16);not null;index"`
 
 	// Hierarchy
 	AdminID *uint `json:"admin_id" gorm:"index"` // NULL for superadmin
