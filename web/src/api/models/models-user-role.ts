@@ -15,13 +15,13 @@
 /**
  *
  * @export
- * @interface SystemChangeUserPassword
+ * @enum {string}
  */
-export interface SystemChangeUserPassword {
-    /**
-     *
-     * @type {string}
-     * @memberof SystemChangeUserPassword
-     */
-    password: string;
-}
+
+export const ModelsUserRole = {
+    RoleSuperAdmin: 'super-admin',
+    RoleAdmin: 'admin',
+    RoleStaff: 'staff'
+} as const;
+
+export type ModelsUserRole = (typeof ModelsUserRole)[keyof typeof ModelsUserRole];

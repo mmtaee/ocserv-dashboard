@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { type ModelsUser, SystemUsersApi } from '@/api';
+import { type ModelsUser, UsersApi } from '@/api';
 import { getAuthorization } from '@/utils/request';
 
 export const useProfileStore = defineStore('profile', {
     state: (): ModelsUser => ({
-        is_admin: false,
+        role: 'staff',
         uid: '',
         username: '',
         created_at: undefined,
@@ -14,9 +14,9 @@ export const useProfileStore = defineStore('profile', {
 
     actions: {
         async getProfile() {
-            const api = new SystemUsersApi();
+            const api = new UsersApi();
             try {
-                const res = await api.systemUsersProfileGet(getAuthorization());
+                const res = await api.usersProfileGet(getAuthorization());
                 if (res.data) {
                     this.setProfile(res.data);
                 }
@@ -33,7 +33,7 @@ export const useProfileStore = defineStore('profile', {
         clearProfile() {
             Object.assign(this, {
                 _: 0,
-                is_admin: false,
+                role: null,
                 uid: '',
                 username: '',
                 created_at: undefined,
@@ -46,9 +46,9 @@ export const useProfileStore = defineStore('profile', {
         profile(state): ModelsUser | null {
             return state;
         },
-        // TODO: should change to role base
+
         isAdmin(state: ModelsUser) {
-            return state.is_admin;
+            return state.role == 'admin' || state.role == 'super-admin';
         }
     }
 });

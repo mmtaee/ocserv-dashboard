@@ -15,31 +15,31 @@
 /**
  *
  * @export
- * @interface SystemLoginData
+ * @interface GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData
  */
-export interface SystemLoginData {
+export interface GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData {
     /**
      *
      * @type {string}
-     * @memberof SystemLoginData
+     * @memberof GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData
      */
     password: string;
     /**
      *
      * @type {boolean}
-     * @memberof SystemLoginData
+     * @memberof GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData
      */
     remember_me?: boolean;
     /**
      *
      * @type {string}
-     * @memberof SystemLoginData
+     * @memberof GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData
      */
     token?: string;
     /**
      *
      * @type {string}
-     * @memberof SystemLoginData
+     * @memberof GithubComMmtaeeOcservUsersManagementApiInternalServicesCoreUsersLoginData
      */
     username: string;
 }

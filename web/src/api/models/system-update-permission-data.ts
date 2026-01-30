@@ -14,18 +14,18 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ModelsOcservGroupConfig } from './models-ocserv-group-config';
+import type { SystemPermissionData } from './system-permission-data';
 
 /**
  *
  * @export
- * @interface OcservGroupUpdateOcservGroupData
+ * @interface SystemUpdatePermissionData
  */
-export interface OcservGroupUpdateOcservGroupData {
+export interface SystemUpdatePermissionData {
     /**
      *
-     * @type {ModelsOcservGroupConfig}
-     * @memberof OcservGroupUpdateOcservGroupData
+     * @type {Array<SystemPermissionData>}
+     * @memberof SystemUpdatePermissionData
      */
-    config: ModelsOcservGroupConfig;
+    permissions?: Array<SystemPermissionData>;
 }

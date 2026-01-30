@@ -29,12 +29,12 @@ const logout = () => {
             </v-btn>
         </template>
 
-        <v-sheet class="mt-2" elevation="10" rounded="md" width="200">
+        <v-sheet class="mt-2" elevation="10" rounded="md" width="250">
             <v-list class="py-0" density="compact" lines="one">
                 <v-list-item-title class="text-uppercase px-5 pt-3 text-textPrimary" value="username">
                     {{ profileStore.profile?.username }}
                     <span class="text-subtitle-2 text-capitalize px-1">
-                        ({{ profileStore.is_admin ? t('ADMIN') : t('STAFF') }})
+                        ({{ profileStore.role?.split('-').join(' ') }})
                     </span>
                 </v-list-item-title>
 

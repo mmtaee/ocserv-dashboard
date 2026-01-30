@@ -15,13 +15,14 @@
 /**
  *
  * @export
- * @interface SystemChangeUserPassword
+ * @enum {string}
  */
-export interface SystemChangeUserPassword {
-    /**
-     *
-     * @type {string}
-     * @memberof SystemChangeUserPassword
-     */
-    password: string;
-}
+
+export const ModelsUserAction = {
+    ActionGet: 'get',
+    ActionPost: 'post',
+    ActionDelete: 'delete',
+    ActionPatch: 'patch'
+} as const;
+
+export type ModelsUserAction = (typeof ModelsUserAction)[keyof typeof ModelsUserAction];

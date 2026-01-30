@@ -5,7 +5,7 @@ import UiChildCard from '@/components/shared/UiChildCard.vue';
 import { useI18n } from 'vue-i18n';
 import StaffForm from '@/components/user/StaffForm.vue';
 import { ref } from 'vue';
-import { type SystemCreateUserData, SystemUsersApi } from '@/api';
+import { type SystemCreateUserData, UsersApi } from '@/api';
 import { getAuthorization } from '@/utils/request';
 import { useSnackbarStore } from '@/stores/snackbar';
 
@@ -14,8 +14,8 @@ const loading = ref(false);
 
 const createStaff = (data: SystemCreateUserData) => {
     loading.value = true;
-    const api = new SystemUsersApi();
-    api.systemUsersPost({
+    const api = new UsersApi();
+    api.usersPost({
         ...getAuthorization(),
         request: data
     })

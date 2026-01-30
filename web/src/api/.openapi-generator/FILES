@@ -11,7 +11,7 @@ api/ocserv-statistics-api.ts
 api/ocserv-unsynced-group-api.ts
 api/ocserv-users-api.ts
 api/system-api.ts
-api/system-users-api.ts
+api/users-api.ts
 common.ts
 configuration.ts
 git_push.sh
@@ -37,8 +37,12 @@ models/models-ocserv-group.ts
 models/models-ocserv-user-config.ts
 models/models-ocserv-user.ts
 models/models-online-user-session.ts
+models/models-permission.ts
 models/models-server-version.ts
 models/models-system.ts
+models/models-user-action.ts
+models/models-user-role.ts
+models/models-user-service.ts
 models/models-user.ts
 models/models-users-lookup.ts
 models/ocserv-group-create-ocserv-group-data.ts
@@ -59,12 +63,15 @@ models/request-meta.ts
 models/system-change-user-password-by-self.ts
 models/system-change-user-password.ts
 models/system-create-user-data.ts
+models/system-create-user-response.ts
 models/system-get-system-init-response.ts
 models/system-get-system-response.ts
 models/system-login-data.ts
 models/system-patch-system-update-data.ts
+models/system-permission-data.ts
 models/system-setup-system-response.ts
 models/system-setup-system.ts
+models/system-update-permission-data.ts
 models/system-user-login-response.ts
 models/system-users-response.ts
 models/user-ocpasswd.ts

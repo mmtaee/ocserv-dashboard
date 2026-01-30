@@ -48,39 +48,43 @@ import type { SystemChangeUserPasswordBySelf } from '../models';
 // @ts-ignore
 import type { SystemCreateUserData } from '../models';
 // @ts-ignore
+import type { SystemCreateUserResponse } from '../models';
+// @ts-ignore
 import type { SystemLoginData } from '../models';
+// @ts-ignore
+import type { SystemUpdatePermissionData } from '../models';
 // @ts-ignore
 import type { SystemUserLoginResponse } from '../models';
 // @ts-ignore
 import type { SystemUsersResponse } from '../models';
 /**
- * SystemUsersApi - axios parameter creator
+ * UsersApi - axios parameter creator
  * @export
  */
-export const SystemUsersApiAxiosParamCreator = function (configuration?: Configuration) {
+export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * List of Admin or simple users
-         * @summary List of Admin or simple users
+         * List of Admin or staff users
+         * @summary List of Admin or staff users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
          * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
-         * @param {SystemUsersGetSortEnum} [sort] Sort order, either ASC or DESC
+         * @param {UsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersGet: async (
+        usersGet: async (
             authorization: string,
             page?: number,
             size?: number,
             order?: string,
-            sort?: SystemUsersGetSortEnum,
+            sort?: UsersGetSortEnum,
             options: RawAxiosRequestConfig = {}
         ): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersGet', 'authorization', authorization);
-            const localVarPath = `/system/users`;
+            assertParamExists('usersGet', 'authorization', authorization);
+            const localVarPath = `/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -131,13 +135,10 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLoginPost: async (
-            request: SystemLoginData,
-            options: RawAxiosRequestConfig = {}
-        ): Promise<RequestArgs> => {
+        usersLoginPost: async (request: SystemLoginData, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('systemUsersLoginPost', 'request', request);
-            const localVarPath = `/system/users/login`;
+            assertParamExists('usersLoginPost', 'request', request);
+            const localVarPath = `/users/login`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -172,13 +173,10 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLookupGet: async (
-            authorization: string,
-            options: RawAxiosRequestConfig = {}
-        ): Promise<RequestArgs> => {
+        usersLookupGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersLookupGet', 'authorization', authorization);
-            const localVarPath = `/system/users/lookup`;
+            assertParamExists('usersLookupGet', 'authorization', authorization);
+            const localVarPath = `/users/lookup`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -214,16 +212,16 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPasswordPost: async (
+        usersPasswordPost: async (
             authorization: string,
             request: SystemChangeUserPasswordBySelf,
             options: RawAxiosRequestConfig = {}
         ): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersPasswordPost', 'authorization', authorization);
+            assertParamExists('usersPasswordPost', 'authorization', authorization);
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('systemUsersPasswordPost', 'request', request);
-            const localVarPath = `/system/users/password`;
+            assertParamExists('usersPasswordPost', 'request', request);
+            const localVarPath = `/users/password`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -258,20 +256,20 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * Create user Admin or simple
          * @summary Create user
          * @param {string} authorization Bearer TOKEN
-         * @param {SystemCreateUserData} request create user data
+         * @param {SystemCreateUserData} request create admin user or staff data
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPost: async (
+        usersPost: async (
             authorization: string,
             request: SystemCreateUserData,
             options: RawAxiosRequestConfig = {}
         ): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersPost', 'authorization', authorization);
+            assertParamExists('usersPost', 'authorization', authorization);
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('systemUsersPost', 'request', request);
-            const localVarPath = `/system/users`;
+            assertParamExists('usersPost', 'request', request);
+            const localVarPath = `/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -309,13 +307,10 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersProfileGet: async (
-            authorization: string,
-            options: RawAxiosRequestConfig = {}
-        ): Promise<RequestArgs> => {
+        usersProfileGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersProfileGet', 'authorization', authorization);
-            const localVarPath = `/system/users/profile`;
+            assertParamExists('usersProfileGet', 'authorization', authorization);
+            const localVarPath = `/users/profile`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -351,16 +346,16 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidDelete: async (
+        usersUidDelete: async (
             uid: string,
             authorization: string,
             options: RawAxiosRequestConfig = {}
         ): Promise<RequestArgs> => {
             // verify required parameter 'uid' is not null or undefined
-            assertParamExists('systemUsersUidDelete', 'uid', uid);
+            assertParamExists('usersUidDelete', 'uid', uid);
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersUidDelete', 'authorization', authorization);
-            const localVarPath = `/system/users/{uid}`.replace(`{${'uid'}}`, encodeURIComponent(String(uid)));
+            assertParamExists('usersUidDelete', 'authorization', authorization);
+            const localVarPath = `/users/{uid}`.replace(`{${'uid'}}`, encodeURIComponent(String(uid)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -397,19 +392,19 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidPasswordPost: async (
+        usersUidPasswordPost: async (
             uid: string,
             authorization: string,
             request: SystemChangeUserPassword,
             options: RawAxiosRequestConfig = {}
         ): Promise<RequestArgs> => {
             // verify required parameter 'uid' is not null or undefined
-            assertParamExists('systemUsersUidPasswordPost', 'uid', uid);
+            assertParamExists('usersUidPasswordPost', 'uid', uid);
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('systemUsersUidPasswordPost', 'authorization', authorization);
+            assertParamExists('usersUidPasswordPost', 'authorization', authorization);
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('systemUsersUidPasswordPost', 'request', request);
-            const localVarPath = `/system/users/{uid}/password`.replace(`{${'uid'}}`, encodeURIComponent(String(uid)));
+            assertParamExists('usersUidPasswordPost', 'request', request);
+            const localVarPath = `/users/{uid}/password`.replace(`{${'uid'}}`, encodeURIComponent(String(uid)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -439,37 +434,89 @@ export const SystemUsersApiAxiosParamCreator = function (configuration?: Configu
                 url: toPathString(localVarUrlObj),
                 options: localVarRequestOptions
             };
+        },
+        /**
+         * Update staff user permission
+         * @summary Update staff user permission
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} uid User UID
+         * @param {SystemUpdatePermissionData} request staff user permission data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersUidPermissionsPatch: async (
+            authorization: string,
+            uid: string,
+            request: SystemUpdatePermissionData,
+            options: RawAxiosRequestConfig = {}
+        ): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('usersUidPermissionsPatch', 'authorization', authorization);
+            // verify required parameter 'uid' is not null or undefined
+            assertParamExists('usersUidPermissionsPatch', 'uid', uid);
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('usersUidPermissionsPatch', 'request', request);
+            const localVarPath = `/users/{uid}/permissions`.replace(`{${'uid'}}`, encodeURIComponent(String(uid)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {
+                ...localVarHeaderParameter,
+                ...headersFromBaseOptions,
+                ...options.headers
+            };
+            localVarRequestOptions.data = serializeDataIfNeeded(request, localVarRequestOptions, configuration);
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions
+            };
         }
     };
 };
 
 /**
- * SystemUsersApi - functional programming interface
+ * UsersApi - functional programming interface
  * @export
  */
-export const SystemUsersApiFp = function (configuration?: Configuration) {
-    const localVarAxiosParamCreator = SystemUsersApiAxiosParamCreator(configuration);
+export const UsersApiFp = function (configuration?: Configuration) {
+    const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration);
     return {
         /**
-         * List of Admin or simple users
-         * @summary List of Admin or simple users
+         * List of Admin or staff users
+         * @summary List of Admin or staff users
          * @param {string} authorization Bearer TOKEN
          * @param {number} [page] Page number, starting from 1
          * @param {number} [size] Number of items per page
          * @param {string} [order] Field to order by
-         * @param {SystemUsersGetSortEnum} [sort] Sort order, either ASC or DESC
+         * @param {UsersGetSortEnum} [sort] Sort order, either ASC or DESC
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersGet(
+        async usersGet(
             authorization: string,
             page?: number,
             size?: number,
             order?: string,
-            sort?: SystemUsersGetSortEnum,
+            sort?: UsersGetSortEnum,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersGet(
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersGet(
                 authorization,
                 page,
                 size,
@@ -479,7 +526,7 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
             );
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersGet']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -495,14 +542,14 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersLoginPost(
+        async usersLoginPost(
             request: SystemLoginData,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUserLoginResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersLoginPost(request, options);
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersLoginPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersLoginPost']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersLoginPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -518,14 +565,14 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersLookupGet(
+        async usersLookupGet(
             authorization: string,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsUsersLookup>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersLookupGet(authorization, options);
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersLookupGet(authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersLookupGet']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersLookupGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -542,19 +589,15 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersPasswordPost(
+        async usersPasswordPost(
             authorization: string,
             request: SystemChangeUserPasswordBySelf,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersPasswordPost(
-                authorization,
-                request,
-                options
-            );
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersPasswordPost(authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersPasswordPost']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersPasswordPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -567,19 +610,19 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * Create user Admin or simple
          * @summary Create user
          * @param {string} authorization Bearer TOKEN
-         * @param {SystemCreateUserData} request create user data
+         * @param {SystemCreateUserData} request create admin user or staff data
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersPost(
+        async usersPost(
             authorization: string,
             request: SystemCreateUserData,
             options?: RawAxiosRequestConfig
-        ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsUser>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersPost(authorization, request, options);
+        ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemCreateUserResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersPost(authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersPost']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -595,14 +638,14 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersProfileGet(
+        async usersProfileGet(
             authorization: string,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsUser>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersProfileGet(authorization, options);
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersProfileGet(authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersProfileGet']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersProfileGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -619,15 +662,15 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersUidDelete(
+        async usersUidDelete(
             uid: string,
             authorization: string,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersUidDelete(uid, authorization, options);
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUidDelete(uid, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersUidDelete']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersUidDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -645,13 +688,13 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async systemUsersUidPasswordPost(
+        async usersUidPasswordPost(
             uid: string,
             authorization: string,
             request: SystemChangeUserPassword,
             options?: RawAxiosRequestConfig
         ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemUsersResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.systemUsersUidPasswordPost(
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUidPasswordPost(
                 uid,
                 authorization,
                 request,
@@ -659,7 +702,39 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
             );
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath =
-                operationServerMap['SystemUsersApi.systemUsersUidPasswordPost']?.[localVarOperationServerIndex]?.url;
+                operationServerMap['UsersApi.usersUidPasswordPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) =>
+                createRequestFunction(
+                    localVarAxiosArgs,
+                    globalAxios,
+                    BASE_PATH,
+                    configuration
+                )(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update staff user permission
+         * @summary Update staff user permission
+         * @param {string} authorization Bearer TOKEN
+         * @param {string} uid User UID
+         * @param {SystemUpdatePermissionData} request staff user permission data
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersUidPermissionsPatch(
+            authorization: string,
+            uid: string,
+            request: SystemUpdatePermissionData,
+            options?: RawAxiosRequestConfig
+        ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUidPermissionsPatch(
+                authorization,
+                uid,
+                request,
+                options
+            );
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath =
+                operationServerMap['UsersApi.usersUidPermissionsPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) =>
                 createRequestFunction(
                     localVarAxiosArgs,
@@ -672,25 +747,25 @@ export const SystemUsersApiFp = function (configuration?: Configuration) {
 };
 
 /**
- * SystemUsersApi - factory interface
+ * UsersApi - factory interface
  * @export
  */
-export const SystemUsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = SystemUsersApiFp(configuration);
+export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = UsersApiFp(configuration);
     return {
         /**
-         * List of Admin or simple users
-         * @summary List of Admin or simple users
-         * @param {SystemUsersApiSystemUsersGetRequest} requestParameters Request parameters.
+         * List of Admin or staff users
+         * @summary List of Admin or staff users
+         * @param {UsersApiUsersGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersGet(
-            requestParameters: SystemUsersApiSystemUsersGetRequest,
+        usersGet(
+            requestParameters: UsersApiUsersGetRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<SystemUsersResponse> {
             return localVarFp
-                .systemUsersGet(
+                .usersGet(
                     requestParameters.authorization,
                     requestParameters.page,
                     requestParameters.size,
@@ -703,108 +778,128 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
         /**
          * Admin users login with Google captcha(captcha site key required in get config api)
          * @summary Admin users login
-         * @param {SystemUsersApiSystemUsersLoginPostRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersLoginPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLoginPost(
-            requestParameters: SystemUsersApiSystemUsersLoginPostRequest,
+        usersLoginPost(
+            requestParameters: UsersApiUsersLoginPostRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<SystemUserLoginResponse> {
             return localVarFp
-                .systemUsersLoginPost(requestParameters.request, options)
+                .usersLoginPost(requestParameters.request, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * List of Users Lookup
          * @summary List of Users Lookup
-         * @param {SystemUsersApiSystemUsersLookupGetRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersLookupGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersLookupGet(
-            requestParameters: SystemUsersApiSystemUsersLookupGetRequest,
+        usersLookupGet(
+            requestParameters: UsersApiUsersLookupGetRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<Array<ModelsUsersLookup>> {
             return localVarFp
-                .systemUsersLookupGet(requestParameters.authorization, options)
+                .usersLookupGet(requestParameters.authorization, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * Change user password by self
          * @summary Change user password by self
-         * @param {SystemUsersApiSystemUsersPasswordPostRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersPasswordPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPasswordPost(
-            requestParameters: SystemUsersApiSystemUsersPasswordPostRequest,
+        usersPasswordPost(
+            requestParameters: UsersApiUsersPasswordPostRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<SystemUsersResponse> {
             return localVarFp
-                .systemUsersPasswordPost(requestParameters.authorization, requestParameters.request, options)
+                .usersPasswordPost(requestParameters.authorization, requestParameters.request, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * Create user Admin or simple
          * @summary Create user
-         * @param {SystemUsersApiSystemUsersPostRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersPost(
-            requestParameters: SystemUsersApiSystemUsersPostRequest,
+        usersPost(
+            requestParameters: UsersApiUsersPostRequest,
             options?: RawAxiosRequestConfig
-        ): AxiosPromise<ModelsUser> {
+        ): AxiosPromise<SystemCreateUserResponse> {
             return localVarFp
-                .systemUsersPost(requestParameters.authorization, requestParameters.request, options)
+                .usersPost(requestParameters.authorization, requestParameters.request, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * Get User Profile
          * @summary Get User Profile
-         * @param {SystemUsersApiSystemUsersProfileGetRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersProfileGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersProfileGet(
-            requestParameters: SystemUsersApiSystemUsersProfileGetRequest,
+        usersProfileGet(
+            requestParameters: UsersApiUsersProfileGetRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<ModelsUser> {
             return localVarFp
-                .systemUsersProfileGet(requestParameters.authorization, options)
+                .usersProfileGet(requestParameters.authorization, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * Delete simple user
          * @summary Delete simple user
-         * @param {SystemUsersApiSystemUsersUidDeleteRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersUidDeleteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidDelete(
-            requestParameters: SystemUsersApiSystemUsersUidDeleteRequest,
+        usersUidDelete(
+            requestParameters: UsersApiUsersUidDeleteRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<void> {
             return localVarFp
-                .systemUsersUidDelete(requestParameters.uid, requestParameters.authorization, options)
+                .usersUidDelete(requestParameters.uid, requestParameters.authorization, options)
                 .then((request) => request(axios, basePath));
         },
         /**
          * Change user password by admin
          * @summary Change user password by admin
-         * @param {SystemUsersApiSystemUsersUidPasswordPostRequest} requestParameters Request parameters.
+         * @param {UsersApiUsersUidPasswordPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        systemUsersUidPasswordPost(
-            requestParameters: SystemUsersApiSystemUsersUidPasswordPostRequest,
+        usersUidPasswordPost(
+            requestParameters: UsersApiUsersUidPasswordPostRequest,
             options?: RawAxiosRequestConfig
         ): AxiosPromise<SystemUsersResponse> {
             return localVarFp
-                .systemUsersUidPasswordPost(
+                .usersUidPasswordPost(
                     requestParameters.uid,
                     requestParameters.authorization,
+                    requestParameters.request,
+                    options
+                )
+                .then((request) => request(axios, basePath));
+        },
+        /**
+         * Update staff user permission
+         * @summary Update staff user permission
+         * @param {UsersApiUsersUidPermissionsPatchRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersUidPermissionsPatch(
+            requestParameters: UsersApiUsersUidPermissionsPatchRequest,
+            options?: RawAxiosRequestConfig
+        ): AxiosPromise<void> {
+            return localVarFp
+                .usersUidPermissionsPatch(
+                    requestParameters.authorization,
+                    requestParameters.uid,
                     requestParameters.request,
                     options
                 )
@@ -814,198 +909,226 @@ export const SystemUsersApiFactory = function (configuration?: Configuration, ba
 };
 
 /**
- * Request parameters for systemUsersGet operation in SystemUsersApi.
+ * Request parameters for usersGet operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersGetRequest
+ * @interface UsersApiUsersGetRequest
  */
-export interface SystemUsersApiSystemUsersGetRequest {
+export interface UsersApiUsersGetRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersGet
+     * @memberof UsersApiUsersGet
      */
     readonly authorization: string;
 
     /**
      * Page number, starting from 1
      * @type {number}
-     * @memberof SystemUsersApiSystemUsersGet
+     * @memberof UsersApiUsersGet
      */
     readonly page?: number;
 
     /**
      * Number of items per page
      * @type {number}
-     * @memberof SystemUsersApiSystemUsersGet
+     * @memberof UsersApiUsersGet
      */
     readonly size?: number;
 
     /**
      * Field to order by
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersGet
+     * @memberof UsersApiUsersGet
      */
     readonly order?: string;
 
     /**
      * Sort order, either ASC or DESC
      * @type {'ASC' | 'DESC'}
-     * @memberof SystemUsersApiSystemUsersGet
+     * @memberof UsersApiUsersGet
      */
-    readonly sort?: SystemUsersGetSortEnum;
+    readonly sort?: UsersGetSortEnum;
 }
 
 /**
- * Request parameters for systemUsersLoginPost operation in SystemUsersApi.
+ * Request parameters for usersLoginPost operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersLoginPostRequest
+ * @interface UsersApiUsersLoginPostRequest
  */
-export interface SystemUsersApiSystemUsersLoginPostRequest {
+export interface UsersApiUsersLoginPostRequest {
     /**
      * login data
      * @type {SystemLoginData}
-     * @memberof SystemUsersApiSystemUsersLoginPost
+     * @memberof UsersApiUsersLoginPost
      */
     readonly request: SystemLoginData;
 }
 
 /**
- * Request parameters for systemUsersLookupGet operation in SystemUsersApi.
+ * Request parameters for usersLookupGet operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersLookupGetRequest
+ * @interface UsersApiUsersLookupGetRequest
  */
-export interface SystemUsersApiSystemUsersLookupGetRequest {
+export interface UsersApiUsersLookupGetRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersLookupGet
+     * @memberof UsersApiUsersLookupGet
      */
     readonly authorization: string;
 }
 
 /**
- * Request parameters for systemUsersPasswordPost operation in SystemUsersApi.
+ * Request parameters for usersPasswordPost operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersPasswordPostRequest
+ * @interface UsersApiUsersPasswordPostRequest
  */
-export interface SystemUsersApiSystemUsersPasswordPostRequest {
+export interface UsersApiUsersPasswordPostRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersPasswordPost
+     * @memberof UsersApiUsersPasswordPost
      */
     readonly authorization: string;
 
     /**
      * user new password
      * @type {SystemChangeUserPasswordBySelf}
-     * @memberof SystemUsersApiSystemUsersPasswordPost
+     * @memberof UsersApiUsersPasswordPost
      */
     readonly request: SystemChangeUserPasswordBySelf;
 }
 
 /**
- * Request parameters for systemUsersPost operation in SystemUsersApi.
+ * Request parameters for usersPost operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersPostRequest
+ * @interface UsersApiUsersPostRequest
  */
-export interface SystemUsersApiSystemUsersPostRequest {
+export interface UsersApiUsersPostRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersPost
+     * @memberof UsersApiUsersPost
      */
     readonly authorization: string;
 
     /**
-     * create user data
+     * create admin user or staff data
      * @type {SystemCreateUserData}
-     * @memberof SystemUsersApiSystemUsersPost
+     * @memberof UsersApiUsersPost
      */
     readonly request: SystemCreateUserData;
 }
 
 /**
- * Request parameters for systemUsersProfileGet operation in SystemUsersApi.
+ * Request parameters for usersProfileGet operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersProfileGetRequest
+ * @interface UsersApiUsersProfileGetRequest
  */
-export interface SystemUsersApiSystemUsersProfileGetRequest {
+export interface UsersApiUsersProfileGetRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersProfileGet
+     * @memberof UsersApiUsersProfileGet
      */
     readonly authorization: string;
 }
 
 /**
- * Request parameters for systemUsersUidDelete operation in SystemUsersApi.
+ * Request parameters for usersUidDelete operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersUidDeleteRequest
+ * @interface UsersApiUsersUidDeleteRequest
  */
-export interface SystemUsersApiSystemUsersUidDeleteRequest {
+export interface UsersApiUsersUidDeleteRequest {
     /**
      * User UID
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersUidDelete
+     * @memberof UsersApiUsersUidDelete
      */
     readonly uid: string;
 
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersUidDelete
+     * @memberof UsersApiUsersUidDelete
      */
     readonly authorization: string;
 }
 
 /**
- * Request parameters for systemUsersUidPasswordPost operation in SystemUsersApi.
+ * Request parameters for usersUidPasswordPost operation in UsersApi.
  * @export
- * @interface SystemUsersApiSystemUsersUidPasswordPostRequest
+ * @interface UsersApiUsersUidPasswordPostRequest
  */
-export interface SystemUsersApiSystemUsersUidPasswordPostRequest {
+export interface UsersApiUsersUidPasswordPostRequest {
     /**
      * User UID
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersUidPasswordPost
+     * @memberof UsersApiUsersUidPasswordPost
      */
     readonly uid: string;
 
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof SystemUsersApiSystemUsersUidPasswordPost
+     * @memberof UsersApiUsersUidPasswordPost
      */
     readonly authorization: string;
 
     /**
      * user new password
      * @type {SystemChangeUserPassword}
-     * @memberof SystemUsersApiSystemUsersUidPasswordPost
+     * @memberof UsersApiUsersUidPasswordPost
      */
     readonly request: SystemChangeUserPassword;
 }
 
 /**
- * SystemUsersApi - object-oriented interface
+ * Request parameters for usersUidPermissionsPatch operation in UsersApi.
  * @export
- * @class SystemUsersApi
+ * @interface UsersApiUsersUidPermissionsPatchRequest
+ */
+export interface UsersApiUsersUidPermissionsPatchRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof UsersApiUsersUidPermissionsPatch
+     */
+    readonly authorization: string;
+
+    /**
+     * User UID
+     * @type {string}
+     * @memberof UsersApiUsersUidPermissionsPatch
+     */
+    readonly uid: string;
+
+    /**
+     * staff user permission data
+     * @type {SystemUpdatePermissionData}
+     * @memberof UsersApiUsersUidPermissionsPatch
+     */
+    readonly request: SystemUpdatePermissionData;
+}
+
+/**
+ * UsersApi - object-oriented interface
+ * @export
+ * @class UsersApi
  * @extends {BaseAPI}
  */
-export class SystemUsersApi extends BaseAPI {
+export class UsersApi extends BaseAPI {
     /**
-     * List of Admin or simple users
-     * @summary List of Admin or simple users
-     * @param {SystemUsersApiSystemUsersGetRequest} requestParameters Request parameters.
+     * List of Admin or staff users
+     * @summary List of Admin or staff users
+     * @param {UsersApiUsersGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersGet(requestParameters: SystemUsersApiSystemUsersGetRequest, options?: RawAxiosRequestConfig) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersGet(
+    public usersGet(requestParameters: UsersApiUsersGetRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersGet(
                 requestParameters.authorization,
                 requestParameters.page,
                 requestParameters.size,
@@ -1019,118 +1142,122 @@ export class SystemUsersApi extends BaseAPI {
     /**
      * Admin users login with Google captcha(captcha site key required in get config api)
      * @summary Admin users login
-     * @param {SystemUsersApiSystemUsersLoginPostRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersLoginPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersLoginPost(
-        requestParameters: SystemUsersApiSystemUsersLoginPostRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersLoginPost(requestParameters.request, options)
+    public usersLoginPost(requestParameters: UsersApiUsersLoginPostRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersLoginPost(requestParameters.request, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * List of Users Lookup
      * @summary List of Users Lookup
-     * @param {SystemUsersApiSystemUsersLookupGetRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersLookupGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersLookupGet(
-        requestParameters: SystemUsersApiSystemUsersLookupGetRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersLookupGet(requestParameters.authorization, options)
+    public usersLookupGet(requestParameters: UsersApiUsersLookupGetRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersLookupGet(requestParameters.authorization, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Change user password by self
      * @summary Change user password by self
-     * @param {SystemUsersApiSystemUsersPasswordPostRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersPasswordPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersPasswordPost(
-        requestParameters: SystemUsersApiSystemUsersPasswordPostRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersPasswordPost(requestParameters.authorization, requestParameters.request, options)
+    public usersPasswordPost(requestParameters: UsersApiUsersPasswordPostRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersPasswordPost(requestParameters.authorization, requestParameters.request, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Create user Admin or simple
      * @summary Create user
-     * @param {SystemUsersApiSystemUsersPostRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersPost(requestParameters: SystemUsersApiSystemUsersPostRequest, options?: RawAxiosRequestConfig) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersPost(requestParameters.authorization, requestParameters.request, options)
+    public usersPost(requestParameters: UsersApiUsersPostRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersPost(requestParameters.authorization, requestParameters.request, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get User Profile
      * @summary Get User Profile
-     * @param {SystemUsersApiSystemUsersProfileGetRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersProfileGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersProfileGet(
-        requestParameters: SystemUsersApiSystemUsersProfileGetRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersProfileGet(requestParameters.authorization, options)
+    public usersProfileGet(requestParameters: UsersApiUsersProfileGetRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersProfileGet(requestParameters.authorization, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete simple user
      * @summary Delete simple user
-     * @param {SystemUsersApiSystemUsersUidDeleteRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersUidDeleteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersUidDelete(
-        requestParameters: SystemUsersApiSystemUsersUidDeleteRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersUidDelete(requestParameters.uid, requestParameters.authorization, options)
+    public usersUidDelete(requestParameters: UsersApiUsersUidDeleteRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersUidDelete(requestParameters.uid, requestParameters.authorization, options)
             .then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Change user password by admin
      * @summary Change user password by admin
-     * @param {SystemUsersApiSystemUsersUidPasswordPostRequest} requestParameters Request parameters.
+     * @param {UsersApiUsersUidPasswordPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SystemUsersApi
+     * @memberof UsersApi
      */
-    public systemUsersUidPasswordPost(
-        requestParameters: SystemUsersApiSystemUsersUidPasswordPostRequest,
-        options?: RawAxiosRequestConfig
-    ) {
-        return SystemUsersApiFp(this.configuration)
-            .systemUsersUidPasswordPost(
+    public usersUidPasswordPost(requestParameters: UsersApiUsersUidPasswordPostRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration)
+            .usersUidPasswordPost(
                 requestParameters.uid,
                 requestParameters.authorization,
+                requestParameters.request,
+                options
+            )
+            .then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update staff user permission
+     * @summary Update staff user permission
+     * @param {UsersApiUsersUidPermissionsPatchRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsersApi
+     */
+    public usersUidPermissionsPatch(
+        requestParameters: UsersApiUsersUidPermissionsPatchRequest,
+        options?: RawAxiosRequestConfig
+    ) {
+        return UsersApiFp(this.configuration)
+            .usersUidPermissionsPatch(
+                requestParameters.authorization,
+                requestParameters.uid,
                 requestParameters.request,
                 options
             )
@@ -1141,8 +1268,8 @@ export class SystemUsersApi extends BaseAPI {
 /**
  * @export
  */
-export const SystemUsersGetSortEnum = {
+export const UsersGetSortEnum = {
     ASC: 'ASC',
     DESC: 'DESC'
 } as const;
-export type SystemUsersGetSortEnum = (typeof SystemUsersGetSortEnum)[keyof typeof SystemUsersGetSortEnum];
+export type UsersGetSortEnum = (typeof UsersGetSortEnum)[keyof typeof UsersGetSortEnum];

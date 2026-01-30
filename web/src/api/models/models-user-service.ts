@@ -15,13 +15,14 @@
 /**
  *
  * @export
- * @interface SystemChangeUserPassword
+ * @enum {string}
  */
-export interface SystemChangeUserPassword {
-    /**
-     *
-     * @type {string}
-     * @memberof SystemChangeUserPassword
-     */
-    password: string;
-}
+
+export const ModelsUserService = {
+    OcservGroupsCRUDService: 'ocserv-groups.crud',
+    OcservUsersCRUDService: 'ocserv-users.crud',
+    OcservUsersActionService: 'ocserv-users.action',
+    OcservUserStatsService: 'ocserv-user.stats'
+} as const;
+
+export type ModelsUserService = (typeof ModelsUserService)[keyof typeof ModelsUserService];

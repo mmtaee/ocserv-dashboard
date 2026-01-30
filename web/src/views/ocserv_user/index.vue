@@ -15,7 +15,7 @@ import ActivateDialog from '@/components/ocserv_user/ActivateDialog.vue';
 
 const { t } = useI18n();
 const loading = ref(false);
-const q = ref("")
+const q = ref('');
 const api = new OcservUsersApi();
 const meta = reactive<Meta>({
     page: 1,
@@ -45,7 +45,7 @@ const getUsers = () => {
     api.ocservUsersGet({
         ...getAuthorization(),
         ...meta,
-        q: q.value,
+        q: q.value
     })
         .then((res) => {
             users.value = res.data.result ?? [];
@@ -202,15 +202,14 @@ const updateMeta = (newMeta: Meta) => {
     getUsers();
 };
 
-const search = (clear: boolean = false)=>{
+const search = (clear: boolean = false) => {
     if (clear) {
-        q.value = ""
+        q.value = '';
     }
     if (q.value.length > 1 || clear) {
-        getUsers()
+        getUsers();
     }
-}
-
+};
 </script>
 
 <template>
@@ -249,7 +248,7 @@ const search = (clear: boolean = false)=>{
                         <v-col cols="auto">
                             <v-btn @click="search(false)" color="info" size="small">
                                 <v-icon start>mdi-magnify</v-icon>
-                                {{ t("SEARCH") }}
+                                {{ t('SEARCH') }}
                             </v-btn>
                         </v-col>
                     </v-row>
@@ -258,7 +257,7 @@ const search = (clear: boolean = false)=>{
                         <thead>
                             <tr class="text-capitalize bg-lightprimary">
                                 <th class="text-left">{{ t('USERNAME') }}</th>
-<!--                                // TODO: should change to role base-->
+                                <!--                                // TODO: should change to role base-->
                                 <th class="text-left" v-if="isAdmin">{{ t('OWNER') }}</th>
                                 <th class="text-left">{{ t('GROUP') }}</th>
                                 <th class="text-left">{{ t('TRAFFIC') }}</th>
@@ -271,7 +270,7 @@ const search = (clear: boolean = false)=>{
                         <tbody>
                             <tr v-for="item in users" :key="item.username">
                                 <td>{{ item.username }}</td>
-<!--                                // TODO: should change to role base-->
+                                <!--                                // TODO: should change to role base-->
                                 <td v-if="isAdmin">{{ item.owner || '' }}</td>
                                 <td>{{ item.group }}</td>
                                 <td class="text-capitalize">

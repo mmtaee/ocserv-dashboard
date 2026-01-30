@@ -14,27 +14,27 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ModelsOcservGroup } from './models-ocserv-group';
+import type { ModelsUserAction } from './models-user-action';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { RequestMeta } from './request-meta';
+import type { ModelsUserService } from './models-user-service';
 
 /**
  *
  * @export
- * @interface OcservGroupOcservGroupsResponse
+ * @interface SystemPermissionData
  */
-export interface OcservGroupOcservGroupsResponse {
+export interface SystemPermissionData {
     /**
      *
-     * @type {RequestMeta}
-     * @memberof OcservGroupOcservGroupsResponse
+     * @type {ModelsUserAction}
+     * @memberof SystemPermissionData
      */
-    meta: RequestMeta;
+    action: ModelsUserAction;
     /**
      *
-     * @type {Array<ModelsOcservGroup>}
-     * @memberof OcservGroupOcservGroupsResponse
+     * @type {ModelsUserService}
+     * @memberof SystemPermissionData
      */
-    result?: Array<ModelsOcservGroup>;
+    service: ModelsUserService;
 }
