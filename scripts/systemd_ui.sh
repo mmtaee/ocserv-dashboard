@@ -42,7 +42,7 @@ log "Starting frontend deployment..."
 # ==========================================
 ensure_node() {
   log "Checking Node.js..."
-  REQUIRED_NODE_MAJOR="23"
+  REQUIRED_NODE_MAJOR="20"
 
   if command -v node >/dev/null 2>&1; then
       CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
@@ -54,8 +54,11 @@ ensure_node() {
 
   if [[ -z "$CURRENT_NODE_VERSION" || "$CURRENT_NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]]; then
       warn "Node.js missing or outdated (current: ${CURRENT_NODE_VERSION:-none}). Installing Node.js ${REQUIRED_NODE_MAJOR}.x..."
-      curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash -
-      sudo apt-get install -y nodejs
+      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || {
+          warn "Failed to add NodeSource repository"
+          exit 1
+      }
+      sudo apt install -y nodejs
       CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
       ok "Node.js installed: v$CURRENT_NODE_VERSION"
   else
@@ -63,12 +66,19 @@ ensure_node() {
   fi
 
   if ! command -v npm >/dev/null 2>&1; then
-      warn "npm not found. Installing..."
-      sudo apt-get install -y npm
+      warn "npm not found. Installing via apt..."
+      sudo apt install -y npm
+      ok "npm installed"
+  else
+      ok "npm already installed"
   fi
 
-  sudo npm install -g yarn
-  ok "Yarn installed"
+  if ! command -v yarn >/dev/null 2>&1; then
+      sudo npm install -g yarn
+      ok "Yarn installed"
+  else
+      ok "Yarn already installed"
+  fi
 }
 
 ensure_node
