@@ -62,7 +62,8 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 - Multi-language support:
   - English (**en**)
   - Russian (**ru**)
-  - Chinese (**zh**)
+  - Simplified Chinese (**zh-cn**)
+  - Traditional Chinese (**zh-tw**)
   - Arabic (**ar**)
   - Persian (**fa**)
 
@@ -174,7 +175,7 @@ Find the line that defines supported languages, and add your new language in the
 
 Example (adding Spanish):
 
-**LANGUAGES=en:English,it:Italiano,zh:中文,ru:Русский,fa:فارسی,ar:العربية,es:Español**
+**LANGUAGES=en:English,it:Italiano,zh-tw:中文(繁體),zh-cn:中文(简体),ru:Русский,fa:فارسی,ar:العربية,es:Español**
 
 Contributing translations and updating the installer helps ensure the dashboard supports users around the world.
 
