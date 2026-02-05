@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { CustomersApi, type CustomerSummaryData, type SystemLoginData, SystemUsersApi } from '@/api';
+import { type CustomerSummaryData } from '@/api';
 import { requiredRule } from '@/utils/rules';
-import Captcha from '@/components/auth/Captcha.vue';
+// import Captcha from '@/components/auth/Captcha.vue';
 import { useConfigStore } from '@/stores/config';
 import { useProfileStore } from '@/stores/profile';
 import { router } from '@/router';

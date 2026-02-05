@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/crypto"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
@@ -18,6 +19,7 @@ type UserCRUD interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByUID(ctx context.Context, uid string) (*models.User, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
+	CreateUserPermission(ctx context.Context, permission []models.Permission) error
 	DeleteUser(ctx context.Context, uid string) error
 }
 
@@ -28,14 +30,20 @@ type UserAuth interface {
 }
 
 type UserQuery interface {
-	Users(ctx context.Context, pagination *request.Pagination) ([]models.User, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, adminID *uint) ([]models.User, int64, error)
 	UsersLookup(ctx context.Context) (*[]models.UsersLookup, error)
+}
+
+type UserPermission interface {
+	CreateUserPermission(ctx context.Context, permissions []models.Permission) error
+	RemoveUserPermission(ctx context.Context, id uint) error
 }
 
 type UserRepositoryInterface interface {
 	UserCRUD
 	UserAuth
 	UserQuery
+	UserPermission
 }
 
 func NewUserRepository() *UserRepository {
@@ -59,7 +67,7 @@ func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rem
 		expire = expire.AddDate(0, 1, 0)
 	}
 
-	access, err := crypto.GenerateAccessToken(user.UID, user.Username, expire.Unix(), user.IsAdmin)
+	access, err := crypto.GenerateAccessToken(user, expire.Unix())
 	if err != nil {
 		return "", err
 	}
@@ -85,10 +93,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*mo
 	return user, nil
 }
 
-func (r *UserRepository) Users(ctx context.Context, pagination *request.Pagination) ([]models.User, int64, error) {
+func (r *UserRepository) Users(ctx context.Context, pagination *request.Pagination, adminID *uint) ([]models.User, int64, error) {
 	var totalRecords int64
 
-	whereFilters := "is_admin = false"
+	roles := []models.UserRole{models.RoleAdmin, models.RoleStaff}
+	whereFilters := fmt.Sprintf("role IN %v", roles)
+	if adminID != nil {
+		whereFilters += fmt.Sprintf(" admin_id = %d", *adminID)
+	}
 
 	if err := r.db.WithContext(ctx).Model(&models.User{}).Where(whereFilters).Count(&totalRecords).Error; err != nil {
 		return nil, 0, err
@@ -154,9 +166,21 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, user *models.User)
 
 func (r *UserRepository) UsersLookup(ctx context.Context) (*[]models.UsersLookup, error) {
 	var users []models.UsersLookup
-	err := r.db.Model(&models.User{}).WithContext(ctx).Scan(&users).Error
+	err := r.db.Model(&models.User{}).WithContext(ctx).Where("role = ?", models.RoleAdmin).Scan(&users).Error
 	if err != nil {
 		return nil, err
 	}
 	return &users, nil
+}
+
+func (r *UserRepository) RemoveUserPermission(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Where("user_id = ?", id).Delete(&models.Permission{}).Error
+}
+
+func (r *UserRepository) CreateUserPermission(ctx context.Context, permissions []models.Permission) error {
+	if len(permissions) == 0 {
+		return nil
+	}
+
+	return r.db.WithContext(ctx).Create(&permissions).Error
 }

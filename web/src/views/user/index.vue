@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { router } from '@/router';
-import { type ModelsUser, SystemUsersApi } from '@/api';
+import { type ModelsUser, UsersApi } from '@/api';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import { useI18n } from 'vue-i18n';
 import { onMounted, reactive, ref } from 'vue';
@@ -31,12 +31,12 @@ const meta = reactive<Meta>({
 
 const snackbar = useSnackbarStore();
 
-const api = new SystemUsersApi();
+const api = new UsersApi();
 
 const getStaffs = () => {
     loading.value = true;
 
-    api.systemUsersGet({
+    api.usersGet({
         ...getAuthorization(),
         ...meta
     })
@@ -66,7 +66,7 @@ const cancelDeleteStaff = () => {
 };
 
 const deleteStaff = () => {
-    api.systemUsersUidDelete({
+    api.usersUidDelete({
         ...getAuthorization(),
         uid: staffUID.value
     })
@@ -97,7 +97,7 @@ const cancelChangePassword = () => {
 };
 
 const changePassword = (password: string) => {
-    api.systemUsersUidPasswordPost({
+    api.usersUidPasswordPost({
         ...getAuthorization(),
         uid: staffUID.value,
         request: {

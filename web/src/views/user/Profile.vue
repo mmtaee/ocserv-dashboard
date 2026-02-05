@@ -5,7 +5,7 @@ import UiChildCard from '@/components/shared/UiChildCard.vue';
 import { useProfileStore } from '@/stores/profile';
 import { formatDateTimeWithRelative } from '@/utils/convertors';
 import { reactive, ref } from 'vue';
-import { type SystemChangeUserPasswordBySelf, SystemUsersApi } from '@/api';
+import { type SystemChangeUserPasswordBySelf, UsersApi } from '@/api';
 import { requiredRule } from '@/utils/rules';
 import { getAuthorization } from '@/utils/request';
 import { useSnackbarStore } from '@/stores/snackbar';
@@ -40,8 +40,8 @@ const profileDateProxy = (key: DateKeys): string => {
 
 const changePassword = () => {
     loading.value = true;
-    const api = new SystemUsersApi();
-    api.systemUsersPasswordPost({
+    const api = new UsersApi();
+    api.usersPasswordPost({
         ...getAuthorization(),
         request: data
     })
@@ -94,7 +94,7 @@ const changePassword = () => {
                                 </v-list-item>
                                 <v-list-item class="mb-3">
                                     <template #prepend>
-                                        <v-icon v-if="profileStore.profile?.is_admin" size="large">
+                                        <v-icon v-if="profileStore.profile?.role" size="large">
                                             mdi-shield-account
                                         </v-icon>
                                         <v-icon v-else size="large"> mdi-account-outline</v-icon>
@@ -103,7 +103,7 @@ const changePassword = () => {
                                         {{ t('ROLE') }}
                                     </v-list-item-title>
                                     <v-list-item-subtitle class="text-subtitle-1">
-                                        {{ profileStore.profile?.is_admin ? t('ADMIN') : t('STAFF') }}
+                                        {{ profileStore.profile?.role == 'admin' ? t('ADMIN') : t('STAFF') }}
                                     </v-list-item-subtitle>
                                 </v-list-item>
                             </v-list>

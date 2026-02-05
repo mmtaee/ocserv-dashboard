@@ -2,7 +2,7 @@
 import Logo from '@/layouts/full/logo/Logo.vue';
 import AdminLoginForm from '@/components/auth/AdminLoginForm.vue';
 import { useI18n } from 'vue-i18n';
-import { type SystemLoginData, SystemUsersApi } from '@/api';
+import { type SystemLoginData, UsersApi } from '@/api';
 import { useProfileStore } from '@/stores/profile';
 import { router } from '@/router';
 import { ref } from 'vue';
@@ -12,8 +12,8 @@ const loading = ref(false);
 
 const signIn = (data: SystemLoginData) => {
     loading.value = true;
-    const api = new SystemUsersApi();
-    api.systemUsersLoginPost({ request: data })
+    const api = new UsersApi();
+    api.usersLoginPost({ request: data })
         .then((res) => {
             const profileStore = useProfileStore();
             profileStore.setProfile(res.data.user);

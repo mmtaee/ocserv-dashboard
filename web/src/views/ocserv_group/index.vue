@@ -25,6 +25,8 @@ const deleteGroupName = ref('');
 const deleteGroupID = ref(0);
 
 const profileStore = useProfileStore();
+
+// TODO: should change to role base
 const isAdmin = ref(profileStore.isAdmin);
 
 const getGroups = () => {
@@ -104,6 +106,7 @@ const updateMeta = (newMeta: Meta) => {
                         <tr class="text-capitalize bg-lightprimary">
                             <th class="text-left">ID</th>
                             <th class="text-left">{{ t('NAME') }}</th>
+                            <!--                            // TODO: should change to role base-->
                             <th class="text-left" v-if="isAdmin">{{ t('OWNER') }}</th>
                             <th class="text-left">{{ t('ACTION') }}</th>
                         </tr>
@@ -112,6 +115,7 @@ const updateMeta = (newMeta: Meta) => {
                         <tr v-for="item in groups" :key="item.name">
                             <td>{{ item.id }}</td>
                             <td>{{ item.name }}</td>
+                            <!--                            // TODO: should change to role base-->
                             <td v-if="isAdmin">{{ item.owner }}</td>
                             <td>
                                 <v-menu>
@@ -153,7 +157,9 @@ const updateMeta = (newMeta: Meta) => {
                     </tbody>
                 </v-table>
 
-                <div v-if="loading || groups.length == 0" class="ms-md-5 mb-md-5 text-capitalize">{{ t('NO_GROUP_FOUND_TABLE') }}</div>
+                <div v-if="loading || groups.length == 0" class="ms-md-5 mb-md-5 text-capitalize">
+                    {{ t('NO_GROUP_FOUND_TABLE') }}
+                </div>
 
                 <Pagination @update="updateMeta" :totalRecords="meta.total_records" />
             </UiParentCard>

@@ -31,7 +31,7 @@ export function getSidebarItems(): Menu[] {
         },
         { header: 'OCSERV' }
     ];
-
+    // TODO: should change to role base
     if (profileStore.isAdmin) {
         defaultSidebarItems.push({
             title: t('GROUP_DEFAULTS'),
@@ -54,6 +54,7 @@ export function getSidebarItems(): Menu[] {
         }
     );
 
+    // TODO: should change to role base
     if (profileStore.isAdmin) {
         defaultSidebarItems.push(
             {
@@ -70,6 +71,7 @@ export function getSidebarItems(): Menu[] {
         );
     }
 
+    // TODO: should change to role base
     // Admin-only extra sections
     if (profileStore.isAdmin) {
         defaultSidebarItems.push(

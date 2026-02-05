@@ -2,6 +2,8 @@ package middlewares
 
 import (
 	"github.com/labstack/echo/v4"
+	apiModels "github.com/mmtaee/ocserv-users-management/api/internal/models"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/token"
 	"strings"
 )
@@ -18,11 +20,20 @@ func AuthMiddleware() echo.MiddlewareFunc {
 
 			claims, ok := token.Check(tokenStr)
 			if !ok {
+				logger.Error("invalid token with claims", claims)
 				return UnauthorizedError(c, "invalid token")
 			}
 
+			subIDFloat, ok := claims["sub-id"].(float64)
+			if !ok {
+				logger.Error("invalid token with sub-id", claims)
+				return UnauthorizedError(c, "invalid token")
+			}
+			subID := uint(subIDFloat)
+
+			c.Set("ID", subID)
 			c.Set("userUID", claims["sub"])
-			c.Set("isAdmin", claims["isAdmin"])
+			c.Set("role", apiModels.UserRole(claims["role"].(string)))
 			c.Set("username", claims["username"])
 			return next(c)
 		}
