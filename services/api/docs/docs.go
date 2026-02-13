@@ -2965,6 +2965,11 @@ const docTemplate = `{
                 "group": {
                     "type": "string"
                 },
+                "infinite": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
                 "password": {
                     "type": "string",
                     "maxLength": 32,

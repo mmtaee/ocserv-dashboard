@@ -598,6 +598,10 @@ definitions:
         type: string
       group:
         type: string
+      infinite:
+        default: false
+        example: false
+        type: boolean
       password:
         maxLength: 32
         minLength: 2
