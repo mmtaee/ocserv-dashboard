@@ -21,3 +21,5 @@
 - [ ] Separate password update logic from user profile updates (#121)
 - [ ] Implement bulk operations for Ocserv users with checkbox selection (#113)
 - [ ] Implement real-time Ocserv user stream processing Use RabbitMQ and change log_stream service(R&D)
+- [ ] total inactive user in dashboard summary (#120)
+- [ ] automatically delete inactive users after x days (#120) 
