@@ -9,7 +9,6 @@ import { useI18n } from 'vue-i18n';
 import DateFnsAdapter from '@date-io/date-fns'; // Import the adapter class
 import { enUS } from 'date-fns/locale';
 
-
 export default createVuetify({
     components,
     directives,
@@ -23,8 +22,8 @@ export default createVuetify({
             fa: enUS, // Persian
             ar: enUS, // Arabic
             he: enUS, // Hebrew
-            ur: enUS, // Urdu
-        },
+            ur: enUS // Urdu
+        }
     },
     theme: {
         defaultTheme: 'BlueTheme',

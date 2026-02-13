@@ -2987,6 +2987,11 @@ const docTemplate = `{
                     ],
                     "example": "MonthlyTransmit"
                 },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
                 "username": {
                     "type": "string",
                     "maxLength": 32,
@@ -3129,6 +3134,11 @@ const docTemplate = `{
                         "TotallyReceive"
                     ],
                     "example": "MonthlyTransmit"
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
                 }
             }
         },

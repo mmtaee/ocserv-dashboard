@@ -151,9 +151,17 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	expireAt, err := time.Parse("2006-01-02", data.ExpireAt)
-	if err != nil {
-		expireAt, _ = time.Parse("2006-01-02", time.Now().AddDate(0, 0, 30).Format("2006-01-02"))
+	var expireAt *time.Time
+	if data.Unlimited {
+		expireAt = nil
+	} else {
+		expireAtTime, err := time.Parse("2006-01-02", data.ExpireAt)
+		if err != nil {
+			t := time.Now().AddDate(0, 0, 30)
+			expireAt = &t
+		} else {
+			expireAt = &expireAtTime
+		}
 	}
 
 	if data.TrafficType == models.Free {
@@ -165,7 +173,7 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 		Username:    data.Username,
 		Password:    data.Password,
 		Group:       data.Group,
-		ExpireAt:    &expireAt,
+		ExpireAt:    expireAt,
 		TrafficSize: data.TrafficSize,
 		TrafficType: data.TrafficType,
 		Config:      data.Config,
@@ -227,9 +235,11 @@ func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 	if data.Config != nil {
 		ocservUser.Config = data.Config
 	}
-	if data.ExpireAt != nil {
-		expire, err := time.Parse("2006-01-02", *data.ExpireAt)
-		if err == nil {
+
+	if data.Unlimited {
+		ocservUser.ExpireAt = nil
+	} else if data.ExpireAt != nil {
+		if expire, err := time.Parse("2006-01-02", *data.ExpireAt); err == nil {
 			ocservUser.ExpireAt = &expire
 		}
 	}

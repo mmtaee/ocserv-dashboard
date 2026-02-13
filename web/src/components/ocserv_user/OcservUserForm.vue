@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import {
-    type ModelsOcservGroupConfig,
     type ModelsOcservUser,
     type ModelsOcservUserConfig,
     ModelsOcservUserTrafficTypeEnum,
@@ -129,6 +128,12 @@ const updateUser = () => {
     emit('updateUser', props.initData?.uid, updateData);
 };
 
+const toggleUnlimited = (val: boolean) => {
+    if (val) {
+        createData.expire_at = undefined;
+    }
+};
+
 const expireAtDate = computed<Date>({
     get: () => {
         return createData.expire_at ? new Date(createData.expire_at) : new Date();
@@ -144,6 +149,9 @@ watch(
         if (props.initData !== undefined) {
             Object.assign(createData, props.initData);
             isUpdate.value = true;
+            if (createData.expire_at == undefined) {
+                createData.unlimited = true;
+            }
         }
     },
     { immediate: false }
@@ -228,31 +236,48 @@ watch(
                 />
             </v-col>
             <v-col cols="12" lg="4" md="6">
-                <v-menu v-model="showDateMenu" :close-on-content-click="false" transition="scale-transition">
-                    <template #activator="{ props }">
-                        <v-label class="font-weight-bold mb-1 text-capitalize">
-                            {{ t('EXPIRE_AT') }}
-                        </v-label>
-                        <v-text-field
-                            :model-value="createData.expire_at ? formatDate(createData.expire_at) : ''"
+                <v-row align="center" justify="start">
+                    <v-col cols="12" md="8">
+                        <v-menu v-model="showDateMenu" :close-on-content-click="false" transition="scale-transition">
+                            <template #activator="{ props }">
+                                <v-label class="font-weight-bold mb-1 text-capitalize">
+                                    {{ t('EXPIRE_AT') }}
+                                </v-label>
+                                <v-text-field
+                                    :disabled="createData.unlimited"
+                                    :model-value="createData.expire_at ? formatDate(createData.expire_at) : ''"
+                                    color="primary"
+                                    hide-details
+                                    readonly
+                                    v-bind="props"
+                                    variant="outlined"
+                                    clearable
+                                    @click:clear="createData.expire_at = ''"
+                                />
+                            </template>
+                            <v-date-picker
+                                :disabled="createData.unlimited"
+                                v-model="expireAtDate"
+                                :header="t('EXPIRE_AT')"
+                                elevation="24"
+                                title=""
+                                @update:model-value="() => (showDateMenu = false)"
+                            />
+                        </v-menu>
+                    </v-col>
+                    <v-col cols="12" md="auto" class="mt-md-6 ma-sm-0 pa-sm-0">
+                        <v-checkbox
+                            v-model="createData.unlimited"
+                            :label="t('UNLIMITED')"
+                            class="text-capitalize text-subtitle-2"
                             color="primary"
                             hide-details
-                            readonly
-                            v-bind="props"
-                            variant="outlined"
-                            clearable
-                            @click:clear="createData.expire_at = ''"
+                            @update:model-value="(val: unknown) => toggleUnlimited(val as boolean)"
                         />
-                    </template>
-                    <v-date-picker
-                        v-model="expireAtDate"
-                        :header="t('EXPIRE_AT')"
-                        elevation="24"
-                        title=""
-                        @update:model-value="() => (showDateMenu = false)"
-                    />
-                </v-menu>
+                    </v-col>
+                </v-row>
             </v-col>
+
             <v-col cols="12" md="11">
                 <h3 class="text-capitalize">{{ t('NETWORK_CONFIGURATION') }}</h3>
             </v-col>

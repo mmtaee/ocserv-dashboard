@@ -15,7 +15,7 @@ import ActivateDialog from '@/components/ocserv_user/ActivateDialog.vue';
 
 const { t } = useI18n();
 const loading = ref(false);
-const q = ref("")
+const q = ref('');
 const api = new OcservUsersApi();
 const meta = reactive<Meta>({
     page: 1,
@@ -43,7 +43,7 @@ const getUsers = () => {
     api.ocservUsersGet({
         ...getAuthorization(),
         ...meta,
-        q: q.value,
+        q: q.value
     })
         .then((res) => {
             users.value = res.data.result ?? [];
@@ -200,15 +200,14 @@ const updateMeta = (newMeta: Meta) => {
     getUsers();
 };
 
-const search = (clear: boolean = false)=>{
+const search = (clear: boolean = false) => {
     if (clear) {
-        q.value = ""
+        q.value = '';
     }
     if (q.value.length > 1 || clear) {
-        getUsers()
+        getUsers();
     }
-}
-
+};
 </script>
 
 <template>
@@ -247,7 +246,7 @@ const search = (clear: boolean = false)=>{
                         <v-col cols="auto">
                             <v-btn @click="search(false)" color="info" size="small">
                                 <v-icon start>mdi-magnify</v-icon>
-                                {{ t("SEARCH") }}
+                                {{ t('SEARCH') }}
                             </v-btn>
                         </v-col>
                     </v-row>
