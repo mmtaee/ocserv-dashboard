@@ -11,6 +11,7 @@ import {
 import { ref } from 'vue';
 import SummaryResult from '@/components/customer/SummaryResult.vue';
 import { router } from '@/router';
+import { useSnackbarStore } from '@/stores/snackbar';
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -37,13 +38,18 @@ const snapshot = ref<CustomerSummaryResponse>({
     }
 });
 
+const api = new CustomersApi();
+
 const result = ref<CustomerSummaryResponse>(snapshot.value);
 
 const hasResult = ref(false);
 
+const customerSummaryData = ref<CustomerSummaryData>({ password: '', username: '' });
+
 const getSummary = (data: CustomerSummaryData) => {
     loading.value = true;
-    const api = new CustomersApi();
+    Object.assign(customerSummaryData.value, data);
+
     api.customersSummaryPost({
         request: data
     })
@@ -59,6 +65,21 @@ const getSummary = (data: CustomerSummaryData) => {
 const newSummary = () => {
     Object.assign(result.value, snapshot.value);
     hasResult.value = false;
+    Object.assign(customerSummaryData.value, { password: '', username: '' });
+};
+
+const disconnect = () => {
+    api.customersDisconnectSessionsPost({
+        request: customerSummaryData.value
+    }).then(() => {
+        const snackbar = useSnackbarStore();
+        snackbar.show({
+            id: 1,
+            message: t('USER_DISCONNECTED_SUCCESS_SNACK'),
+            color: 'success',
+            timeout: 3000
+        });
+    });
 };
 </script>
 
@@ -80,7 +101,7 @@ const newSummary = () => {
                     </v-card>
                 </v-col>
 
-                <SummaryResult :result="result" v-if="hasResult" @newSummary="newSummary" />
+                <SummaryResult :result="result" v-if="hasResult" @newSummary="newSummary" @disconnect="disconnect" />
             </v-row>
         </v-container>
     </div>

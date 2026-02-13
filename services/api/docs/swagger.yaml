@@ -916,6 +916,34 @@ info:
   title: Ocserv User management Example Api
   version: "1.0"
 paths:
+  /customers/disconnect_sessions:
+    post:
+      consumes:
+      - application/json
+      description: disconnects all online sessions for a customer
+      parameters:
+      - description: customer username and password (same ocserv account).
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/customer.SummaryData'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/middlewares.TooManyRequests'
+      summary: Disconnect all online sessions of a customer
+      tags:
+      - Customers
   /customers/summary:
     post:
       consumes:

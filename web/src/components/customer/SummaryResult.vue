@@ -3,24 +3,36 @@ import type { CustomerSummaryResponse } from '@/api';
 import { bytesToGB, formatDate, trafficTypesTransformer } from '@/utils/convertors';
 import UiChildCard from '@/components/shared/UiChildCard.vue';
 import { useI18n } from 'vue-i18n';
+import { router } from '@/router';
 
 defineProps<{
     result: CustomerSummaryResponse;
 }>();
 
-const emit = defineEmits(['newSummary']);
+const emit = defineEmits(['newSummary', 'disconnect']);
 
 const { t } = useI18n();
+
+
 </script>
 
 <template>
     <v-col cols="12" md="6">
         <UiChildCard class="px-3">
             <template #title-header>
-                <span class="text-capitalize text-primary text-h3">
-                    <span>{{ result.ocserv_user.username }}</span>
-                    <span class="text-muted mx-1">({{ t('ACCOUNT_AND_USAGE_SUMMARY') }})</span>
-                </span>
+                <v-row align="center" justify="start">
+                    <v-col cols="12" md="8" sm="12">
+                        <span class="text-capitalize text-primary text-h3">
+                            <span>{{ result.ocserv_user.username }}</span>
+                            <span class="text-muted mx-1 text-capitalize"> ({{ t('ACCOUNT_AND_USAGE_SUMMARY') }}) </span>
+                        </span>
+                    </v-col>
+                    <v-col cols="12" md="auto" sm="12">
+                        <v-btn color="primary" flat @click="emit('disconnect')" size="small">
+                            {{ t('DISCONNECT_ALL_SESSIONS') }}
+                        </v-btn>
+                    </v-col>
+                </v-row>
             </template>
 
             <template #action>

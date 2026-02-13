@@ -59,6 +59,7 @@
   "DISABLES_UDP_ENFORCING_TCP_ONLY_VPN_CONNECTION": "تعطيل UDP، إجبار اتصال VPN عبر TCP فقط",
   "DISCONNECT": "قطع الاتصال",
   "DISCONNECTED": "تم قطع الاتصال",
+  "DISCONNECT_ALL_SESSIONS": "فصل جميع الجلسات",
   "DISCONNECT_CLIENT_IF_IP_CHANGES": "قطع الاتصال إذا تغير IP الخاص بالعميل",
   "DISCONNECT_USER_DESC": "قطع اتصال المستخدم المحدد",
   "DNS_SERVERS_LIST": "قائمة خوادم DNS",

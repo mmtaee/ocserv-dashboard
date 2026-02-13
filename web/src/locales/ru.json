@@ -59,6 +59,7 @@
   "DISABLES_UDP_ENFORCING_TCP_ONLY_VPN_CONNECTION": "отключает UDP, только TCP соединение VPN разрешено",
   "DISCONNECT": "отключить",
   "DISCONNECTED": "отключено",
+  "DISCONNECT_ALL_SESSIONS": "Отключить все сеансы",
   "DISCONNECT_CLIENT_IF_IP_CHANGES": "отключить клиента при изменении IP",
   "DISCONNECT_USER_DESC": "отключить указанного пользователя",
   "DNS_SERVERS_LIST": "список DNS серверов",

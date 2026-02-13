@@ -59,6 +59,7 @@
   "DISABLES_UDP_ENFORCING_TCP_ONLY_VPN_CONNECTION": "disabilita UDP, forzando la connessione VPN solo TCP",
   "DISCONNECT": "disconnetti",
   "DISCONNECTED": "disconnesso",
+  "DISCONNECT_ALL_SESSIONS": "Disconnetti tutte le sessioni",
   "DISCONNECT_CLIENT_IF_IP_CHANGES": "disconnetti il client se il suo IP cambia",
   "DISCONNECT_USER_DESC": "disconnetti l'utente specificato",
   "DNS_SERVERS_LIST": "elenco server DNS",
