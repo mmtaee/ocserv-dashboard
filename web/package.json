@@ -11,11 +11,13 @@
         "format": "prettier --write ."
     },
     "dependencies": {
+        "@date-io/date-fns": "^3.2.1",
         "@eslint/js": "^9.35.0",
         "@iconify/vue": "4.3.0",
         "@openapitools/openapi-generator-cli": "^2.23.1",
         "apexcharts": "4.5.0",
         "axios": "^1.11.0",
+        "date-fns": "^4.1.0",
         "pinia": "^3.0.3",
         "vite-plugin-vuetify": "2.1.0",
         "vue": "^3.5.21",
