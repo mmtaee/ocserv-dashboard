@@ -1,6 +1,7 @@
 package ocserv_user
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -8,6 +9,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/common/models"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"golang.org/x/sync/errgroup"
 	"net/http"
 	"slices"
@@ -292,6 +294,22 @@ func (ctl *Controller) LockOcservUser(c echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
+
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		u, err := ctl.ocservUserRepo.GetByUID(ctx, userID)
+		if err != nil {
+			logger.Error("failed to fetch ocserv user error: ", err)
+		}
+		_, err = ctl.ocservOcctlRepo.Disconnect(u.Username)
+		if err != nil {
+			logger.Error("failed to disconnect ocserv user error: ", err)
+		}
+		return
+	}()
+
 	return c.JSON(http.StatusOK, nil)
 }
 
