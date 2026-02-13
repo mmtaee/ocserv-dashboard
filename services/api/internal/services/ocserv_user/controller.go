@@ -51,12 +51,13 @@ func New() *Controller {
 // @Router       /ocserv/users [get]
 func (ctl *Controller) OcservUsers(c echo.Context) error {
 	owner := ""
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
-		username := c.Get("username").(string)
-		if username == "" {
+	val, ok := c.Get("isAdmin").(bool)
+	if !ok || !val { // not admin or missing
+		usernameVal, ok := c.Get("username").(string)
+		if !ok || usernameVal == "" {
 			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
 		}
-		owner = username
+		owner = usernameVal
 	}
 
 	pagination := ctl.request.Pagination(c)

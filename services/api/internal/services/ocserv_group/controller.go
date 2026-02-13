@@ -42,14 +42,14 @@ func New() *Controller {
 // @Router       /ocserv/groups/lookup [get]
 func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 	owner := ""
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
-		username := c.Get("username").(string)
-		if username == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid username context"))
+	val, ok := c.Get("isAdmin").(bool)
+	if !ok || !val { // not admin or missing
+		usernameVal, ok := c.Get("username").(string)
+		if !ok || usernameVal == "" {
+			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
 		}
-		owner = username
+		owner = usernameVal
 	}
-
 	groups, err := ctl.ocservGroupRepo.GroupsLookup(c.Request().Context(), owner)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
