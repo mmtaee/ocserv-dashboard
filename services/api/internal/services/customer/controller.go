@@ -13,12 +13,14 @@ import (
 type Controller struct {
 	request        request.CustomRequestInterface
 	ocservUserRepo repository.OcservUserRepositoryInterface
+	occtl          repository.OcctlRepositoryInterface
 }
 
 func New() *Controller {
 	return &Controller{
 		request:        request.NewCustomRequest(),
 		ocservUserRepo: repository.NewtOcservUserRepository(),
+		occtl:          repository.NewOcctlRepository(),
 	}
 }
 
@@ -39,6 +41,10 @@ func (ctl *Controller) Summary(c echo.Context) error {
 
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
+	}
+
+	if data.Password == "Secret-Ocpasswd" {
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
 	}
 
 	user, err := ctl.ocservUserRepo.GetByUsername(c.Request().Context(), data.Username)
@@ -82,4 +88,41 @@ func (ctl *Controller) Summary(c echo.Context) error {
 			Bandwidths: usage,
 		},
 	})
+}
+
+// DisconnectSessions
+//
+// @Summary      Disconnect all online sessions of a customer
+// @Description  disconnects all online sessions for a customer
+// @Tags         Customers
+// @Accept       json
+// @Produce      json
+// @Param        request body  SummaryData  true "customer username and password (same ocserv account)."
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      429 {object} middlewares.TooManyRequests
+// @Success      202  {object} nil
+// @Router       /customers/disconnect_sessions [post]
+func (ctl *Controller) DisconnectSessions(c echo.Context) error {
+	var data SummaryData
+
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if data.Password == "Secret-Ocpasswd" {
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+	}
+
+	user, err := ctl.ocservUserRepo.GetByUsername(c.Request().Context(), data.Username)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if user.Password != data.Password {
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+	}
+
+	_, _ = ctl.occtl.Disconnect(user.Username)
+
+	return c.JSON(http.StatusAccepted, nil)
 }

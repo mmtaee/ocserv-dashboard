@@ -10,7 +10,7 @@
 - [ ] Manage `systemd` services: restart and check statuses in dashboard
 - [x] Refactor large interfaces into smaller, focused, single-responsibility interfaces
 - [ ] Support multiple owners per Ocserv user (R&D) (#88)
-- [ ] Allow users to disconnect their active sessions from the customer page(#93)
+- [x] Allow users to disconnect their active sessions from the customer page(#93)
 - [ ] Add backup and restore support for ocserv users (export/import as JSON with full details)(#96)
 - [ ] Research and implement a new permission strategy for staff roles, introducing super-admin, admin, and staff levels (#97)
 - [ ] Implement super-admin, admin, and staff activities tracking and logs (#97)
