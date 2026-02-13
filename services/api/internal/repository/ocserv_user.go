@@ -66,7 +66,7 @@ type OcservUserGroup interface {
 type OcservUserActions interface {
 	Lock(ctx context.Context, uid string) error
 	UnLock(ctx context.Context, uid string) error
-	RestoreExpired(ctx context.Context, uid string, expireAt time.Time) error
+	RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error
 }
 
 type OcservUserRepositoryInterface interface {
@@ -568,7 +568,7 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 	return users, nil
 }
 
-func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, expireAt time.Time) error {
+func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error {
 	return o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var u models.OcservUser
 		if err := tx.

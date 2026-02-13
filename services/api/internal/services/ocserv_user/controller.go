@@ -691,13 +691,13 @@ func (ctl *Controller) ActivateExpiredOcservUsers(c echo.Context) error {
 	}
 
 	var (
-		expireAt time.Time
+		expireAt *time.Time
 		err      error
 	)
 	if data.ExpireAt != nil {
-		expireAt, err = time.Parse("2006-01-02", *data.ExpireAt)
-		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid expire_at: %w", err))
+		expireAtTime, err := time.Parse("2006-01-02", *data.ExpireAt)
+		if err == nil {
+			expireAt = &expireAtTime
 		}
 	}
 
