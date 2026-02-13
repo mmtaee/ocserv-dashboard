@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import {
-    type ModelsOcservGroupConfig,
     type ModelsOcservUser,
     type ModelsOcservUserConfig,
     ModelsOcservUserTrafficTypeEnum,
@@ -129,11 +128,11 @@ const updateUser = () => {
     emit('updateUser', props.initData?.uid, updateData);
 };
 
-const toggleInfinite = (val : boolean)=> {
+const toggleUnlimited = (val: boolean) => {
     if (val) {
-        createData.expire_at = undefined
+        createData.expire_at = undefined;
     }
-}
+};
 
 const expireAtDate = computed<Date>({
     get: () => {
@@ -151,7 +150,7 @@ watch(
             Object.assign(createData, props.initData);
             isUpdate.value = true;
             if (createData.expire_at == undefined) {
-                createData.infinite = true
+                createData.unlimited = true;
             }
         }
     },
@@ -245,7 +244,7 @@ watch(
                                     {{ t('EXPIRE_AT') }}
                                 </v-label>
                                 <v-text-field
-                                    :disabled="createData.infinite"
+                                    :disabled="createData.unlimited"
                                     :model-value="createData.expire_at ? formatDate(createData.expire_at) : ''"
                                     color="primary"
                                     hide-details
@@ -257,7 +256,7 @@ watch(
                                 />
                             </template>
                             <v-date-picker
-                                :disabled="createData.infinite"
+                                :disabled="createData.unlimited"
                                 v-model="expireAtDate"
                                 :header="t('EXPIRE_AT')"
                                 elevation="24"
@@ -268,16 +267,15 @@ watch(
                     </v-col>
                     <v-col cols="12" md="auto" class="mt-md-6 ma-sm-0 pa-sm-0">
                         <v-checkbox
-                            v-model="createData.infinite"
-                            :label="t('INFINITE')"
+                            v-model="createData.unlimited"
+                            :label="t('UNLIMITED')"
                             class="text-capitalize text-subtitle-2"
                             color="primary"
                             hide-details
-                            @update:model-value="(val: unknown) => toggleInfinite(val as boolean)"
+                            @update:model-value="(val: unknown) => toggleUnlimited(val as boolean)"
                         />
                     </v-col>
                 </v-row>
-
             </v-col>
 
             <v-col cols="12" md="11">
