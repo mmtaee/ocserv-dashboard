@@ -1,6 +1,9 @@
+// go test ./common/tests -run TestConcurrentWrites -v
+
 package tests
 
 import (
+	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"sync"
 	"testing"
@@ -12,6 +15,7 @@ type User struct {
 }
 
 func TestConcurrentWrites(t *testing.T) {
+	config.Init(false, "", 0)
 	database.Connect()
 	db := database.GetConnection()
 
