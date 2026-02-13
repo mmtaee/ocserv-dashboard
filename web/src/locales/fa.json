@@ -59,6 +59,7 @@
   "DISABLES_UDP_ENFORCING_TCP_ONLY_VPN_CONNECTION": "UDP غیرفعال شده و فقط اتصال TCP مجاز است",
   "DISCONNECT": "قطع اتصال",
   "DISCONNECTED": "قطع شده",
+  "DISCONNECT_ALL_SESSIONS": "قطع تمام نشست‌ها",
   "DISCONNECT_CLIENT_IF_IP_CHANGES": "قطع اتصال کاربر در صورت تغییر IP",
   "DISCONNECT_USER_DESC": "قطع اتصال کاربر مشخص شده",
   "DNS_SERVERS_LIST": "لیست سرورهای DNS",
