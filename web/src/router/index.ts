@@ -3,6 +3,7 @@ import MainRoutes from './MainRoutes';
 import AuthRoutes from '@/router/AuthRoutes';
 import UserRoutes from '@/router/UserRoutes';
 import CustomerRoutes from '@/router/CustomerRoutes';
+import SystemRoutes from '@/router/SystemRoutes';
 
 export const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,7 @@ export const router = createRouter({
             component: () => import('@/views/Error404.vue')
         },
         MainRoutes,
+        ...SystemRoutes,
         UserRoutes,
         AuthRoutes,
         CustomerRoutes

@@ -132,7 +132,7 @@ const updateMeta = (newMeta: Meta) => {
                         class="me-lg-5"
                         color="grey"
                         size="small"
-                        variant="flat"
+                        variant="outlined"
                         @click="router.push({ name: 'Staff Create' })"
                     >
                         {{ t('CREATE') }}
