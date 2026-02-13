@@ -19,3 +19,4 @@
 - [ ] Add detailed user activity logs (login/logout with date & time) (#108)
 - [ ] Change ocserv installation method from deb repo to binary installer(R&D) (#111)
 - [ ] Separate password update logic from user profile updates (#121)
+- [ ] Implement bulk operations for Ocserv users with checkbox selection (#113)
