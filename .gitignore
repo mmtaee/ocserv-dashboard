@@ -31,3 +31,4 @@ volumes
 .volumes
 note
 
+db/
