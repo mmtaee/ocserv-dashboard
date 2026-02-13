@@ -208,6 +208,12 @@ const search = (clear: boolean = false) => {
         getUsers();
     }
 };
+
+const reload = () => {
+    q.value = ""
+    getUsers();
+}
+
 </script>
 
 <template>
@@ -219,7 +225,7 @@ const search = (clear: boolean = false) => {
                         class="me-lg-5"
                         color="grey"
                         size="small"
-                        variant="flat"
+                        variant="outlined"
                         @click="router.push({ name: 'Ocserv User Create' })"
                     >
                         {{ t('CREATE') }}
@@ -243,10 +249,16 @@ const search = (clear: boolean = false) => {
                                 density="compact"
                             />
                         </v-col>
-                        <v-col cols="auto">
+                        <v-col cols="12" md="auto">
                             <v-btn @click="search(false)" color="info" size="small">
                                 <v-icon start>mdi-magnify</v-icon>
                                 {{ t('SEARCH') }}
+                            </v-btn>
+                        </v-col>
+
+                        <v-col cols="12" md="auto">
+                            <v-btn color="secondary" size="small" variant="outlined" @click="reload">
+                                {{ t('RELOAD') }}
                             </v-btn>
                         </v-col>
                     </v-row>
@@ -330,7 +342,7 @@ const search = (clear: boolean = false) => {
                                     <div>
                                         {{ t('EXPIRE_AT') }}:<br />
                                         <span class="text-info text-capitalize">
-                                            {{ formatDate(item.expire_at) }}
+                                            {{ formatDate(item.expire_at) || t("UNLIMITED") }}
                                         </span>
                                     </div>
                                     <div v-if="item.deactivated_at">

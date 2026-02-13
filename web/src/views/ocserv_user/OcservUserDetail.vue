@@ -191,9 +191,9 @@ onMounted(() => {
                                             {{ t('EXPIRE_AT') }}:
                                         </span>
                                         <span v-if="result.expire_at" class="ms-1 text-primary">
-                                            {{ formatDateWithRelative(result.expire_at, '') }}
+                                            {{ formatDateWithRelative(result.expire_at, '')}}
                                         </span>
-                                        <span v-else class="ms-1 text-warning italic">{{ t('NOT_SET') }}</span>
+                                        <span v-else class="ms-1 text-warning italic">{{ t('UNLIMITED') }}</span>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
