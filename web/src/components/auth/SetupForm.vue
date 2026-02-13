@@ -23,7 +23,9 @@ const data = reactive<SystemSetupSystem>({
     google_captcha_secret_key: '',
     google_captcha_site_key: '',
     password: '',
-    username: ''
+    username: '',
+    keep_inactive_user_days: 30,
+    auto_delete_inactive_users: true
 });
 </script>
 
@@ -31,29 +33,34 @@ const data = reactive<SystemSetupSystem>({
     <v-form v-model="valid">
         <v-row class="d-flex mb-3">
             <v-col cols="12">
-                <v-label class="font-weight-bold mb-1">{{ t('ADMIN_USERNAME') }}</v-label>
-                <v-text-field
-                    v-model="data.username"
-                    :rules="[rules.required]"
-                    color="primary"
-                    hide-details
-                    variant="outlined"
-                />
+                <v-row>
+                    <v-col cols="12" lg="6">
+                        <v-label class="font-weight-bold mb-1">{{ t('ADMIN_USERNAME') }}</v-label>
+                        <v-text-field
+                            v-model="data.username"
+                            :rules="[rules.required]"
+                            color="primary"
+                            hide-details
+                            variant="outlined"
+                        />
+                    </v-col>
+                    <v-col cols="12" lg="6">
+                        <v-label class="font-weight-bold mb-1">{{ t('ADMIN_PASSWORD') }}</v-label>
+                        <v-text-field
+                            v-model="data.password"
+                            :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                            :rules="[rules.required]"
+                            :type="showPassword ? 'text' : 'password'"
+                            autocomplete="new-password"
+                            color="primary"
+                            hide-details
+                            variant="outlined"
+                            @click:append-inner="showPassword = !showPassword"
+                        />
+                    </v-col>
+                </v-row>
             </v-col>
-            <v-col cols="12">
-                <v-label class="font-weight-bold mb-1">{{ t('ADMIN_PASSWORD') }}</v-label>
-                <v-text-field
-                    v-model="data.password"
-                    :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                    :rules="[rules.required]"
-                    :type="showPassword ? 'text' : 'password'"
-                    autocomplete="new-password"
-                    color="primary"
-                    hide-details
-                    variant="outlined"
-                    @click:append-inner="showPassword = !showPassword"
-                />
-            </v-col>
+
             <v-col cols="12">
                 <v-label class="font-weight-bold mb-1">
                     {{ t('GOOGLE_CAPTCHA_SITE_KEY') }}
@@ -84,6 +91,35 @@ const data = reactive<SystemSetupSystem>({
                     type="text"
                     variant="outlined"
                 />
+            </v-col>
+
+            <v-col cols="12">
+                <v-row align="center">
+                    <v-col cols="12" lg="6" class="ma-0 pa-0">
+                        <v-checkbox
+                            v-model="data.auto_delete_inactive_users"
+                            color="primary"
+                            hide-details
+                            class="text-capitalize mt-md-6"
+                        >
+                            <template v-slot:label class="text-body-1">{{ t('AUTO_DELETE_INACTIVE_USERS') }}</template>
+                        </v-checkbox>
+                    </v-col>
+
+                    <v-col cols="12" lg="6">
+                        <v-label class="font-weight-bold mb-1">
+                            {{ t('KEEP_INACTIVE_USER_DAYS') }}
+                        </v-label>
+                        <v-text-field
+                            :disabled="!data.auto_delete_inactive_users"
+                            v-model="data.keep_inactive_user_days"
+                            color="primary"
+                            hide-details
+                            type="text"
+                            variant="outlined"
+                        />
+                    </v-col>
+                </v-row>
             </v-col>
             <v-col cols="12">
                 <v-btn
