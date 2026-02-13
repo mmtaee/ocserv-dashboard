@@ -22,6 +22,12 @@
 export interface SystemPatchSystemUpdateData {
     /**
      * 
+     * @type {boolean}
+     * @memberof SystemPatchSystemUpdateData
+     */
+    'auto_delete_inactive_users': boolean;
+    /**
+     * 
      * @type {string}
      * @memberof SystemPatchSystemUpdateData
      */
@@ -32,5 +38,11 @@ export interface SystemPatchSystemUpdateData {
      * @memberof SystemPatchSystemUpdateData
      */
     'google_captcha_site_key': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SystemPatchSystemUpdateData
+     */
+    'keep_inactive_user_days': number;
 }
 
