@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# API folder (your custom folder)
+api/
+
+# Temporary or cache files
+.cache/
+tmp/

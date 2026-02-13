@@ -598,10 +598,6 @@ definitions:
         type: string
       group:
         type: string
-      infinite:
-        default: false
-        example: false
-        type: boolean
       password:
         maxLength: 32
         minLength: 2
@@ -620,6 +616,10 @@ definitions:
         - TotallyReceive
         example: MonthlyTransmit
         type: string
+      unlimited:
+        default: false
+        example: false
+        type: boolean
       username:
         maxLength: 32
         minLength: 2
@@ -729,6 +729,10 @@ definitions:
         - TotallyReceive
         example: MonthlyTransmit
         type: string
+      unlimited:
+        default: false
+        example: false
+        type: boolean
     type: object
   repository.TopBandwidthUsers:
     properties:

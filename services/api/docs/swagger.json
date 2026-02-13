@@ -2958,11 +2958,6 @@
                 "group": {
                     "type": "string"
                 },
-                "infinite": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
                 "password": {
                     "type": "string",
                     "maxLength": 32,
@@ -2984,6 +2979,11 @@
                         "TotallyReceive"
                     ],
                     "example": "MonthlyTransmit"
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
                 },
                 "username": {
                     "type": "string",
@@ -3127,6 +3127,11 @@
                         "TotallyReceive"
                     ],
                     "example": "MonthlyTransmit"
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
                 }
             }
         },

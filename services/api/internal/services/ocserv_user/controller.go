@@ -152,7 +152,7 @@ func (ctl *Controller) CreateOcservUser(c echo.Context) error {
 	}
 
 	var expireAt *time.Time
-	if data.Infinite {
+	if data.Unlimited {
 		expireAt = nil
 	} else {
 		expireAtTime, err := time.Parse("2006-01-02", data.ExpireAt)
@@ -236,7 +236,7 @@ func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 		ocservUser.Config = data.Config
 	}
 
-	if data.Infinite {
+	if data.Unlimited {
 		ocservUser.ExpireAt = nil
 	} else if data.ExpireAt != nil {
 		if expire, err := time.Parse("2006-01-02", *data.ExpireAt); err == nil {
