@@ -49,6 +49,12 @@ export interface OcservUserCreateOcservUserData {
     'group': string;
     /**
      * 
+     * @type {boolean}
+     * @memberof OcservUserCreateOcservUserData
+     */
+    'infinite'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof OcservUserCreateOcservUserData
      */
