@@ -92,6 +92,8 @@ watch(
                         hide-details
                         type="number"
                         variant="outlined"
+                        min="1"
+                        @keyup="systemData.keep_inactive_user_days < 1 ? (systemData.keep_inactive_user_days = 1) : false"
                     />
                 </v-col>
             </v-row>
@@ -101,7 +103,13 @@ watch(
         <v-btn color="muted" variant="text" @click="emit('cancel')">
             {{ t('CANCEL') }}
         </v-btn>
-        <v-btn :loading="loading" class="ms-2 me-1" color="primary" variant="flat" @click='emit("updateSystem", systemData)'>
+        <v-btn
+            :loading="loading"
+            class="ms-2 me-1"
+            color="primary"
+            variant="flat"
+            @click="emit('updateSystem', systemData)"
+        >
             {{ t('UPDATE') }}
         </v-btn>
     </v-row>

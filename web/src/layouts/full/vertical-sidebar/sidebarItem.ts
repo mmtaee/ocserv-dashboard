@@ -106,7 +106,6 @@ export function getSidebarItems(): Menu[] {
                 title: t('SETTINGS'),
                 icon: 'mdi-cog',
                 to: '/system'
-
             }
         );
     }

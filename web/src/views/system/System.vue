@@ -100,11 +100,11 @@ onMounted(() => {
                                     </v-list-item-title>
                                     <v-list-item-subtitle class="text-subtitle-1">
                                         <span v-if="systemData.auto_delete_inactive_users" class="text-info">
-                                            {{t("ACTIVE")}}
+                                            {{ t('ACTIVE') }}
                                             <v-icon start>mdi-check-circle-outline</v-icon>
                                         </span>
                                         <span v-else class="text-error">
-                                            {{t("INACTIVE")}}
+                                            {{ t('INACTIVE') }}
                                             <v-icon start>mdi-close-circle-outline</v-icon>
                                         </span>
                                     </v-list-item-subtitle>
