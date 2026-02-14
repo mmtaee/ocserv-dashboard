@@ -10,7 +10,6 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/pkg/crypto"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
-	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
 	"net/http"
 	"strings"
@@ -64,11 +63,16 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 		IsAdmin:  true,
 	}
 
+	inactiveDays := data.KeepInactiveUserDays
+	if inactiveDays < 1 {
+		inactiveDays = 1
+	}
+
 	system := &models.System{
 		GoogleCaptchaSiteKey:    data.GoogleCaptchaSiteKey,
 		GoogleCaptchaSecretKey:  data.GoogleCaptchaSecretKey,
 		AutoDeleteInactiveUsers: data.AutoDeleteInactiveUsers,
-		KeepInactiveUserDays:    data.KeepInactiveUserDays,
+		KeepInactiveUserDays:    inactiveDays,
 	}
 	newUser, newSystem, err := ctl.systemRepo.SystemSetup(c.Request().Context(), user, system)
 	if err != nil {
@@ -171,10 +175,12 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 		system.AutoDeleteInactiveUsers = *data.AutoDeleteInactiveUsers
 	}
 	if data.KeepInactiveUserDays != nil {
-		system.KeepInactiveUserDays = *data.KeepInactiveUserDays
+		inactiveDays := *data.KeepInactiveUserDays
+		if inactiveDays < 1 {
+			inactiveDays = 1
+		}
+		system.KeepInactiveUserDays = inactiveDays
 	}
-
-	logger.Warn("data: ", data)
 
 	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
 	updatedConfig, err := ctl.systemRepo.SystemUpdate(ctx, &system)
