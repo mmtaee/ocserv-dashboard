@@ -10,6 +10,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/api/pkg/crypto"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/request"
 	"github.com/mmtaee/ocserv-users-management/api/pkg/routing/middlewares"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
 	"net/http"
 	"strings"
@@ -173,6 +174,8 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 		system.KeepInactiveUserDays = *data.KeepInactiveUserDays
 	}
 
+	logger.Warn("data: ", data)
+
 	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
 	updatedConfig, err := ctl.systemRepo.SystemUpdate(ctx, &system)
 	if err != nil {
@@ -180,8 +183,10 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, GetSystemResponse{
-		GoogleCaptchaSiteKey:   updatedConfig.GoogleCaptchaSiteKey,
-		GoogleCaptchaSecretKey: updatedConfig.GoogleCaptchaSecretKey,
+		GoogleCaptchaSiteKey:    updatedConfig.GoogleCaptchaSiteKey,
+		GoogleCaptchaSecretKey:  updatedConfig.GoogleCaptchaSecretKey,
+		AutoDeleteInactiveUsers: updatedConfig.AutoDeleteInactiveUsers,
+		KeepInactiveUserDays:    updatedConfig.KeepInactiveUserDays,
 	})
 }
 
