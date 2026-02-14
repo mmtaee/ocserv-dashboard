@@ -5,6 +5,7 @@ import type { SystemGetSystemResponse, SystemPatchSystemUpdateData } from '@/api
 
 const props = defineProps<{
     data: SystemGetSystemResponse;
+    loading: boolean;
 }>();
 
 const emit = defineEmits(['updateSystem', 'cancel']);
@@ -17,8 +18,6 @@ const systemData = ref<SystemPatchSystemUpdateData>({
     google_captcha_site_key: '',
     keep_inactive_user_days: 0
 });
-
-const update = () => {};
 
 watch(
     () => props.data,
@@ -88,10 +87,10 @@ watch(
                     </v-label>
                     <v-text-field
                         :disabled="!systemData.auto_delete_inactive_users"
-                        v-model="systemData.keep_inactive_user_days"
+                        v-model.number="systemData.keep_inactive_user_days"
                         color="primary"
                         hide-details
-                        type="text"
+                        type="number"
                         variant="outlined"
                     />
                 </v-col>
@@ -102,7 +101,7 @@ watch(
         <v-btn color="muted" variant="text" @click="emit('cancel')">
             {{ t('CANCEL') }}
         </v-btn>
-        <v-btn class="ms-2 me-1" color="primary" variant="flat" @click="update">
+        <v-btn :loading="loading" class="ms-2 me-1" color="primary" variant="flat" @click='emit("updateSystem", systemData)'>
             {{ t('UPDATE') }}
         </v-btn>
     </v-row>

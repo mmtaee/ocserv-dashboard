@@ -1,24 +1,42 @@
 <script setup lang="ts">
 import UiChildCard from '@/components/shared/UiChildCard.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
-import { SystemApi, type SystemGetSystemResponse } from '@/api';
+import { SystemApi, type SystemGetSystemResponse, type SystemPatchSystemUpdateData } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { onMounted, ref } from 'vue';
 import { getAuthorization } from '@/utils/request';
 import SystemForm from '@/components/system/SystemForm.vue';
+import { useSnackbarStore } from '@/stores/snackbar';
 
 const { t } = useI18n();
 const updateMode = ref(false);
+const loading = ref(false);
 
 const api = new SystemApi();
 
 const systemData = ref<SystemGetSystemResponse>({});
 
-const updateSystem = () => {
-    // api.systemPatch({
-    //     ...getAuthorization(),
-    //
-    // })
+const updateSystem = (data: SystemPatchSystemUpdateData) => {
+    loading.value = true;
+
+    api.systemPatch({
+        ...getAuthorization(),
+        request: data
+    })
+        .then((res) => {
+            const snackbar = useSnackbarStore();
+            snackbar.show({
+                id: 1,
+                message: t('UPDATE_SYSTEM_SUCCESS_SNACKBAR'),
+                color: 'success',
+                timeout: 4000
+            });
+            Object.assign(systemData.value, res.data);
+            updateMode.value = false;
+        })
+        .finally(() => {
+            loading.value = false;
+        });
 };
 
 onMounted(() => {
@@ -26,7 +44,6 @@ onMounted(() => {
         ...getAuthorization()
     }).then((res) => {
         Object.assign(systemData.value, res.data);
-        console.log(res.data);
     });
 });
 </script>
@@ -82,7 +99,14 @@ onMounted(() => {
                                         {{ t('AUTO_DELETE_INACTIVE_USERS') }}
                                     </v-list-item-title>
                                     <v-list-item-subtitle class="text-subtitle-1">
-                                        {{ systemData.auto_delete_inactive_users }}
+                                        <span v-if="systemData.auto_delete_inactive_users" class="text-info">
+                                            {{t("ACTIVE")}}
+                                            <v-icon start>mdi-check-circle-outline</v-icon>
+                                        </span>
+                                        <span v-else class="text-error">
+                                            {{t("INACTIVE")}}
+                                            <v-icon start>mdi-close-circle-outline</v-icon>
+                                        </span>
                                     </v-list-item-subtitle>
                                 </v-list-item>
 
@@ -104,7 +128,12 @@ onMounted(() => {
 
                 <UiChildCard v-else :title="t('CONFIGS')" class="px-3">
                     <v-col cols="6" md="6" sm="12">
-                        <SystemForm :data="systemData" @updateSystem="updateSystem" @cancel="updateMode = false" />
+                        <SystemForm
+                            :data="systemData"
+                            @updateSystem="updateSystem"
+                            @cancel="updateMode = false"
+                            :loading="loading"
+                        />
                     </v-col>
                 </UiChildCard>
             </UiParentCard>
