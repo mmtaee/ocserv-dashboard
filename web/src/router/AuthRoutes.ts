@@ -11,11 +11,6 @@ const AuthRoutes = {
             component: () => import('@/views/auth/Login.vue')
         },
         {
-            name: 'Setup',
-            path: '/setup',
-            component: () => import('@/views/auth/Setup.vue')
-        },
-        {
             name: 'Admin Login',
             path: '/login/admin',
             component: () => import('@/views/auth/AdminLogin.vue')

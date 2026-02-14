@@ -507,10 +507,14 @@ definitions:
     properties:
       _:
         type: integer
+      auto_delete_inactive_users:
+        type: boolean
       google_captcha_secret:
         type: string
       google_captcha_site_key:
         type: string
+      keep_inactive_user_days:
+        type: integer
     type: object
   models.User:
     properties:
@@ -816,10 +820,14 @@ definitions:
     type: object
   system.GetSystemResponse:
     properties:
+      auto_delete_inactive_users:
+        type: boolean
       google_captcha_secret_key:
         type: string
       google_captcha_site_key:
         type: string
+      keep_inactive_user_days:
+        type: integer
     type: object
   system.LoginData:
     properties:
@@ -843,20 +851,30 @@ definitions:
     type: object
   system.PatchSystemUpdateData:
     properties:
+      auto_delete_inactive_users:
+        type: boolean
       google_captcha_secret_key:
         type: string
       google_captcha_site_key:
         type: string
+      keep_inactive_user_days:
+        type: integer
     required:
+    - auto_delete_inactive_users
     - google_captcha_secret_key
     - google_captcha_site_key
+    - keep_inactive_user_days
     type: object
   system.SetupSystem:
     properties:
+      auto_delete_inactive_users:
+        type: boolean
       google_captcha_secret_key:
         type: string
       google_captcha_site_key:
         type: string
+      keep_inactive_user_days:
+        type: integer
       password:
         maxLength: 16
         minLength: 4

@@ -17,32 +17,32 @@
 /**
  * 
  * @export
- * @interface SystemPatchSystemUpdateData
+ * @interface UsersUserLoginData
  */
-export interface SystemPatchSystemUpdateData {
+export interface UsersUserLoginData {
+    /**
+     * 
+     * @type {string}
+     * @memberof UsersUserLoginData
+     */
+    'password': string;
     /**
      * 
      * @type {boolean}
-     * @memberof SystemPatchSystemUpdateData
+     * @memberof UsersUserLoginData
      */
-    'auto_delete_inactive_users': boolean;
+    'remember_me'?: boolean;
     /**
      * 
      * @type {string}
-     * @memberof SystemPatchSystemUpdateData
+     * @memberof UsersUserLoginData
      */
-    'google_captcha_secret_key': string;
+    'token'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SystemPatchSystemUpdateData
+     * @memberof UsersUserLoginData
      */
-    'google_captcha_site_key': string;
-    /**
-     * 
-     * @type {number}
-     * @memberof SystemPatchSystemUpdateData
-     */
-    'keep_inactive_user_days': number;
+    'username': string;
 }
 

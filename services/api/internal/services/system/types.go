@@ -10,13 +10,17 @@ type GetSystemInitResponse struct {
 }
 
 type GetSystemResponse struct {
-	GoogleCaptchaSiteKey   string `json:"google_captcha_site_key" validate:"omitempty"`
-	GoogleCaptchaSecretKey string `json:"google_captcha_secret_key" validate:"omitempty"`
+	GoogleCaptchaSiteKey    string `json:"google_captcha_site_key" validate:"omitempty"`
+	GoogleCaptchaSecretKey  string `json:"google_captcha_secret_key" validate:"omitempty"`
+	AutoDeleteInactiveUsers bool   `json:"auto_delete_inactive_users" validate:"omitempty"`
+	KeepInactiveUserDays    int    `json:"keep_inactive_user_days" validate:"omitempty"`
 }
 
 type PatchSystemUpdateData struct {
-	GoogleCaptchaSiteKey   *string `json:"google_captcha_site_key" validate:"required"`
-	GoogleCaptchaSecretKey *string `json:"google_captcha_secret_key" validate:"required"`
+	GoogleCaptchaSiteKey    *string `json:"google_captcha_site_key" validate:"required"`
+	GoogleCaptchaSecretKey  *string `json:"google_captcha_secret_key" validate:"required"`
+	AutoDeleteInactiveUsers *bool   `json:"auto_delete_inactive_users" validate:"required"`
+	KeepInactiveUserDays    *int    `json:"keep_inactive_user_days" validate:"required"`
 }
 
 type LoginData struct {
@@ -52,10 +56,12 @@ type ChangeUserPasswordBySelf struct {
 }
 
 type SetupSystem struct {
-	Username               string `json:"username" validate:"required,min=2,max=16"`
-	Password               string `json:"password" validate:"required,min=4,max=16"`
-	GoogleCaptchaSiteKey   string `json:"google_captcha_site_key" validate:"omitempty"`
-	GoogleCaptchaSecretKey string `json:"google_captcha_secret_key" validate:"omitempty"`
+	Username                string `json:"username" validate:"required,min=2,max=16"`
+	Password                string `json:"password" validate:"required,min=4,max=16"`
+	GoogleCaptchaSiteKey    string `json:"google_captcha_site_key" validate:"omitempty"`
+	GoogleCaptchaSecretKey  string `json:"google_captcha_secret_key" validate:"omitempty"`
+	AutoDeleteInactiveUsers bool   `json:"auto_delete_inactive_users" validate:"omitempty"`
+	KeepInactiveUserDays    int    `json:"keep_inactive_user_days" validate:"omitempty"`
 }
 
 type SetupSystemResponse struct {

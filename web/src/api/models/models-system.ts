@@ -28,6 +28,12 @@ export interface ModelsSystem {
     '_'?: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof ModelsSystem
+     */
+    'auto_delete_inactive_users'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof ModelsSystem
      */
@@ -38,5 +44,11 @@ export interface ModelsSystem {
      * @memberof ModelsSystem
      */
     'google_captcha_site_key'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ModelsSystem
+     */
+    'keep_inactive_user_days'?: number;
 }
 

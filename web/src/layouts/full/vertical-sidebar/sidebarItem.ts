@@ -100,6 +100,12 @@ export function getSidebarItems(): Menu[] {
                 title: t('ACTIVITIES'),
                 icon: 'mdi-history',
                 to: '/staffs/activities'
+            },
+            { header: t('SYSTEM') },
+            {
+                title: t('SETTINGS'),
+                icon: 'mdi-cog',
+                to: '/system'
             }
         );
     }

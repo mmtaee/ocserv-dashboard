@@ -4,6 +4,6 @@ import logoUrl from '@/assets/images/setup.png';
 
 <template>
     <div class="logo">
-        <v-img :src="logoUrl" width="280" />
+        <v-img :src="logoUrl" width="150" />
     </div>
 </template>

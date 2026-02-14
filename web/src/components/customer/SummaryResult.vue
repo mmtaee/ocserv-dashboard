@@ -12,8 +12,6 @@ defineProps<{
 const emit = defineEmits(['newSummary', 'disconnect']);
 
 const { t } = useI18n();
-
-
 </script>
 
 <template>

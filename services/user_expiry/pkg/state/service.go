@@ -15,8 +15,9 @@ const stateFile = "cron_journal/cron_state.txt"
 var stateMu sync.Mutex
 
 type CronState struct {
-	DailyLastRun   time.Time
-	MonthlyLastRun time.Time
+	DailyLastRun              time.Time
+	MonthlyLastRun            time.Time
+	DeleteInactiveUserLastRun time.Time
 }
 
 func NewCronState() *CronState {
@@ -91,6 +92,9 @@ func LoadStateOrDefault() *CronState {
 		if strings.HasPrefix(l, "monthly_last_run=") {
 			state.MonthlyLastRun = parse(strings.TrimPrefix(l, "monthly_last_run="))
 		}
+		if strings.HasPrefix(l, "delete_inactive_user_last_run=") {
+			state.DeleteInactiveUserLastRun = parse(strings.TrimPrefix(l, "delete_inactive_user_last_run="))
+		}
 	}
 	return state
 }
@@ -100,9 +104,10 @@ func (s *CronState) Save() error {
 	defer stateMu.Unlock()
 
 	content := fmt.Sprintf(
-		"daily_last_run=%s\nmonthly_last_run=%s\n",
+		"daily_last_run=%s\nmonthly_last_run=%s\ndelete_inactive_user_last_run=%s\n",
 		formatTime(s.DailyLastRun),
 		formatTime(s.MonthlyLastRun),
+		formatTime(s.DeleteInactiveUserLastRun),
 	)
 	return os.WriteFile(stateFile, []byte(content), 0644)
 }

@@ -22,6 +22,12 @@
 export interface SystemGetSystemResponse {
     /**
      * 
+     * @type {boolean}
+     * @memberof SystemGetSystemResponse
+     */
+    'auto_delete_inactive_users'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof SystemGetSystemResponse
      */
@@ -32,5 +38,11 @@ export interface SystemGetSystemResponse {
      * @memberof SystemGetSystemResponse
      */
     'google_captcha_site_key'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SystemGetSystemResponse
+     */
+    'keep_inactive_user_days'?: number;
 }
 
