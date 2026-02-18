@@ -50,8 +50,11 @@ auto_detect_interface
 # ==============================================================
 # 1. Install Ocserv + Required Tools
 # ==============================================================
-log "Installing Ocserv and dependencies..."
-sudo apt-get install -y ocserv gnutls-bin iptables iptables-persistent
+log "Installing Ocserv..."
+sudo bash scripts/osever_setup.sh
+
+log "Installing dependencies..."
+sudo apt-get install -y gnutls-bin iptables iptables-persistent
 
 # ==============================================================
 # 2. Generate Ocserv Certificates (If Missing)
