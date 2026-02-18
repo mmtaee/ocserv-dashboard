@@ -125,6 +125,8 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 	case models.MonthlyReceive:
 		ocUser.IsLocked = totalMonthStats.TotalRx >= trafficSizeBytes
 
+	case models.Free:
+
 	default:
 		logger.Error("Unknown traffic type: %v", ocUser.TrafficType)
 	}
