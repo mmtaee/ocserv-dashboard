@@ -2,6 +2,8 @@
 
 source ./scripts/lib.sh
 
+export PATH="/usr/sbin:$PATH"
+
 PROJECT_ID=473862
 API_URL="https://gitlab.com/api/v4/projects/${PROJECT_ID}/releases"
 
@@ -64,7 +66,7 @@ autoreconf -fi || die "autoreconf failed"
 
 info "Configuring build system"
 
-./configure --with-systemdsystemunitdir=/lib/systemd/system || die "configure failed"
+./configure --with-systemdsystemunitdir=/lib/systemd/system --prefix=/usr --bindir=/usr/bin || die "configure failed"
 
 info "Compiling"
 make -j"$(nproc)" || die "Build failed"
@@ -79,6 +81,27 @@ ok "Build and installation complete"
 # -------------------------
 info "Creating required directories"
 mkdir -p /etc/ocserv /var/lib/ocserv
+
+# -------------------------
+# Setup system unit
+# -------------------------
+cat <<'EOF' | sudo tee /etc/systemd/system/ocserv.service > /dev/null
+[Unit]
+Description=OpenConnect SSL VPN server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/sbin/ocserv --foreground --config /etc/ocserv/ocserv.conf
+ExecReload=/bin/kill -HUP $MAINPID
+PIDFile=/var/run/ocserv.pid
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 
 # -------------------------
 # Enable service

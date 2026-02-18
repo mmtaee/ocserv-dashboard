@@ -51,7 +51,12 @@ auto_detect_interface
 # 1. Install Ocserv + Required Tools
 # ==============================================================
 log "Installing Ocserv..."
-sudo bash scripts/osever_setup.sh
+
+echo "current folder : ${PWD}"
+
+sudo chmod +x scripts/ocserv_setup.sh
+
+sudo scripts/ocserv_setup.sh
 
 log "Installing dependencies..."
 sudo apt-get install -y gnutls-bin iptables iptables-persistent
