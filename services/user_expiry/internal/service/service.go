@@ -134,11 +134,6 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 
 	logger.Info("User activating Cron starting...")
 
-	//// Test: run every minute at second 0
-	//_, err = c.AddFunc("0 * * * * *", func() {
-	//	ActiveMonthlyUsers(ctx, db)
-	//})
-
 	// Every day at 00:02:00 — delete expired users
 	_, err3 := cronJob.AddFunc("0 2 0 * * *", func() {
 		c.DeleteExpiredUsers(ctx, db)
@@ -152,6 +147,11 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 		logger.Fatal("Failed to add cron job: %v", err3)
 	}
 	logger.Info("Running delete expired users cron...")
+
+	// Test: run every minute at second 0
+	_, err = cronJob.AddFunc("0 * * * * *", func() {
+		c.DeleteExpiredUsers(ctx, db)
+	})
 
 	cronJob.Start()
 
@@ -325,10 +325,9 @@ func (c *CornService) DeleteExpiredUsers(ctx context.Context, db *gorm.DB) {
 		return
 	}
 
-	cutoffDate := time.Now().AddDate(0, 0, -system.KeepInactiveUserDays)
-
+	cutoffDate := time.Now().AddDate(0, 0, -system.KeepInactiveUserDays).UTC()
 	result := db.WithContext(ctx).
-		Where("deactivated_at IS NOT NULL AND deactivated_at < ?", cutoffDate).
+		Where("expire_at IS NOT NULL AND expire_at <= ?", cutoffDate).
 		Delete(&commonModels.OcservUser{})
 
 	if result.Error != nil {
