@@ -2865,11 +2865,17 @@ const docTemplate = `{
                 "_": {
                     "type": "integer"
                 },
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
                 "google_captcha_secret": {
                     "type": "string"
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
                 }
             }
         },
@@ -3309,11 +3315,17 @@ const docTemplate = `{
         "system.GetSystemResponse": {
             "type": "object",
             "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
                 "google_captcha_secret_key": {
                     "type": "string"
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
                 }
             }
         },
@@ -3347,15 +3359,23 @@ const docTemplate = `{
         "system.PatchSystemUpdateData": {
             "type": "object",
             "required": [
+                "auto_delete_inactive_users",
                 "google_captcha_secret_key",
-                "google_captcha_site_key"
+                "google_captcha_site_key",
+                "keep_inactive_user_days"
             ],
             "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
                 "google_captcha_secret_key": {
                     "type": "string"
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
                 }
             }
         },
@@ -3366,11 +3386,17 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
                 "google_captcha_secret_key": {
                     "type": "string"
                 },
                 "google_captcha_site_key": {
                     "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string",

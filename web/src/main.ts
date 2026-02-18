@@ -50,7 +50,8 @@ app.use(createPinia());
     app.use(VueApexCharts as any);
 
     if (!setup) {
-        await router.push({ name: 'Setup' });
+        localStorage.removeItem('token');
+        await router.push({ name: 'System Setup' });
     } else {
         if (localStorage.getItem('token')) {
             const profileStore = useProfileStore();

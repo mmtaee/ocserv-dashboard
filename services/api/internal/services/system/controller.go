@@ -63,9 +63,16 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 		IsAdmin:  true,
 	}
 
+	inactiveDays := data.KeepInactiveUserDays
+	if inactiveDays < 1 {
+		inactiveDays = 1
+	}
+
 	system := &models.System{
-		GoogleCaptchaSiteKey:   data.GoogleCaptchaSiteKey,
-		GoogleCaptchaSecretKey: data.GoogleCaptchaSecretKey,
+		GoogleCaptchaSiteKey:    data.GoogleCaptchaSiteKey,
+		GoogleCaptchaSecretKey:  data.GoogleCaptchaSecretKey,
+		AutoDeleteInactiveUsers: data.AutoDeleteInactiveUsers,
+		KeepInactiveUserDays:    inactiveDays,
 	}
 	newUser, newSystem, err := ctl.systemRepo.SystemSetup(c.Request().Context(), user, system)
 	if err != nil {
@@ -129,8 +136,10 @@ func (ctl *Controller) System(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, GetSystemResponse{
-		GoogleCaptchaSiteKey:   config.GoogleCaptchaSiteKey,
-		GoogleCaptchaSecretKey: config.GoogleCaptchaSecretKey,
+		GoogleCaptchaSiteKey:    config.GoogleCaptchaSiteKey,
+		GoogleCaptchaSecretKey:  config.GoogleCaptchaSecretKey,
+		AutoDeleteInactiveUsers: config.AutoDeleteInactiveUsers,
+		KeepInactiveUserDays:    config.KeepInactiveUserDays,
 	})
 }
 
@@ -162,6 +171,16 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 	if data.GoogleCaptchaSecretKey != nil {
 		system.GoogleCaptchaSecretKey = *data.GoogleCaptchaSecretKey
 	}
+	if data.AutoDeleteInactiveUsers != nil {
+		system.AutoDeleteInactiveUsers = *data.AutoDeleteInactiveUsers
+	}
+	if data.KeepInactiveUserDays != nil {
+		inactiveDays := *data.KeepInactiveUserDays
+		if inactiveDays < 1 {
+			inactiveDays = 1
+		}
+		system.KeepInactiveUserDays = inactiveDays
+	}
 
 	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
 	updatedConfig, err := ctl.systemRepo.SystemUpdate(ctx, &system)
@@ -170,8 +189,10 @@ func (ctl *Controller) SystemUpdate(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, GetSystemResponse{
-		GoogleCaptchaSiteKey:   updatedConfig.GoogleCaptchaSiteKey,
-		GoogleCaptchaSecretKey: updatedConfig.GoogleCaptchaSecretKey,
+		GoogleCaptchaSiteKey:    updatedConfig.GoogleCaptchaSiteKey,
+		GoogleCaptchaSecretKey:  updatedConfig.GoogleCaptchaSecretKey,
+		AutoDeleteInactiveUsers: updatedConfig.AutoDeleteInactiveUsers,
+		KeepInactiveUserDays:    updatedConfig.KeepInactiveUserDays,
 	})
 }
 
@@ -220,7 +241,7 @@ func (ctl *Controller) Login(c echo.Context) error {
 	}
 
 	go func() {
-		ctx, cancel := context.WithTimeout(context.WithValue(c.Request().Context(), "userUID", user.UID), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.WithValue(context.Background(), "userUID", user.UID), 10*time.Second)
 		ctx = context.WithValue(ctx, "username", user.Username)
 		defer cancel()
 

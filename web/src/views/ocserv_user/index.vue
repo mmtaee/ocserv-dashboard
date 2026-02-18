@@ -210,10 +210,9 @@ const search = (clear: boolean = false) => {
 };
 
 const reload = () => {
-    q.value = ""
+    q.value = '';
     getUsers();
-}
-
+};
 </script>
 
 <template>
@@ -342,7 +341,7 @@ const reload = () => {
                                     <div>
                                         {{ t('EXPIRE_AT') }}:<br />
                                         <span class="text-info text-capitalize">
-                                            {{ formatDate(item.expire_at) || t("UNLIMITED") }}
+                                            {{ formatDate(item.expire_at) || t('UNLIMITED') }}
                                         </span>
                                     </div>
                                     <div v-if="item.deactivated_at">

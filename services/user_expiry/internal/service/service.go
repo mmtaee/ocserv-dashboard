@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/mmtaee/ocserv-users-management/common/models"
+	commonModels "github.com/mmtaee/ocserv-users-management/common/models"
 	occtlDocker "github.com/mmtaee/ocserv-users-management/common/occtl_docker"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
+	"github.com/mmtaee/ocserv-users-management/user_expiry/internal/models"
 	stateManager "github.com/mmtaee/ocserv-users-management/user_expiry/pkg/state"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -15,6 +16,10 @@ import (
 	"time"
 )
 
+// CornService handles all scheduled background jobs related to
+// user expiration, monthly reactivation and auto-deletion.
+//
+// It supports both docker-mode and native ocserv mode.
 type CornService struct {
 	occtlHandler      occtl.OcservOcctlInterface
 	ocservUserHandler user.OcservUserInterface
@@ -22,6 +27,9 @@ type CornService struct {
 	dockerMode        bool
 }
 
+// NewCornService initializes cron service.
+// If dockerMode is true, docker-based occtl commands will be used.
+// Otherwise, native ocserv handlers are used.
 func NewCornService(dockerMode bool) *CornService {
 	s := &CornService{
 		dockerMode: dockerMode,
@@ -36,6 +44,12 @@ func NewCornService(dockerMode bool) *CornService {
 	return s
 }
 
+// MissedCron checks whether daily or monthly cron jobs were missed
+// (for example if the service was down) and executes them manually.
+//
+// It ensures:
+// - ExpireUsers runs once per day
+// - ActiveMonthlyUsers runs once per month (on first day)
 func (c *CornService) MissedCron() {
 	db := database.GetConnection()
 
@@ -48,6 +62,7 @@ func (c *CornService) MissedCron() {
 	if state.DailyLastRun.IsZero() || lastRun.Before(today) {
 		logger.Info("Running missed DAILY cron...")
 		c.ExpireUsers(context.Background(), db)
+		c.DeleteExpiredUsers(context.Background(), db)
 		state.DailyLastRun = today
 	} else {
 		logger.Info("Daily cron already ran today, skipping.")
@@ -72,6 +87,18 @@ func (c *CornService) MissedCron() {
 	logger.Info("Saving missing cron jobs completed")
 }
 
+// UserExpiryCron registers and starts all cron jobs:
+//
+// Daily (00:01:00):
+//   - ExpireUsers
+//
+// Daily (00:02:00):
+//   - DeleteExpiredUsers
+//
+// Monthly (1st & 2nd day at 00:01:00):
+//   - ActiveMonthlyUsers
+//
+// The cron stops when context is canceled.
 func (c *CornService) UserExpiryCron(ctx context.Context) {
 	cronJob := cron.New(cron.WithSeconds())
 	db := database.GetConnection()
@@ -107,9 +134,23 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 
 	logger.Info("User activating Cron starting...")
 
+	// Every day at 00:02:00 — delete expired users
+	_, err3 := cronJob.AddFunc("0 2 0 * * *", func() {
+		c.DeleteExpiredUsers(ctx, db)
+
+		state.DailyLastRun = time.Now().Truncate(24 * time.Hour)
+		if errSave := state.Save(); errSave != nil {
+			logger.Error("Failed to save state: %v", errSave)
+		}
+	})
+	if err3 != nil {
+		logger.Fatal("Failed to add cron job: %v", err3)
+	}
+	logger.Info("Running delete expired users cron...")
+
 	//// Test: run every minute at second 0
-	//_, err = c.AddFunc("0 * * * * *", func() {
-	//	ActiveMonthlyUsers(ctx, db)
+	//_, err = cronJob.AddFunc("0 * * * * *", func() {
+	//	c.DeleteExpiredUsers(ctx, db)
 	//})
 
 	cronJob.Start()
@@ -120,11 +161,22 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 	logger.Info("User activating Cron stopped...")
 }
 
+// ExpireUsers finds users whose expire_at has passed
+// and deactivates them.
+//
+// Actions performed per user:
+//   - Set deactivated_at = now
+//   - Set is_locked = true
+//   - Disconnect active session
+//   - Lock user in ocserv
+//
+// Runs concurrently with max 10 workers.
 func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
-	var users []models.OcservUser
+	var users []commonModels.OcservUser
 
-	pastDay := time.Now().AddDate(0, 0, -1)
+	pastDay := time.Now().UTC().AddDate(0, 0, -1)
 	err := db.WithContext(ctx).
+		Select("id", "username", "expire_at").
 		Where("expire_at IS NOT NULL").
 		Where("deactivated_at IS NULL").
 		Where("expire_at < ?", pastDay).
@@ -140,7 +192,7 @@ func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
 		wg.Add(1)
 		sem <- struct{}{}
 
-		go func(u models.OcservUser) {
+		go func(u commonModels.OcservUser) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
@@ -167,7 +219,7 @@ func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
 			}
 
 			if _, err3 := disconnect(u.Username); err3 != nil {
-				logger.Error("Failed to disconnect user %s: %v", u.Username, err)
+				logger.Error("Failed to disconnect user %s: %v", u.Username, err3)
 			}
 			if _, err4 := lock(u.Username); err4 != nil {
 				logger.Error("Failed to lock user %s: %v", u.Username, err4)
@@ -179,16 +231,30 @@ func (c *CornService) ExpireUsers(ctx context.Context, db *gorm.DB) {
 	wg.Wait()
 }
 
+// ActiveMonthlyUsers reactivates monthly traffic users
+// at the beginning of a new month.
+//
+// Conditions:
+//   - User is currently deactivated
+//   - Traffic type is MonthlyReceive or MonthlyTransmit
+//   - User is not expired
+//
+// Actions:
+//   - Reset rx and tx counters
+//   - Remove deactivated_at
+//   - Unlock user
+//
+// Runs concurrently with max 10 workers.
 func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
-	var users []models.OcservUser
+	var users []commonModels.OcservUser
 	today := time.Now().Truncate(24 * time.Hour)
 
 	err := db.WithContext(ctx).
 		Where("(expire_at IS NULL OR expire_at > ?)", today).
 		Where("deactivated_at IS NOT NULL").
 		Where("traffic_type IN ?", []string{
-			models.MonthlyReceive,
-			models.MonthlyTransmit,
+			commonModels.MonthlyReceive,
+			commonModels.MonthlyTransmit,
 		}).
 		Find(&users).Error
 	if err != nil {
@@ -203,7 +269,7 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 		wg.Add(1)
 		sem <- struct{}{}
 
-		go func(u models.OcservUser) {
+		go func(u commonModels.OcservUser) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
@@ -232,4 +298,47 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 	}
 
 	wg.Wait()
+}
+
+// DeleteExpiredUsers permanently deletes users who:
+//
+//   - Are deactivated
+//   - Have been inactive longer than system.KeepInactiveUserDays
+//   - AutoDeleteInactiveUsers setting is enabled
+//
+// Uses bulk delete for performance and logs number of deleted rows.
+func (c *CornService) DeleteExpiredUsers(ctx context.Context, db *gorm.DB) {
+	var system models.System
+	err := db.WithContext(ctx).First(&system).Error
+	if err != nil {
+		logger.Error("Failed to get system: %v", err)
+		return
+	}
+
+	if !system.AutoDeleteInactiveUsers {
+		logger.Warn("User auto-delete is disabled")
+		return
+	}
+
+	if system.KeepInactiveUserDays < 1 {
+		logger.Warn("User keep inactive days is lower than 1 day")
+		return
+	}
+
+	cutoffDate := time.Now().AddDate(0, 0, -system.KeepInactiveUserDays).UTC()
+	result := db.WithContext(ctx).
+		Where("expire_at IS NOT NULL AND expire_at <= ?", cutoffDate).
+		Delete(&commonModels.OcservUser{})
+
+	if result.Error != nil {
+		logger.Error("Failed to delete inactive users: %v", result.Error)
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		logger.Info("No inactive users found for deletion")
+		return
+	}
+
+	logger.Info("Deleted %d inactive users", result.RowsAffected)
 }

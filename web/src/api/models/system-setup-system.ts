@@ -22,6 +22,12 @@
 export interface SystemSetupSystem {
     /**
      * 
+     * @type {boolean}
+     * @memberof SystemSetupSystem
+     */
+    'auto_delete_inactive_users'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof SystemSetupSystem
      */
@@ -32,6 +38,12 @@ export interface SystemSetupSystem {
      * @memberof SystemSetupSystem
      */
     'google_captcha_site_key'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SystemSetupSystem
+     */
+    'keep_inactive_user_days'?: number;
     /**
      * 
      * @type {string}
