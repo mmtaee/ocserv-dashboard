@@ -33,7 +33,7 @@ type UserLoginResponse struct {
 
 type CreateUserData struct {
 	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Password string `json:"password" validate:"required,min=4,max=16"`
 	//Admin    bool   `json:"admin"`
 }
 
@@ -43,12 +43,12 @@ type UsersResponse struct {
 }
 
 type ChangeUserPassword struct {
-	Password string `json:"password" validate:"required"`
+	Password string `json:"password" validate:"required,min=4,max=16"`
 }
 
 type ChangeUserPasswordBySelf struct {
-	OldPassword string `json:"old_password" validate:"required"`
-	NewPassword string `json:"new_password" validate:"required"`
+	OldPassword string `json:"old_password" validate:"required,min=4,max=16"`
+	NewPassword string `json:"new_password" validate:"required,min=4,max=16"`
 }
 
 type SetupSystem struct {
