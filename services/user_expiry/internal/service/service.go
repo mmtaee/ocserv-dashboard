@@ -148,10 +148,10 @@ func (c *CornService) UserExpiryCron(ctx context.Context) {
 	}
 	logger.Info("Running delete expired users cron...")
 
-	// Test: run every minute at second 0
-	_, err = cronJob.AddFunc("0 * * * * *", func() {
-		c.DeleteExpiredUsers(ctx, db)
-	})
+	//// Test: run every minute at second 0
+	//_, err = cronJob.AddFunc("0 * * * * *", func() {
+	//	c.DeleteExpiredUsers(ctx, db)
+	//})
 
 	cronJob.Start()
 
