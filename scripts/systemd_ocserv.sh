@@ -56,7 +56,11 @@ echo "current folder : ${PWD}"
 
 sudo chmod +x scripts/ocserv_setup.sh
 
-sudo scripts/ocserv_setup.sh
+if sudo scripts/ocserv_setup.sh; then
+    log "ocserv installed successfully from source."
+else
+    sudo apt install -y ocserv
+fi
 
 log "Installing dependencies..."
 sudo apt-get install -y gnutls-bin iptables iptables-persistent
