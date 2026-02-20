@@ -92,7 +92,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/local/sbin/ocserv --foreground --config /etc/ocserv/ocserv.conf
+ExecStart=/usr/sbin/ocserv --foreground --config /etc/ocserv/ocserv.conf
 ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/var/run/ocserv.pid
 Restart=always
@@ -102,18 +102,6 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
+info "Systemd service created successfully"
 
-# -------------------------
-# Enable service
-# -------------------------
-info "Enabling and starting systemd service"
-systemctl daemon-reload
-systemctl enable ocserv || warn "Could not enable ocserv service"
-systemctl restart ocserv || die "Failed to start ocserv"
-
-ok "ocserv ${OCSERV_VERSION} installed successfully!"
-info "Binary: /usr/local/sbin/ocserv"
-info "Config: /etc/ocserv/ocserv.conf"
-
-systemctl --no-pager status ocserv || warn "Service status check failed"
 

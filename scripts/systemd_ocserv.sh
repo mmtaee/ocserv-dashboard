@@ -261,11 +261,19 @@ sudo sysctl --system
 # ==============================================================
 # 6. Start & Enable Ocserv Service
 # ==============================================================
-log "Starting Ocserv..."
+info "Enabling and starting systemd service"
+
+export PATH="/usr/sbin:$PATH"
 
 sudo systemctl daemon-reload
 sudo systemctl enable ocserv.service
 sudo systemctl restart ocserv.service
+
+OCSERV_VERSION=$(ocserv --version | head -n 1)
+
+info "ocserv ${OCSERV_VERSION} installed successfully!"
+info "Binary: /usr/local/sbin/ocserv"
+info "Config: /etc/ocserv/ocserv.conf"
 
 if systemctl is-active --quiet ocserv; then
   ok "Ocserv is running."
