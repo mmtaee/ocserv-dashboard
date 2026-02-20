@@ -52,8 +52,6 @@ auto_detect_interface
 # ==============================================================
 log "Installing Ocserv..."
 
-echo "current folder : ${PWD}"
-
 sudo chmod +x scripts/ocserv_setup.sh
 
 if sudo scripts/ocserv_setup.sh; then
