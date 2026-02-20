@@ -17,7 +17,7 @@
 - [ ] super-admin can add user for admin (#88) updated with (#97)
 - [ ] Publish official pre-built Docker images (#100)
 - [ ] Add detailed user activity logs (login/logout with date & time) (#108)
-- [ ] Change ocserv installation method from deb repo to binary installer(R&D) (#111)
+- [x] Change ocserv installation method from deb repo to binary installer(R&D) (#111)
 - [ ] Separate password update logic from user profile updates (#121)
 - [ ] Implement bulk operations for Ocserv users with checkbox selection (#113)
 - [ ] Implement real-time Ocserv user stream processing Use RabbitMQ and change log_stream service(R&D)
