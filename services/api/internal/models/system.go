@@ -6,7 +6,7 @@ import (
 )
 
 type System struct {
-	ID                      uint   `json:"_" gorm:"primaryKey"`
+	ID                      uint   `json:"_" gorm:"primaryKey;default:1"`
 	GoogleCaptchaSecretKey  string `json:"google_captcha_secret" gorm:"type:text"`
 	GoogleCaptchaSiteKey    string `json:"google_captcha_site_key" gorm:"type:text"`
 	AutoDeleteInactiveUsers bool   `json:"auto_delete_inactive_users" gorm:"type:boolean;default:false"`

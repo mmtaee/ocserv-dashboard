@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/mmtaee/ocserv-users-management/api/internal/models"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
 	"gorm.io/gorm"
@@ -24,15 +25,26 @@ func NewSystemRepository() *SystemRepository {
 }
 
 func (s *SystemRepository) SystemSetup(ctx context.Context, user *models.User, system *models.System) (*models.User, *models.System, error) {
+	var count int64
+	if err := s.db.Model(&models.System{}).Count(&count).Error; err != nil {
+		return nil, nil, err
+	}
+
+	if count > 0 {
+		return nil, nil, errors.New("system already setup")
+	}
+
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Create(&system).Error
 		if err != nil {
 			return err
 		}
+
 		err = tx.Create(&user).Error
 		if err != nil {
 			return err
 		}
+		
 		return nil
 	})
 	return user, system, err
