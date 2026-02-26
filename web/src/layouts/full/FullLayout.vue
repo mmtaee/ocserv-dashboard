@@ -8,7 +8,7 @@ import MainView from './Main.vue';
         <v-app>
             <MainView />
             <v-main>
-                <v-container class="page-wrapper" fluid>
+                <v-container class="page-wrapper" fluid style="background-color: #eeee">
                     <div class="maxWidth">
                         <RouterView />
                     </div>

@@ -33,7 +33,7 @@ watch(mdAndDown, (val) => {
             </v-btn>
         </div>
         <perfect-scrollbar class="scrollnavbar">
-            <v-list class="pa-6">
+            <v-list class="pa-6 bg-grayE">
                 <template v-for="(item, i) in sidebarMenu">
                     <NavGroup v-if="item.header" :key="item.title" :item="item" />
                     <NavCollapse v-else-if="item.children" :item="item" :level="0" class="leftPadding" />

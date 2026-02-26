@@ -106,6 +106,11 @@ export function getSidebarItems(): Menu[] {
                 title: t('SETTINGS'),
                 icon: 'mdi-cog',
                 to: '/system'
+            },
+            {
+                title: t('BACKUP'),
+                icon: 'mdi-database',
+                to: '/backup'
             }
         );
     }
