@@ -16,7 +16,7 @@
                     "application/gzip"
                 ],
                 "tags": [
-                    "ocserv-backup"
+                    "System(Backup)"
                 ],
                 "summary": "Backup ocserv groups",
                 "parameters": [
@@ -64,7 +64,7 @@
                     "application/gzip"
                 ],
                 "tags": [
-                    "ocserv-backup"
+                    "System(Backup)"
                 ],
                 "summary": "Backup ocserv users",
                 "parameters": [

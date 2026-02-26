@@ -23,7 +23,7 @@ const docTemplate = `{
                     "application/gzip"
                 ],
                 "tags": [
-                    "ocserv-backup"
+                    "System(Backup)"
                 ],
                 "summary": "Backup ocserv groups",
                 "parameters": [
@@ -71,7 +71,7 @@ const docTemplate = `{
                     "application/gzip"
                 ],
                 "tags": [
-                    "ocserv-backup"
+                    "System(Backup)"
                 ],
                 "summary": "Backup ocserv users",
                 "parameters": [

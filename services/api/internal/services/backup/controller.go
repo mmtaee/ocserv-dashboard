@@ -27,7 +27,7 @@ func New() *Controller {
 // OcservGroupBackup
 // @Summary      Backup ocserv groups
 // @Description  Download gzip compressed JSON backup of all ocserv groups including default group configuration
-// @Tags         ocserv-backup
+// @Tags         System(Backup)
 // @Produce      application/json
 // @Produce      application/gzip
 // @Param        Authorization header string true "Bearer TOKEN"
@@ -72,7 +72,7 @@ func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
 // OcservUserBackup
 // @Summary      Backup ocserv users
 // @Description  Download gzip compressed JSON backup of all ocserv users (including default group mapping if exists)
-// @Tags         ocserv-backup
+// @Tags         System(Backup)
 // @Produce      application/json
 // @Produce      application/gzip
 // @Param        Authorization header string true "Bearer TOKEN"

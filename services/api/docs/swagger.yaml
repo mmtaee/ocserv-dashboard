@@ -974,7 +974,7 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Backup ocserv groups
       tags:
-      - ocserv-backup
+      - System(Backup)
   /backup/ocserv_users:
     get:
       description: Download gzip compressed JSON backup of all ocserv users (including
@@ -1007,7 +1007,7 @@ paths:
             $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Backup ocserv users
       tags:
-      - ocserv-backup
+      - System(Backup)
   /customers/disconnect_sessions:
     post:
       consumes:
