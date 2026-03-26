@@ -213,6 +213,47 @@ const reload = () => {
     q.value = '';
     getUsers();
 };
+
+const downloadCertificate = (uid: string, username: string) => {
+    const baseUrl = import.meta.env.VITE_API_URL || '/api';
+    const url = `${baseUrl.replace(/\/$/, '')}/ocserv/users/${uid}/certificate`;
+    const token = localStorage.getItem('token');
+    
+    fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Download failed: ${response.status} ${text}`);
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('Server returned HTML instead of a certificate');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${username}.p12`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(error => {
+        snackbar.show({
+            id: 1,
+            message: error.message || t('UNKNOWN_ERROR'),
+            color: 'error',
+            timeout: 4000
+        });
+    });
+};
 </script>
 
 <template>
@@ -455,12 +496,21 @@ const reload = () => {
                                                 </template>
                                             </v-list-item>
 
-                                            <v-list-item @click="statistics(item.uid, item.username)">
+                                                                                        <v-list-item @click="statistics(item.uid, item.username)">
                                                 <v-list-item-title class="text-grey text-capitalize me-5">
                                                     {{ t('STATISTICS') }}
                                                 </v-list-item-title>
                                                 <template v-slot:prepend>
                                                     <v-icon class="ms-2" color="grey">mdi-chart-bar-stacked</v-icon>
+                                                </template>
+                                            </v-list-item>
+
+                                            <v-list-item @click="downloadCertificate(item.uid, item.username)">
+                                                <v-list-item-title class="text-success text-capitalize me-5">
+                                                    {{ t('DOWNLOAD_CERTIFICATE') }}
+                                                </v-list-item-title>
+                                                <template v-slot:prepend>
+                                                    <v-icon class="ms-2" color="success">mdi-download-lock</v-icon>
                                                 </template>
                                             </v-list-item>
 

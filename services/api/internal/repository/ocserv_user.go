@@ -7,6 +7,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/occtl"
 	"github.com/mmtaee/ocserv-users-management/common/ocserv/user"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/database"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"gorm.io/gorm"
 	"strings"
 	"time"
@@ -123,6 +124,9 @@ func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.Oc
 		}
 		if err := o.commonOcservUserRepo.Create(ocservUser.Group, ocservUser.Username, ocservUser.Password, ocservUser.Config); err != nil {
 			return err
+		}
+		if err := user.GenerateUserCertificate(ocservUser.Username); err != nil {
+			logger.Error("failed to generate user certificate: ", err)
 		}
 		return nil
 	})

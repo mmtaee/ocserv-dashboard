@@ -12,6 +12,7 @@ import (
 	"github.com/mmtaee/ocserv-users-management/common/pkg/logger"
 	"golang.org/x/sync/errgroup"
 	"net/http"
+	"os"
 	"slices"
 	"sync"
 	"time"
@@ -348,6 +349,41 @@ func (ctl *Controller) UnLockOcservUser(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+// DownloadCertificate 	 Download User Certificate
+//
+// @Summary      Download User Certificate
+// @Description  Download User Certificate
+// @Tags         Ocserv(Users)
+// @Accept       json
+// @Produce      application/x-pkcs12
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param 		 uid path string true "Ocserv User UID"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Success      200 {file} file
+// @Router       /ocserv/users/{uid}/certificate [get]
+func (ctl *Controller) DownloadCertificate(c echo.Context) error {
+	userID := c.Param("uid")
+	if userID == "" {
+		return ctl.request.BadRequest(c, errors.New("user id is required"))
+	}
+
+	u, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userID)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	certPath := "/etc/ocserv/user-certs/" + u.Username + ".p12"
+
+	if _, err := os.Stat(certPath); os.IsNotExist(err) {
+		if err := user.GenerateUserCertificate(u.Username); err != nil {
+			return ctl.request.BadRequest(c, errors.New("certificate not found and could not be generated"))
+		}
+	}
+
+	return c.Attachment(certPath, u.Username+".p12")
 }
 
 // DisconnectOcservUser 	     Ocserv User disconnecting

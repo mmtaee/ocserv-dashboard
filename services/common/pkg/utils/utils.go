@@ -21,6 +21,11 @@ const (
 	ConfigGroupBaseDir = "/etc/ocserv/groups/"
 	DefaultGroupFile   = "/etc/ocserv/defaults/group.conf"
 	ConfigUserBaseDir  = "/etc/ocserv/users/"
+	CertBaseDir        = "/etc/ocserv/user-certs/"
+	// CACertPath         = "/etc/ocserv/certs/ca-cert.pem"
+	// CAKeyPath          = "/etc/ocserv/certs/ca-key.pem"
+	ClientCACertPath   = "/etc/ocserv/user-certs/ca-cert.pem"
+	ClientCAKeyPath    = "/etc/ocserv/user-certs/ca-privkey.pem"
 )
 
 var listKeys = map[string]bool{
@@ -306,6 +311,12 @@ func RunOcpasswd(args ...string) (string, error) {
 // user-specific config file using ConfigUserBaseDir.
 func UserConfigFilePathCreator(username string) string {
 	return filepath.Join(ConfigUserBaseDir, username)
+}
+
+// UserCertPathCreator constructs the absolute file path for a
+// user-specific certificate file (.p12) using CertBaseDir.
+func UserCertPathCreator(username string) string {
+	return filepath.Join(CertBaseDir, username+".p12")
 }
 
 // GroupConfigFilePathCreator constructs the absolute file path for a

@@ -11,6 +11,7 @@ func Routes(e *echo.Group) {
 
 	g.GET("", ctl.OcservUsers)
 	g.GET("/:uid", ctl.OcservUser)
+	g.GET("/:uid/certificate", ctl.DownloadCertificate)
 	g.POST("", ctl.CreateOcservUser)
 	g.PATCH("/:uid", ctl.UpdateOcservUser)
 	g.DELETE("/:uid", ctl.DeleteOcservUser)
