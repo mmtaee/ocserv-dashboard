@@ -13,6 +13,8 @@ type Config struct {
 	SecretKey    string
 	JWTSecret    string
 	AllowOrigins []string
+	SSLExpire    string
+	SSLOrg       string
 }
 
 var cfg *Config
@@ -34,6 +36,13 @@ func Init(debug bool, host string, port int, ignore ...bool) {
 		jwtSecret = "secret1234"
 	}
 
+	sslExpire := os.Getenv("SSL_EXPIRE")
+	if sslExpire == "" {
+		sslExpire = "3650"
+	}
+
+	sslOrg := os.Getenv("SSL_ORG")
+
 	cfg = &Config{
 		Debug:        debug,
 		Host:         host,
@@ -41,9 +50,12 @@ func Init(debug bool, host string, port int, ignore ...bool) {
 		SecretKey:    secretKey,
 		JWTSecret:    jwtSecret,
 		AllowOrigins: strings.Split(allowOrigins, ","),
+		SSLExpire:    sslExpire,
+		SSLOrg:       sslOrg,
 	}
 }
 
 func Get() *Config {
 	return cfg
 }
+

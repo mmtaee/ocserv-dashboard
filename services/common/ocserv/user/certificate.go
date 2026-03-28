@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/mmtaee/ocserv-users-management/common/pkg/config"
 	"github.com/mmtaee/ocserv-users-management/common/pkg/utils"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 )
 
 func GenerateUserCertificate(username string) error {
+	cfg := config.Get()
 	if _, err := os.Stat(utils.CertBaseDir); os.IsNotExist(err) {
 		err := os.MkdirAll(utils.CertBaseDir, 0755)
 		if err != nil {
@@ -34,7 +36,18 @@ func GenerateUserCertificate(username string) error {
 	}
 
 	// 2. Create template
-	tmplContent := fmt.Sprintf("cn = \"%s\"\nuid = \"%s\"\nunit = \"users\"\nexpiration_days = 3650\nsigning_key\nencryption_key\ntls_www_client\n", username, username)
+	tmplContent := fmt.Sprintf("cn = \"%s\"\nuid = \"%s\"\nunit = \"users\"\n", username, username)
+
+	if cfg != nil && cfg.SSLOrg != "" {
+		tmplContent += fmt.Sprintf("organization = \"%s\"\n", cfg.SSLOrg)
+	}
+
+	expireDays := "3650"
+	if cfg != nil && cfg.SSLExpire != "" {
+		expireDays = cfg.SSLExpire
+	}
+	tmplContent += fmt.Sprintf("expiration_days = %s\nsigning_key\nencryption_key\ntls_www_client\n", expireDays)
+
 	if err := os.WriteFile(userTmpl, []byte(tmplContent), 0644); err != nil {
 		return err
 	}
