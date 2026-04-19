@@ -42,14 +42,14 @@ export const OcservStatisticsApiAxiosParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersStatisticsGet: async (authorization: string, dateStart: string, dateEnd: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        reportsStatisticsGet: async (authorization: string, dateStart: string, dateEnd: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('ocservUsersStatisticsGet', 'authorization', authorization)
+            assertParamExists('reportsStatisticsGet', 'authorization', authorization)
             // verify required parameter 'dateStart' is not null or undefined
-            assertParamExists('ocservUsersStatisticsGet', 'dateStart', dateStart)
+            assertParamExists('reportsStatisticsGet', 'dateStart', dateStart)
             // verify required parameter 'dateEnd' is not null or undefined
-            assertParamExists('ocservUsersStatisticsGet', 'dateEnd', dateEnd)
-            const localVarPath = `/ocserv/users/statistics`;
+            assertParamExists('reportsStatisticsGet', 'dateEnd', dateEnd)
+            const localVarPath = `/reports/statistics`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -102,10 +102,10 @@ export const OcservStatisticsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ocservUsersStatisticsGet(authorization: string, dateStart: string, dateEnd: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsDailyTraffic>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersStatisticsGet(authorization, dateStart, dateEnd, options);
+        async reportsStatisticsGet(authorization: string, dateStart: string, dateEnd: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsDailyTraffic>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.reportsStatisticsGet(authorization, dateStart, dateEnd, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OcservStatisticsApi.ocservUsersStatisticsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservStatisticsApi.reportsStatisticsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -121,40 +121,40 @@ export const OcservStatisticsApiFactory = function (configuration?: Configuratio
         /**
          * Ocserv Users Statistics
          * @summary Ocserv Users Statistics
-         * @param {OcservStatisticsApiOcservUsersStatisticsGetRequest} requestParameters Request parameters.
+         * @param {OcservStatisticsApiReportsStatisticsGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersStatisticsGet(requestParameters: OcservStatisticsApiOcservUsersStatisticsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsDailyTraffic>> {
-            return localVarFp.ocservUsersStatisticsGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(axios, basePath));
+        reportsStatisticsGet(requestParameters: OcservStatisticsApiReportsStatisticsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsDailyTraffic>> {
+            return localVarFp.reportsStatisticsGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * Request parameters for ocservUsersStatisticsGet operation in OcservStatisticsApi.
+ * Request parameters for reportsStatisticsGet operation in OcservStatisticsApi.
  * @export
- * @interface OcservStatisticsApiOcservUsersStatisticsGetRequest
+ * @interface OcservStatisticsApiReportsStatisticsGetRequest
  */
-export interface OcservStatisticsApiOcservUsersStatisticsGetRequest {
+export interface OcservStatisticsApiReportsStatisticsGetRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof OcservStatisticsApiOcservUsersStatisticsGet
+     * @memberof OcservStatisticsApiReportsStatisticsGet
      */
     readonly authorization: string
 
     /**
      * date_start
      * @type {string}
-     * @memberof OcservStatisticsApiOcservUsersStatisticsGet
+     * @memberof OcservStatisticsApiReportsStatisticsGet
      */
     readonly dateStart: string
 
     /**
      * date_end
      * @type {string}
-     * @memberof OcservStatisticsApiOcservUsersStatisticsGet
+     * @memberof OcservStatisticsApiReportsStatisticsGet
      */
     readonly dateEnd: string
 }
@@ -169,13 +169,13 @@ export class OcservStatisticsApi extends BaseAPI {
     /**
      * Ocserv Users Statistics
      * @summary Ocserv Users Statistics
-     * @param {OcservStatisticsApiOcservUsersStatisticsGetRequest} requestParameters Request parameters.
+     * @param {OcservStatisticsApiReportsStatisticsGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OcservStatisticsApi
      */
-    public ocservUsersStatisticsGet(requestParameters: OcservStatisticsApiOcservUsersStatisticsGetRequest, options?: RawAxiosRequestConfig) {
-        return OcservStatisticsApiFp(this.configuration).ocservUsersStatisticsGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(this.axios, this.basePath));
+    public reportsStatisticsGet(requestParameters: OcservStatisticsApiReportsStatisticsGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservStatisticsApiFp(this.configuration).reportsStatisticsGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

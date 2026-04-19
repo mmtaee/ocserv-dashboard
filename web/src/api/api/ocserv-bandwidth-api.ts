@@ -42,14 +42,14 @@ export const OcservBandwidthApiAxiosParamCreator = function (configuration?: Con
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersTotalBandwidthGet: async (authorization: string, dateStart: string, dateEnd: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        reportsTotalBandwidthGet: async (authorization: string, dateStart: string, dateEnd: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authorization' is not null or undefined
-            assertParamExists('ocservUsersTotalBandwidthGet', 'authorization', authorization)
+            assertParamExists('reportsTotalBandwidthGet', 'authorization', authorization)
             // verify required parameter 'dateStart' is not null or undefined
-            assertParamExists('ocservUsersTotalBandwidthGet', 'dateStart', dateStart)
+            assertParamExists('reportsTotalBandwidthGet', 'dateStart', dateStart)
             // verify required parameter 'dateEnd' is not null or undefined
-            assertParamExists('ocservUsersTotalBandwidthGet', 'dateEnd', dateEnd)
-            const localVarPath = `/ocserv/users/total-bandwidth`;
+            assertParamExists('reportsTotalBandwidthGet', 'dateEnd', dateEnd)
+            const localVarPath = `/reports/total-bandwidth`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -102,10 +102,10 @@ export const OcservBandwidthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ocservUsersTotalBandwidthGet(authorization: string, dateStart: string, dateEnd: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RepositoryTotalBandwidths>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.ocservUsersTotalBandwidthGet(authorization, dateStart, dateEnd, options);
+        async reportsTotalBandwidthGet(authorization: string, dateStart: string, dateEnd: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RepositoryTotalBandwidths>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.reportsTotalBandwidthGet(authorization, dateStart, dateEnd, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OcservBandwidthApi.ocservUsersTotalBandwidthGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservBandwidthApi.reportsTotalBandwidthGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -121,40 +121,40 @@ export const OcservBandwidthApiFactory = function (configuration?: Configuration
         /**
          * Ocserv Users TotalBandwidth calculating
          * @summary Ocserv Users TotalBandwidth calculating
-         * @param {OcservBandwidthApiOcservUsersTotalBandwidthGetRequest} requestParameters Request parameters.
+         * @param {OcservBandwidthApiReportsTotalBandwidthGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservUsersTotalBandwidthGet(requestParameters: OcservBandwidthApiOcservUsersTotalBandwidthGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<RepositoryTotalBandwidths> {
-            return localVarFp.ocservUsersTotalBandwidthGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(axios, basePath));
+        reportsTotalBandwidthGet(requestParameters: OcservBandwidthApiReportsTotalBandwidthGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<RepositoryTotalBandwidths> {
+            return localVarFp.reportsTotalBandwidthGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * Request parameters for ocservUsersTotalBandwidthGet operation in OcservBandwidthApi.
+ * Request parameters for reportsTotalBandwidthGet operation in OcservBandwidthApi.
  * @export
- * @interface OcservBandwidthApiOcservUsersTotalBandwidthGetRequest
+ * @interface OcservBandwidthApiReportsTotalBandwidthGetRequest
  */
-export interface OcservBandwidthApiOcservUsersTotalBandwidthGetRequest {
+export interface OcservBandwidthApiReportsTotalBandwidthGetRequest {
     /**
      * Bearer TOKEN
      * @type {string}
-     * @memberof OcservBandwidthApiOcservUsersTotalBandwidthGet
+     * @memberof OcservBandwidthApiReportsTotalBandwidthGet
      */
     readonly authorization: string
 
     /**
      * date_start
      * @type {string}
-     * @memberof OcservBandwidthApiOcservUsersTotalBandwidthGet
+     * @memberof OcservBandwidthApiReportsTotalBandwidthGet
      */
     readonly dateStart: string
 
     /**
      * date_end
      * @type {string}
-     * @memberof OcservBandwidthApiOcservUsersTotalBandwidthGet
+     * @memberof OcservBandwidthApiReportsTotalBandwidthGet
      */
     readonly dateEnd: string
 }
@@ -169,13 +169,13 @@ export class OcservBandwidthApi extends BaseAPI {
     /**
      * Ocserv Users TotalBandwidth calculating
      * @summary Ocserv Users TotalBandwidth calculating
-     * @param {OcservBandwidthApiOcservUsersTotalBandwidthGetRequest} requestParameters Request parameters.
+     * @param {OcservBandwidthApiReportsTotalBandwidthGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OcservBandwidthApi
      */
-    public ocservUsersTotalBandwidthGet(requestParameters: OcservBandwidthApiOcservUsersTotalBandwidthGetRequest, options?: RawAxiosRequestConfig) {
-        return OcservBandwidthApiFp(this.configuration).ocservUsersTotalBandwidthGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(this.axios, this.basePath));
+    public reportsTotalBandwidthGet(requestParameters: OcservBandwidthApiReportsTotalBandwidthGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservBandwidthApiFp(this.configuration).reportsTotalBandwidthGet(requestParameters.authorization, requestParameters.dateStart, requestParameters.dateEnd, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
