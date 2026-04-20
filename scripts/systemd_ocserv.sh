@@ -32,6 +32,7 @@ OC_NET="${OC_NET:-172.16.24.0/24}"             # VPN IPv4 subnet
 OCSERV_DNS="${OCSERV_DNS:-1.1.1.1}"           # DNS pushed to clients
 ETH="${ETH:-}"                                 # External interface (auto-detect if empty)
 
+
 # ==========================================
 # Function: auto_detect_interface
 # Description:
@@ -52,9 +53,9 @@ auto_detect_interface
 # ==============================================================
 log "Installing Ocserv..."
 
-sudo chmod +x scripts/ocserv_setup.sh
+sudo chmod +x scripts/systemd_ocserv_setup.sh
 
-if sudo scripts/ocserv_setup.sh; then
+if sudo scripts/systemd_ocserv_setup.sh; then
     log "ocserv installed successfully from source."
 else
     sudo apt install -y ocserv

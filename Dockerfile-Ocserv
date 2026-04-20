@@ -47,7 +47,7 @@ FROM debian:trixie-slim
 
 ENV PATH="/usr/local/sbin:$PATH"
 
-COPY scripts/ocserv_setup_docker.sh /setup.sh
+COPY scripts/docker_ocserv_setup.sh /setup.sh
 
 # Install dependencies
 # Install dependencies, run setup, cleanup
@@ -83,8 +83,8 @@ WORKDIR /usr/local/bin
 COPY --from=builder /app/api /usr/local/bin/api
 COPY --from=builder /webhook/webhook /usr/local/bin/webhook
 
-COPY scripts/ocserv_entrypoint.sh /entrypoint.sh
-COPY scripts/ocserv_server.sh /server.sh
+COPY scripts/docker_ocserv_entrypoint.sh /entrypoint.sh
+COPY scripts/docker_ocserv_server.sh /server.sh
 
 # Make binaries and scripts executable
 RUN chmod +x /entrypoint.sh /server.sh /usr/local/bin/api /usr/local/bin/webhook

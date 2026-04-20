@@ -29,7 +29,9 @@ RUN NODE_ENV=production \
 FROM nginx:alpine
 
 # Install bash, gettext (for envsubst), and openssl
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
+RUN apk add --no-cache ca-certificates \
+    && update-ca-certificates \
+    && sed -i 's|https://mirrors.tuna.tsinghua.edu.cn/alpine|https://dl-cdn.alpinelinux.org/alpine|g' /etc/apk/repositories \
     && apk update \
     && apk add --no-cache bash gettext openssl \
     && rm -rf /etc/nginx/conf.d/default.conf /usr/share/nginx/html \
@@ -39,7 +41,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/re
 # Copy custom Nginx startup script
 COPY configs/nginx_docker.conf  /etc/nginx/conf.d/site.conf
 
-COPY scripts/nginx_entrypoint.sh /entrypoint.sh
+COPY scripts/docker_nginx_entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 

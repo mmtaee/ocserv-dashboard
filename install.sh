@@ -241,15 +241,25 @@ get_ip() {
 #   - Characters: A–Z a–z 0–9 and special symbols
 # ===============================
 generate_secret() {
+#    local len=64
+#    # Check if openssl is installed
+#    if ! command -v openssl >/dev/null 2>&1; then
+#        print_message info "🔧 openssl not found, installing..."
+#        sudo apt-get update
+#        sudo apt-get install -y openssl
+#    fi
+#
+#    openssl rand -base64 96 | tr -dc -- '-A-Za-z0-9!@#%^_=+.' | head -c "$len"
+
     local len=64
-    # Check if openssl is installed
+
     if ! command -v openssl >/dev/null 2>&1; then
         print_message info "🔧 openssl not found, installing..."
         sudo apt-get update
         sudo apt-get install -y openssl
     fi
 
-    openssl rand -base64 96 | tr -dc -- '-A-Za-z0-9!@#%^_=+.' | head -c "$len"
+    openssl rand -hex 64 | head -c "$len"
 }
 
 # ===============================
@@ -410,7 +420,7 @@ get_envs(){
     print_message highlight "✅ JWT_SECRET set (length: ${#JWT_SECRET})"
     printf "\n"
 
-    # SSL Expiration Days
+    # PostgreSQL DB password
     read -rsp "Enter PostgreSQL DB password (leave blank to auto-generate): " pg_password
     printf "\n"
     if [[ -n "$pg_password" ]]; then
@@ -540,17 +550,26 @@ get_interface() {
 #   Pull required Docker images and start Docker Compose stack
 # ===============================
 setup_docker() {
-    if grep -q "^POSTGRES_HOST=" "$ENV_FILE"; then
-        sed -i 's/^POSTGRES_HOST=.*/POSTGRES_HOST=postgres/' "$ENV_FILE"
-    else
-        echo "POSTGRES_HOST=postgres" >> "$ENV_FILE"
-    fi
-    print_message info "🚀 Pulling required Docker images..."
+    print_message info "🚀 Checking required Docker images..."
 
-    sudo docker pull golang:1.25.0
-    sudo docker pull debian:trixie-slim
-    sudo docker pull nginx:alpine
-    print_message success "🎉 All Docker images pulled successfully!"
+    check_and_pull() {
+        local image=$1
+
+        if sudo docker image inspect "$image" > /dev/null 2>&1; then
+            print_message success "✅ Image already exists: $image"
+        else
+            print_message info "⬇️ Pulling image: $image"
+            sudo docker pull "$image"
+            print_message success "🎉 Pulled successfully: $image"
+        fi
+    }
+
+    check_and_pull golang:1.25.0
+    check_and_pull debian:trixie-slim
+    check_and_pull nginx:alpine
+
+    print_message success "🚀 All required Docker images are ready!"
+
     print_message info "🛠 Starting Docker Compose..."
     sudo docker compose up --build -d
     print_message success "✅ Docker Compose deployment completed!"
@@ -568,6 +587,11 @@ setup_systemd() {
 
     # If not full setup, ensure ocserv is installed and configured
     if [[ "$full_setup" != true ]]; then
+        export POSTGRES_DB POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD
+
+        ./scripts/systemd_postgres.sh
+        ok "✅ PostgreSQL is installed and properly configured."
+
         if ! command -v /usr/sbin/ocserv >/dev/null 2>&1; then
             die "⚠️ Ocserv not installed. Standalone dashboard requires ocserv."
         elif [[ ! -f /etc/ocserv/ocserv.conf ]]; then
@@ -583,9 +607,6 @@ setup_systemd() {
     fi
 
     # Deploy backend and UI systemd services
-    export POSTGRES_DB POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD
-
-    ./scripts/systemd_postgres.sh
     ./scripts/systemd_backend.sh
     ./scripts/systemd_ui.sh
 
@@ -595,7 +616,6 @@ setup_systemd() {
           get_interface
 
           export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH OCSERV_BANNER OCSERV_PRE_LOGIN_BANNER
-
           ./scripts/systemd_ocserv.sh
     fi
 }

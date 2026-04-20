@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 DEBUG=${DEBUG:-0}  # Default to 0 if not set
@@ -8,7 +9,6 @@ DEBUG=${DEBUG:-0}  # Default to 0 if not set
 # -----------------------------
 # shellcheck disable=SC2064
 trap "echo '[INFO] Caught SIGTERM, stopping...'; kill -TERM \$OCSERV_PID \$API_PID \$WEBHOOK_PID 2>/dev/null" SIGTERM SIGINT
-
 
 # -----------------------------
 # preload sqlite to postgreSQL database
