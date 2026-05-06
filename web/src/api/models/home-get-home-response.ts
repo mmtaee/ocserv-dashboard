@@ -18,9 +18,6 @@
 import type { HomeGetHomeUser } from './home-get-home-user';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { HomeServerStatusResponse } from './home-server-status-response';
-// May contain unused imports in some cases
-// @ts-ignore
 import type { ModelsDailyTraffic } from './models-daily-traffic';
 // May contain unused imports in some cases
 // @ts-ignore
@@ -44,12 +41,6 @@ export interface HomeGetHomeResponse {
      * @memberof HomeGetHomeResponse
      */
     'ip_bans'?: Array<ModelsIPBanPoints>;
-    /**
-     * 
-     * @type {HomeServerStatusResponse}
-     * @memberof HomeGetHomeResponse
-     */
-    'server_status': HomeServerStatusResponse;
     /**
      * 
      * @type {Array<ModelsDailyTraffic>}

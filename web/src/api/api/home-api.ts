@@ -22,7 +22,13 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { HomeDockerService } from '../models';
+// @ts-ignore
 import type { HomeGetHomeResponse } from '../models';
+// @ts-ignore
+import type { HomeOcservStatusResponse } from '../models';
+// @ts-ignore
+import type { HomeServerStatusResponse } from '../models';
 // @ts-ignore
 import type { MiddlewaresUnauthorized } from '../models';
 // @ts-ignore
@@ -33,6 +39,42 @@ import type { RequestErrorResponse } from '../models';
  */
 export const HomeApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Content of docker system usage stats (cpu, ram, swap)
+         * @summary Content of docker system usage stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeContainerStatsGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('homeContainerStatsGet', 'authorization', authorization)
+            const localVarPath = `/home/container-stats`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Content of home
          * @summary Content of home
@@ -69,6 +111,78 @@ export const HomeApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Content of ocserv server stats
+         * @summary Content of ocserv server stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeOcservStatsGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('homeOcservStatsGet', 'authorization', authorization)
+            const localVarPath = `/home/ocserv-stats`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Content of os system usage stats (cpu, ram, swap)
+         * @summary Content of os system usage stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeSystemStatsGet: async (authorization: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorization' is not null or undefined
+            assertParamExists('homeSystemStatsGet', 'authorization', authorization)
+            const localVarPath = `/home/system-stats`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -79,6 +193,19 @@ export const HomeApiAxiosParamCreator = function (configuration?: Configuration)
 export const HomeApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = HomeApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Content of docker system usage stats (cpu, ram, swap)
+         * @summary Content of docker system usage stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async homeContainerStatsGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<HomeDockerService>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.homeContainerStatsGet(authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HomeApi.homeContainerStatsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * Content of home
          * @summary Content of home
@@ -92,6 +219,32 @@ export const HomeApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['HomeApi.homeGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Content of ocserv server stats
+         * @summary Content of ocserv server stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async homeOcservStatsGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HomeOcservStatusResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.homeOcservStatsGet(authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HomeApi.homeOcservStatsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Content of os system usage stats (cpu, ram, swap)
+         * @summary Content of os system usage stats
+         * @param {string} authorization Bearer TOKEN
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async homeSystemStatsGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HomeServerStatusResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.homeSystemStatsGet(authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HomeApi.homeSystemStatsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -103,6 +256,16 @@ export const HomeApiFactory = function (configuration?: Configuration, basePath?
     const localVarFp = HomeApiFp(configuration)
     return {
         /**
+         * Content of docker system usage stats (cpu, ram, swap)
+         * @summary Content of docker system usage stats
+         * @param {HomeApiHomeContainerStatsGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeContainerStatsGet(requestParameters: HomeApiHomeContainerStatsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<HomeDockerService>> {
+            return localVarFp.homeContainerStatsGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Content of home
          * @summary Content of home
          * @param {HomeApiHomeGetRequest} requestParameters Request parameters.
@@ -112,8 +275,42 @@ export const HomeApiFactory = function (configuration?: Configuration, basePath?
         homeGet(requestParameters: HomeApiHomeGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<HomeGetHomeResponse> {
             return localVarFp.homeGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
+        /**
+         * Content of ocserv server stats
+         * @summary Content of ocserv server stats
+         * @param {HomeApiHomeOcservStatsGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeOcservStatsGet(requestParameters: HomeApiHomeOcservStatsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<HomeOcservStatusResponse> {
+            return localVarFp.homeOcservStatsGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Content of os system usage stats (cpu, ram, swap)
+         * @summary Content of os system usage stats
+         * @param {HomeApiHomeSystemStatsGetRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        homeSystemStatsGet(requestParameters: HomeApiHomeSystemStatsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<HomeServerStatusResponse> {
+            return localVarFp.homeSystemStatsGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
     };
 };
+
+/**
+ * Request parameters for homeContainerStatsGet operation in HomeApi.
+ * @export
+ * @interface HomeApiHomeContainerStatsGetRequest
+ */
+export interface HomeApiHomeContainerStatsGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof HomeApiHomeContainerStatsGet
+     */
+    readonly authorization: string
+}
 
 /**
  * Request parameters for homeGet operation in HomeApi.
@@ -130,12 +327,52 @@ export interface HomeApiHomeGetRequest {
 }
 
 /**
+ * Request parameters for homeOcservStatsGet operation in HomeApi.
+ * @export
+ * @interface HomeApiHomeOcservStatsGetRequest
+ */
+export interface HomeApiHomeOcservStatsGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof HomeApiHomeOcservStatsGet
+     */
+    readonly authorization: string
+}
+
+/**
+ * Request parameters for homeSystemStatsGet operation in HomeApi.
+ * @export
+ * @interface HomeApiHomeSystemStatsGetRequest
+ */
+export interface HomeApiHomeSystemStatsGetRequest {
+    /**
+     * Bearer TOKEN
+     * @type {string}
+     * @memberof HomeApiHomeSystemStatsGet
+     */
+    readonly authorization: string
+}
+
+/**
  * HomeApi - object-oriented interface
  * @export
  * @class HomeApi
  * @extends {BaseAPI}
  */
 export class HomeApi extends BaseAPI {
+    /**
+     * Content of docker system usage stats (cpu, ram, swap)
+     * @summary Content of docker system usage stats
+     * @param {HomeApiHomeContainerStatsGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeApi
+     */
+    public homeContainerStatsGet(requestParameters: HomeApiHomeContainerStatsGetRequest, options?: RawAxiosRequestConfig) {
+        return HomeApiFp(this.configuration).homeContainerStatsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Content of home
      * @summary Content of home
@@ -146,6 +383,30 @@ export class HomeApi extends BaseAPI {
      */
     public homeGet(requestParameters: HomeApiHomeGetRequest, options?: RawAxiosRequestConfig) {
         return HomeApiFp(this.configuration).homeGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Content of ocserv server stats
+     * @summary Content of ocserv server stats
+     * @param {HomeApiHomeOcservStatsGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeApi
+     */
+    public homeOcservStatsGet(requestParameters: HomeApiHomeOcservStatsGetRequest, options?: RawAxiosRequestConfig) {
+        return HomeApiFp(this.configuration).homeOcservStatsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Content of os system usage stats (cpu, ram, swap)
+     * @summary Content of os system usage stats
+     * @param {HomeApiHomeSystemStatsGetRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeApi
+     */
+    public homeSystemStatsGet(requestParameters: HomeApiHomeSystemStatsGetRequest, options?: RawAxiosRequestConfig) {
+        return HomeApiFp(this.configuration).homeSystemStatsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

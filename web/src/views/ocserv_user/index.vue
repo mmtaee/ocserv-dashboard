@@ -276,7 +276,6 @@ const getUserStats = () => {
             ...getAuthorization()
         })
         .then((res) => {
-            console.log(res.data);
             Object.assign(userStats.value, res.data);
         });
 };

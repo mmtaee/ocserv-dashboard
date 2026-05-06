@@ -83,7 +83,6 @@ watch(
         }
     }
 );
-
 </script>
 
 <template>
@@ -151,7 +150,7 @@ watch(
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title class="text-capitalize" >tasks</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">tasks</v-list-item-title>
                             <v-list-item-subtitle>{{ service.tasks }}</v-list-item-subtitle>
                         </v-list-item>
                     </v-list>

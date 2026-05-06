@@ -21,9 +21,9 @@ const groupReformat = (group: string | undefined) => {
 <template>
     <v-card elevation="10" height="450px">
         <v-card-item class="pa-6">
-            <v-card-title class="text-h5 pt-sm-2 pb-7 text-capitalize">{{
-                t('LAST_ONLINE_USERS_OVERVIEW')
-            }}</v-card-title>
+            <v-card-title class="text-h5 pt-sm-2 pb-7 text-capitalize">
+                {{ t('LAST_ONLINE_USERS_OVERVIEW') }}
+            </v-card-title>
             <v-table v-if="sessions.length > 0" class="month-table">
                 <thead>
                     <tr>

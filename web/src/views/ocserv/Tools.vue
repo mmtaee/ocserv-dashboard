@@ -18,24 +18,19 @@ const callGetStatus = () => {
 
 const currentStatus = ref<'enabling' | 'disabling' | 'restarting' | null>(null);
 
-
 const handleCurrentStatus = (v: ActionState) => {
     currentStatus.value = v;
 };
-
 </script>
 
 <template>
     <UiParentCard variant="flat" :title="t('SYSTEMD_HANDLER_PAGE_TITLE')">
         <UiChildCard :title="t('STATUS')" class="px-5">
-            <SystemdStatus @state="(s) => (state = s)" ref="childRef" :currentStatus="currentStatus"/>
+            <SystemdStatus @state="(s) => (state = s)" ref="childRef" :currentStatus="currentStatus" />
         </UiChildCard>
 
         <UiChildCard :title="t('SERVICE_ACTIONS')" class="px-5" :height="200">
-            <SystemdActions
-                @getState="callGetStatus"
-                :state="state || 'inactive'"
-                @currentStatus="handleCurrentStatus"/>
+            <SystemdActions @getState="callGetStatus" :state="state || 'inactive'" @currentStatus="handleCurrentStatus" />
         </UiChildCard>
     </UiParentCard>
 </template>

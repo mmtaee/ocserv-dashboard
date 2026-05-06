@@ -25,7 +25,6 @@ const emit = defineEmits<{
     (e: 'currentStatus', value: StatusEmit): void;
 }>();
 
-
 const { t } = useI18n();
 const api = new SystemdApi();
 const snackbar = useSnackbarStore();
@@ -39,7 +38,9 @@ const TTL = 2 * 60 * 1000; // 2 minutes
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 let hasExpired = false;
 
-const status = () => { emit('getState'); };
+const status = () => {
+    emit('getState');
+};
 
 // ✅ single source of truth for expiration
 const handleExpire = () => {
@@ -142,7 +143,6 @@ const disable = () => {
         setCurrentAction('disable');
     });
 };
-
 
 onMounted(() => {
     validateStorage();

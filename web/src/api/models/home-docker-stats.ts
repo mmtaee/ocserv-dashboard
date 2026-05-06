@@ -19,33 +19,30 @@ import type { HomeCPU } from './home-cpu';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { HomeRAM } from './home-ram';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { HomeSwap } from './home-swap';
 
 /**
  * 
  * @export
- * @interface HomeServerStatusResponse
+ * @interface HomeDockerStats
  */
-export interface HomeServerStatusResponse {
+export interface HomeDockerStats {
     /**
      * 
      * @type {HomeCPU}
-     * @memberof HomeServerStatusResponse
+     * @memberof HomeDockerStats
      */
     'cpu'?: HomeCPU;
     /**
      * 
-     * @type {HomeRAM}
-     * @memberof HomeServerStatusResponse
+     * @type {string}
+     * @memberof HomeDockerStats
      */
-    'ram'?: HomeRAM;
+    'name': string;
     /**
      * 
-     * @type {HomeSwap}
-     * @memberof HomeServerStatusResponse
+     * @type {HomeRAM}
+     * @memberof HomeDockerStats
      */
-    'swap'?: HomeSwap;
+    'ram'?: HomeRAM;
 }
 

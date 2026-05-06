@@ -20,7 +20,15 @@ const api: AxiosInstance = axios.create(config);
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
         const loadingStore = useLoadingStore();
-        loadingStore.show();
+
+        const skipLoading = config.headers?.['x-skip-loading'] === 'true';
+
+        if (!skipLoading) {
+            loadingStore.show();
+        } else {
+            delete config.headers?.['x-skip-loading'];
+        }
+
         return config;
     },
     (error) => {

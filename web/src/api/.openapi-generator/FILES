@@ -24,11 +24,17 @@ models/customer-summary-data.ts
 models/customer-summary-response.ts
 models/customer-usage-response.ts
 models/group-unsynced-group.ts
+models/home-cpu.ts
 models/home-current-stats.ts
+models/home-docker-service.ts
+models/home-docker-stats.ts
 models/home-general-info.ts
 models/home-get-home-response.ts
 models/home-get-home-user.ts
+models/home-ocserv-status-response.ts
+models/home-ram.ts
 models/home-server-status-response.ts
+models/home-swap.ts
 models/index.ts
 models/middlewares-permission-denied.ts
 models/middlewares-too-many-requests.ts
