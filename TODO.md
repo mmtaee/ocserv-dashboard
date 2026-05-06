@@ -40,6 +40,8 @@
 ## 📊 Dashboard & UX
 
 - [ ] Implement bulk operations for Ocserv users (checkbox selection) (#113)
+- [ ] Display the current VPN version in the dashboard (#140)
+- [ ] Add automatic update checks with GitHub release notifications, including a one-click update option (#140)
 
 ---
 
