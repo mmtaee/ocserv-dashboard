@@ -114,6 +114,22 @@ export function getSidebarItems(): Menu[] {
                 icon: 'mdi-history',
                 to: '/staffs/activities'
             },
+            { header: t('TELEGRAM') },
+            {
+                title: t('TELEGRAM_REQUESTS'),
+                icon: 'mdi-tray-full',
+                to: '/telegram/requests'
+            },
+            {
+                title: t('TELEGRAM_PACKAGES'),
+                icon: 'mdi-package-variant',
+                to: '/telegram/packages'
+            },
+            {
+                title: t('TELEGRAM_SETTINGS'),
+                icon: 'mdi-robot',
+                to: '/telegram/settings'
+            },
             { header: t('SYSTEM') },
             {
                 title: t('SETTINGS'),

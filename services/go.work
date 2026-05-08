@@ -4,6 +4,7 @@ use (
 	./api
 	./common
 	./log_stream
+	./telegram_bot
 	./user_expiry
 	./webhook
 )

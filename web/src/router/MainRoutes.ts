@@ -97,6 +97,21 @@ const MainRoutes = {
             name: 'Server Logs',
             path: '/logs/server',
             component: () => import('@/views/loggers/Server.vue')
+        },
+        {
+            name: 'Telegram Settings',
+            path: '/telegram/settings',
+            component: () => import('@/views/telegram/Settings.vue')
+        },
+        {
+            name: 'Telegram Packages',
+            path: '/telegram/packages',
+            component: () => import('@/views/telegram/Packages.vue')
+        },
+        {
+            name: 'Telegram Requests',
+            path: '/telegram/requests',
+            component: () => import('@/views/telegram/Requests.vue')
         }
     ]
 };

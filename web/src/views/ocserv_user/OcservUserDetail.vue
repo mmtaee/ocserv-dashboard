@@ -11,6 +11,7 @@ import { getAuthorization } from '@/utils/request';
 import { router } from '@/router';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import UiChildCard from '@/components/shared/UiChildCard.vue';
+import TelegramLinkedAccounts from '@/components/ocserv_user/TelegramLinkedAccounts.vue';
 import {
     formatDate,
     formatDateTimeWithRelative,
@@ -273,6 +274,8 @@ onMounted(() => {
                         </div>
                     </div>
                 </UiChildCard>
+
+                <TelegramLinkedAccounts v-if="uid" :uid="uid" />
             </UiParentCard>
         </v-col>
     </v-row>

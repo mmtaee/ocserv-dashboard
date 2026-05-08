@@ -64,6 +64,7 @@ declare -A SERVICES=(
   ["api"]="./services/api"
   ["log_stream"]="./services/log_stream"
   ["user_expiry"]="./services/user_expiry"
+  ["telegram_bot"]="./services/telegram_bot"
 )
 
 # -----------------------
@@ -120,6 +121,14 @@ fi
 #fi
 
 # -----------------------
+# Telegram receipt uploads directory
+# -----------------------
+RECEIPTS_DIR="${BIN_DIR}/uploads/receipts"
+sudo mkdir -p "$RECEIPTS_DIR"
+sudo chmod 750 "$RECEIPTS_DIR"
+log "Ensured telegram receipts directory: $RECEIPTS_DIR"
+
+# -----------------------
 # Database Migration
 # -----------------------
 "${BIN_DIR}"/api migrate || exit
@@ -133,10 +142,11 @@ for service in "${!SERVICES[@]}"; do
   binary="${BIN_DIR}/${service}"
 
   case "$service" in
-    api)        ARGS="serve --host 127.0.0.1 --port 8080" ;;
-    log_stream) ARGS="-h 127.0.0.1 -p 8081" ;;
+    api)         ARGS="serve --host 127.0.0.1 --port 8080" ;;
+    log_stream)  ARGS="-h 127.0.0.1 -p 8081" ;;
     user_expiry) ARGS="" ;;
-    *)          ARGS="" ;;
+    telegram_bot) ARGS="" ;;
+    *)           ARGS="" ;;
   esac
 
   log "Creating systemd unit for $service -> $unit_file"

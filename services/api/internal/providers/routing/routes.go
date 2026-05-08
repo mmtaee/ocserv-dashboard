@@ -11,6 +11,7 @@ import (
 	reportRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/report"
 	systemRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/system"
 	systemdRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/systemd"
+	telegramRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram"
 )
 
 func Register(e *echo.Echo) {
@@ -33,4 +34,7 @@ func Register(e *echo.Echo) {
 
 	// systemd
 	systemdRoutes.Routes(group)
+
+	// telegram
+	telegramRoutes.Routes(group)
 }

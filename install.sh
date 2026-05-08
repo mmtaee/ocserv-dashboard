@@ -615,6 +615,12 @@ setup_systemd() {
             sudo chmod 644 /etc/ocserv/defaults/group.conf
             ok "✅ Created default group config: /etc/ocserv/defaults/group.conf"
         fi
+
+        # Ensure telegram receipt uploads directory exists.
+        # The telegram_bot service stores user-submitted payment receipts here.
+        sudo mkdir -p /opt/ocserv_dashboard/uploads/receipts
+        sudo chmod 750 /opt/ocserv_dashboard/uploads/receipts
+        ok "✅ Ensured telegram receipts directory: /opt/ocserv_dashboard/uploads/receipts"
     fi
 
     if ! command -v psql &> /dev/null || ! psql --version | grep -q "17"; then
