@@ -278,7 +278,7 @@
   "TELEGRAM_ADMIN_CHAT_ID": "admin chat id",
   "TELEGRAM_ADMIN_CHAT_ID_HINT": "your personal chat id; renewal/order requests are sent here",
   "TELEGRAM_BOT_TOKEN": "bot token",
-  "TELEGRAM_BOT_TOKEN_HINT": "the token issued by @BotFather",
+  "TELEGRAM_BOT_TOKEN_HINT": "the token issued by BotFather",
   "TELEGRAM_BOT_USERNAME": "bot username",
   "TELEGRAM_CONFIRM_PAYMENT": "confirm payment",
   "TELEGRAM_DEFAULT_LANGUAGE": "default bot language",
@@ -358,3 +358,4 @@
   "VIEW": "view",
   "YESTERDAY": "вчера"
 }
+
