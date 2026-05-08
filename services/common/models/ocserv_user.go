@@ -58,8 +58,8 @@ type OcservUser struct {
 	UID           string            `json:"uid" gorm:"gorm:type:char(26);not null;uniqueIndex" validate:"required"`
 	Owner         string            `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
 	Group         string            `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
-	Username      string            `json:"username" gorm:"type:varchar(16);not null;uniqueIndex" validate:"required"`
-	Password      string            `json:"password" gorm:"type:varchar(16);not null" validate:"required"`
+	Username      string            `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
+	Password      string            `json:"password" gorm:"type:varchar(255);not null" validate:"required"`
 	IsLocked      bool              `json:"is_locked" gorm:"default(false)" validate:"required"`
 	CreatedAt     time.Time         `json:"created_at" gorm:"autoCreateTime" validate:"required"`
 	UpdatedAt     time.Time         `json:"updated_at" gorm:"autoUpdateTime" validate:"omitempty"`

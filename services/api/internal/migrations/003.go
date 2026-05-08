@@ -7,49 +7,26 @@ import (
 )
 
 var Migration003 = &gormigrate.Migration{
-	ID: "003_fix_traffic_statistics_ocserv_user_fk",
+	ID: "003_widen_ocserv_users_username_password",
+
 	Migrate: func(tx *gorm.DB) error {
 		if err := tx.Exec(`
-			ALTER TABLE ocserv_user_traffic_statistics
-			DROP CONSTRAINT IF EXISTS fk_traffic_user;
+			ALTER TABLE ocserv_users
+				ALTER COLUMN username TYPE VARCHAR(255),
+				ALTER COLUMN password TYPE VARCHAR(255);
 		`).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Exec(`
-			ALTER TABLE ocserv_user_traffic_statistics
-			DROP CONSTRAINT IF EXISTS fk_traffic_ocserv_user;
-		`).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			ALTER TABLE ocserv_user_traffic_statistics
-			ADD CONSTRAINT fk_traffic_ocserv_user
-			FOREIGN KEY (oc_user_id)
-			REFERENCES ocserv_users(id)
-			ON DELETE CASCADE;
-		`).Error; err != nil {
-			return err
-		}
-
-		logger.Info("migration 003 fixed traffic statistics ocserv user foreign key successfully")
+		logger.Info("migration 003 (widen ocserv_users username/password) complete successfully")
 		return nil
 	},
-	Rollback: func(tx *gorm.DB) error {
-		if err := tx.Exec(`
-			ALTER TABLE ocserv_user_traffic_statistics
-			DROP CONSTRAINT IF EXISTS fk_traffic_ocserv_user;
-		`).Error; err != nil {
-			return err
-		}
 
+	Rollback: func(tx *gorm.DB) error {
 		return tx.Exec(`
-			ALTER TABLE ocserv_user_traffic_statistics
-			ADD CONSTRAINT fk_traffic_user
-			FOREIGN KEY (oc_user_id)
-			REFERENCES users(id)
-			ON DELETE CASCADE;
+			ALTER TABLE ocserv_users
+				ALTER COLUMN username TYPE VARCHAR(16),
+				ALTER COLUMN password TYPE VARCHAR(16);
 		`).Error
 	},
 }
