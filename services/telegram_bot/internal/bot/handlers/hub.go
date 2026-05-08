@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"os"
@@ -20,6 +21,15 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/telegram_bot/internal/repository"
 	"github.com/mmtaee/ocserv-dashboard/telegram_bot/internal/session"
 )
+
+// All bot messages are sent with parse_mode=HTML so the i18n catalog can use
+// <b>, <code>, <i> etc. User-supplied values (usernames, notes) MUST be
+// passed through htmlEscape before being interpolated.
+const parseModeHTML = "HTML"
+
+func htmlEscape(s string) string {
+	return html.EscapeString(s)
+}
 
 const (
 	cbMainMenu         = "menu:main"
@@ -78,6 +88,8 @@ func (h *Hub) LanguageFor(ctx context.Context, chatID int64) string {
 
 func (h *Hub) send(chatID int64, text string) {
 	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = parseModeHTML
+	msg.DisableWebPagePreview = true
 	if _, err := h.deps.API.Send(msg); err != nil {
 		logger.Warn("telegram_bot: send failed: %v", err)
 	}
@@ -85,6 +97,8 @@ func (h *Hub) send(chatID int64, text string) {
 
 func (h *Hub) sendKB(chatID int64, text string, markup tgbotapi.InlineKeyboardMarkup) {
 	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = parseModeHTML
+	msg.DisableWebPagePreview = true
 	msg.ReplyMarkup = markup
 	if _, err := h.deps.API.Send(msg); err != nil {
 		logger.Warn("telegram_bot: send failed: %v", err)
@@ -96,6 +110,12 @@ func (h *Hub) deleteMessage(chatID int64, messageID int) {
 	_, _ = h.deps.API.Request(cfg)
 }
 
+// sendTyping pings Telegram so the user sees a "typing..." indicator while
+// we run a database lookup. Best-effort, errors are ignored.
+func (h *Hub) sendTyping(chatID int64) {
+	_, _ = h.deps.API.Request(tgbotapi.NewChatAction(chatID, tgbotapi.ChatTyping))
+}
+
 // respond either edits the source message in place (when srcMsgID > 0) or
 // sends a new message. This keeps menu navigation feeling like a single,
 // updating screen instead of an ever-growing chat log. When the edit fails
@@ -103,18 +123,24 @@ func (h *Hub) deleteMessage(chatID int64, messageID int) {
 // new message so the user is never left without a response.
 func (h *Hub) respond(chatID int64, srcMsgID int, text string, markup *tgbotapi.InlineKeyboardMarkup) {
 	if srcMsgID > 0 {
-		var cfg tgbotapi.Chattable
 		if markup != nil {
 			edit := tgbotapi.NewEditMessageTextAndMarkup(chatID, srcMsgID, text, *markup)
-			cfg = edit
+			edit.ParseMode = parseModeHTML
+			edit.DisableWebPagePreview = true
+			if _, err := h.deps.API.Send(edit); err == nil {
+				return
+			} else {
+				logger.Warn("telegram_bot: edit failed for chat=%d msg=%d: %v", chatID, srcMsgID, err)
+			}
 		} else {
 			edit := tgbotapi.NewEditMessageText(chatID, srcMsgID, text)
-			cfg = edit
-		}
-		if _, err := h.deps.API.Send(cfg); err == nil {
-			return
-		} else {
-			logger.Warn("telegram_bot: edit failed for chat=%d msg=%d: %v", chatID, srcMsgID, err)
+			edit.ParseMode = parseModeHTML
+			edit.DisableWebPagePreview = true
+			if _, err := h.deps.API.Send(edit); err == nil {
+				return
+			} else {
+				logger.Warn("telegram_bot: edit failed for chat=%d msg=%d: %v", chatID, srcMsgID, err)
+			}
 		}
 	}
 	if markup != nil {
@@ -374,7 +400,9 @@ func (h *Hub) SendMyAccounts(ctx context.Context, chatID int64, lang string, src
 		if err != nil {
 			continue
 		}
-		label := "• " + user.Username
+		// Inline keyboard button labels are plain text — no HTML escaping
+		// required, but we strip control characters defensively.
+		label := "• " + strings.ReplaceAll(user.Username, "\n", " ")
 		rows = append(rows, tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(label, cbAccountDetail+strconv.FormatUint(uint64(a.ID), 10)),
 		))
@@ -401,10 +429,12 @@ func (h *Hub) ShowAccountDetail(ctx context.Context, chatID int64, accountID uin
 		return
 	}
 	kb := accountDetailKeyboard(accountID, lang)
-	h.respond(chatID, srcMsgID, "• "+user.Username, &kb)
+	text := "👤 <b>" + htmlEscape(user.Username) + "</b>"
+	h.respond(chatID, srcMsgID, text, &kb)
 }
 
 func (h *Hub) SendAccountUsage(ctx context.Context, chatID int64, accountID uint, lang string, srcMsgID int) {
+	h.sendTyping(chatID)
 	account, err := h.deps.Repo.AccountByID(ctx, accountID)
 	if err != nil || account.ChatID != chatID {
 		h.respond(chatID, srcMsgID, i18n.T(lang, i18n.NotLinked), nil)
@@ -428,7 +458,7 @@ func (h *Hub) SendAccountUsage(ctx context.Context, chatID int64, accountID uint
 	}
 	rxGB := float64(user.Rx) / (1 << 30)
 	txGB := float64(user.Tx) / (1 << 30)
-	msg := i18n.T(lang, i18n.UsageText, user.Username, status, user.TrafficSize, rxGB, txGB, expires)
+	msg := i18n.T(lang, i18n.UsageText, htmlEscape(user.Username), status, user.TrafficSize, rxGB, txGB, expires)
 
 	idStr := strconv.FormatUint(uint64(accountID), 10)
 	kb := tgbotapi.NewInlineKeyboardMarkup(

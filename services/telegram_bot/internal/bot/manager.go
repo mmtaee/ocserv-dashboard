@@ -77,26 +77,30 @@ func (m *Manager) API() *tgbotapi.BotAPI {
 	return m.api
 }
 
-// Send posts a message via the active bot. Returns nil silently if the bot is
-// disabled — callers should treat sends as best-effort notifications.
+// Send posts an HTML message via the active bot. Returns nil silently if the
+// bot is disabled — callers should treat sends as best-effort notifications.
+// HTML mode matches the rest of the codebase (i18n catalog uses <b>, <code>).
 func (m *Manager) Send(chatID int64, text string) error {
 	api := m.API()
 	if api == nil {
 		return nil
 	}
 	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = "HTML"
+	msg.DisableWebPagePreview = true
 	_, err := api.Send(msg)
 	return err
 }
 
-// SendMarkdown is like Send but renders the message as Markdown.
-func (m *Manager) SendMarkdown(chatID int64, text string) error {
+// SendPlain bypasses parse_mode for messages that may contain unescaped user
+// content (e.g. raw admin notifications with arbitrary text).
+func (m *Manager) SendPlain(chatID int64, text string) error {
 	api := m.API()
 	if api == nil {
 		return nil
 	}
 	msg := tgbotapi.NewMessage(chatID, text)
-	msg.ParseMode = tgbotapi.ModeMarkdown
+	msg.DisableWebPagePreview = true
 	_, err := api.Send(msg)
 	return err
 }
@@ -153,6 +157,11 @@ func (m *Manager) refresh(ctx context.Context) {
 	if api.Self.UserName != "" && api.Self.UserName != settings.BotUsername {
 		_ = m.repo.SetBotUsername(ctx, api.Self.UserName)
 	}
+
+	// Push the localized command list, descriptions and menu button to
+	// BotFather. This is what makes /start, /help, /settings, /language
+	// appear in the in-app command picker on every Telegram client.
+	applyBotMetadata(api)
 
 	router := NewRouter(m, api)
 

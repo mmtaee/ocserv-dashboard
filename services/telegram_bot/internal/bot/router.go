@@ -67,7 +67,7 @@ func (r *Router) Dispatch(ctx context.Context, upd tgbotapi.Update) {
 		r.hub.HandleSkip(ctx, upd.Message)
 		return
 	}
-	if isCommand(text, "/language") {
+	if isCommand(text, "/language") || isCommand(text, "/settings") {
 		r.hub.ShowLanguageMenu(ctx, chatID, lang, 0)
 		return
 	}
@@ -88,8 +88,12 @@ func (r *Router) handleCallback(ctx context.Context, cq *tgbotapi.CallbackQuery)
 	srcMsgID := cq.Message.MessageID
 	data := cq.Data
 
+	// toast is shown as a short, non-modal notification on the user's
+	// device after the callback is processed. Telegram requires us to
+	// answer every callback query — see Status Alerts in the Bot docs.
+	toast := ""
 	defer func() {
-		ack := tgbotapi.NewCallback(cq.ID, "")
+		ack := tgbotapi.NewCallback(cq.ID, toast)
 		_, _ = r.api.Request(ack)
 	}()
 
@@ -117,9 +121,11 @@ func (r *Router) handleCallback(ctx context.Context, cq *tgbotapi.CallbackQuery)
 
 	case data == cbLangEN:
 		r.hub.SetLanguage(ctx, chatID, models.TelegramLanguageEN, srcMsgID)
+		toast = "✓ Language updated"
 
 	case data == cbLangFA:
 		r.hub.SetLanguage(ctx, chatID, models.TelegramLanguageFA, srcMsgID)
+		toast = "✓ زبان تغییر کرد"
 
 	case strings.HasPrefix(data, cbAccountDetail):
 		r.hub.ShowAccountDetail(ctx, chatID, parseUintSuffix(data, cbAccountDetail), srcMsgID)
