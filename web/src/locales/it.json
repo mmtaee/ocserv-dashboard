@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "larghezze di banda mensili",
     "MONTHLY_RECEIVE": "ricezione mensile",
     "MONTHLY_TRANSMIT": "trasmissione mensile",
+    "MONTHLY_RX_TX": "ricezione + trasmissione mensile",
     "NAME": "nome",
     "NETWORK_CONFIGURATION": "configurazione di rete",
     "NEW_EXPIRE_AT": "nuova data di scadenza",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "record totali",
     "TOTAL_RX": "rx totale",
     "TOTAL_TX": "tx totale",
+    "TOTALLY_RX_TX": "ricezione + trasmissione totale",
     "TOTAL_USERS": "utenti totali",
     "TRAFFIC": "traffico",
     "TRAFFIC_CLASS_PRIORITY": "priorità classe di traffico",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "usa la chiave segreta dal file env nel server",
     "VALUE": "valore",
     "VIEW": "visualizza",
+    "CERTIFICATE": "certificato",
+    "CREATE_CERTIFICATE": "crea certificato",
+    "DOWNLOAD_CERTIFICATE": "scarica certificato",
+    "ENABLED": "abilitato",
+    "DISABLED": "disabilitato",
     "YESTERDAY": "ieri"
 }

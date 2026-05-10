@@ -68,12 +68,20 @@ const trafficTypes = ref([
         value: ModelsOcservUserTrafficTypeEnum.MONTHLY_RECEIVE
     },
     {
+        label: t('MONTHLY_RX_TX'),
+        value: ModelsOcservUserTrafficTypeEnum.MONTHLY_RX_TX
+    },
+    {
         label: t('TOTALLY_RECEIVE'),
         value: ModelsOcservUserTrafficTypeEnum.TOTALLY_RECEIVE
     },
     {
         label: t('TOTALLY_TRANSMIT'),
         value: ModelsOcservUserTrafficTypeEnum.TOTALLY_TRANSMIT
+    },
+    {
+        label: t('TOTALLY_RX_TX'),
+        value: ModelsOcservUserTrafficTypeEnum.TOTALLY_RX_TX
     }
 ]);
 

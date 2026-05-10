@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "پهنای باند ماهانه",
     "MONTHLY_RECEIVE": "دریافت ماهانه",
     "MONTHLY_TRANSMIT": "ارسال ماهانه",
+    "MONTHLY_RX_TX": "دریافت + ارسال ماهانه",
     "NAME": "نام",
     "NETWORK_CONFIGURATION": "پیکربندی شبکه",
     "NEW_EXPIRE_AT": "تاریخ انقضای جدید",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "کل رکوردها",
     "TOTAL_RX": "کل دریافت",
     "TOTAL_TX": "کل ارسال",
+    "TOTALLY_RX_TX": "کل دریافت + ارسال",
     "TOTAL_USERS": "کل کاربران",
     "TRAFFIC": "ترافیک",
     "TRAFFIC_CLASS_PRIORITY": "اولویت کلاس ترافیک",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "از کلید مخفی فایل env در سرور استفاده کنید",
     "VALUE": "مقدار",
     "VIEW": "مشاهده",
+    "CERTIFICATE": "گواهی",
+    "CREATE_CERTIFICATE": "ساخت گواهی",
+    "DOWNLOAD_CERTIFICATE": "دانلود گواهی",
+    "ENABLED": "فعال",
+    "DISABLED": "غیرفعال",
     "YESTERDAY": "دیروز"
 }

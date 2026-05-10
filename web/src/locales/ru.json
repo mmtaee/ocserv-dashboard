@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "месячная пропускная способность",
     "MONTHLY_RECEIVE": "месячное получение",
     "MONTHLY_TRANSMIT": "месячная передача",
+    "MONTHLY_RX_TX": "месячное получение + передача",
     "NAME": "имя",
     "NETWORK_CONFIGURATION": "настройка сети",
     "NEW_EXPIRE_AT": "новая дата окончания",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "всего записей",
     "TOTAL_RX": "Всего получено",
     "TOTAL_TX": "Всего отправлено",
+    "TOTALLY_RX_TX": "общее получение + передача",
     "TOTAL_USERS": "всего пользователей",
     "TRAFFIC": "трафик",
     "TRAFFIC_CLASS_PRIORITY": "приоритет класса трафика",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "используйте секретный ключ из файла env на сервере",
     "VALUE": "значение",
     "VIEW": "просмотр",
+    "CERTIFICATE": "сертификат",
+    "CREATE_CERTIFICATE": "создать сертификат",
+    "DOWNLOAD_CERTIFICATE": "скачать сертификат",
+    "ENABLED": "включено",
+    "DISABLED": "отключено",
     "YESTERDAY": "вчера"
 }

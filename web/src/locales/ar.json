@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "عرض النطاق الترددي الشهري",
     "MONTHLY_RECEIVE": "الاستقبال الشهري",
     "MONTHLY_TRANSMIT": "الإرسال الشهري",
+    "MONTHLY_RX_TX": "ﺍﻼﺴﺘﻘﺑﺎﻟ + ﺍﻹﺮﺳﺎﻟ ﺎﻠﺸﻫﺮﻳ",
     "NAME": "الاسم",
     "NETWORK_CONFIGURATION": "تكوين الشبكة",
     "NEW_EXPIRE_AT": "تاريخ انتهاء جديد",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "إجمالي السجلات",
     "TOTAL_RX": "إجمالي الاستلام",
     "TOTAL_TX": "إجمالي الإرسال",
+    "TOTALLY_RX_TX": "إجمالي الاستقبال + الإرسال",
     "TOTAL_USERS": "إجمالي المستخدمين",
     "TRAFFIC": "الحركة",
     "TRAFFIC_CLASS_PRIORITY": "أولوية فئة الحركة",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "استخدم المفتاح السري من ملف env في الخادم",
     "VALUE": "القيمة",
     "VIEW": "عرض",
+    "CERTIFICATE": "الشهادة",
+    "CREATE_CERTIFICATE": "إنشاء شهادة",
+    "DOWNLOAD_CERTIFICATE": "تنزيل الشهادة",
+    "ENABLED": "مفعّل",
+    "DISABLED": "معطّل",
     "YESTERDAY": "أمس"
 }

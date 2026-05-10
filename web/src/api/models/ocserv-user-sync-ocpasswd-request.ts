@@ -69,7 +69,9 @@ export const OcservUserSyncOcpasswdRequestTrafficTypeEnum = {
     MONTHLY_TRANSMIT: 'MonthlyTransmit',
     MONTHLY_RECEIVE: 'MonthlyReceive',
     TOTALLY_TRANSMIT: 'TotallyTransmit',
-    TOTALLY_RECEIVE: 'TotallyReceive'
+    TOTALLY_RECEIVE: 'TotallyReceive',
+    MONTHLY_RX_TX: 'MonthlyRxTx',
+    TOTALLY_RX_TX: 'TotallyRxTx'
 } as const;
 
 export type OcservUserSyncOcpasswdRequestTrafficTypeEnum = typeof OcservUserSyncOcpasswdRequestTrafficTypeEnum[keyof typeof OcservUserSyncOcpasswdRequestTrafficTypeEnum];

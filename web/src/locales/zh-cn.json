@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "每月带宽",
     "MONTHLY_RECEIVE": "每月接收",
     "MONTHLY_TRANSMIT": "每月发送",
+    "MONTHLY_RX_TX": "每月接收+发送",
     "NAME": "名称",
     "NETWORK_CONFIGURATION": "网络配置",
     "NEW_EXPIRE_AT": "新的到期日期",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "总记录",
     "TOTAL_RX": "总接收",
     "TOTAL_TX": "总发送",
+    "TOTALLY_RX_TX": "总接收+发送",
     "TOTAL_USERS": "总用户数",
     "TRAFFIC": "流量",
     "TRAFFIC_CLASS_PRIORITY": "流量类别优先级",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "使用服务器 env 文件中的密钥",
     "VALUE": "值",
     "VIEW": "查看",
+    "CERTIFICATE": "证书",
+    "CREATE_CERTIFICATE": "创建证书",
+    "DOWNLOAD_CERTIFICATE": "下载证书",
+    "ENABLED": "已启用",
+    "DISABLED": "已禁用",
     "YESTERDAY": "昨天"
 }

@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "monthly bandwidths",
     "MONTHLY_RECEIVE": "monthly receive",
     "MONTHLY_TRANSMIT": "monthly transmit",
+    "MONTHLY_RX_TX": "monthly RX+TX",
     "NAME": "name",
     "NETWORK_CONFIGURATION": "network configuration",
     "NEW_EXPIRE_AT": "new expiry date",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "total records",
     "TOTAL_RX": "total rx",
     "TOTAL_TX": "total tx",
+    "TOTALLY_RX_TX": "total RX+TX",
     "TOTAL_USERS": "total users",
     "TRAFFIC": "traffic",
     "TRAFFIC_CLASS_PRIORITY": "traffic class priority",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "use secret key from env file in server",
     "VALUE": "value",
     "VIEW": "view",
+    "CERTIFICATE": "certificate",
+    "CREATE_CERTIFICATE": "create certificate",
+    "DOWNLOAD_CERTIFICATE": "download certificate",
+    "ENABLED": "enabled",
+    "DISABLED": "disabled",
     "YESTERDAY": "yesterday"
 }

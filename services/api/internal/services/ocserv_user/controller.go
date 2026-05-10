@@ -290,7 +290,15 @@ func (ctl *Controller) UpdateOcservUser(c echo.Context) error {
 	if data.TrafficSize != nil {
 		ocservUser.TrafficSize = *data.TrafficSize
 	}
-	if data.TrafficType != nil && slices.Contains([]string{"Free", "MonthlyTransmit", "MonthlyReceive", "TotallyTransmit", "TotallyReceive"}, *data.TrafficType) {
+	if data.TrafficType != nil && slices.Contains([]string{
+		"Free",
+		"MonthlyTransmit",
+		"MonthlyReceive",
+		"MonthlyRxTx",
+		"TotallyTransmit",
+		"TotallyReceive",
+		"TotallyRxTx",
+	}, *data.TrafficType) {
 		ocservUser.TrafficType = *data.TrafficType
 	}
 	if data.Config != nil {

@@ -155,6 +155,7 @@
     "MONTHLY_BANDWIDTHS": "每月頻寬",
     "MONTHLY_RECEIVE": "每月接收",
     "MONTHLY_TRANSMIT": "每月傳送",
+    "MONTHLY_RX_TX": "每月接收+傳送",
     "NAME": "名稱",
     "NETWORK_CONFIGURATION": "網路設定",
     "NEW_EXPIRE_AT": "新的到期時間",
@@ -354,6 +355,7 @@
     "TOTAL_RECORD": "總記錄",
     "TOTAL_RX": "總接收",
     "TOTAL_TX": "總傳送",
+    "TOTALLY_RX_TX": "總接收+傳送",
     "TOTAL_USERS": "總使用者數",
     "TRAFFIC": "流量",
     "TRAFFIC_CLASS_PRIORITY": "流量類別優先順序",
@@ -386,5 +388,10 @@
     "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "使用伺服器中 env 檔案的密鑰",
     "VALUE": "值",
     "VIEW": "檢視",
+    "CERTIFICATE": "憑證",
+    "CREATE_CERTIFICATE": "建立憑證",
+    "DOWNLOAD_CERTIFICATE": "下載憑證",
+    "ENABLED": "已啟用",
+    "DISABLED": "已停用",
     "YESTERDAY": "昨天"
 }

@@ -302,18 +302,23 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 	case models.TotallyReceive:
 		shouldLock = ocUser.Rx >= trafficSizeBytes
 
+	case models.TotallyRxTx:
+		shouldLock = ocUser.Rx+ocUser.Tx >= trafficSizeBytes
+
 	case models.MonthlyTransmit:
 		shouldLock = totalMonthStats.TotalTx >= trafficSizeBytes
 
 	case models.MonthlyReceive:
 		shouldLock = totalMonthStats.TotalRx >= trafficSizeBytes
 
+	case models.MonthlyRxTx:
+		shouldLock = totalMonthStats.TotalRx+totalMonthStats.TotalTx >= trafficSizeBytes
+
 	case models.Free:
 
 	default:
 		logger.Error("Unknown traffic type: %v", ocUser.TrafficType)
 	}
-
 	wasLocked := ocUser.IsLocked
 	if shouldLock {
 		ocUser.IsLocked = true

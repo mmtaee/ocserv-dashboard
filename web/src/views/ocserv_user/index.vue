@@ -505,6 +505,23 @@ onMounted(() => {
                                             </template>
                                         </v-tooltip>
                                     </div>
+				    <div>
+					{{ t('TOTAL') }}:
+					<span
+					    v-if="item.traffic_type != ModelsOcservUserTrafficTypeEnum.FREE"
+					    class="text-muted text-subtitle-2"
+					>
+					    ({{ t('CURRENT') }})
+					</span>
+					<br />
+					<v-tooltip :text="`${(item.rx + item.tx).toLocaleString()} bytes`">
+					    <template #activator="{ props }">
+						<span class="text-info" v-bind="props">
+						    {{ bytesToGB(item.rx + item.tx, 4) }} GB
+						</span>
+					    </template>
+					</v-tooltip>
+				    </div>
                                 </td>
                                 <td class="text-capitalize">
                                     <div>

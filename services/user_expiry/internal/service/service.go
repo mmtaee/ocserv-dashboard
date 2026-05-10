@@ -255,6 +255,7 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 		Where("traffic_type IN ?", []string{
 			commonModels.MonthlyReceive,
 			commonModels.MonthlyTransmit,
+			commonModels.MonthlyRxTx,
 		}).
 		Find(&users).Error
 	if err != nil {
