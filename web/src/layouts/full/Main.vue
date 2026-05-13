@@ -24,6 +24,8 @@ const sDrawer = ref(true);
 
 const serverInfo = computed(() => serverStore.getOcservVersion.split(', ').filter(Boolean));
 
+const release = computed(() => serverStore.getDashboardRelease);
+
 onMounted(() => {
     sDrawer.value = !mdAndDown.value;
 });
@@ -45,7 +47,12 @@ watch(mdAndDown, (val) => {
     >
         <div class="sidebar-brand d-flex align-center px-5 py-4">
             <v-img :src="logoUrl" alt="logo" class="me-3" max-width="36" />
-            <span class="text-subtitle-1 font-weight-bold text-primary">Ocserv Dashboard</span>
+            <div class="d-flex flex-column">
+                <span class="text-subtitle-1 font-weight-bold text-primary">Ocserv Dashboard</span>
+                <span v-if="release.Current" class="text-caption text-medium-emphasis">
+                    {{ release.Current }}
+                </span>
+            </div>
             <v-spacer />
             <v-btn
                 v-if="mdAndDown"
@@ -95,6 +102,7 @@ watch(mdAndDown, (val) => {
             <v-img :src="logoUrl" alt="logo" max-width="32" />
             <span class="ms-2 text-subtitle-1 font-weight-bold text-primary d-none d-sm-inline">
                 Ocserv Dashboard
+                <span v-if="release.Current" class="text-caption text-medium-emphasis"> ({{ release.Current }})</span>
             </span>
         </div>
 
