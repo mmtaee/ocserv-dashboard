@@ -148,7 +148,7 @@ const dummyGroupList: ModelsOcservGroup[] = [
 
 const mockHomeDockerService: HomeDockerService = {
     log_stream: {
-        name: "log_stream",
+        name: 'log_stream',
         cpu: {
             avg_percent: 12.5,
             total: 2000,
@@ -161,7 +161,7 @@ const mockHomeDockerService: HomeDockerService = {
         }
     },
     ocserv: {
-        name: "ocserv",
+        name: 'ocserv',
         cpu: {
             avg_percent: 8.3,
             total: 2000,
@@ -174,7 +174,7 @@ const mockHomeDockerService: HomeDockerService = {
         }
     },
     postgres: {
-        name: "postgres",
+        name: 'postgres',
         cpu: {
             avg_percent: 15.7,
             total: 4000,
@@ -187,7 +187,7 @@ const mockHomeDockerService: HomeDockerService = {
         }
     },
     user_expiry: {
-        name: "user_expiry",
+        name: 'user_expiry',
         cpu: {
             avg_percent: 2.1,
             total: 1000,
@@ -200,7 +200,7 @@ const mockHomeDockerService: HomeDockerService = {
         }
     },
     web: {
-        name: "web",
+        name: 'web',
         cpu: {
             avg_percent: 25.0,
             total: 4000,

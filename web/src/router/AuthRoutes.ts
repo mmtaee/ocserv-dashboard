@@ -14,6 +14,11 @@ const AuthRoutes = {
             name: 'Admin Login',
             path: '/login/admin',
             component: () => import('@/views/auth/AdminLogin.vue')
+        },
+        {
+            name: 'Admin Reset Password',
+            path: '/login/admin/reset-password',
+            component: () => import('@/views/auth/AdminResetPassword.vue')
         }
     ]
 };
