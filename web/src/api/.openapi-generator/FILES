@@ -12,6 +12,7 @@ api/report-api.ts
 api/system-api.ts
 api/system-backup-api.ts
 api/system-restore-api.ts
+api/system-user-api.ts
 api/system-users-api.ts
 api/systemd-api.ts
 common.ts
@@ -78,6 +79,8 @@ models/system-get-system-init-response.ts
 models/system-get-system-response.ts
 models/system-login-data.ts
 models/system-patch-system-update-data.ts
+models/system-reset-admin-password.ts
+models/system-reset-password-response.ts
 models/system-setup-system-response.ts
 models/system-setup-system.ts
 models/system-user-login-response.ts

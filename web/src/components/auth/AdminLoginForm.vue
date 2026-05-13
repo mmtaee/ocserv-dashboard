@@ -5,6 +5,7 @@ import { type SystemLoginData, SystemUsersApi } from '@/api';
 import { requiredRule } from '@/utils/rules';
 import Captcha from '@/components/auth/Captcha.vue';
 import { useConfigStore } from '@/stores/config';
+import { router } from '@/router';
 
 defineProps({
     loading: Boolean
@@ -73,15 +74,11 @@ const isValid = computed(() => {
                     <v-checkbox v-model="data.remember_me" color="primary" hide-details class="text-capitalize">
                         <template v-slot:label class="text-body-1">{{ t('REMEMBER_ME') }}</template>
                     </v-checkbox>
-                    <div class="ml-sm-auto">
-                        <v-tooltip location="top">
-                            <template #activator="{ props }">
-                                <span class="cursor-pointer text-primary text-subtitle-2 text-capitalize" v-bind="props">
-                                    {{ t('FORGOT_PASSWORD') }} ?
-                                </span>
-                            </template>
-                            <span v-html="t('FORGOT_PASSWORD_TOOLTIP_HELP')" />
-                        </v-tooltip>
+                    <div
+                        class="ml-sm-auto text-primary text-capitalize cursor-pointer"
+                        @click="router.push({ name: 'Admin Reset Password' })"
+                    >
+                        {{ t('FORGOT_PASSWORD') }}
                     </div>
                 </div>
             </v-col>

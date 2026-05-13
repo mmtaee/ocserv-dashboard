@@ -2302,6 +2302,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/user/reset-password": {
+            "post": {
+                "description": "Reset admin password by secret key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System(User)"
+                ],
+                "summary": "Reset admin password by secret key",
+                "parameters": [
+                    {
+                        "description": "Reset admin password data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.ResetAdminPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/system.ResetPasswordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/system/users": {
             "get": {
                 "description": "List of Admin or simple users",
@@ -4388,6 +4428,44 @@ const docTemplate = `{
                 },
                 "keep_inactive_user_days": {
                     "type": "integer"
+                }
+            }
+        },
+        "system.ResetAdminPassword": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "secret_key",
+                "username"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "secret_key": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 16
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.ResetPasswordResponse": {
+            "type": "object",
+            "required": [
+                "token",
+                "user"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },

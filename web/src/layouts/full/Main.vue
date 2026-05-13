@@ -71,7 +71,7 @@ watch(mdAndDown, (val) => {
         </div>
 
         <div class="d-flex align-center justify-space-between w-100">
-            <div :style="{ margin: !sDrawer ? 'auto' : '280px' }">
+            <div style="margin: auto">
                 {{ serverInfo[0] }}
                 <br />
                 {{ serverInfo[1] }}

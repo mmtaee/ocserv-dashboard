@@ -10,6 +10,7 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/routing/middlewares"
+	"github.com/mmtaee/ocserv-dashboard/common/pkg/config"
 	"gorm.io/gorm"
 	"net/http"
 	"strings"
@@ -92,6 +93,48 @@ func (ctl *Controller) SetupSystem(c echo.Context) error {
 			Token:  token,
 		},
 	)
+}
+
+// ResetAdminPassword
+// @Summary      Reset admin password by secret key
+// @Description  Reset admin password by secret key
+// @Tags         System(User)
+// @Accept       json
+// @Produce      json
+// @Param        request  body  ResetAdminPassword   true "Reset admin password data"
+// @Failure      400 {object} request.ErrorResponse
+// @Success      200  {object}  ResetPasswordResponse
+// @Router       /system/user/reset-password [post]
+func (ctl *Controller) ResetAdminPassword(c echo.Context) error {
+	var data ResetAdminPassword
+
+	if err := ctl.request.DoValidate(c, &data); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if config.Get().SecretKey != data.SecretKey {
+		return ctl.request.BadRequest(c, errors.New("the secret key is invalid"))
+	}
+
+	user, err := ctl.userRepo.GetByUsername(c.Request().Context(), data.Username)
+	if err != nil {
+		return ctl.request.BadRequest(c, errors.New("username not found"))
+	}
+
+	passwd := ctl.cryptoRepo.CreatePassword(data.NewPassword)
+	if err = ctl.userRepo.ChangePassword(c.Request().Context(), user.UID, passwd.Hash, passwd.Salt); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	token, err := ctl.userRepo.CreateToken(c.Request().Context(), user, true)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, ResetPasswordResponse{
+		User:  user,
+		Token: token,
+	})
 }
 
 // SystemInit
@@ -346,7 +389,6 @@ func (ctl *Controller) Users(c echo.Context) error {
 // @Router       /system/users/{uid}/password [post]
 func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 	userTargetID := c.Param("uid")
-	userUID := c.Param("userUID")
 
 	var data ChangeUserPassword
 	if err := ctl.request.DoValidate(c, &data); err != nil {
@@ -354,9 +396,7 @@ func (ctl *Controller) ChangeUserPasswordByAdmin(c echo.Context) error {
 	}
 	passwd := ctl.cryptoRepo.CreatePassword(data.Password)
 
-	ctx := context.WithValue(c.Request().Context(), "userUID", userUID)
-
-	err := ctl.userRepo.ChangePassword(ctx, userTargetID, passwd.Hash, passwd.Salt)
+	err := ctl.userRepo.ChangePassword(c.Request().Context(), userTargetID, passwd.Hash, passwd.Salt)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

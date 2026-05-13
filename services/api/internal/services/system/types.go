@@ -69,3 +69,14 @@ type SetupSystemResponse struct {
 	System models.System `json:"system" validate:"required"`
 	Token  string        `json:"token" validate:"required"`
 }
+
+type ResetPasswordResponse struct {
+	User  *models.User `json:"user" validate:"required"`
+	Token string       `json:"token" validate:"required"`
+}
+
+type ResetAdminPassword struct {
+	Username    string `json:"username" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=4,max=16"`
+	SecretKey   string `json:"secret_key" validate:"required,min=16,max=64"`
+}

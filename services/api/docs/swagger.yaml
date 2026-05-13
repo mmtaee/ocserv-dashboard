@@ -1023,6 +1023,33 @@ definitions:
     - google_captcha_site_key
     - keep_inactive_user_days
     type: object
+  system.ResetAdminPassword:
+    properties:
+      new_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      secret_key:
+        maxLength: 64
+        minLength: 16
+        type: string
+      username:
+        type: string
+    required:
+    - new_password
+    - secret_key
+    - username
+    type: object
+  system.ResetPasswordResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
+    type: object
   system.SetupSystem:
     properties:
       auto_delete_inactive_users:
@@ -2651,6 +2678,32 @@ paths:
       summary: Setup user and system config
       tags:
       - System
+  /system/user/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset admin password by secret key
+      parameters:
+      - description: Reset admin password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/system.ResetAdminPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/system.ResetPasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Reset admin password by secret key
+      tags:
+      - System(User)
   /system/users:
     get:
       consumes:

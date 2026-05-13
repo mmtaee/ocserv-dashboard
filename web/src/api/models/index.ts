@@ -57,6 +57,8 @@ export * from './system-get-system-init-response';
 export * from './system-get-system-response';
 export * from './system-login-data';
 export * from './system-patch-system-update-data';
+export * from './system-reset-admin-password';
+export * from './system-reset-password-response';
 export * from './system-setup-system';
 export * from './system-setup-system-response';
 export * from './system-user-login-response';

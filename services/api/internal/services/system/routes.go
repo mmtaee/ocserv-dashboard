@@ -9,7 +9,16 @@ func Routes(e *echo.Group) {
 	ctl := New()
 	e.GET("/system/init", ctl.SystemInit)
 	e.POST("/system/setup", ctl.SetupSystem)
-	e.POST("/system/users/login", ctl.Login, middlewares.RateLimitMiddleware(2, "m", 3))
+	e.POST(
+		"/system/user/reset-password",
+		ctl.ResetAdminPassword,
+		middlewares.RateLimitMiddleware(1, "m", 2),
+	)
+	e.POST(
+		"/system/users/login",
+		ctl.Login,
+		middlewares.RateLimitMiddleware(2, "m", 3),
+	)
 
 	g := e.Group("/system", middlewares.AuthMiddleware())
 	g.GET("", ctl.System)
