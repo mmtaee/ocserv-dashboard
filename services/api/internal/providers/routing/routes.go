@@ -2,6 +2,7 @@ package routing
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/mmtaee/ocserv-dashboard/common/pkg/logger"
 	backupRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/backup"
 	customerRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/customer"
 	homeRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/home"
@@ -36,5 +37,9 @@ func Register(e *echo.Echo) {
 	systemdRoutes.Routes(group)
 
 	// telegram
+	telegramRoutes.InitI18n()
+	if err := telegramRoutes.EnsureReceiptDir(); err != nil {
+		logger.Warn("telegram receipts directory: %v", err)
+	}
 	telegramRoutes.Routes(group)
 }

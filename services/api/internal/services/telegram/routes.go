@@ -3,7 +3,13 @@ package telegram
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/routing/middlewares"
+	tg18n "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram/i18n"
 )
+
+// InitI18n loads embedded Telegram message templates (and optional TELEGRAM_I18N_PATH). Call once before serving.
+func InitI18n() {
+	tg18n.Init()
+}
 
 // Routes registers the admin-side Telegram management endpoints. All routes
 // require authentication; mutations and request handling require admin role.

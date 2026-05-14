@@ -21,6 +21,7 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/database"
+	tg18n "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram/i18n"
 )
 
 const (
@@ -33,6 +34,13 @@ func receiptStorageRoot() string {
 		return filepath.Clean(d)
 	}
 	return "/opt/ocserv_dashboard/uploads/receipts"
+}
+
+func defaultNotifyLang(settings *models.TelegramSettings) string {
+	if settings != nil && strings.TrimSpace(settings.DefaultLanguage) != "" {
+		return settings.DefaultLanguage
+	}
+	return models.TelegramLanguageEN
 }
 
 type Controller struct {
@@ -651,32 +659,14 @@ func packageSummaryBlock(lang string, pkg *models.TelegramPackage) string {
 	if pkg == nil {
 		return ""
 	}
-	fa := lang == models.TelegramLanguageFA
 	title := htmlEsc(pkg.Title)
 	price := strings.TrimSpace(pkg.PriceText)
 	if price == "" {
-		if fa {
-			price = "— <i>(مبلغ را از ادمین بپرسید)</i>"
-		} else {
-			price = "— <i>(ask admin for the exact amount)</i>"
-		}
+		price = tg18n.T(lang, "pkg_price_placeholder")
 	} else {
 		price = htmlEsc(price)
 	}
-	if fa {
-		return fmt.Sprintf(
-			"\n\n\u200f<b>📦 پکیج انتخابی:</b> %s\n"+
-				"\u200f<b>💵 مبلغ / نحوهٔ واریز:</b> %s\n"+
-				"\u200f<b>📅 مدت:</b> %d روز  |  <b>💾 حجم:</b> %d GB",
-			title, price, pkg.Days, pkg.TrafficSizeGB,
-		)
-	}
-	return fmt.Sprintf(
-		"\n\n📦 <b>Selected plan:</b> %s\n"+
-			"💵 <b>Amount / how to pay:</b> %s\n"+
-			"📅 <b>Duration:</b> %d days  |  💾 <b>Quota:</b> %d GB",
-		title, price, pkg.Days, pkg.TrafficSizeGB,
-	)
+	return tg18n.T(lang, "pkg_summary", title, price, pkg.Days, pkg.TrafficSizeGB)
 }
 
 func formatAwaitingPaymentMessage(lang string, settings *models.TelegramSettings, opts *awaitingPaymentOpts, pkg *models.TelegramPackage) string {
@@ -695,75 +685,42 @@ func formatAwaitingPaymentMessage(lang string, settings *models.TelegramSettings
 		}
 	}
 
-	fa := lang == models.TelegramLanguageFA
-
 	cardLine := ""
 	if cardNum != "" {
 		holder := cardHold
 		if holder == "" {
 			holder = "—"
 		}
-		if fa {
-			cardLine = fmt.Sprintf(
-				"\n\n\u200f<b>شماره کارت:</b> <code>%s</code> 💳\n\u200f<b>دارنده:</b> %s",
-				htmlEsc(cardNum), htmlEsc(holder),
-			)
-		} else {
-			cardLine = fmt.Sprintf(
-				"\n\n💳 <b>Payment card:</b> <code>%s</code>\n<b>Holder:</b> %s",
-				htmlEsc(cardNum), htmlEsc(holder),
-			)
-		}
+		cardLine = tg18n.T(lang, "awaiting_card_line", htmlEsc(cardNum), htmlEsc(holder))
 	}
 
 	replyBlock := ""
 	if opts != nil && strings.TrimSpace(opts.ReplyToUser) != "" {
 		reply := strings.TrimSpace(opts.ReplyToUser)
-		if fa {
-			replyBlock = "\n\n\u200f<b>پیام ادمین:</b> 💬\n\u200f" + htmlEsc(reply)
-		} else {
-			replyBlock = "\n\n💬 <b>Message from admin:</b>\n" + htmlEsc(reply)
-		}
+		replyBlock = tg18n.T(lang, "awaiting_reply_prefix") + htmlEsc(reply)
 	}
 
 	missingCard := ""
 	if cardNum == "" {
-		if fa {
-			missingCard = "\n\n\u200f<b>اطلاعات کارت ثبت نشده است.</b> لطفاً با ادمین برای جزئیات پرداخت هماهنگ کنید. ⚠️"
-		} else {
-			missingCard = "\n\n⚠️ <b>No payment card was configured.</b> Please contact the administrator for payment instructions."
-		}
+		missingCard = tg18n.T(lang, "awaiting_missing_card")
 	}
 
-	receiptLine := ""
-	if fa {
-		receiptLine = "\n\n\u200fرسید را به‌صورت <b>عکس</b> به همین چت بفرستید. 🧾\n\u200fفقط عکس (نه فایل یا لینک). 📎"
-	} else {
-		receiptLine = "\n\n🧾 Send the receipt as a <b>photo</b> in this chat.\n📎 Photo only (not a file or link)."
-	}
+	receiptLine := tg18n.T(lang, "awaiting_receipt_line")
 
 	pkgBlock := packageSummaryBlock(lang, pkg)
 	support := supportLine(settings)
-	if fa {
-		return "\u200f<blockquote><b>درخواست شما تایید شد! ✅</b>" + pkgBlock +
-			replyBlock + cardLine + receiptLine + missingCard + "</blockquote>" + support
-	}
-	return "✅ <b>Your request has been approved!</b>" + pkgBlock +
-		replyBlock + cardLine + receiptLine + missingCard + support
+	intro := tg18n.T(lang, "awaiting_intro")
+	closeTag := tg18n.T(lang, "awaiting_close")
+	return intro + pkgBlock + replyBlock + cardLine + receiptLine + missingCard + closeTag + support
 }
 
 func formatRejectedMessage(settings *models.TelegramSettings, adminNote string) string {
-	if isFa(settings) {
-		msg := "\u200f<blockquote><b>درخواست شما توسط ادمین رد شد. ❌</b>"
-		if adminNote != "" {
-			msg += "\n\n\u200f<b>دلیل:</b> " + htmlEsc(adminNote) + " 📝"
-		}
-		return msg + "</blockquote>"
-	}
-	msg := "❌ <b>Your request was rejected by the administrator.</b>"
+	lang := defaultNotifyLang(settings)
+	msg := tg18n.T(lang, "rejected_title")
 	if adminNote != "" {
-		msg += "\n\n📝 <b>Reason:</b> " + htmlEsc(adminNote)
+		msg += tg18n.T(lang, "rejected_reason", htmlEsc(adminNote))
 	}
+	msg += tg18n.T(lang, "rejected_close")
 	return msg
 }
 
@@ -773,27 +730,8 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 		host = "—"
 	}
 	support := supportLine(settings)
-	if isFa(settings) {
-		return fmt.Sprintf(
-			"\u200f<blockquote><b>اکانت VPN شما آماده است! 🎉</b>\n\n"+
-				"\u200f<b>سرور:</b> <code>%s</code> 🌐\n"+
-				"\u200f<b>نام کاربری:</b> 👤\n<pre>%s</pre>\n"+
-				"\u200f<b>رمز عبور:</b> 🔑\n<pre>%s</pre>\n"+
-				"\u200f<b>اعتبار تا:</b> %s 📅\n"+
-				"\u200f<b>حجم:</b> %d GB 💾\n\n"+
-				"\u200fرمز عبور را در جای امنی ذخیره کنید. ⚠️</blockquote>%s",
-			htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
-			expireAt.Format("2006-01-02"), user.TrafficSize, support,
-		)
-	}
-	return fmt.Sprintf(
-		"🎉 <b>Your VPN account is ready!</b>\n\n"+
-			"🌐 <b>Server:</b> <code>%s</code>\n"+
-			"👤 <b>Username:</b>\n<pre>%s</pre>\n"+
-			"🔑 <b>Password:</b>\n<pre>%s</pre>\n"+
-			"📅 <b>Expires:</b> %s\n"+
-			"💾 <b>Quota:</b> %d GB\n\n"+
-			"⚠️ Save your password in a safe place.%s",
+	lang := defaultNotifyLang(settings)
+	return tg18n.T(lang, "new_account",
 		htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
 		expireAt.Format("2006-01-02"), user.TrafficSize, support,
 	)
@@ -811,34 +749,16 @@ func supportLine(settings *models.TelegramSettings) string {
 		return ""
 	}
 	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
-	if isFa(settings) {
-		return "\n\n\u200f<blockquote><b>پشتیبانی:</b> " + link + " 💬</blockquote>"
-	}
-	return "\n\n💬 <b>Support:</b> " + link
+	lang := defaultNotifyLang(settings)
+	return tg18n.T(lang, "support_suffix", link)
 }
 
 func formatRenewalMessage(settings *models.TelegramSettings, user *models.OcservUser, newExpire time.Time) string {
 	support := supportLine(settings)
-	if isFa(settings) {
-		return fmt.Sprintf(
-			"\u200f<blockquote><b>اکانت شما با موفقیت تمدید شد! ✅</b>\n\n"+
-				"\u200f<b>نام کاربری:</b> <code>%s</code> 👤\n"+
-				"\u200f<b>تاریخ انقضای جدید:</b> %s 📅\n"+
-				"\u200f<b>حجم جدید:</b> %d GB 💾</blockquote>%s",
-			htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
-		)
-	}
-	return fmt.Sprintf(
-		"✅ <b>Account renewed successfully!</b>\n\n"+
-			"👤 <b>Username:</b> <code>%s</code>\n"+
-			"📅 <b>New expiry:</b> %s\n"+
-			"💾 <b>New quota:</b> %d GB%s",
+	lang := defaultNotifyLang(settings)
+	return tg18n.T(lang, "renewal",
 		htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
 	)
-}
-
-func isFa(s *models.TelegramSettings) bool {
-	return s != nil && s.DefaultLanguage == models.TelegramLanguageFA
 }
 
 // =============================================================================
