@@ -1,3 +1,7 @@
+// Package migrations holds gormigrate database migrations.
+//
+// Migration 008 adds telegram_requests.awaiting_payment_message_id (Telegram message id),
+// not user password column length.
 package migrations
 
 import (

@@ -59,6 +59,7 @@ type OcservUser struct {
 	Owner         string            `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
 	Group         string            `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
 	Username      string            `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
+	// Length matches migration 007 (ocserv_users.password column); do not widen without a new migration.
 	Password      string            `json:"password" gorm:"type:varchar(255);not null" validate:"required"`
 	IsLocked      bool              `json:"is_locked" gorm:"default(false)" validate:"required"`
 	CreatedAt     time.Time         `json:"created_at" gorm:"autoCreateTime" validate:"required"`
