@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
     TelegramAPI,
@@ -17,9 +17,13 @@ const snackbar = useSnackbarStore();
 const loading = ref(false);
 const tab = ref<'pending' | 'awaiting_payment' | 'payment_uploaded' | 'history'>('pending');
 const items = ref<TelegramRequestModel[]>([]);
-const total = ref(0);
-const page = ref(1);
-const size = 20;
+const meta = reactive({
+    page: 1,
+    size: 20,
+    total_records: 0
+});
+
+const pageCount = computed(() => Math.max(1, Math.ceil(Number(meta.total_records) / meta.size)));
 
 const detailDialog = ref(false);
 const selected = ref<TelegramRequestModel | null>(null);
@@ -45,12 +49,12 @@ const STATUS_BY_TAB: Record<string, string> = {
 const load = async () => {
     loading.value = true;
     try {
-        const params: any = { page: page.value, size };
+        const params: any = { page: meta.page, size: meta.size };
         const status = STATUS_BY_TAB[tab.value];
         if (status) params.status = status;
         const res = await TelegramAPI.listRequests(params);
         items.value = res.data.result || [];
-        total.value = res.data.meta.total_records;
+        meta.total_records = res.data.meta.total_records;
     } finally {
         loading.value = false;
     }
@@ -182,6 +186,10 @@ const removeRequest = async (r: TelegramRequestModel) => {
         await TelegramAPI.deleteRequest(r.id);
         snackbar.show({ id: 1, message: t('TELEGRAM_REQUEST_DELETED'), color: 'success', timeout: 3000 });
         await load();
+        if (!items.value.length && meta.page > 1) {
+            meta.page -= 1;
+            await load();
+        }
     } catch {
         snackbar.show({ id: 1, message: t('TELEGRAM_REQUEST_DELETE_FAILED'), color: 'error', timeout: 5000 });
     } finally {
@@ -192,8 +200,19 @@ const removeRequest = async (r: TelegramRequestModel) => {
 const isRequestDeletable = (r: TelegramRequestModel) =>
     !['pending', 'awaiting_payment', 'payment_uploaded'].includes(r.status);
 
+const onPageSizeChange = (v: number) => {
+    meta.size = v;
+    meta.page = 1;
+    load();
+};
+
+const onPageChange = (p: number) => {
+    meta.page = p;
+    load();
+};
+
 watch(tab, () => {
-    page.value = 1;
+    meta.page = 1;
     load();
 });
 
@@ -217,6 +236,8 @@ onBeforeUnmount(() => {
                     <v-tab value="payment_uploaded">{{ t('TELEGRAM_TAB_UPLOADED') }}</v-tab>
                     <v-tab value="history">{{ t('TELEGRAM_TAB_HISTORY') }}</v-tab>
                 </v-tabs>
+
+                <v-progress-linear :active="loading" indeterminate />
 
                 <v-table density="comfortable">
                     <thead>
@@ -262,6 +283,33 @@ onBeforeUnmount(() => {
                         </tr>
                     </tbody>
                 </v-table>
+
+                <v-row v-if="meta.total_records > 0" align="center" class="mt-2 mb-1" justify="center">
+                    <v-col cols="12" sm="4" md="3" lg="2">
+                        <v-select
+                            :model-value="meta.size"
+                            :items="[10, 20, 25, 50]"
+                            :label="t('ITEMS_PER_PAGE')"
+                            density="compact"
+                            variant="outlined"
+                            hide-details
+                            @update:model-value="onPageSizeChange"
+                        />
+                    </v-col>
+                    <v-col cols="12" sm="8" md="9" lg="10" class="d-flex justify-center align-center flex-wrap">
+                        <v-pagination
+                            v-if="pageCount > 1"
+                            :model-value="meta.page"
+                            :length="pageCount"
+                            :total-visible="7"
+                            rounded="circle"
+                            @update:model-value="onPageChange"
+                        />
+                        <span v-else class="text-caption text-medium-emphasis px-2">
+                            {{ t('TOTAL_RECORD') }}: {{ meta.total_records }}
+                        </span>
+                    </v-col>
+                </v-row>
             </UiParentCard>
         </v-col>
 
