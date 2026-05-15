@@ -82,7 +82,7 @@ Easily manage users, groups, and server configurations while keeping your VPN se
   - **Packages**: CRUD for the plans customers can pick (title, days, traffic size, traffic type, price text, active flag).
   - **Requests**: review pending requests, view uploaded receipts, approve, reject or confirm payment, with optional admin notes.
   - **Linked accounts**: each Ocserv user detail page lists every Telegram chat linked to that account, with a one-click unlink action.
-- **Custom Telegram copy & bot metadata:** see [docs/telegram-translations.md](docs/telegram-translations.md) for `TELEGRAM_I18N_PATH` (API messages), `TELEGRAM_BOT_I18N_PATH` (bot UI strings), and `TELEGRAM_BOT_METADATA_LOCALES_PATH` (BotFather descriptions).
+- **Custom Telegram copy & bot metadata:** see [docs/telegram-translations.md](docs/telegram-translations.md) for `TELEGRAM_I18N_PATH` (API messages), `TELEGRAM_BOT_I18N_PATH` (directory of bot UI `*.json` locale files), and `TELEGRAM_BOT_METADATA_LOCALES_PATH` (BotFather descriptions).
 
 ---
 

@@ -1,25 +1,26 @@
-// Package i18n holds Telegram bot UI strings loaded from JSON.
-// Override or extend with TELEGRAM_BOT_I18N_PATH pointing to a JSON file with the same shape
-// as default.json (language code -> key -> format string for fmt.Sprintf).
-// See docs/telegram-translations.md.
+// Package i18n holds Telegram bot UI strings loaded from JSON locale files (one file per language,
+// like web/src/locales). Override or extend with TELEGRAM_BOT_I18N_PATH pointing to a directory
+// containing the same *.json files. See docs/telegram-translations.md.
 package i18n
 
 import (
-	_ "embed"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 )
 
-//go:embed default.json
-var defaultEmbedded []byte
+//go:embed locales/*.json
+var embeddedLocales embed.FS
 
 // Key is the catalog of translatable bot strings. Adding a new string requires a key here
-// and translations in default.json (and optional TELEGRAM_BOT_I18N_PATH overlay) per language.
+// and an entry in each locales/<code>.json (and optional TELEGRAM_BOT_I18N_PATH overlay).
 type Key string
 
 const (
@@ -87,36 +88,68 @@ var (
 	once  sync.Once
 )
 
-// Init loads embedded defaults and optional TELEGRAM_BOT_I18N_PATH merge. Safe to call many times.
+// Init loads embedded locale files and optional TELEGRAM_BOT_I18N_PATH directory merge.
 func Init() {
 	once.Do(func() {
 		store = make(map[string]map[string]string)
-		if err := mergeJSON(defaultEmbedded); err != nil {
-			panic("i18n: embedded default.json: " + err.Error())
+		if err := loadLocaleFS(embeddedLocales, "locales"); err != nil {
+			panic("i18n: embedded locales: " + err.Error())
 		}
 		if p := strings.TrimSpace(os.Getenv("TELEGRAM_BOT_I18N_PATH")); p != "" {
-			if b, err := os.ReadFile(p); err == nil {
-				_ = mergeJSON(b)
-			}
+			_ = loadLocaleDir(p)
 		}
 	})
 }
 
-func mergeJSON(b []byte) error {
-	var raw map[string]map[string]string
-	if err := json.Unmarshal(b, &raw); err != nil {
+func loadLocaleFS(fsys fs.FS, root string) error {
+	return fs.WalkDir(fsys, root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.HasSuffix(strings.ToLower(d.Name()), ".json") {
+			return nil
+		}
+		b, err := fs.ReadFile(fsys, path)
+		if err != nil {
+			return err
+		}
+		lang := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+		return mergeLangFile(lang, b)
+	})
+}
+
+func loadLocaleDir(dir string) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
 		return err
 	}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".json") {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			continue
+		}
+		lang := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+		_ = mergeLangFile(lang, b)
+	}
+	return nil
+}
+
+func mergeLangFile(lang string, b []byte) error {
+	var m map[string]string
+	if err := json.Unmarshal(b, &m); err != nil {
+		return err
+	}
+	lang = strings.ToLower(strings.TrimSpace(lang))
 	mu.Lock()
 	defer mu.Unlock()
-	for lang, m := range raw {
-		lang = strings.ToLower(strings.TrimSpace(lang))
-		if store[lang] == nil {
-			store[lang] = make(map[string]string)
-		}
-		for k, v := range m {
-			store[lang][k] = v
-		}
+	if store[lang] == nil {
+		store[lang] = make(map[string]string)
+	}
+	for k, v := range m {
+		store[lang][k] = v
 	}
 	return nil
 }
