@@ -95,16 +95,6 @@ uninstall_systemd() {
     log "🔄 Restarting Nginx service..."
     sudo systemctl restart nginx 2>/dev/null || true
 
-    warn "⚠️ You are about to uninstall PostgreSQL."
-    read -rp "Do you want to proceed? [y/N]: " confirm
-    confirm=${confirm:-N}
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        log "🗑️ Uninstalling PostgreSQL..."
-        sudo apt remove postgresql-17 -y
-        ok "✅ PostgreSQL removed."
-    else
-        log "⏭️ Skipping PostgreSQL removal."
-    fi
 
     warn "⚠️ You are about to uninstall Nginx."
     read -rp "Do you want to proceed? [y/N]: " confirm

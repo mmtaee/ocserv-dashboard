@@ -2,12 +2,13 @@
 # ==============================================================
 # Script: update.sh
 # Description:
-#   One-shot in-place upgrade for an existing standalone systemd
-#   installation of the Ocserv dashboard. This script is not wired into Docker;
-#   for Docker deployments use image rebuild and container restart (e.g. compose).
-#   Backs up PostgreSQL (pg_dump),
-#   pulls the latest code, rebuilds the Go backend services, rebuilds and
-#   redeploys the Vite frontend, and restarts the systemd units.
+#   One-shot in-place upgrade for both systemd and Docker installations
+#   of the Ocserv dashboard.
+#   - For systemd: Backs up PostgreSQL, pulls latest code, rebuilds Go
+#     backend services, rebuilds and redeploys the Vite frontend, and
+#     restarts the systemd units.
+#   - For Docker: Pulls latest code, rebuilds Docker images, and restarts
+#     the Docker Compose stack.
 #
 # Why this script exists:
 #   Running only systemd_backend.sh after a git pull leaves the
@@ -17,7 +18,8 @@
 #   script makes "update" a single, reliable command.
 #
 # Usage:
-#   sudo ./scripts/update.sh
+#   sudo ./scripts/update.sh [docker|systemd]
+#   If no mode specified, tries to auto-detect.
 #
 # Optional (from .env or environment):
 #   DB_BACKUP_DIR   — dump directory (default: /var/backups/ocserv-dashboard)
@@ -40,7 +42,7 @@ ensure_root() {
 
 ensure_root
 
-# Load environment so backend/UI scripts pick up POSTGRES_*, LANGUAGES, etc.
+# Load environment
 if [[ -f "${ROOT_DIR}/.env" ]]; then
     log "Loading environment from .env"
     set -o allexport
@@ -48,10 +50,47 @@ if [[ -f "${ROOT_DIR}/.env" ]]; then
     source "${ROOT_DIR}/.env"
     set +o allexport
 else
-    warn ".env not found at ${ROOT_DIR}/.env — proceeding with system defaults"
+    warn ".env not found at ${ROOT_DIR}/.env — proceeding with defaults"
 fi
 
+# Detect or get deployment mode
+detect_deployment_mode() {
+    # Check if user specified mode
+    if [[ $# -ge 1 ]]; then
+        case "$1" in
+            docker)
+                echo "docker"
+                return
+                ;;
+            systemd)
+                echo "systemd"
+                return
+                ;;
+        esac
+    fi
+
+    # Auto-detect
+    if systemctl list-unit-files | grep -q "^api.service" && systemctl is-active --quiet api; then
+        echo "systemd"
+        return
+    fi
+
+    if sudo docker compose ps -q 2>/dev/null; then
+        echo "docker"
+        return
+    fi
+
+    die "Could not detect deployment mode. Please specify: sudo ./scripts/update.sh [docker|systemd]"
+}
+
+DEPLOY_MODE=$(detect_deployment_mode "$@")
+log "Detected deployment mode: ${DEPLOY_MODE}"
+
 backup_database_before_update() {
+    if [[ "${DEPLOY_MODE}" != "systemd" ]]; then
+        return 0
+    fi
+
     if [[ "${SKIP_DB_BACKUP:-}" == "1" ]]; then
         warn "Skipping database backup (SKIP_DB_BACKUP=1)."
         return 0
@@ -86,38 +125,63 @@ backup_database_before_update() {
 
 backup_database_before_update
 
-# 1) Pull the latest source. Try fork/master first (developer setup), then
-#    origin/master, then just `git pull` (whatever the current branch tracks).
-log "Pulling latest changes..."
-if git remote get-url fork >/dev/null 2>&1; then
-    git fetch --quiet fork && git pull --ff-only fork master || \
-        git pull --ff-only fork "$(git rev-parse --abbrev-ref HEAD)"
-elif git remote get-url origin >/dev/null 2>&1; then
-    git fetch --quiet origin && git pull --ff-only origin "$(git rev-parse --abbrev-ref HEAD)"
-else
-    git pull --ff-only
-fi
-ok "Source up to date"
+# 1) Fetch and check out the latest tag
+log "Fetching latest release tag..."
+LATEST_TAG=$(get_latest_release_tag)
+log "Latest tag: ${LATEST_TAG}"
 
-# 2) Rebuild and (re)install Go services (api, log_stream, user_expiry, telegram_bot)
-log "Rebuilding backend services..."
-./scripts/systemd_backend.sh
-ok "Backend rebuilt"
+log "Checking out ${LATEST_TAG}..."
+git fetch --tags --quiet
+git checkout "${LATEST_TAG}"
+ok "Now on ${LATEST_TAG}"
 
-# 3) Rebuild frontend bundle and deploy to /var/www/site
-log "Rebuilding frontend..."
-./scripts/systemd_ui.sh
-ok "Frontend redeployed"
+# 2) Update based on deployment mode
+if [[ "${DEPLOY_MODE}" == "systemd" ]]; then
+    # Systemd update
+    log "Rebuilding backend services..."
+    ./scripts/systemd/backend.sh
+    ok "Backend rebuilt"
 
-# 4) Bounce the Go services so they pick up the new binaries. Nginx is already
-#    reloaded inside systemd_ui.sh.
-SERVICES=(api log_stream user_expiry telegram_bot)
-for svc in "${SERVICES[@]}"; do
-    if systemctl list-unit-files | grep -q "^${svc}.service"; then
-        log "Restarting ${svc}.service"
-        sudo systemctl restart "${svc}.service" || warn "failed to restart ${svc}"
+    log "Rebuilding frontend..."
+    ./scripts/systemd/ui.sh
+    ok "Frontend redeployed"
+
+    SERVICES=(api log_stream user_expiry)
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        SERVICES+=("telegram_bot")
     fi
-done
+    for svc in "${SERVICES[@]}"; do
+        if systemctl list-unit-files | grep -q "^${svc}.service"; then
+            log "Restarting ${svc}.service"
+            sudo systemctl restart "${svc}.service" || warn "failed to restart ${svc}"
+        fi
+    done
+
+elif [[ "${DEPLOY_MODE}" == "docker" ]]; then
+    # Docker update
+    log "Shutting down Docker Compose stack..."
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        sudo docker compose -f docker-compose.yml -f docker-compose-telegram.yml down
+    else
+        sudo docker compose down
+    fi
+
+    log "Rebuilding Docker images..."
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        sudo docker compose -f docker-compose.yml -f docker-compose-telegram.yml build
+    else
+        sudo docker compose build
+    fi
+
+    log "Starting Docker Compose stack..."
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        sudo docker compose -f docker-compose.yml -f docker-compose-telegram.yml up -d
+    else
+        sudo docker compose up -d
+    fi
+
+    ok "Docker Compose deployment updated!"
+fi
 
 ok "Update completed successfully."
 HOST_HINT="${HOST:-<your-host>}"

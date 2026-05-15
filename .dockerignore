@@ -35,3 +35,6 @@ README.md
 .code/
 
 .release
+*.txt
+*.md
+*.log

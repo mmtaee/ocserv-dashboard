@@ -1,0 +1,22 @@
+services:
+  telegram_bot:
+    image: "ocserv_users_management:telegram_bot_${LATEST_RELEASE}"
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-Telegram-Bot
+    container_name: telegram_bot
+    volumes:
+      - /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
+    env_file:
+      - ./.env
+    networks:
+      - shared-app
+    depends_on:
+      ocserv:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  shared-app:

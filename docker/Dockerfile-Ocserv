@@ -47,12 +47,13 @@ FROM debian:trixie-slim
 
 ENV PATH="/usr/local/sbin:$PATH"
 
-COPY scripts/docker_ocserv_setup.sh /setup.sh
+# Set working directory
+WORKDIR /usr/local/bin
 
 # Install dependencies
 # Install dependencies, run setup, cleanup
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
         # runtime deps
         sudo ca-certificates procps gnutls-bin iptables \
         openssl less dnsutils jq curl iproute2\
@@ -66,8 +67,10 @@ RUN apt-get update && \
         libprotobuf-c-dev libtalloc-dev libllhttp-dev protobuf-c-compiler \
         gperf ipcalc
 
+COPY --chmod=755 scripts/docker/ocserv_compile.sh /setup.sh
+
 # build ocserv service
-RUN chmod +x /setup.sh && bash /setup.sh
+RUN bash /setup.sh
 
 # 🔥 remove build deps after install (important)
 RUN apt-get purge -y \
@@ -76,15 +79,12 @@ RUN apt-get purge -y \
     \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /setup.sh
 
-# Set working directory
-WORKDIR /usr/local/bin
-
 # Copy API binary and scripts
 COPY --from=builder /app/api /usr/local/bin/api
 COPY --from=builder /webhook/webhook /usr/local/bin/webhook
 
-COPY --chmod=755 scripts/docker_ocserv_entrypoint.sh /entrypoint.sh
-COPY --chmod=755 scripts/docker_ocserv_server.sh /server.sh
+COPY --chmod=755 scripts/docker/ocserv_entrypoint.sh /entrypoint.sh
+COPY --chmod=755 scripts/docker/ocserv_server.sh /server.sh
 
 # Expose ports
 EXPOSE 443/tcp 443/udp 8080 8888

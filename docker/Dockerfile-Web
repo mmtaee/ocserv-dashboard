@@ -24,24 +24,28 @@ RUN NODE_ENV=production \
     yarn run build
 
 # ================================
-# Nginx production stage
+# Nginx production stage (Debian-based)
 # ================================
-FROM nginx:alpine
+FROM nginx:trixie
 
-# Install bash, gettext (for envsubst), and openssl
-RUN apk add --no-cache ca-certificates \
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install required runtime tools
+RUN apt-get update && apt-get install -y \
+    gettext-base \
+    openssl \
+    ca-certificates \
     && update-ca-certificates \
-    && sed -i 's|https://mirrors.tuna.tsinghua.edu.cn/alpine|https://dl-cdn.alpinelinux.org/alpine|g' /etc/apk/repositories \
-    && apk update \
-    && apk add --no-cache bash gettext openssl \
-    && rm -rf /etc/nginx/conf.d/default.conf /usr/share/nginx/html \
-    && mkdir -p /var/www/site /etc/nginx/certs
+    && rm -rf /var/lib/apt/lists/*
 
+# Remove default nginx site
+RUN rm -f /etc/nginx/conf.d/default.conf \
+    && mkdir -p /var/www/site /etc/nginx/certs
 
 # Copy custom Nginx startup script
 COPY configs/nginx_docker.conf  /etc/nginx/conf.d/site.conf
 
-COPY --chmod=755 scripts/docker_nginx_entrypoint.sh /entrypoint.sh
+COPY --chmod=755 scripts/docker/nginx_entrypoint.sh /entrypoint.sh
 
 COPY --from=vue /app/dist /var/www/site
 

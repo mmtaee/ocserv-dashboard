@@ -431,7 +431,18 @@ get_envs(){
     else
         POSTGRES_PASSWORD="$(generate_secret)"
     fi
-    print_message highlight "✅ JWT_SECRET set (length: ${#JWT_SECRET})"
+    print_message highlight "✅ PostgreSQL password set (length: ${#POSTGRES_PASSWORD})"
+    printf "\n"
+
+    # Telegram Bot enabled
+    read -rp "Do you want to enable Telegram Bot? [y/N]: " telegram_bot_enabled
+    telegram_bot_enabled=${telegram_bot_enabled:-N}
+    if [[ "$telegram_bot_enabled" =~ ^[Yy]$ ]]; then
+        TELEGRAM_BOT_ENABLED=true
+    else
+        TELEGRAM_BOT_ENABLED=false
+    fi
+    print_message highlight "✅ Telegram Bot: ${TELEGRAM_BOT_ENABLED}"
     printf "\n"
 }
 
@@ -489,6 +500,7 @@ POSTGRES_PORT="${POSTGRES_PORT}"
 POSTGRES_DB="${POSTGRES_DB}"
 POSTGRES_USER="${POSTGRES_USER}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+TELEGRAM_BOT_ENABLED="${TELEGRAM_BOT_ENABLED}"
 
 EOL
     print_message success "✅ Environment file created successfully in $ENV_FILE."
@@ -576,10 +588,18 @@ setup_docker() {
     sed -i 's/^POSTGRES_HOST=.*/POSTGRES_HOST=ocserv-postgres/' "${ENV_FILE}"
 
     print_message warn "🛠 Docker Compose Shutting Down..."
-    sudo docker compose down
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        sudo docker compose -f docker-compose.yml -f docker-compose-telegram.yml down
+    else
+        sudo docker compose down
+    fi
 
     print_message info "🛠 Starting Docker Compose..."
-    sudo docker compose up --build -d
+    if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+        sudo docker compose -f docker-compose.yml -f docker-compose-telegram.yml up --build -d
+    else
+        sudo docker compose up --build -d
+    fi
     print_message success "✅ Docker Compose deployment completed!"
 }
 
@@ -629,13 +649,14 @@ setup_systemd() {
         echo "PostgreSQL 17 is not installed"
         export POSTGRES_DB POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD
 
-        ./scripts/systemd_postgres.sh
+        ./scripts/systemd/postgres.sh
         ok "✅ PostgreSQL is installed and properly configured."
     fi
 
     # Deploy backend and UI systemd services
-    ./scripts/systemd_backend.sh
-    ./scripts/systemd_ui.sh
+    export TELEGRAM_BOT_ENABLED
+    ./scripts/systemd/backend.sh
+    ./scripts/systemd/ui.sh
 
     # Deploy VPN (ocserv) only if full setup requested
     if [[ "$full_setup" == true ]]; then
@@ -643,7 +664,7 @@ setup_systemd() {
           get_interface
 
           export OCSERV_PORT SSL_CN SSL_ORG SSL_EXPIRE OCSERV_DNS ETH OCSERV_BANNER OCSERV_PRE_LOGIN_BANNER
-          ./scripts/systemd_ocserv.sh
+          ./scripts/systemd/ocserv.sh
     fi
 }
 
@@ -695,11 +716,6 @@ deploy() {
 get_current_version() {
     local VERSION_FILE=".release"
 
-    # Validate version format
-    is_valid_version() {
-        [[ "$1" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]
-    }
-
     # =========================
     # Read current version
     # =========================
@@ -715,16 +731,7 @@ get_current_version() {
     # =========================
     # Get latest from GitHub
     # =========================
-    LATEST_RELEASE=$(
-        curl -fsSL https://api.github.com/repos/mmtaee/ocserv-dashboard/releases/latest \
-        | grep '"tag_name":' \
-        | sed -E 's/.*"([^"]+)".*/\1/'
-    )
-
-    if ! is_valid_version "$LATEST_RELEASE"; then
-        echo "Failed to get valid latest release" >&2
-        return 1
-    fi
+    LATEST_RELEASE=$(get_latest_release_tag)
 
     # =========================
     # Default current if missing
@@ -818,8 +825,19 @@ main() {
     fi
 
     if [ "$CURRENT_RELEASE" != "$LATEST_RELEASE" ]; then
-        echo "ERROR: Dashboard update required"
-        exit 1
+        print_message warn "⚠️ Current version ($CURRENT_RELEASE) is not the latest ($LATEST_RELEASE)!"
+        read -rp "Do you want to update to the latest version? [Y/n]: " update_choice
+        update_choice=${update_choice:-Y}
+        if [[ "$update_choice" =~ ^[Yy]$ ]]; then
+            print_message info "🔄 Updating to $LATEST_RELEASE..."
+            git fetch --tags --quiet
+            git checkout "$LATEST_RELEASE"
+            CURRENT_RELEASE="$LATEST_RELEASE"
+            echo "$CURRENT_RELEASE" > .release
+            print_message success "✅ Updated to $CURRENT_RELEASE"
+        else
+            print_message info "⏭️ Continuing with current version ($CURRENT_RELEASE)"
+        fi
     fi
 
     # Save version into .env file

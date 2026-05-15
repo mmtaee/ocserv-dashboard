@@ -25,7 +25,7 @@ services:
   ocserv:
     build:
       context: .
-      dockerfile: Dockerfile-Ocserv
+      dockerfile: docker/Dockerfile-Ocserv
     image: "ocserv_users_management:ocserv_with_api_${LATEST_RELEASE}"
     container_name: ocserv
     privileged: true
@@ -64,7 +64,7 @@ services:
     image: "ocserv_users_management:log_stream_${LATEST_RELEASE}"
     build:
       context: .
-      dockerfile: Dockerfile-Stream-Log
+      dockerfile: docker/Dockerfile-Stream-Log
     container_name: log_stream
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -83,29 +83,10 @@ services:
     image: "ocserv_users_management:user_expiry_${LATEST_RELEASE}"
     build:
       context: .
-      dockerfile: Dockerfile-User-Expiry
+      dockerfile: docker/Dockerfile-User-Expiry
     container_name: user_expiry
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal # journal of user expiry .txt file
-    env_file:
-      - ./.env
-    networks:
-      - shared-app
-    depends_on:
-      ocserv:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  telegram_bot:
-    image: "ocserv_users_management:telegram_bot_${LATEST_RELEASE}"
-    build:
-      context: .
-      dockerfile: Dockerfile-Telegram-Bot
-    container_name: telegram_bot
-    volumes:
-      - /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
     env_file:
       - ./.env
     networks:
@@ -121,7 +102,7 @@ services:
     image: "ocserv_users_management:web_${LATEST_RELEASE}"
     build:
       context: .
-      dockerfile: Dockerfile-Web
+      dockerfile: docker/Dockerfile-Web
       args:
         - LANGUAGES=${LANGUAGES}
     container_name: web

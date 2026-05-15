@@ -64,8 +64,12 @@ declare -A SERVICES=(
   ["api"]="./services/api"
   ["log_stream"]="./services/log_stream"
   ["user_expiry"]="./services/user_expiry"
-  ["telegram_bot"]="./services/telegram_bot"
 )
+
+# Check if TELEGRAM_BOT_ENABLED is true (from environment)
+if [[ "${TELEGRAM_BOT_ENABLED:-false}" == "true" ]]; then
+  SERVICES["telegram_bot"]="./services/telegram_bot"
+fi
 
 # -----------------------
 # Build Go binaries

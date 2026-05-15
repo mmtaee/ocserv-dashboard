@@ -69,20 +69,11 @@ Easily manage users, groups, and server configurations while keeping your VPN se
   - Persian (**fa**)
 
 ### 9. Telegram Bot
-- Self-service Telegram bot that lets your customers interact with their VPN accounts:
-  - **Link existing account**: customers send their VPN username/password to the bot to associate it with their Telegram chat. One chat can manage many accounts.
-  - **Usage check**: customers see remaining quota, expiry date and online status for each linked account on demand.
-  - **Renewal requests**: customers pick a package and submit a renewal request. The admin is notified in Telegram.
-  - **New account orders**: new customers can order a fresh account by picking a package and a desired username.
-  - **Receipt-based payment workflow**: after admin approval the customer is asked to upload a payment receipt (photo). The admin reviews the receipt in the dashboard, confirms the payment and the bot automatically delivers the credentials (or extends the existing account).
-  - **Low-quota warnings**: customers receive an automatic warning message when remaining quota drops below a configurable threshold (default 200 MB).
-  - **Multi-language**: bot conversations and notifications are available in English and Persian, selectable per chat.
-- Admin-side dashboard pages (under the `Telegram` section in the sidebar):
-  - **Settings**: enable/disable the bot, paste the BotFather token, set admin chat ID, low-quota threshold, default language and Ocserv host.
-  - **Packages**: CRUD for the plans customers can pick (title, days, traffic size, traffic type, price text, active flag).
-  - **Requests**: review pending requests, view uploaded receipts, approve, reject or confirm payment, with optional admin notes.
-  - **Linked accounts**: each Ocserv user detail page lists every Telegram chat linked to that account, with a one-click unlink action.
-- **Custom Telegram copy & bot metadata:** see [docs/telegram-translations.md](docs/telegram-translations.md) for `TELEGRAM_I18N_PATH` (API messages), `TELEGRAM_BOT_I18N_PATH` (directory of bot UI `*.json` locale files), and `TELEGRAM_BOT_METADATA_LOCALES_PATH` (BotFather descriptions).
+- **Customer self-service**:
+  - Link VPN accounts, check usage/expiry, request renewals, order new accounts, and upload payment receipts
+  - Low-quota warnings and multi-language support
+- **Admin dashboard**: Manage settings, packages, requests, and linked accounts
+- **Customization**: Override translations and bot metadata via environment variables (see [docs/telegram_bot.md](docs/telegram_bot.md))
 
 ---
 
@@ -146,21 +137,6 @@ then select an option to continue:
 
 ---
 
-## 🤖 Configuring the Telegram Bot
-
-The dashboard ships with an integrated Telegram bot service (`telegram_bot`) that runs alongside `api`, `log_stream` and `user_expiry`. Configuration lives entirely in the database — there is no need to edit `.env` or restart anything manually after a token change.
-
-1. Create a new bot with [@BotFather](https://t.me/BotFather) and copy the token.
-2. Open the dashboard, navigate to **Telegram → Settings** and paste the token, set your admin chat ID, low-quota threshold, default language and the Ocserv host that customers will see when they receive new credentials.
-3. Toggle **Bot enabled** on and save. Within ~30 seconds the bot service detects the change, connects to Telegram and starts polling for updates.
-4. Define one or more sellable plans in **Telegram → Packages**.
-5. Send `/start` to your bot in Telegram. Customer flows (link account / view usage / order new / renew / upload receipt) are now active.
-6. Incoming requests appear in real time under **Telegram → Requests** where you approve them, review uploaded receipts and confirm payment. The bot delivers the resulting credentials (or renewal confirmation) automatically.
-
-Receipt photos uploaded by customers are stored under `/opt/ocserv_dashboard/uploads/receipts/` (created by the installer with `0750` permissions).
-
----
-
 ## 🔒 Security & Scalability
 
 - Designed with **best practices for security** to ensure a safe and reliable VPN environment.
@@ -181,35 +157,60 @@ Check it out to see what's coming next!
 
 ## 🌍 Contributing to Translations (i18n)
 
-We welcome community contributions to improve and expand internationalization (i18n) support!
+We welcome community contributions to improve and expand internationalization (i18n) support! Here's how you can help:
 
-### 📁 Translation Files Directory
-All web dashboard translation files are located at:
+### 📁 Where are the translation files?
 
-[web/src/locales/](https://github.com/mmtaee/ocserv-dashboard/tree/master/web/src/locales)
+This project has 3 main parts that need translations:
 
-Each language has its own JSON file (e.g., `en.json`, `it.json`, `zh.json`, `ru.json`, etc.).
+1. **Web Dashboard** → [web/src/locales/](https://github.com/mmtaee/ocserv-dashboard/tree/master/web/src/locales)
+   - One JSON file per language (e.g., `en.json`, `fa.json`, `es.json`)
+   
+2. **Telegram Bot** (3 sub-locations):
+   - **Bot conversation UI**: [services/telegram_bot/internal/i18n/locales/](https://github.com/mmtaee/ocserv-dashboard/tree/master/services/telegram_bot/internal/i18n/locales)
+   - **API notification messages**: [services/api/internal/services/telegram/i18n/default.json](https://github.com/mmtaee/ocserv-dashboard/tree/master/services/api/internal/services/telegram/i18n/default.json)
+   - **BotFather metadata**: [services/telegram_bot/internal/bot/metadata_locales.json](https://github.com/mmtaee/ocserv-dashboard/tree/master/services/telegram_bot/internal/bot/metadata_locales.json)
 
-### 🛠️ How to Contribute
+### 🛠️ Step-by-Step Guide to Add/Improve a Translation
 
-1. Go to the [locales](https://github.com/mmtaee/ocserv-dashboard/tree/master/web/src/locales) directory.
-2. Choose an existing language file to improve, or create a new `<lang>.json` file for a new language.
-3. Add all required translation keys with proper JSON structure.
-4. Make sure the JSON syntax is valid.
+#### Case 1: Improve an existing translation
+1. Open the JSON file for that language in any of the locations above
+2. Edit the values (keep the keys exactly as they are!)
+3. Save and submit your changes
 
-### 🔧 Update the Installer (Required for New Languages)
+#### Case 2: Add a completely new language (e.g., Spanish, `es`)
+You need to update **all 4 locations**!
 
-After adding a new `<lang>.json` file, you **must update the `install.sh` file**:
+1. **Web Dashboard**:
+   - Copy `web/src/locales/en.json` → `web/src/locales/es.json`
+   - Translate all values to Spanish
 
-Open 👉 [install.sh](https://github.com/mmtaee/ocserv-dashboard/blob/master/install.sh)
+2. **Telegram Bot Conversation UI**:
+   - Copy `services/telegram_bot/internal/i18n/locales/en.json` → `services/telegram_bot/internal/i18n/locales/es.json`
+   - Translate all values to Spanish
 
-Find the line that defines supported languages, and add your new language in the same format, comma-separated.
+3. **Telegram API Notifications**:
+   - Open `services/api/internal/services/telegram/i18n/default.json`
+   - Add your language code (`es`) to every object with the translated text
 
-Example (adding Spanish):
+4. **Telegram BotFather Metadata**:
+   - Open `services/telegram_bot/internal/bot/metadata_locales.json`
+   - Add your language code (`es`) with translated `commands`, `long_description`, and `short_description`
 
-**LANGUAGES=en:English,it:Italiano,zh-tw:中文(繁體),zh-cn:中文(简体),ru:Русский,fa:فارسی,ar:العربية,es:Español**
+5. **Update supported languages list**:
+   - Open `services/common/models/telegram_languages.go`
+   - Add your new language to the list
+   
+6. **Update the Installer**:
+   - Open [install.sh](https://github.com/mmtaee/ocserv-dashboard/blob/master/install.sh)
+   - Find the `LANGUAGES=` line and add your language in `code:Name` format
+   - Example: `LANGUAGES=en:English,it:Italiano,zh-tw:中文(繁體),zh-cn:中文(简体),ru:Русский,fa:فارسی,ar:العربية,es:Español`
 
-Contributing translations and updating the installer helps ensure the dashboard supports users around the world.
+### ✅ Tips for Good Translations
+- Keep keys unchanged (only translate the values!)
+- Use valid JSON syntax (use a JSON validator if needed)
+- Maintain the same tone and style as existing translations
+- Test your translations if possible!
 
 ---
 
