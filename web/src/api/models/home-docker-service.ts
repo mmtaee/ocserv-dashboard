@@ -46,6 +46,12 @@ export interface HomeDockerService {
      * @type {HomeDockerStats}
      * @memberof HomeDockerService
      */
+    'telegram_bot'?: HomeDockerStats;
+    /**
+     * 
+     * @type {HomeDockerStats}
+     * @memberof HomeDockerService
+     */
     'user_expiry': HomeDockerStats;
     /**
      * 

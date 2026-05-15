@@ -18,6 +18,9 @@
 import type { HomeGetHomeUser } from './home-get-home-user';
 // May contain unused imports in some cases
 // @ts-ignore
+import type { HomeTelegramServiceStatus } from './home-telegram-service-status';
+// May contain unused imports in some cases
+// @ts-ignore
 import type { ModelsDailyTraffic } from './models-daily-traffic';
 // May contain unused imports in some cases
 // @ts-ignore
@@ -30,16 +33,7 @@ import type { RepositoryTopBandwidthUsers } from './repository-top-bandwidth-use
 import type { RepositoryTotalBandwidths } from './repository-total-bandwidths';
 
 /**
- * Snapshot of Telegram integration for the home dashboard (from GET /home).
- */
-export interface HomeTelegramServiceStatus {
-    enabled?: boolean;
-    has_bot_token?: boolean;
-    bot_username?: string;
-}
-
-/**
- *
+ * 
  * @export
  * @interface HomeGetHomeResponse
  */
@@ -56,6 +50,12 @@ export interface HomeGetHomeResponse {
      * @memberof HomeGetHomeResponse
      */
     'statistics'?: Array<ModelsDailyTraffic>;
+    /**
+     * TelegramService is a lightweight snapshot for the admin dashboard (no outbound Telegram calls).
+     * @type {HomeTelegramServiceStatus}
+     * @memberof HomeGetHomeResponse
+     */
+    'telegram_service'?: HomeTelegramServiceStatus;
     /**
      * 
      * @type {RepositoryTopBandwidthUsers}
@@ -74,9 +74,5 @@ export interface HomeGetHomeResponse {
      * @memberof HomeGetHomeResponse
      */
     'users'?: HomeGetHomeUser;
-    /**
-     * Telegram bot/settings snapshot (no live Telegram API probe).
-     */
-    'telegram_service'?: HomeTelegramServiceStatus;
 }
 

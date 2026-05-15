@@ -78,7 +78,7 @@ export interface ModelsOcservUser {
      */
     'owner': string;
     /**
-     * 
+     * Length matches migration 007 (ocserv_users.password column); do not widen without a new migration.
      * @type {string}
      * @memberof ModelsOcservUser
      */

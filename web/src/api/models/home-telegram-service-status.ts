@@ -17,20 +17,26 @@
 /**
  * 
  * @export
- * @interface SystemGetSystemInitResponse
+ * @interface HomeTelegramServiceStatus
  */
-export interface SystemGetSystemInitResponse {
+export interface HomeTelegramServiceStatus {
     /**
      * 
      * @type {string}
-     * @memberof SystemGetSystemInitResponse
+     * @memberof HomeTelegramServiceStatus
      */
-    'google_captcha_site_key'?: string;
+    'bot_username'?: string;
     /**
      * 
      * @type {boolean}
-     * @memberof SystemGetSystemInitResponse
+     * @memberof HomeTelegramServiceStatus
      */
-    'telegram_bot_enabled'?: boolean;
+    'enabled'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeTelegramServiceStatus
+     */
+    'has_bot_token'?: boolean;
 }
 

@@ -37,6 +37,7 @@ models/home-ocserv-status-response.ts
 models/home-ram.ts
 models/home-server-status-response.ts
 models/home-swap.ts
+models/home-telegram-service-status.ts
 models/index.ts
 models/middlewares-permission-denied.ts
 models/middlewares-too-many-requests.ts

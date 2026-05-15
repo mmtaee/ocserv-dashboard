@@ -16,6 +16,7 @@ export * from './home-ocserv-status-response';
 export * from './home-ram';
 export * from './home-server-status-response';
 export * from './home-swap';
+export * from './home-telegram-service-status';
 export * from './middlewares-permission-denied';
 export * from './middlewares-too-many-requests';
 export * from './middlewares-unauthorized';
