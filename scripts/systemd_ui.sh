@@ -41,34 +41,55 @@ log "Starting frontend deployment..."
 #   Installs Yarn globally.
 # ==========================================
 ensure_node() {
-  log "Checking Node.js..."
-  REQUIRED_NODE_MAJOR="20"
+    log "Checking Node.js..."
 
-  if command -v node >/dev/null 2>&1; then
-      CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
-  else
-      CURRENT_NODE_VERSION=""
-  fi
+    REQUIRED_NODE_MAJOR="22"
 
-  CURRENT_NODE_MAJOR="${CURRENT_NODE_VERSION%%.*}"
+    if command -v node >/dev/null 2>&1; then
+        CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
+    else
+        CURRENT_NODE_VERSION=""
+    fi
 
-  if [[ -z "$CURRENT_NODE_VERSION" || "$CURRENT_NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]]; then
-      warn "Node.js missing or outdated (current: ${CURRENT_NODE_VERSION:-none}). Installing Node.js ${REQUIRED_NODE_MAJOR}.x..."
-      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-      sudo apt-get install -y nodejs
-      CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
-      ok "Node.js installed: v$CURRENT_NODE_VERSION"
-  else
-      ok "Node.js is already installed: v$CURRENT_NODE_VERSION"
-  fi
+    CURRENT_NODE_MAJOR="${CURRENT_NODE_VERSION%%.*}"
 
-  if ! command -v npm >/dev/null 2>&1; then
-      warn "npm not found. Installing..."
-      sudo apt-get install -y npm
-  fi
+    if [[ -z "$CURRENT_NODE_VERSION" || "$CURRENT_NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]]; then
+        warn "Node.js missing or outdated"
 
-  sudo npm install -g yarn
-  ok "Yarn installed"
+        # only purge if apt package actually exists
+        if dpkg -l | grep -q "^ii  nodejs"; then
+            sudo apt-get purge -y nodejs
+        fi
+
+        sudo rm -f /etc/apt/sources.list.d/nodesource.list
+        sudo rm -f /usr/share/keyrings/nodesource.gpg
+
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+            | sudo gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+
+        echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${REQUIRED_NODE_MAJOR}.x nodistro main" \
+            | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
+
+        sudo apt-get update
+        sudo apt-get install -y nodejs
+
+        CURRENT_NODE_VERSION=$(node -v | sed 's/^v//')
+        ok "Node.js installed: v$CURRENT_NODE_VERSION"
+    else
+        ok "Node.js is already installed: v$CURRENT_NODE_VERSION"
+    fi
+
+    if ! command -v npm >/dev/null 2>&1; then
+        warn "npm not found. Installing..."
+        sudo apt-get install -y npm
+    fi
+
+    if ! command -v yarn >/dev/null 2>&1; then
+        sudo npm install -g yarn
+        ok "Yarn installed"
+    else
+        ok "Yarn already installed"
+    fi
 }
 
 ensure_node
