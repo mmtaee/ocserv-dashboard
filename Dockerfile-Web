@@ -1,7 +1,7 @@
 # ================================
 # Vue.js build stage
 # ================================
-FROM node:20 AS vue
+FROM node:22 AS vue
 
 # Build-time arguments
 ARG API_URL
