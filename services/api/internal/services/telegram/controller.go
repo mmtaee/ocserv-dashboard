@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mmtaee/ocserv-dashboard/common/pkg/logger"
 	"io"
 	"net/http"
 	"net/url"
@@ -18,30 +19,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	tg18n "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram/i18n"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/database"
-	tg18n "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram/i18n"
 )
-
-const (
-	telegramAPIBase     = "https://api.telegram.org"
-	telegramHTTPTimeout = 8 * time.Second
-)
-
-func receiptStorageRoot() string {
-	if d := strings.TrimSpace(os.Getenv("TELEGRAM_RECEIPTS_DIR")); d != "" {
-		return filepath.Clean(d)
-	}
-	return "/opt/ocserv_dashboard/uploads/receipts"
-}
-
-func defaultNotifyLang(settings *models.TelegramSettings) string {
-	if settings != nil && strings.TrimSpace(settings.DefaultLanguage) != "" {
-		return settings.DefaultLanguage
-	}
-	return models.TelegramLanguageEN
-}
 
 type Controller struct {
 	request        request.CustomRequestInterface
@@ -49,7 +31,18 @@ type Controller struct {
 	ocservUserRepo repository.OcservUserRepositoryInterface
 }
 
+const (
+	telegramAPIBase     = "https://api.telegram.org"
+	telegramHTTPTimeout = 8 * time.Second
+)
+
 func New() *Controller {
+	tg18n.Init()
+
+	if err := ensureReceiptDir(); err != nil {
+		logger.Warn("telegram receipts directory error: %v", err)
+	}
+
 	return &Controller{
 		request:        request.NewCustomRequest(),
 		repo:           repository.NewTelegramRepository(),
@@ -908,7 +901,21 @@ func linkTelegramAccount(ctx context.Context, chatID int64, username, language s
 		FirstOrCreate(account).Error
 }
 
-// EnsureReceiptDir is invoked at startup to make sure the receipt storage directory exists.
-func EnsureReceiptDir() error {
+// ensureReceiptDir is invoked at startup to make sure the receipt storage directory exists.
+func ensureReceiptDir() error {
 	return os.MkdirAll(filepath.Clean(receiptStorageRoot()), 0o750)
+}
+
+func receiptStorageRoot() string {
+	if d := strings.TrimSpace(os.Getenv("TELEGRAM_RECEIPTS_DIR")); d != "" {
+		return filepath.Clean(d)
+	}
+	return "/opt/ocserv_dashboard/uploads/receipts"
+}
+
+func defaultNotifyLang(settings *models.TelegramSettings) string {
+	if settings != nil && strings.TrimSpace(settings.DefaultLanguage) != "" {
+		return settings.DefaultLanguage
+	}
+	return models.TelegramLanguageEN
 }

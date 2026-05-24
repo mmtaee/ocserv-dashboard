@@ -13,7 +13,6 @@ import (
 	systemdRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/systemd"
 	telegramRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/config"
-	"github.com/mmtaee/ocserv-dashboard/common/pkg/logger"
 	"os"
 )
 
@@ -38,12 +37,8 @@ func Register(e *echo.Echo) {
 	// systemd
 	systemdRoutes.Routes(group)
 
+	// telegram
 	if os.Getenv("TELEGRAM_BOT_ENABLED") == "true" || config.Get().Debug {
-		// telegram
-		telegramRoutes.InitI18n()
-		if err := telegramRoutes.EnsureReceiptDir(); err != nil {
-			logger.Warn("telegram receipts directory: %v", err)
-		}
 		telegramRoutes.Routes(group)
 	}
 }
