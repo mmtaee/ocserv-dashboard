@@ -144,9 +144,12 @@ check_docker() {
 get_ip() {
     print_message info "🔍 Detecting public IP ..."
     local detected_ip
-    detected_ip=$(curl -s --max-time 5 https://api.ipify.org || \
-                  curl -s --max-time 5 https://ifconfig.me || \
-                  curl -s --max-time 5 https://checkip.amazonaws.com)
+    detected_ip=$(
+        curl -s --max-time 5 https://api.ipify.org || \
+        curl -s --max-time 5 https://ifconfig.me || \
+        curl -s --max-time 5 https://checkip.amazonaws.com || \
+        "127.0.0.1"
+    )
 
     print_message info "Detected IP: $detected_ip"
 
@@ -405,27 +408,27 @@ get_site_lang() {
 set_environment() {
     print_message info "Creating environment file at $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOL
-HOST=${HOST}
-SECRET_KEY=${SECRET_KEY}
-JWT_SECRET=${JWT_SECRET}
-LANGUAGES=${LANGUAGES}
-ALLOW_ORIGINS=https://${HOST}:3443
-SSL_CN=${SSL_CN}
-SSL_ORG=${SSL_ORG}
-SSL_C=${SSL_C}
-SSL_ST=${SSL_ST}
-SSL_L=${SSL_L}
-SSL_EXPIRE=${SSL_EXPIRE}
-OC_NET=${OC_NET}
-OCSERV_PORT=${OCSERV_PORT}
-OCSERV_DNS=${OCSERV_DNS}
-OCSERV_BANNER=${OCSERV_BANNER}
-OCSERV_PRE_LOGIN_BANNER=${OCSERV_PRE_LOGIN_BANNER}
-POSTGRES_HOST=${POSTGRES_HOST}
-POSTGRES_PORT=${POSTGRES_PORT}
-POSTGRES_DB=${POSTGRES_DB}
-POSTGRES_USER=${POSTGRES_USER}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+HOST="${HOST}"
+SECRET_KEY="${SECRET_KEY}"
+JWT_SECRET="${JWT_SECRET}"
+LANGUAGES="${LANGUAGES}"
+ALLOW_ORIGINS="https://${HOST}:3443"
+SSL_CN="${SSL_CN}"
+SSL_ORG="${SSL_ORG}"
+SSL_C="${SSL_C}"
+SSL_ST="${SSL_ST}"
+SSL_L="${SSL_L}"
+SSL_EXPIRE="${SSL_EXPIRE}"
+OC_NET="${OC_NET}"
+OCSERV_PORT="${OCSERV_PORT}"
+OCSERV_DNS="${OCSERV_DNS}"
+OCSERV_BANNER="${OCSERV_BANNER}"
+OCSERV_PRE_LOGIN_BANNER="${OCSERV_PRE_LOGIN_BANNER}"
+POSTGRES_HOST="${POSTGRES_HOST}"
+POSTGRES_PORT="${POSTGRES_PORT}"
+POSTGRES_DB="${POSTGRES_DB}"
+POSTGRES_USER="${POSTGRES_USER}"
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
 TELEGRAM_BOT_ENABLED=${TELEGRAM_BOT_ENABLED}
 
 EOL
