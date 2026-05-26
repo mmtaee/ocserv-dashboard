@@ -3,9 +3,16 @@
 # -----------------------------
 FROM golang:1.25 AS builder
 
+ARG GO_PROXY
+
 ENV CGO_ENABLED=1
 ENV GOOS=linux
 ENV GOARCH=amd64
+
+RUN if [ -n "${GO_PROXY}" ]; then \
+        go env -w GOPROXY="${GO_PROXY}" && \
+        go env -w GOSUMDB=off; \
+    fi
 
 RUN mkdir /common
 COPY services/common /common
@@ -23,6 +30,17 @@ RUN go build -ldflags="-s -w" -o telegram_bot main.go
 # Final Stage
 # -----------------------------
 FROM debian:trixie-slim
+
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+        debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+        debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+        echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+        echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+        echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list \
+    ; fi
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

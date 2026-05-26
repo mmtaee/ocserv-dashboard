@@ -4,12 +4,18 @@
 FROM golang:1.25 AS builder
 
 ARG OCSERV_VERSION
+ARG GO_PROXY
 
 ENV OCSERV_VERSION="${OCSERV_VERSION}"
 ENV CGO_ENABLED=1
 ENV GOOS=linux
 ENV GOARCH=amd64
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN if [ -n "${GO_PROXY}" ]; then \
+        go env -w GOPROXY="${GO_PROXY}" && \
+        go env -w GOSUMDB=off; \
+    fi
 
 RUN mkdir /common
 
@@ -45,7 +51,18 @@ RUN go build -ldflags="-s -w" -o webhook main.go
 # -----------------------------
 FROM debian:trixie-slim
 
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
 ENV PATH="/usr/local/sbin:$PATH"
+
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+        debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+        debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+        echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+        echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+        echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list \
+    ; fi
 
 # Set working directory
 WORKDIR /usr/local/bin

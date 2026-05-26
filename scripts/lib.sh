@@ -110,7 +110,7 @@ is_valid_version() {
 get_latest_release_tag() {
     local latest_tag
     latest_tag=$(
-        curl -fsSL https://api.github.com/repos/mmtaee/ocserv-dashboard/releases/latest \
+        curl --max-time 5 -fsSL https://api.github.com/repos/mmtaee/ocserv-dashboard/releases/latest \
         | grep '"tag_name":' \
         | sed -E 's/.*"([^"]+)".*/\1/'
     )

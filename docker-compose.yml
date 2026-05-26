@@ -26,6 +26,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile-Ocserv
+      args:
+        - OCSERV_VERSION
+        - GO_PROXY
+        - DEBIAN_MIRROR
+        - DEBIAN_SECURITY_MIRROR
     image: "ocserv_users_management:ocserv_with_api_${LATEST_RELEASE}"
     container_name: ocserv
     privileged: true
@@ -65,6 +70,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile-Stream-Log
+      args:
+        - GO_PROXY
+        - DEBIAN_MIRROR
+        - DEBIAN_SECURITY_MIRROR
     container_name: log_stream
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -84,6 +93,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile-User-Expiry
+      args:
+        - GO_PROXY
+        - DEBIAN_MIRROR
+        - DEBIAN_SECURITY_MIRROR
     container_name: user_expiry
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal # journal of user expiry .txt file
@@ -104,7 +117,12 @@ services:
       context: .
       dockerfile: docker/Dockerfile-Web
       args:
-        - LANGUAGES=${LANGUAGES}
+        - API_URL
+        - LOG_SOCKET_URL
+        - LANGUAGES
+        - NPM_REGISTRY
+        - DEBIAN_MIRROR
+        - DEBIAN_SECURITY_MIRROR
     container_name: web
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/nginx/certs:/etc/nginx/certs

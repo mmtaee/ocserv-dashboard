@@ -7,8 +7,15 @@ FROM node:24 AS vue
 ARG API_URL
 ARG LOG_SOCKET_URL
 ARG LANGUAGES
+ARG NPM_REGISTRY
 
 WORKDIR /app
+
+# Set npm/yarn registry if provided
+RUN if [ -n "${NPM_REGISTRY}" ]; then \
+        npm config set registry "${NPM_REGISTRY}" && \
+        yarn config set registry "${NPM_REGISTRY}"; \
+    fi
 
 # Copy package.json first to leverage Docker cache
 COPY web/package*.json web/yarn.lock ./
@@ -28,7 +35,18 @@ RUN NODE_ENV=production \
 # ================================
 FROM nginx:trixie
 
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+        debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+        debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+        echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+        echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+        echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list \
+    ; fi
 
 # Install required runtime tools
 RUN apt-get update && apt-get install -y \

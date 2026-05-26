@@ -147,9 +147,8 @@ get_ip() {
     detected_ip=$(
         curl -s --max-time 5 https://api.ipify.org || \
         curl -s --max-time 5 https://ifconfig.me || \
-        curl -s --max-time 5 https://checkip.amazonaws.com || \
-        "127.0.0.1"
-    )
+        curl -s --max-time 5 https://checkip.amazonaws.com
+    ) || true
 
     print_message info "Detected IP: $detected_ip"
 
@@ -173,16 +172,6 @@ get_ip() {
 #   - Characters: A–Z a–z 0–9 and special symbols
 # ===============================
 generate_secret() {
-#    local len=64
-#    # Check if openssl is installed
-#    if ! command -v openssl >/dev/null 2>&1; then
-#        print_message info "🔧 openssl not found, installing..."
-#        sudo apt-get update
-#        sudo apt-get install -y openssl
-#    fi
-#
-#    openssl rand -base64 96 | tr -dc -- '-A-Za-z0-9!@#%^_=+.' | head -c "$len"
-
     local len=64
 
     if ! command -v openssl >/dev/null 2>&1; then
@@ -401,6 +390,44 @@ get_site_lang() {
 }
 
 # ===============================
+# Function: get_mirrors
+# Description:
+#   Prompt user to configure mirrors (for development only)
+# ===============================
+get_mirrors() {
+    print_message info "🔧 Configure development mirrors (leave blank to skip, production uses defaults):"
+    printf "\n"
+
+    # Go proxy mirror
+    read -rp "Go proxy mirror: " go_proxy
+    [[ -n "$go_proxy" ]] && GO_PROXY="$go_proxy"
+
+    # NPM registry mirror
+    read -rp "NPM registry mirror: " npm_registry
+    [[ -n "$npm_registry" ]] && NPM_REGISTRY="$npm_registry"
+
+    # Debian mirror
+    read -rp "Debian mirror: " debian_mirror
+    [[ -n "$debian_mirror" ]] && DEBIAN_MIRROR="$debian_mirror"
+
+    # Debian security mirror
+    read -rp "Debian security mirror: " debian_security_mirror
+    [[ -n "$debian_security_mirror" ]] && DEBIAN_SECURITY_MIRROR="$debian_security_mirror"
+
+    printf "\n"
+    if [[ -n "$GO_PROXY" || -n "$NPM_REGISTRY" || -n "$DEBIAN_MIRROR" || -n "$DEBIAN_SECURITY_MIRROR" ]]; then
+        print_message highlight "✅ Mirrors configured:"
+        [[ -n "$GO_PROXY" ]] && print_message highlight "   GO_PROXY: ${GO_PROXY}"
+        [[ -n "$NPM_REGISTRY" ]] && print_message highlight "   NPM_REGISTRY: ${NPM_REGISTRY}"
+        [[ -n "$DEBIAN_MIRROR" ]] && print_message highlight "   DEBIAN_MIRROR: ${DEBIAN_MIRROR}"
+        [[ -n "$DEBIAN_SECURITY_MIRROR" ]] && print_message highlight "   DEBIAN_SECURITY_MIRROR: ${DEBIAN_SECURITY_MIRROR}"
+    else
+        print_message info "No mirrors configured - using defaults"
+    fi
+    printf "\n"
+}
+
+# ===============================
 # Function: set_environment
 # Description:
 #   Create .env file containing all environment variables
@@ -430,8 +457,22 @@ POSTGRES_DB="${POSTGRES_DB}"
 POSTGRES_USER="${POSTGRES_USER}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
 TELEGRAM_BOT_ENABLED=${TELEGRAM_BOT_ENABLED}
-
 EOL
+
+    # Add mirror variables if they are set
+    if [[ -n "$GO_PROXY" ]]; then
+        echo "GO_PROXY=${GO_PROXY}" >> "$ENV_FILE"
+    fi
+    if [[ -n "$NPM_REGISTRY" ]]; then
+        echo "NPM_REGISTRY=${NPM_REGISTRY}" >> "$ENV_FILE"
+    fi
+    if [[ -n "$DEBIAN_MIRROR" ]]; then
+        echo "DEBIAN_MIRROR=${DEBIAN_MIRROR}" >> "$ENV_FILE"
+    fi
+    if [[ -n "$DEBIAN_SECURITY_MIRROR" ]]; then
+        echo "DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}" >> "$ENV_FILE"
+    fi
+
     print_message success "✅ Environment file created successfully in $ENV_FILE."
 }
 
@@ -755,6 +796,14 @@ main() {
         get_ip
         get_envs
         get_site_lang
+        read -rp "Do you want to configure development mirrors? [y/N]: " configure_mirrors
+        configure_mirrors=${configure_mirrors:-N}
+        if [[ "$configure_mirrors" =~ ^[Yy]$ ]]; then
+            get_mirrors
+        else
+            print_message info "Skipping mirror configuration - using defaults"
+            printf "\n"
+        fi
         set_environment
     fi
 

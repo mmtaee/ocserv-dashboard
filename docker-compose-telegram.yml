@@ -4,6 +4,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile-Telegram-Bot
+      args:
+        - GO_PROXY
+        - DEBIAN_MIRROR
+        - DEBIAN_SECURITY_MIRROR
     container_name: telegram_bot
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
