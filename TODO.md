@@ -40,14 +40,11 @@
 ## 📊 Dashboard & UX
 
 - [ ] Implement bulk operations for Ocserv users (checkbox selection) (#113)
-<<<<<<< Updated upstream
-- [ ] Display the current VPN version in the dashboard (#140)
+- [x] Display the current VPN version in the dashboard (#140)
 - [ ] Add automatic update checks with GitHub release notifications, including a one-click update option (#140)
-=======
-- [ ] Session-level online status in UI (#153)
-- [ ] Session-level disconnect (via occtl session ID) in occtl UI route (#153)
-- [ ] Multi-session user disconnecting management in UI (#153)
->>>>>>> Stashed changes
+- [x] Session-level online status in UI (#153)
+- [x] Session-level disconnect (via occtl session ID) in occtl UI route (#153)
+- [x] Multi-session user disconnecting management in UI (#153)
 
 ---
 
