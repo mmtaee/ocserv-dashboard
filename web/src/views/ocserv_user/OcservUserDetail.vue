@@ -87,17 +87,28 @@ const createCertificate = () => {
 };
 
 const downloadCertificate = () => {
-    api.ocservUsersUidCertificateGet({
-        ...getAuthorization(),
-        uid: props.uid
-    }).then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
+    api.ocservUsersUidCertificateGet(
+        {
+            ...getAuthorization(),
+            uid: props.uid
+        },
+        {
+            responseType: 'blob'
+        }
+    ).then((res) => {
+        const blob = res.data instanceof Blob
+            ? res.data
+            : new Blob([res.data], { type: 'application/x-pkcs12' });
+
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
+
         link.href = url;
         link.setAttribute('download', `${result.value.username}.p12`);
         document.body.appendChild(link);
         link.click();
         link.remove();
+
         window.URL.revokeObjectURL(url);
     });
 };

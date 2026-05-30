@@ -170,17 +170,28 @@ const activateUser = (expireAt: string | null) => {
 };
 
 const downloadCertificate = (uid: string, username: string) => {
-    api.ocservUsersUidCertificateGet({
-        ...getAuthorization(),
-        uid: uid
-    }).then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
+    api.ocservUsersUidCertificateGet(
+        {
+            ...getAuthorization(),
+            uid: uid
+        },
+        {
+            responseType: 'blob'
+        }
+    ).then((res) => {
+        const blob = res.data instanceof Blob
+            ? res.data
+            : new Blob([res.data], { type: 'application/x-pkcs12' });
+
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
+
         link.href = url;
         link.setAttribute('download', `${username}.p12`);
         document.body.appendChild(link);
         link.click();
         link.remove();
+
         window.URL.revokeObjectURL(url);
     });
 };
