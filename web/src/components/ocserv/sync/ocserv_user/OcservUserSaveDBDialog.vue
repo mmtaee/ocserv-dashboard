@@ -6,7 +6,7 @@ import {
     type OcservUserSyncOcpasswdRequest,
     OcservUserSyncOcpasswdRequestTrafficTypeEnum
 } from '@/api';
-import { formatDate } from '@/utils/convertors';
+import { bytesToTrafficSizeValue, formatDate, trafficSizeToBytes } from '@/utils/convertors';
 import { requiredRule } from '@/utils/rules';
 
 const props = defineProps({
@@ -21,6 +21,29 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['saveToDB', 'close']);
+
+type TrafficSizeUnit = 'GB' | 'MB';
+
+const trafficSizeUnits: TrafficSizeUnit[] = ['GB', 'MB'];
+const trafficSizeUnit = ref<TrafficSizeUnit>('GB');
+const trafficSizeValue = ref<number | null>(0);
+
+const setTrafficSize = (val: unknown) => {
+    const value = val === null || val === '' ? null : Number(val);
+
+    trafficSizeValue.value = value;
+    config.value.traffic_size = trafficSizeToBytes(value, trafficSizeUnit.value);
+};
+
+const setTrafficSizeUnit = (unit: TrafficSizeUnit) => {
+    trafficSizeUnit.value = unit;
+    trafficSizeValue.value = bytesToTrafficSizeValue(config.value.traffic_size, unit);
+};
+
+const resetTrafficSize = () => {
+    trafficSizeValue.value = 0;
+    config.value.traffic_size = 0;
+};
 
 const { t } = useI18n();
 const valid = ref(true);
@@ -88,6 +111,9 @@ const save = () => {
         traffic_type: OcservUserSyncOcpasswdRequestTrafficTypeEnum.FREE,
         users: []
     };
+    
+    trafficSizeUnit.value = 'GB';
+    trafficSizeValue.value = 0;
 };
 </script>
 
@@ -117,32 +143,41 @@ const save = () => {
                                     variant="outlined"
                                     @update:modelValue="
                                         (v: string | null | undefined) =>
-                                            v == ModelsOcservUserTrafficTypeEnum.FREE ? (config.traffic_size = 0) : false
+                                            v == ModelsOcservUserTrafficTypeEnum.FREE ?  resetTrafficSize() : false
                                     "
                                 />
                             </v-col>
                             <v-col cols="12">
                                 <v-label class="font-weight-bold mb-1 text-capitalize">{{ t('TRAFFIC_SIZE') }}</v-label>
-                                <v-text-field
-                                    v-model.number="config.traffic_size"
-                                    :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-                                    :rules="
-                                        config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE
-                                            ? []
-                                            : [rules.required]
-                                    "
-                                    color="primary"
-                                    hide-details
-                                    suffix="GB"
-                                    type="number"
-                                    variant="outlined"
-                                    @update:modelValue="
-                                        (val: any) => {
-                                            config.traffic_size = Boolean(val) ? (Number(val) as any) : null;
-                                        }
-                                    "
-                                />
-                            </v-col>
+                                <v-row>
+				    <v-col cols="8">
+					<v-text-field
+					    v-model.number="trafficSizeValue"
+					    :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+            				    :rules="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]"
+            				    color="primary"
+            				    hide-details
+            				    min="0"
+            				    step="0.01"
+            				    type="number"
+            				    variant="outlined"
+            				    @update:modelValue="setTrafficSize"
+        				/>
+				    </v-col>
+
+    				    <v-col cols="4">
+					<v-select
+					    v-model="trafficSizeUnit"
+					    :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+					    :items="trafficSizeUnits"
+					    color="primary"
+					    hide-details
+					    variant="outlined"
+					    @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
+					/>
+				    </v-col>
+				</v-row>
+			    </v-col>
                             <v-col cols="12">
                                 <v-menu
                                     v-model="showDateMenu"

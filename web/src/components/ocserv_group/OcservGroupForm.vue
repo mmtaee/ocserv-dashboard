@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import { bestDataRateUnit, bpsToDataRateValue, dataRateToBps } from '@/utils/convertors';
 import { type ModelsOcservGroup, type ModelsOcservGroupConfig, type OcservGroupCreateOcservGroupData } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { requiredRule } from '@/utils/rules';
@@ -36,6 +37,56 @@ const rules = {
 const createData = reactive<OcservGroupCreateOcservGroupData>({ config: {}, name: '' });
 
 const fieldItems = getFormFields();
+type DataRateUnit = 'Bps' | 'Kbps' | 'KBps' | 'Mbps' | 'MBps';
+type RateLimitKey = 'rx-data-per-sec' | 'tx-data-per-sec';
+
+const rateLimitKeys: RateLimitKey[] = ['rx-data-per-sec', 'tx-data-per-sec'];
+const dataRateUnits: DataRateUnit[] = ['Bps', 'Kbps', 'KBps', 'Mbps', 'MBps'];
+
+const rateLimitValues = reactive<Record<RateLimitKey, number | null>>({
+    'rx-data-per-sec': 0,
+    'tx-data-per-sec': 0
+});
+
+const rateLimitUnits = reactive<Record<RateLimitKey, DataRateUnit>>({
+    'rx-data-per-sec': 'Bps',
+    'tx-data-per-sec': 'Bps'
+});
+
+const isRateLimitField = (key: string): key is RateLimitKey => {
+    return rateLimitKeys.includes(key as RateLimitKey);
+};
+
+const numberFields = computed(() => {
+    return fieldItems.fields.filter((field) => field.type === 'number' && !isRateLimitField(field.key));
+});
+
+const rateLimitFields = computed(() => {
+    return fieldItems.fields.filter((field) => isRateLimitField(field.key));
+});
+
+const setRateLimit = (key: RateLimitKey, val: unknown) => {
+    const value = val === null || val === '' ? null : Number(val);
+
+    rateLimitValues[key] = value;
+    createData.config[key] = dataRateToBps(value, rateLimitUnits[key]) as any;
+};
+
+const setRateLimitUnit = (key: RateLimitKey, unit: DataRateUnit) => {
+    rateLimitUnits[key] = unit;
+    rateLimitValues[key] = bpsToDataRateValue(Number(createData.config[key] || 0), unit);
+};
+
+const syncRateLimitInputs = () => {
+    rateLimitKeys.forEach((key) => {
+        const bps = Number(createData.config[key] || 0);
+        const unit = bestDataRateUnit(bps);
+
+        rateLimitUnits[key] = unit;
+        rateLimitValues[key] = bpsToDataRateValue(bps, unit);
+    });
+};
+
 const chipInputs = reactive<Record<string, string>>({
     dns: '',
     route: '',
@@ -84,6 +135,7 @@ watch(
     () => {
         if (props.initData !== undefined) {
             Object.assign(createData, props.initData);
+            syncRateLimitInputs();
             isUpdate.value = true;
         }
     },
@@ -128,28 +180,57 @@ watch(
             <v-col cols="12" md="11">
                 <h3 class="text-capitalize">{{ t('PERFORMANCE_AND_SESSION_SETTINGS') }}</h3>
             </v-col>
-            <template v-for="field in fieldItems.fields.filter((f) => f.type === 'number')" :key="field.key">
-                <v-col cols="12" lg="4" md="6">
-                    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
-                    <v-text-field
-                        v-model.number="createData.config[field.key as keyof ModelsOcservGroupConfig]"
-                        :hint="field.hint"
-                        color="primary"
-                        min="0"
-                        type="number"
-                        variant="outlined"
-                        @update:modelValue="
-                            (val: any) => {
-                                createData.config[field.key as keyof ModelsOcservGroupConfig] = Boolean(val)
-                                    ? (Number(val) as any)
-                                    : null;
-                            }
-                        "
-                    />
-                </v-col>
-            </template>
+            <template v-for="field in numberFields" :key="field.key">
+    		<v-col cols="12" lg="4" md="6">
+        	    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
+        		<v-text-field
+            		    v-model.number="createData.config[field.key as keyof ModelsOcservGroupConfig]"
+            		    :hint="field.hint"
+            		    color="primary"
+            		    min="0"
+            		    type="number"
+            		    variant="outlined"
+            		    @update:modelValue="
+                		(val: any) => {
+                    		    createData.config[field.key as keyof ModelsOcservGroupConfig] = Boolean(val)
+                        	    ? (Number(val) as any)
+                        	    : null;
+                		}
+            		    "
+        		/>
+    		</v-col>
+	    </template>
+	    <template v-for="field in rateLimitFields" :key="field.key">
+    		<v-col cols="12" lg="4" md="6">
+        	    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
 
-            <v-col cols="12" md="11">
+        	    <v-row>
+            		<v-col cols="8">
+                	    <v-text-field
+                    		v-model.number="rateLimitValues[field.key as RateLimitKey]"
+                    		:hint="field.hint"
+                    		color="primary"
+                    		min="0"
+                    		step="0.01"
+                    		type="number"
+                    		variant="outlined"
+                    		@update:modelValue="(val: any) => setRateLimit(field.key as RateLimitKey, val)"
+                	    />
+            		</v-col>
+
+            		<v-col cols="4">
+                    	    <v-select
+                    		v-model="rateLimitUnits[field.key as RateLimitKey]"
+                    		:items="dataRateUnits"
+                    		color="primary"
+                    		variant="outlined"
+                    		@update:modelValue="(unit: DataRateUnit) => setRateLimitUnit(field.key as RateLimitKey, unit)"
+                	    />
+            		</v-col>
+        	    </v-row>
+    		</v-col>
+	    </template>
+	    <v-col cols="12" md="11">
                 <h3 class="text-capitalize">{{ t('ACCESS_AND_FEATURE_CONTROLS') }}</h3>
             </v-col>
             <template v-for="field in fieldItems.fields.filter((f) => f.type === 'switch')" :key="field.key">

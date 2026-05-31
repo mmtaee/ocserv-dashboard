@@ -17,6 +17,70 @@ const bytesToGB = (bytes: number, fixture: number = 6): string => {
     return numberToFixer(result, fixture);
 };
 
+type DataRateUnit = 'Bps' | 'Kbps' | 'KBps' | 'Mbps' | 'MBps';
+
+const dataRateMultipliers: Record<DataRateUnit, number> = {
+    Bps: 1,
+    Kbps: 1000 / 8,
+    KBps: 1000,
+    Mbps: 1000 ** 2 / 8,
+    MBps: 1000 ** 2
+};
+
+const dataRateToBps = (value: number | null | undefined, unit: DataRateUnit): number => {
+    if (!value || !Number.isFinite(Number(value))) return 0;
+
+    return Math.round(Number(value) * dataRateMultipliers[unit]);
+};
+
+const bpsToDataRateValue = (bps: number | null | undefined, unit: DataRateUnit): number => {
+    if (!bps) return 0;
+
+    return Number((bps / dataRateMultipliers[unit]).toFixed(4));
+};
+
+const bestDataRateUnit = (bps: number | null | undefined): DataRateUnit => {
+    if (!bps) return 'Bps';
+
+    if (bps >= dataRateMultipliers.Mbps) return 'Mbps';
+    if (bps >= dataRateMultipliers.Kbps) return 'Kbps';
+
+    return 'Bps';
+};
+
+const bpsToDataRate = (bps: number | null | undefined, fixture: number = 4): string => {
+    if (!bps) return '0 Bps';
+
+    const unit = bestDataRateUnit(bps);
+    const value = bps / dataRateMultipliers[unit];
+
+    return `${numberToFixer(value, fixture)} ${unit}`;
+};
+
+const bytesToTrafficSize = (bytes: number | null | undefined, fixture: number = 3): string => {
+    if (!bytes) return '0 GB';
+
+    if (Math.abs(bytes) >= 1024 ** 3) {
+        return `${numberToFixer(bytes / 1024 ** 3, fixture)} GB`;
+    }
+
+    return `${numberToFixer(bytes / 1024 ** 2, fixture)} MB`;
+};
+
+const trafficSizeToBytes = (value: number | null | undefined, unit: 'GB' | 'MB'): number => {
+    if (!value || !Number.isFinite(Number(value))) return 0;
+
+    const multiplier = unit === 'GB' ? 1024 ** 3 : 1024 ** 2;
+    return Math.round(Number(value) * multiplier);
+};
+
+const bytesToTrafficSizeValue = (bytes: number | null | undefined, unit: 'GB' | 'MB'): number => {
+    if (!bytes) return 0;
+
+    const multiplier = unit === 'GB' ? 1024 ** 3 : 1024 ** 2;
+    return Number((bytes / multiplier).toFixed(unit === 'GB' ? 4 : 2));
+};
+
 const formatDateTime = (dateString: string | undefined, message: string | undefined): string => {
     if (!dateString) {
         return message || '';
@@ -161,6 +225,13 @@ const toISODateString = (date: Date): string => {
 
 export {
     bytesToGB,
+    bytesToTrafficSize,
+    trafficSizeToBytes,
+    bytesToTrafficSizeValue,
+    dataRateToBps,
+    bpsToDataRateValue,
+    bestDataRateUnit,
+    bpsToDataRate,
     formatDateTime,
     formatDate,
     formatDateTimeWithRelative,

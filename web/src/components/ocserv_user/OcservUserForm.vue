@@ -9,7 +9,7 @@ import {
 import { useI18n } from 'vue-i18n';
 import { computed, reactive, ref, watch } from 'vue';
 import { requiredRule } from '@/utils/rules';
-import { formatDate } from '@/utils/convertors';
+import { bytesToTrafficSizeValue, formatDate, trafficSizeToBytes } from '@/utils/convertors';
 import { getFormFields } from '@/components/ocserv_user/items';
 
 const props = defineProps({
@@ -47,6 +47,29 @@ const rules = {
 const showDateMenu = ref(false);
 const showPassword = ref(false);
 const fieldItems = getFormFields();
+type TrafficSizeUnit = 'GB' | 'MB';
+
+const trafficSizeUnits: TrafficSizeUnit[] = ['GB', 'MB'];
+const trafficSizeUnit = ref<TrafficSizeUnit>('GB');
+const trafficSizeValue = ref<number | null>(0);
+
+const setTrafficSize = (val: unknown) => {
+    const value = val === null || val === '' ? null : Number(val);
+
+    trafficSizeValue.value = value;
+    createData.traffic_size = trafficSizeToBytes(value, trafficSizeUnit.value);
+};
+
+const setTrafficSizeUnit = (unit: TrafficSizeUnit) => {
+    trafficSizeUnit.value = unit;
+    trafficSizeValue.value = bytesToTrafficSizeValue(createData.traffic_size, unit);
+};
+
+const resetTrafficSize = () => {
+    trafficSizeValue.value = 0;
+    createData.traffic_size = 0;
+};
+
 const chipInputs = reactive<Record<string, string>>({
     dns: '',
     route: '',
@@ -156,7 +179,9 @@ watch(
     () => {
         if (props.initData !== undefined) {
             Object.assign(createData, props.initData);
-            isUpdate.value = true;
+            trafficSizeUnit.value = 'GB';
+	    trafficSizeValue.value = bytesToTrafficSizeValue(createData.traffic_size, trafficSizeUnit.value);
+	    isUpdate.value = true;
             if (createData.expire_at == undefined) {
                 createData.unlimited = true;
             }
@@ -222,27 +247,40 @@ watch(
                     variant="outlined"
                     @update:modelValue="
                         (v: string | null | undefined) =>
-                            v == ModelsOcservUserTrafficTypeEnum.FREE ? (createData.traffic_size = 0) : false
+                            v == ModelsOcservUserTrafficTypeEnum.FREE ? resetTrafficSize() : false
                     "
                 />
             </v-col>
             <v-col cols="12" lg="4" md="6">
                 <v-label class="font-weight-bold mb-1 text-capitalize">{{ t('TRAFFIC_SIZE') }}</v-label>
-                <v-text-field
-                    v-model.number="createData.traffic_size"
-                    :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-                    :rules="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]"
-                    color="primary"
-                    hide-details
-                    suffix="GB"
-                    type="number"
-                    variant="outlined"
-                    @update:modelValue="
-                        (val: any) => {
-                            createData.traffic_size = Boolean(val) ? (Number(val) as any) : null;
-                        }
-                    "
-                />
+		<v-row>
+		    <v-col cols="8">
+       		        <v-text-field
+            		    v-model.number="trafficSizeValue"
+            		    :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+            		    :rules="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]"
+            		    color="primary"
+            		    hide-details
+            		    min="0"
+			    step="0.01"
+			    type="number"
+			    variant="outlined"
+			    @update:modelValue="setTrafficSize"
+			/>
+		    </v-col>
+
+    		    <v-col cols="4">
+        		<v-select
+            		    v-model="trafficSizeUnit"
+			    :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+			    :items="trafficSizeUnits"
+			    color="primary"
+			    hide-details
+			    variant="outlined"
+			    @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
+			/>
+		    </v-col>
+		</v-row>
             </v-col>
             <v-col cols="12" lg="4" md="6">
                 <v-row align="center" justify="start">

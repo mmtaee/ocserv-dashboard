@@ -79,13 +79,15 @@ func (n *Notifier) scan(ctx context.Context) {
 			continue
 		}
 
-		quotaBytes := int64(user.TrafficSize) * bytesPerGigabyte
+		quotaBytes := int64(user.TrafficSize)
 		var usedBytes int64
 		switch user.TrafficType {
 		case models.MonthlyTransmit, models.TotallyTransmit:
 			usedBytes = int64(user.Tx)
 		case models.MonthlyReceive, models.TotallyReceive:
 			usedBytes = int64(user.Rx)
+		case models.MonthlyRxTx, models.TotallyRxTx:
+			usedBytes = int64(user.Rx) + int64(user.Tx)
 		default:
 			continue
 		}

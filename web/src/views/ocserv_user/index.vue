@@ -10,7 +10,7 @@ import {
     type OcservUsersGetFilterEnum
 } from '@/api';
 import { getAuthorization } from '@/utils/request';
-import { bytesToGB, formatDate, trafficTypesTransformer } from '@/utils/convertors';
+import { bytesToGB, bytesToTrafficSize, formatDate, trafficTypesTransformer } from '@/utils/convertors';
 import Pagination from '@/components/shared/Pagination.vue';
 import type { Meta } from '@/types/metaTypes/MetaType';
 import { useProfileStore } from '@/stores/profile';
@@ -213,7 +213,7 @@ const actions = (act: ActionTypes, identifier: string, extra: ActivateExtra | nu
                                             v-if="item.traffic_type != ModelsOcservUserTrafficTypeEnum.FREE"
                                             class="text-info text-capitalize"
                                         >
-                                            {{ item.traffic_size }} GB
+					    {{ bytesToTrafficSize(item.traffic_size) }}
                                         </span>
 
                                         <span v-else class="text-info text-capitalize">

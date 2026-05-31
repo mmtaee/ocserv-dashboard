@@ -85,11 +85,19 @@ const disconnect = () => {
 };
 
 const downloadCertificate = () => {
-    api.customersCertificatePost({
-        ...getAuthorization(),
-        request: customerSummaryData.value
-    }).then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
+    api.customersCertificatePost(
+        {
+            request: customerSummaryData.value
+        },
+        {
+            responseType: 'blob'
+        }
+    ).then((res) => {
+        const blob = res.data instanceof Blob
+            ? res.data
+            : new Blob([res.data], { type: 'application/x-pkcs12' });
+
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
 
         link.href = url;

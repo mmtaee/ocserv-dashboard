@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/logger"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -40,10 +41,13 @@ func ToMap(data interface{}) map[string]interface{} {
 	}
 
 	var result map[string]interface{}
-	err = json.Unmarshal(by, &result)
-	if err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(by))
+	decoder.UseNumber()
+
+	if err = decoder.Decode(&result); err != nil {
 		return nil
 	}
+
 	return result
 }
 
@@ -93,12 +97,55 @@ func ConfigWriter(file *os.File, config map[string]interface{}) error {
 			}
 			continue
 		} else {
-			if _, err := file.WriteString(fmt.Sprintf("%s=%v\n", k, v)); err != nil {
-				return fmt.Errorf("failed to write to file: %w", err)
+			if _, err := file.WriteString(fmt.Sprintf("%s=%s\n", k, formatConfigValue(v))); err != nil {
+			return fmt.Errorf("failed to write to file: %w", err)
 			}
 		}
 	}
 	return nil
+}
+
+func formatConfigValue(v interface{}) string {
+	switch n := v.(type) {
+	case json.Number:
+		return n.String()
+
+	case float64:
+		if math.Trunc(n) == n {
+			return strconv.FormatInt(int64(n), 10)
+		}
+
+		return strconv.FormatFloat(n, 'f', -1, 64)
+
+	case float32:
+		f := float64(n)
+		if math.Trunc(f) == f {
+			return strconv.FormatInt(int64(f), 10)
+		}
+
+		return strconv.FormatFloat(f, 'f', -1, 32)
+
+	case int:
+		return strconv.Itoa(n)
+
+	case int64:
+		return strconv.FormatInt(n, 10)
+
+	case int32:
+		return strconv.FormatInt(int64(n), 10)
+
+	case uint:
+		return strconv.FormatUint(uint64(n), 10)
+
+	case uint64:
+		return strconv.FormatUint(n, 10)
+
+	case uint32:
+		return strconv.FormatUint(uint64(n), 10)
+
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // GetUsersByGroup parses the ocpasswd file and returns usernames

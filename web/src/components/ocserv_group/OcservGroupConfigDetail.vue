@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { bpsToDataRate } from '@/utils/convertors';
 import { type PropType, ref } from 'vue';
 import type { ModelsOcservGroupConfig } from '@/api';
 import { useI18n } from 'vue-i18n';
@@ -15,6 +16,15 @@ defineProps({
 });
 
 const { t } = useI18n();
+const rateLimitKeys = ['rx-data-per-sec', 'tx-data-per-sec'];
+
+const formatConfigValue = (key: string, val: unknown) => {
+    if (rateLimitKeys.includes(key) && typeof val === 'number') {
+        return `${bpsToDataRate(val)} (${val.toLocaleString()} Bps)`;
+    }
+
+    return val;
+};
 </script>
 
 <template>
@@ -29,8 +39,8 @@ const { t } = useI18n();
                 <span v-if="!Array.isArray(val)">
                     <span class="w-40 font-medium text-gray-600">{{ key }}: </span>
                     <span v-if="val" class="text-primary">
-                        {{ val }}
-                    </span>
+                        {{ formatConfigValue(String(key), val) }}
+		    </span>
                     <span v-else class="text-warning italic">{{ t('NOT_SET') }}</span>
                 </span>
             </v-col>

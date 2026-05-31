@@ -292,7 +292,7 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 	ocUser.Rx += u.RX
 	ocUser.Tx += u.TX
 
-	var trafficSizeBytes = ocUser.TrafficSize * (1 << 30)
+	trafficSizeBytes := ocUser.TrafficSize
 
 	totalMonthStats, err := s.getCurrentMonthTotals(db, ocUser.ID)
 	if err != nil {
@@ -303,22 +303,22 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 	shouldLock := false
 	switch ocUser.TrafficType {
 	case models.TotallyTransmit:
-		shouldLock = ocUser.Tx >= trafficSizeBytes
+		shouldLock = int64(ocUser.Tx) >= trafficSizeBytes
 
 	case models.TotallyReceive:
-		shouldLock = ocUser.Rx >= trafficSizeBytes
+		shouldLock = int64(ocUser.Rx) >= trafficSizeBytes
 
 	case models.TotallyRxTx:
-		shouldLock = ocUser.Rx+ocUser.Tx >= trafficSizeBytes
+		shouldLock = int64(ocUser.Rx)+int64(ocUser.Tx) >= trafficSizeBytes
 
 	case models.MonthlyTransmit:
-		shouldLock = totalMonthStats.TotalTx >= trafficSizeBytes
+		shouldLock = int64(totalMonthStats.TotalTx) >= trafficSizeBytes
 
 	case models.MonthlyReceive:
-		shouldLock = totalMonthStats.TotalRx >= trafficSizeBytes
+		shouldLock = int64(totalMonthStats.TotalRx) >= trafficSizeBytes
 
 	case models.MonthlyRxTx:
-		shouldLock = totalMonthStats.TotalRx+totalMonthStats.TotalTx >= trafficSizeBytes
+		shouldLock = int64(totalMonthStats.TotalRx)+int64(totalMonthStats.TotalTx) >= trafficSizeBytes
 
 	case models.Free:
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { CustomerSummaryResponse } from '@/api';
-import { bytesToGB, formatDate, trafficTypesTransformer } from '@/utils/convertors';
+import { bytesToGB, bytesToTrafficSize, formatDate, trafficTypesTransformer } from '@/utils/convertors';
 import UiChildCard from '@/components/shared/UiChildCard.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -60,7 +60,7 @@ const { t } = useI18n();
 
                             <v-col cols="12" md="6">
                                 <span class="font-medium text-gray-600 text-capitalize"> {{ t('TRAFFIC_SIZE') }}: </span>
-                                <span class="ms-1">{{ result.ocserv_user.traffic_size || 0 }}</span>
+                                <span class="ms-1">{{ bytesToTrafficSize(result.ocserv_user.traffic_size) }}</span>
                             </v-col>
                         </v-row>
                         <v-row align="center" justify="start">

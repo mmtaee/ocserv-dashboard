@@ -497,7 +497,7 @@ func (ctl *Controller) deliverNewAccount(
 		Password:    password,
 		ExpireAt:    &expireAt,
 		TrafficType: pkg.TrafficType,
-		TrafficSize: pkg.TrafficSizeGB,
+		TrafficSize: gigabytesToBytes(pkg.TrafficSizeGB),
 		Description: fmt.Sprintf("created via telegram bot (request #%d)", req.ID),
 	}
 
@@ -555,7 +555,7 @@ func (ctl *Controller) deliverRenewal(
 	user.Rx = 0
 	user.Tx = 0
 	user.TrafficType = pkg.TrafficType
-	user.TrafficSize = pkg.TrafficSizeGB
+	user.TrafficSize = gigabytesToBytes(pkg.TrafficSizeGB)
 
 	if _, err := ctl.ocservUserRepo.Update(c.Request().Context(), user); err != nil {
 		return ctl.request.BadRequest(c, fmt.Errorf("failed to renew ocserv user: %w", err))
@@ -726,7 +726,7 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 	lang := defaultNotifyLang(settings)
 	return tg18n.T(lang, "new_account",
 		htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
-		expireAt.Format("2006-01-02"), user.TrafficSize, support,
+		expireAt.Format("2006-01-02"), bytesToGigabytes(user.TrafficSize), support,
 	)
 }
 
@@ -750,7 +750,7 @@ func formatRenewalMessage(settings *models.TelegramSettings, user *models.Ocserv
 	support := supportLine(settings)
 	lang := defaultNotifyLang(settings)
 	return tg18n.T(lang, "renewal",
-		htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
+		htmlEsc(user.Username), newExpire.Format("2006-01-02"), bytesToGigabytes(user.TrafficSize), support,
 	)
 }
 
@@ -918,4 +918,12 @@ func defaultNotifyLang(settings *models.TelegramSettings) string {
 		return settings.DefaultLanguage
 	}
 	return models.TelegramLanguageEN
+}
+
+func gigabytesToBytes(gb int) int64 {
+	return int64(gb) * (1 << 30)
+}
+
+func bytesToGigabytes(bytes int64) int {
+	return int(bytes / (1 << 30))
 }

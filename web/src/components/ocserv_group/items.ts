@@ -61,9 +61,9 @@ function getFormFields() {
         },
 
         // Performance and Session Settings
-        { key: 'rx-data-per-sec', label: 'RX Data Per Sec', type: 'number', hint: t('MAX_RECEIVE') + ' bytes/sec' },
-        { key: 'tx-data-per-sec', label: 'TX Data Per Sec', type: 'number', hint: t('MAX_TRANSMIT') + ' bytes/sec' },
-        { key: 'net-priority', label: 'Net Priority', type: 'number', hint: t('TRAFFIC_CLASS_PRIORITY') },
+        { key: 'rx-data-per-sec', label: 'RX Data Per Sec', type: 'number', hint: t('MAX_RECEIVE') + ' (Bps, Kbps, KBps, Mbps, MBps)' },
+	{ key: 'tx-data-per-sec', label: 'TX Data Per Sec', type: 'number', hint: t('MAX_TRANSMIT') + ' (Bps, Kbps, KBps, Mbps, MBps)' },
+	{ key: 'net-priority', label: 'Net Priority', type: 'number', hint: t('TRAFFIC_CLASS_PRIORITY') },
         { key: 'keepalive', label: 'KeepAlive', type: 'number', hint: t('KEEPALIVE_INTERVAL_S') },
         { key: 'dpd', label: 'DPD Timeout', type: 'number', hint: t('DEAD_PEER_DETECTION_TIMEOUT') },
         { key: 'mobile-dpd', label: 'Mobile DPD Timeout', type: 'number', hint: t('MOBILE_DPD_TIMEOUT') },
