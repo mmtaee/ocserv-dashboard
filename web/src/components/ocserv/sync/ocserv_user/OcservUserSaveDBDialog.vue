@@ -111,7 +111,7 @@ const save = () => {
         traffic_type: OcservUserSyncOcpasswdRequestTrafficTypeEnum.FREE,
         users: []
     };
-    
+
     trafficSizeUnit.value = 'GB';
     trafficSizeValue.value = 0;
 };
@@ -143,41 +143,45 @@ const save = () => {
                                     variant="outlined"
                                     @update:modelValue="
                                         (v: string | null | undefined) =>
-                                            v == ModelsOcservUserTrafficTypeEnum.FREE ?  resetTrafficSize() : false
+                                            v == ModelsOcservUserTrafficTypeEnum.FREE ? resetTrafficSize() : false
                                     "
                                 />
                             </v-col>
                             <v-col cols="12">
                                 <v-label class="font-weight-bold mb-1 text-capitalize">{{ t('TRAFFIC_SIZE') }}</v-label>
                                 <v-row>
-				    <v-col cols="8">
-					<v-text-field
-					    v-model.number="trafficSizeValue"
-					    :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-            				    :rules="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]"
-            				    color="primary"
-            				    hide-details
-            				    min="0"
-            				    step="0.01"
-            				    type="number"
-            				    variant="outlined"
-            				    @update:modelValue="setTrafficSize"
-        				/>
-				    </v-col>
+                                    <v-col cols="8">
+                                        <v-text-field
+                                            v-model.number="trafficSizeValue"
+                                            :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+                                            :rules="
+                                                config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE
+                                                    ? []
+                                                    : [rules.required]
+                                            "
+                                            color="primary"
+                                            hide-details
+                                            min="0"
+                                            step="0.01"
+                                            type="number"
+                                            variant="outlined"
+                                            @update:modelValue="setTrafficSize"
+                                        />
+                                    </v-col>
 
-    				    <v-col cols="4">
-					<v-select
-					    v-model="trafficSizeUnit"
-					    :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-					    :items="trafficSizeUnits"
-					    color="primary"
-					    hide-details
-					    variant="outlined"
-					    @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
-					/>
-				    </v-col>
-				</v-row>
-			    </v-col>
+                                    <v-col cols="4">
+                                        <v-select
+                                            v-model="trafficSizeUnit"
+                                            :disabled="config.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+                                            :items="trafficSizeUnits"
+                                            color="primary"
+                                            hide-details
+                                            variant="outlined"
+                                            @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
+                                        />
+                                    </v-col>
+                                </v-row>
+                            </v-col>
                             <v-col cols="12">
                                 <v-menu
                                     v-model="showDateMenu"

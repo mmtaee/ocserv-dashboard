@@ -179,9 +179,7 @@ const downloadCertificate = (uid: string, username: string) => {
             responseType: 'blob'
         }
     ).then((res) => {
-        const blob = res.data instanceof Blob
-            ? res.data
-            : new Blob([res.data], { type: 'application/x-pkcs12' });
+        const blob = res.data instanceof Blob ? res.data : new Blob([res.data], { type: 'application/x-pkcs12' });
 
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');

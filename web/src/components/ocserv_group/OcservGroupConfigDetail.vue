@@ -40,7 +40,7 @@ const formatConfigValue = (key: string, val: unknown) => {
                     <span class="w-40 font-medium text-gray-600">{{ key }}: </span>
                     <span v-if="val" class="text-primary">
                         {{ formatConfigValue(String(key), val) }}
-		    </span>
+                    </span>
                     <span v-else class="text-warning italic">{{ t('NOT_SET') }}</span>
                 </span>
             </v-col>

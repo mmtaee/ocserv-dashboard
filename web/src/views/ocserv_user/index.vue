@@ -213,7 +213,7 @@ const actions = (act: ActionTypes, identifier: string, extra: ActivateExtra | nu
                                             v-if="item.traffic_type != ModelsOcservUserTrafficTypeEnum.FREE"
                                             class="text-info text-capitalize"
                                         >
-					    {{ bytesToTrafficSize(item.traffic_size) }}
+                                            {{ bytesToTrafficSize(item.traffic_size) }}
                                         </span>
 
                                         <span v-else class="text-info text-capitalize">
@@ -307,7 +307,9 @@ const actions = (act: ActionTypes, identifier: string, extra: ActivateExtra | nu
                             </tr>
                         </tbody>
                         <tbody v-if="loading || users.length == 0">
-                        {{ t('NO_USER_FOUND_TABLE') }}
+                            {{
+                                t('NO_USER_FOUND_TABLE')
+                            }}
                         </tbody>
                     </v-table>
                 </div>

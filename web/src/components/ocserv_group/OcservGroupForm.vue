@@ -181,56 +181,58 @@ watch(
                 <h3 class="text-capitalize">{{ t('PERFORMANCE_AND_SESSION_SETTINGS') }}</h3>
             </v-col>
             <template v-for="field in numberFields" :key="field.key">
-    		<v-col cols="12" lg="4" md="6">
-        	    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
-        		<v-text-field
-            		    v-model.number="createData.config[field.key as keyof ModelsOcservGroupConfig]"
-            		    :hint="field.hint"
-            		    color="primary"
-            		    min="0"
-            		    type="number"
-            		    variant="outlined"
-            		    @update:modelValue="
-                		(val: any) => {
-                    		    createData.config[field.key as keyof ModelsOcservGroupConfig] = Boolean(val)
-                        	    ? (Number(val) as any)
-                        	    : null;
-                		}
-            		    "
-        		/>
-    		</v-col>
-	    </template>
-	    <template v-for="field in rateLimitFields" :key="field.key">
-    		<v-col cols="12" lg="4" md="6">
-        	    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
+                <v-col cols="12" lg="4" md="6">
+                    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
+                    <v-text-field
+                        v-model.number="createData.config[field.key as keyof ModelsOcservGroupConfig]"
+                        :hint="field.hint"
+                        color="primary"
+                        min="0"
+                        type="number"
+                        variant="outlined"
+                        @update:modelValue="
+                            (val: any) => {
+                                createData.config[field.key as keyof ModelsOcservGroupConfig] = Boolean(val)
+                                    ? (Number(val) as any)
+                                    : null;
+                            }
+                        "
+                    />
+                </v-col>
+            </template>
+            <template v-for="field in rateLimitFields" :key="field.key">
+                <v-col cols="12" lg="4" md="6">
+                    <v-label class="font-weight-bold mb-1 text-capitalize">{{ field.label }}</v-label>
 
-        	    <v-row>
-            		<v-col cols="8">
-                	    <v-text-field
-                    		v-model.number="rateLimitValues[field.key as RateLimitKey]"
-                    		:hint="field.hint"
-                    		color="primary"
-                    		min="0"
-                    		step="0.01"
-                    		type="number"
-                    		variant="outlined"
-                    		@update:modelValue="(val: any) => setRateLimit(field.key as RateLimitKey, val)"
-                	    />
-            		</v-col>
+                    <v-row>
+                        <v-col cols="8">
+                            <v-text-field
+                                v-model.number="rateLimitValues[field.key as RateLimitKey]"
+                                :hint="field.hint"
+                                color="primary"
+                                min="0"
+                                step="0.01"
+                                type="number"
+                                variant="outlined"
+                                @update:modelValue="(val: any) => setRateLimit(field.key as RateLimitKey, val)"
+                            />
+                        </v-col>
 
-            		<v-col cols="4">
-                    	    <v-select
-                    		v-model="rateLimitUnits[field.key as RateLimitKey]"
-                    		:items="dataRateUnits"
-                    		color="primary"
-                    		variant="outlined"
-                    		@update:modelValue="(unit: DataRateUnit) => setRateLimitUnit(field.key as RateLimitKey, unit)"
-                	    />
-            		</v-col>
-        	    </v-row>
-    		</v-col>
-	    </template>
-	    <v-col cols="12" md="11">
+                        <v-col cols="4">
+                            <v-select
+                                v-model="rateLimitUnits[field.key as RateLimitKey]"
+                                :items="dataRateUnits"
+                                color="primary"
+                                variant="outlined"
+                                @update:modelValue="
+                                    (unit: DataRateUnit) => setRateLimitUnit(field.key as RateLimitKey, unit)
+                                "
+                            />
+                        </v-col>
+                    </v-row>
+                </v-col>
+            </template>
+            <v-col cols="12" md="11">
                 <h3 class="text-capitalize">{{ t('ACCESS_AND_FEATURE_CONTROLS') }}</h3>
             </v-col>
             <template v-for="field in fieldItems.fields.filter((f) => f.type === 'switch')" :key="field.key">

@@ -180,8 +180,8 @@ watch(
         if (props.initData !== undefined) {
             Object.assign(createData, props.initData);
             trafficSizeUnit.value = 'GB';
-	    trafficSizeValue.value = bytesToTrafficSizeValue(createData.traffic_size, trafficSizeUnit.value);
-	    isUpdate.value = true;
+            trafficSizeValue.value = bytesToTrafficSizeValue(createData.traffic_size, trafficSizeUnit.value);
+            isUpdate.value = true;
             if (createData.expire_at == undefined) {
                 createData.unlimited = true;
             }
@@ -253,34 +253,36 @@ watch(
             </v-col>
             <v-col cols="12" lg="4" md="6">
                 <v-label class="font-weight-bold mb-1 text-capitalize">{{ t('TRAFFIC_SIZE') }}</v-label>
-		<v-row>
-		    <v-col cols="8">
-       		        <v-text-field
-            		    v-model.number="trafficSizeValue"
-            		    :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-            		    :rules="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]"
-            		    color="primary"
-            		    hide-details
-            		    min="0"
-			    step="0.01"
-			    type="number"
-			    variant="outlined"
-			    @update:modelValue="setTrafficSize"
-			/>
-		    </v-col>
+                <v-row>
+                    <v-col cols="8">
+                        <v-text-field
+                            v-model.number="trafficSizeValue"
+                            :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+                            :rules="
+                                createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE ? [] : [rules.required]
+                            "
+                            color="primary"
+                            hide-details
+                            min="0"
+                            step="0.01"
+                            type="number"
+                            variant="outlined"
+                            @update:modelValue="setTrafficSize"
+                        />
+                    </v-col>
 
-    		    <v-col cols="4">
-        		<v-select
-            		    v-model="trafficSizeUnit"
-			    :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
-			    :items="trafficSizeUnits"
-			    color="primary"
-			    hide-details
-			    variant="outlined"
-			    @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
-			/>
-		    </v-col>
-		</v-row>
+                    <v-col cols="4">
+                        <v-select
+                            v-model="trafficSizeUnit"
+                            :disabled="createData.traffic_type == ModelsOcservUserTrafficTypeEnum.FREE"
+                            :items="trafficSizeUnits"
+                            color="primary"
+                            hide-details
+                            variant="outlined"
+                            @update:modelValue="(unit: TrafficSizeUnit) => setTrafficSizeUnit(unit)"
+                        />
+                    </v-col>
+                </v-row>
             </v-col>
             <v-col cols="12" lg="4" md="6">
                 <v-row align="center" justify="start">
