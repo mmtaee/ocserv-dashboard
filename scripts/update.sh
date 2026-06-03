@@ -34,14 +34,6 @@ cd "${ROOT_DIR}" || exit 1
 # shellcheck source=/dev/null
 source ./scripts/lib.sh
 
-ensure_root() {
-    if [[ "$EUID" -ne 0 ]] && ! sudo -n true 2>/dev/null; then
-        die "❌ This script needs sudo. Re-run with: sudo $0"
-    fi
-}
-
-ensure_root
-
 # Load environment
 if [[ -f "${ROOT_DIR}/.env" ]]; then
     log "Loading environment from .env"
