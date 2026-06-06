@@ -1,10 +1,15 @@
 import type {
     HomeDockerService,
+    HomeGetHomeUser,
     ModelsDailyTraffic,
     ModelsIPBanPoints,
     ModelsOcservGroup,
     ModelsOcservGroupConfig,
-    ModelsOnlineUserSession
+    ModelsOcservUser,
+    ModelsOcservUserTrafficTypeEnum,
+    ModelsOnlineUserSession,
+    RepositoryTopBandwidthUsers,
+    RepositoryTotalBandwidths
 } from '@/api';
 
 const dummyTrafficData = <ModelsDailyTraffic[]>[
@@ -146,7 +151,7 @@ const dummyGroupList: ModelsOcservGroup[] = [
     { id: 4, name: 'Anc 1298', owner: 'masoud' }
 ];
 
-const mockHomeDockerService: HomeDockerService = {
+const dummyHomeDockerService: HomeDockerService = {
     log_stream: {
         name: 'log_stream',
         cpu: {
@@ -214,4 +219,146 @@ const mockHomeDockerService: HomeDockerService = {
     }
 };
 
-export { dummyTrafficData, dummyOnlineUsers, dummyBanIPs, dummyGroupConfig, dummyGroupList, mockHomeDockerService };
+
+const dummyRepositoryTotalBandwidths: RepositoryTotalBandwidths = {
+    rx: 1250000000,
+    tx: 875000000
+};
+
+const dummyRepositoryTopBandwidthUsers: RepositoryTopBandwidthUsers =     {
+        top_rx: [
+            {
+                uid: 'u1',
+                username: 'alice',
+                password: 'pass123',
+                group: 'premium',
+                owner: 'system',
+                is_locked: false,
+                is_online: true,
+                rx: 5200000000,
+                tx: 1200000000,
+                traffic_size: 10000000000,
+                traffic_type: 'monthly' as ModelsOcservUserTrafficTypeEnum,
+                created_at: '2026-01-10T10:00:00Z',
+                updated_at: '2026-06-01T12:00:00Z',
+                certificate_available: true,
+                certificate_enabled: true,
+                online_sessions: []
+            },
+            {
+                uid: 'u2',
+                username: 'bob',
+                password: 'pass123',
+                group: 'basic',
+                owner: 'system',
+                is_locked: false,
+                is_online: false,
+                rx: 3100000000,
+                tx: 900000000,
+                traffic_size: 8000000000,
+                traffic_type: 'monthly' as ModelsOcservUserTrafficTypeEnum,
+                created_at: '2026-02-15T09:00:00Z',
+                online_sessions: []
+            }
+        ],
+        top_tx: [
+            {
+                uid: 'u3',
+                username: 'charlie',
+                password: 'pass123',
+                group: 'premium',
+                owner: 'system',
+                is_locked: false,
+                is_online: true,
+                rx: 2000000000,
+                tx: 7800000000,
+                traffic_size: 12000000000,
+                traffic_type: 'monthly' as ModelsOcservUserTrafficTypeEnum,
+                created_at: '2026-03-01T08:00:00Z',
+                certificate_available: true,
+                certificate_enabled: true,
+                online_sessions: []
+            },
+            {
+                uid: 'u4',
+                username: 'david',
+                password: 'pass123',
+                group: 'basic',
+                owner: 'system',
+                is_locked: false,
+                is_online: true,
+                rx: 1500000000,
+                tx: 5400000000,
+                traffic_size: 9000000000,
+                traffic_type: 'monthly' as ModelsOcservUserTrafficTypeEnum,
+                created_at: '2026-04-20T11:30:00Z',
+                online_sessions: []
+            }
+        ]
+};
+
+const dummyHomeGetHomeUser: HomeGetHomeUser = {
+    total: 4,
+    online_users_session: [
+        {
+            ID: 1,
+            Username: 'alice',
+            Groupname: 'premium',
+            Device: 'Windows 11 - Chrome',
+            IPv4: '192.168.1.10',
+            vhost: 'vpn-1',
+            'Session started at': '2026-06-06T10:15:00Z',
+            '_Last connected at': '2026-06-06T12:40:00Z',
+            'Average RX': '12.5 MB/s',
+            'Average TX': '3.2 MB/s'
+        },
+        {
+            ID: 2,
+            Username: 'bob',
+            Groupname: 'basic',
+            Device: 'Android - OpenConnect',
+            IPv4: '192.168.1.11',
+            vhost: 'vpn-1',
+            'Session started at': '2026-06-06T09:05:00Z',
+            '_Last connected at': '2026-06-06T12:30:00Z',
+            'Average RX': '8.1 MB/s',
+            'Average TX': '2.4 MB/s'
+        },
+        {
+            ID: 3,
+            Username: 'charlie',
+            Groupname: 'premium',
+            Device: 'macOS - Safari',
+            IPv4: '192.168.1.12',
+            vhost: 'vpn-2',
+            'Session started at': '2026-06-06T08:45:00Z',
+            '_Last connected at': '2026-06-06T12:25:00Z',
+            'Average RX': '15.0 MB/s',
+            'Average TX': '4.0 MB/s'
+        },
+        {
+            ID: 4,
+            Username: 'david',
+            Groupname: 'basic',
+            Device: 'Linux - Firefox',
+            IPv4: '192.168.1.13',
+            vhost: 'vpn-2',
+            'Session started at': '2026-06-06T07:30:00Z',
+            '_Last connected at': '2026-06-06T12:10:00Z',
+            'Average RX': '5.2 MB/s',
+            'Average TX': '1.1 MB/s'
+        }
+    ]
+};
+
+export {
+    dummyTrafficData,
+    dummyOnlineUsers,
+    dummyBanIPs,
+    dummyGroupConfig,
+    dummyGroupList,
+    dummyHomeDockerService,
+    dummyRepositoryTotalBandwidths,
+    dummyRepositoryTopBandwidthUsers,
+    dummyHomeGetHomeUser
+};
