@@ -18,7 +18,7 @@ const emits = defineEmits(['activateUser', 'close']);
 
 const { t } = useI18n();
 
-const expireAt = ref(null);
+const expireAt = ref<Date | string | null>(null);
 const showDateMenu = ref(false);
 </script>
 

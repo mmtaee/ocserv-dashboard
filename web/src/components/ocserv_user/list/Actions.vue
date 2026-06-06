@@ -10,7 +10,7 @@ import ActivateDialog from '@/components/ocserv_user/dialogs/ActivateDialog.vue'
 import SessionLogsDialog from '@/components/ocserv_user/dialogs/SessionLogsDialog.vue';
 import DisconnectDialog from '@/components/ocserv_user/dialogs/DisconnectDialog.vue';
 import { ref } from 'vue';
-import { formatDate } from 'date-fns';
+import { formatDate } from '@/utils/convertors';
 
 defineProps<{ item: ModelsOcservUser }>();
 
@@ -147,12 +147,8 @@ const unlock = (uid: string) => {
     });
 };
 
-const activateUser = (expireAt: string | null) => {
-    if (expireAt == null) {
-        expireAt = '';
-    }
-
-    const formattedExpireAt = formatDate(expireAt, '');
+const activateUser = (expireAt: Date | string | null) => {
+    const formattedExpireAt = formatDate(expireAt);
 
     api.ocservUsersUidActivatePost({
         ...getAuthorization(),
@@ -161,7 +157,7 @@ const activateUser = (expireAt: string | null) => {
             expire_at: formattedExpireAt || undefined
         }
     }).then(() => {
-        emit('actions', 'activateUser', activateUserUID.value, {
+        emit('actions', 'activate', activateUserUID.value, {
             formattedExpireAt: formattedExpireAt
         });
         cancelActivateUser();
