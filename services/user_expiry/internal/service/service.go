@@ -274,9 +274,12 @@ func (c *CornService) ActiveMonthlyUsers(ctx context.Context, db *gorm.DB) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
+			now := time.Now()
+
 			if err2 := db.Model(&u).Updates(map[string]interface{}{
 				"rx":             0,
 				"tx":             0,
+				"usage_reset_at": &now,
 				"deactivated_at": nil,
 				"is_locked":      false,
 			}).Error; err2 != nil {

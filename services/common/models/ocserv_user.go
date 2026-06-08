@@ -73,6 +73,7 @@ type OcservUser struct {
 	UpdatedAt            time.Time                    `json:"updated_at" gorm:"autoUpdateTime" validate:"omitempty"`
 	ExpireAt             *time.Time                   `json:"expire_at" gorm:"type:date" validate:"omitempty"`
 	DeactivatedAt        *time.Time                   `json:"deactivated_at" gorm:"type:date" validate:"omitempty"`
+	UsageResetAt         *time.Time                   `json:"-" gorm:"type:timestamptz" validate:"omitempty"`
 	TrafficType          string                       `json:"traffic_type" gorm:"type:varchar(32);not null;default:1" enums:"Free,MonthlyTransmit,MonthlyReceive,MonthlyRxTx,TotallyTransmit,TotallyReceive,TotallyRxTx" validate:"required"`
 	TrafficSize          int64                        `json:"traffic_size" gorm:"not null" validate:"required"` // in bytes
 	Rx                   int                          `json:"rx" gorm:"not null;default:0" validate:"required"` // Receive in bytes

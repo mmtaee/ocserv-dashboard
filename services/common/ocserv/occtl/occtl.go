@@ -94,15 +94,12 @@ func (o *OcservOcctl) DisconnectSession(id string) (string, error) {
 	return string(out), nil
 }
 
-// TerminateUser Disconnect user and invalidate session cookies.
+// TerminateUser disconnects a user and invalidates session cookies.
 // Executes: occtl terminate user <username>
 func (o *OcservOcctl) TerminateUser(username string) (string, error) {
 	cmd := exec.Command(occtlExec, "terminate", "user", username)
 	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-	return string(out), nil
+	return string(out), err
 }
 
 // TerminateSession Disconnect ID and invalidate session cookies.

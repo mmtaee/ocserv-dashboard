@@ -311,7 +311,7 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 
 	trafficSizeBytes := ocUser.TrafficSize
 
-	totalMonthStats, err := s.getCurrentMonthTotals(db, ocUser.ID)
+	totalMonthStats, err := s.getCurrentMonthTotals(db, ocUser.ID, ocUser.UsageResetAt)
 	if err != nil {
 		logger.Error("Error getting current month stats: %v", err)
 		return err
@@ -394,15 +394,20 @@ func (s *StatService) saveSessionLog(ctx context.Context, log *models.OcservUser
 	return nil
 }
 
-func (s *StatService) getCurrentMonthTotals(db *gorm.DB, userID uint) (Totals, error) {
+func (s *StatService) getCurrentMonthTotals(db *gorm.DB, userID uint, usageResetAt *time.Time) (Totals, error) {
 	now := time.Now()
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 	endOfMonth := startOfMonth.AddDate(0, 1, 0)
 
+	startAt := startOfMonth
+	if usageResetAt != nil && usageResetAt.After(startAt) {
+		startAt = *usageResetAt
+	}
+
 	var result Totals
 	err := db.Model(&models.OcservUserTrafficStatistics{}).
 		Select("SUM(rx) as total_rx, SUM(tx) as total_tx").
-		Where("oc_user_id = ? AND created_at >= ? AND created_at < ?", userID, startOfMonth, endOfMonth).
+		Where("oc_user_id = ? AND created_at >= ? AND created_at < ?", userID, startAt, endOfMonth).
 		Scan(&result).Error
 
 	return result, err
