@@ -1,0 +1,56 @@
+{
+  "1004": {
+    "status": 400,
+    "fa": "درخواست نامعتبر است",
+    "en": "Bad Request",
+    "it": "Richiesta non valida",
+    "ru": "Неверный запрос",
+    "zh-cn": "无效请求",
+    "zh-tw": "無效請求"
+  },
+  "2001": {
+    "status": 401,
+    "fa": "دسترسی مجاز نیست",
+    "en": "Unauthorized",
+    "it": "Non autorizzato",
+    "ru": "Неавторизован",
+    "zh-cn": "未授权",
+    "zh-tw": "未授權"
+  },
+  "2002": {
+    "status": 403,
+    "fa": "مجوز دسترسی نیست",
+    "en": "Forbidden",
+    "it": "Vietato",
+    "ru": "Запрещено",
+    "zh-cn": "禁止",
+    "zh-tw": "禁止"
+  },
+  "5001": {
+    "status": 500,
+    "fa": "خطای داخلی سرور",
+    "en": "Internal Server Error",
+    "it": "Errore interno del server",
+    "ru": "Внутренняя ошибка сервера",
+    "zh-cn": "内部服务器错误",
+    "zh-tw": "內部服務器錯誤"
+  },
+  "2003": {
+    "status": 401,
+    "fa": "نام کاربری یا رمز عبور اشتباه است",
+    "en": "Invalid credentials",
+    "it": "Credenziali non valide",
+    "ru": "Неверные учетные данные",
+    "zh-cn": "无效凭证",
+    "zh-tw": "無效憑證"
+  },
+  "2004": {
+    "status": 401,
+    "fa": "رمز عبور فعلی اشتباه است",
+    "en": "Current password is incorrect",
+    "it": "La password attuale non è corretta",
+    "ru": "Текущий пароль неверен",
+    "zh-cn": "当前密码不正确",
+    "zh-tw": "當前密碼不正確"
+  }
+}

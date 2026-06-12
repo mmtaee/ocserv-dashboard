@@ -1,0 +1,70 @@
+---
+name: master-rules
+description: Unified global rules for this Go backend project, covering architecture, implementation, testing, and best practices.
+---
+
+## Core Philosophy
+
+- **Clean Architecture**: Follow Clean Architecture principles: Presentation → Service → Usecase → Repository → Infrastructure.
+- **Consistency**: Maintain consistency with existing codebase patterns before introducing new approaches.
+- **Test-First**: Write tests alongside feature implementation.
+- **Education**: Explain architectural choices and implementation decisions clearly.
+
+## Preflight Checklist
+
+1. **Read Project Structure**: Explore the codebase to understand existing patterns.
+2. **Check Dependencies**: Review `go.mod` for existing dependencies before adding new ones.
+3. **Follow Conventions**: Use existing naming, directory structure, and error handling patterns.
+4. **Update PROJECT.md**: After ANY change (create/delete/move/rename files/directories), update `/.trae/PROJECT.md`.
+
+## Project Stack & Architecture
+
+This is a Go backend project using:
+- **Framework**: Echo v5
+- **Database**: GORM (MariaDB)
+- **Migrations**: Gormigrate v2
+- **CLI**: Cobra
+- **Validation**: Validator v10
+
+### Directory Structure
+```
+cmd/                → CLI commands (root, serve, docs)
+internal/           → Business logic
+  service/          → HTTP handlers (controllers) and routes
+  usecase/          → Business logic orchestration
+  repository/       → Data access layer
+  provider/         → Dependency injection and route aggregation
+config/             → Configuration and errors.json
+pkg/                → Shared modules (bootstrap, middlewares, request, testutils)
+```
+
+## Code Style & Naming
+
+- **Naming**: Use PascalCase for exported types/functions, camelCase for unexported.
+- **Imports**: Group imports as: standard library → third-party → project internal.
+- **Errors**: Use `config/errors.json` for unique error codes; no code reuse across different errors.
+- **HTTP Methods**: Do NOT use PUT; use POST/PATCH/DELETE as appropriate.
+- **Echo v5**: 
+  - Use `c *echo.Context` (not `c echo.Context`)
+  - Retrieve values from context with: `value := c.Get("key").(Type)`
+  - Example: `userID := c.Get("user_id").(uint)`
+
+## Testing Guidelines
+
+- **Model Tests**: SQLite in-memory via `pkg/testutils.SetupTestDB`; cover CRUD and constraints.
+- **Usecase Tests**: Fake or mock repository implementations; no real DB.
+- **Integration Tests**: Echo test harness; mock usecase layer; no full server.
+- **Run Tests**: Use `go test ./...` to verify everything passes.
+
+## Documentation
+
+- **Swagger/OpenAPI**: Document endpoints with Swagger comments; run `swag init --pd` to regenerate docs.
+- **Comments**: Add comments for non-trivial logic explaining "why" not just "what".
+
+## Finalization Protocol
+
+Before completing a task:
+1. **Format**: Ensure code is properly formatted (`gofmt` or equivalent).
+2. **Test**: Run `go test ./...` to confirm all tests pass.
+3. **Verify**: Ensure the implementation aligns with existing patterns and requirements.
+4. **Update PROJECT.md**: Update `/.trae/PROJECT.md` to reflect any changes to the project structure or files.
