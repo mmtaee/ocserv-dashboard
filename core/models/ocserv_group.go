@@ -93,6 +93,12 @@ type OcservGroup struct {
 	Config       *OcservGroupConfig `json:"config" gorm:"type:json"`
 }
 
+type OcservGroupResponse struct {
+	*OcservGroup `json:",inline"`
+	TotalRx      int `json:"total_rx"`
+	TotalTx      int `json:"total_tx"`
+}
+
 func (c *OcservGroupConfig) Value() (driver.Value, error) {
 	return json.Marshal(c)
 }

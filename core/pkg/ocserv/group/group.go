@@ -2,14 +2,15 @@ package group
 
 import (
 	"context"
-	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sync"
+
+	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 )
 
 type OcservGroup struct{}

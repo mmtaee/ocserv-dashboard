@@ -1,0 +1,285 @@
+{
+  "name": "Ocserv Dashboard",
+  "overview": "A web-based dashboard to manage an OpenConnect VPN server (ocserv), including user/group management, monitoring, statistics, and an integrated Telegram bot for customer self-service.",
+  "techStack": {
+    "backend": {
+      "language": "Go 1.25+",
+      "framework": "Echo v5",
+      "orm": "GORM",
+      "database": "PostgreSQL",
+      "migrations": "Gormigrate v2",
+      "validation": "Validator v10",
+      "cli": "Cobra"
+    },
+    "frontend": {
+      "framework": "Vue 3",
+      "buildTool": "Vite",
+      "ui": "Custom components"
+    },
+    "infrastructure": {
+      "containerization": ["Docker", "Docker Compose"],
+      "deploymentOptions": ["Docker-based", "Systemd-based"],
+      "supportedOs": ["Debian 12+", "Ubuntu 20.04+"]
+    }
+  },
+  "projectStructure": {
+    "ocserv-dashboard/": {
+      ".trae/": {
+        "description": "TRAE AI configuration",
+        "children": {
+          "PROJECT.md": "Project context file (MUST be updated after any change to file/directory structure)",
+          "project-structure.json": "Project structure in JSON format (MUST be updated after any change to file/directory structure)",
+          "skills/": {
+            "description": "Backend-specific TRAE skills",
+            "children": {
+              "api-creator/": {},
+              "master-rules/": {},
+              "middleware-creator/": {},
+              "model-creator/": {},
+              "service-creator/": {},
+              "test-creator/": {}
+            }
+          }
+        }
+      },
+      "core/": {
+        "description": "Core shared code (formerly services/common)",
+        "children": {
+          "go.mod": {},
+          "go.sum": {},
+          "cmd/": {
+            "description": "Migration command",
+            "children": {
+              "migrate.go": {}
+            }
+          },
+          "migrations/": {
+            "description": "Gormigrate database migrations (001-013)",
+            "children": {
+              "012_remove_uid_and_add_administrators.go": "Removed UID, added Administrators and OwnerAdminID",
+              "013_add_system_client_profile_columns.go": "Added ClientProfileServerAddress/Port/ConnectionName to System"
+            }
+          },
+          "models/": {
+            "description": "Shared GORM models",
+            "children": {
+              "administrator.go": "Administrator, AdministratorToken",
+              "common.go": {},
+              "occtl.go": {},
+              "ocserv_group.go": "Added OwnerAdminID",
+              "ocserv_user.go": "Removed UID, added OwnerAdminID",
+              "system.go": {},
+              "telegram.go": "Added OwnerAdminID",
+              "telegram_languages.go": {}
+            }
+          },
+          "pkg/": {
+            "description": "Shared packages",
+            "children": {
+              "config/": {
+                "children": {
+                  "config.go": "Init() now gets all params from env vars (DEBUG, HOST, PORT)"
+                }
+              },
+              "database/": {
+                "children": {
+                  "database.go": {}
+                }
+              },
+              "logger/": {
+                "children": {
+                  "service.go": {},
+                  "types.go": {}
+                }
+              },
+              "ocserv/": {
+                "description": "Ocserv-specific utilities",
+                "children": {
+                  "group/": {
+                    "children": {
+                      "group.go": {},
+                      "types.go": {}
+                    }
+                  },
+                  "occtl/": {
+                    "children": {
+                      "occtl.go": {}
+                    }
+                  },
+                  "user/": {
+                    "children": {
+                      "types.go": {},
+                      "user.go": {},
+                      "utils.go": {}
+                    }
+                  }
+                }
+              },
+              "testutils/": {
+                "description": "Test utilities for model tests",
+                "children": {
+                  "testutils.go": {}
+                }
+              },
+              "utils/": {
+                "children": {
+                  "utils.go": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "dashboard/": {
+        "children": {
+          "api/": {
+            "description": "Main API service",
+            "children": {
+              "cmd/": {
+                "description": "CLI commands",
+                "children": {
+                  "root.go": {},
+                  "serve.go": {}
+                }
+              },
+              "config/": {
+                "children": {
+                  "config.go": "Wrapper around core config",
+                  "errors.json": "Error codes and messages"
+                }
+              },
+              "docs/": {
+                "children": {
+                  "docs.go": {},
+                  "swagger.json": {},
+                  "swagger.yaml": {}
+                }
+              },
+              "internal/": {
+                "children": {
+                  "providers/": {
+                    "children": {
+                      "routing/": {
+                        "children": {
+                          "routing.go": "Aggregate route registration"
+                        }
+                      }
+                    }
+                  },
+                  "repository/": {
+                    "children": {
+                      "admin.go": "AdminRepository",
+                      "system.go": "SystemRepository"
+                    }
+                  },
+                  "service/": {
+                    "children": {
+                      "auth/": {
+                        "children": {
+                          "types.go": "Request/response types for auth service",
+                          "controller.go": "HTTP handlers for auth service",
+                          "routes.go": "Route registration for auth service"
+                        }
+                      }
+                    }
+                  },
+                  "usecase/": {
+                    "children": {
+                      "admin.go": "AdminUseCase (Login, GetProfile, ChangePassword)",
+                      "system.go": "SystemUseCase (Get, Update)"
+                    }
+                  }
+                }
+              },
+              "pkg/": {
+                "children": {
+                  "auth/": {
+                    "children": {
+                      "jwt.go": "Claims, CreateAdministratorToken, ValidateAdministratorToken"
+                    }
+                  },
+                  "bootstrap/": {
+                    "children": {
+                      "migration.go": "Uses core migrations",
+                      "serve.go": "Initializes config, infra, migrations and runs server"
+                    }
+                  },
+                  "infra/": {
+                    "children": {
+                      "infra.go": "No Redis, just DB"
+                    }
+                  },
+                  "middlewares/": {
+                    "children": {
+                      "auth.go": "Admin JWT auth middleware",
+                      "timeout.go": "Request timeout middleware",
+                      "ratelimit.go": "In-memory rate limiter"
+                    }
+                  },
+                  "request/": {
+                    "children": {
+                      "errors.go": {},
+                      "pagination.go": {},
+                      "response.go": {},
+                      "validator.go": {}
+                    }
+                  },
+                  "routing/": {
+                    "children": {
+                      "serve.go": {},
+                      "utils.go": {}
+                    }
+                  },
+                  "testutils/": {
+                    "children": {
+                      "db_loader.go": {}
+                    }
+                  }
+                }
+              },
+              "main.go": {},
+              "go.mod": {}
+            }
+          },
+          "ui/": {
+            "description": "Vue 3 frontend (empty for now)"
+          }
+        }
+      },
+      "docs/": {
+        "description": "Project documentation & assets",
+        "children": {
+          "home.png": {},
+          "home_stats.png": {},
+          "home_sub.png": {},
+          "logo.png": {},
+          "menu.png": {},
+          "telegram-translations.md": {}
+        }
+      },
+      ".dockerignore": {},
+      ".env.sample": {},
+      ".gitguardian.yaml": {},
+      ".gitignore": {},
+      "LICENSE": {},
+      "README.md": "General project documentation"
+    }
+  },
+  "keyConventions": {
+    "backend": {
+      "noPutMethods": "Use POST/PATCH/DELETE instead",
+      "errorHandling": "Use unique error codes from config/errors.json",
+      "testing": "Model tests use in-memory SQLite; usecase tests use mocks/fakes; integration tests use Echo test harness"
+    },
+    "developmentWorkflow": {
+      "startProject": "Check README.md for instructions",
+      "apiDocs": "Generated via Swag"
+    }
+  },
+  "importantFiles": {
+    "README.md": "General project documentation",
+    "TODO.md": "Roadmap & planned features",
+    "docker-compose.yml": "Docker deployment configuration (if present)",
+    "core/go.mod": "Go dependencies for core shared code"
+  }
+}

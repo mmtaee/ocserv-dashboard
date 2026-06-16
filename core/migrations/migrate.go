@@ -1,25 +1,25 @@
-package migrate
+package migrations
 
 import (
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/mmtaee/ocserv-dashboard/core/migrations"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/config"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/database"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
 )
 
 var Migrations = []*gormigrate.Migration{
-	migrations.Migration001,
-	migrations.Migration002,
-	migrations.Migration003,
-	migrations.Migration004,
-	migrations.Migration005,
-	migrations.Migration006,
-	migrations.Migration007,
-	migrations.Migration008, migrations.Migration009, migrations.Migration010,
-	migrations.Migration011,
-	migrations.Migration012,
-	migrations.Migration013,
+	Migration001,
+	Migration002,
+	Migration003,
+	Migration004,
+	Migration005,
+	Migration006,
+	Migration007,
+	Migration008, Migration009, Migration010,
+	Migration011,
+	Migration012,
+	Migration013,
+	Migration014,
 }
 
 func Migrate() {

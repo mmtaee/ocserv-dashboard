@@ -3,7 +3,6 @@ package middlewares
 import (
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"

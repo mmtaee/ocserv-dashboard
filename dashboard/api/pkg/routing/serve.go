@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/config"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/config"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/providers/routing"
 	"net/http"
 	"os"

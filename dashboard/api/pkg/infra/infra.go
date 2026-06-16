@@ -9,5 +9,5 @@ var DB *gorm.DB
 
 func InitInfra() {
 	database.Connect()
-	DB = database.DB
+	DB = database.GetConnection()
 }

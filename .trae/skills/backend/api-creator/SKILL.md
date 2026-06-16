@@ -12,14 +12,20 @@ description: Create Echo v5 APIs using Service/Repository/Usecase pattern.
 - Validation: Use `request.Validator` and `request.BadRequest`.
 - Logic: Use `ResponseWithCode` for UNIQUE keys from `config/errors.json` ONLY—NEVER reuse existing error codes; create a new unique code and add it to errors.json first before using it in code.
 - Documentation: Add Swagger comments and run `swag init --pd`.
+- **Role/Ownership**: Always pass admin ID and role from controller → use case → repository layer; enforce ownership checks in repository layer for non-super admins.
 
 # Workflow
 1. Check `config/errors.json` and find the next available unique error code for any new errors your API will introduce.
 2. Add the new unique error code(s) to `config/errors.json` with appropriate fa, en, it, ru, zh-cn, and zh-tw messages and correct status code. Ensure all language fields are populated for every new error code.
-3. Define request/response structs in `types.go`.
-4. Implement controller logic with validation, using ONLY the unique error codes you just added or existing unique codes from errors.json (never reuse 1004 for multiple different errors).
-5. Register each service routes in `internal/provider/routes.go`.
-6. Update Swagger docs.
+3. Define request structs in `types.go`. DO NOT create response structs for responses that just return a model - use the model directly.
+4. Implement controller logic with validation:
+   - Retrieve `id` (admin ID) and `role` from Echo context (`c.Get("id").(uint)` and `c.Get("role").(string)`)
+   - Pass these values to the use case layer
+5. Implement use case and repository layers with role and ownership checks:
+   - Repository methods must accept `adminID` and `role` parameters
+   - For non-super admins, always add `WHERE owner_admin_id = ?` condition to queries
+6. Register each service routes in `internal/provider/routing/routing.go`.
+7. Update Swagger docs.
 
 # Note:
 - Note:

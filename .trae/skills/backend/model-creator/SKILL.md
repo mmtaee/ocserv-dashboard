@@ -7,10 +7,15 @@ description: Create GORM models, SQL migrations, and model unit tests. **MANDATO
 **CRITICAL**: You MUST read and strictly follow master-rules before starting any task. Every decision (naming, structure, errors, pagination) must align with these rules.
 
 # Requirements
-- Fields: ID (BIGINT AUTO_INCREMENT PK), timestamps (DATETIME created_at/updated_at).
+- **Required Fields**:
+  - ID (BIGINT AUTO_INCREMENT PK)
+  - `CreatedAt` and `UpdatedAt` timestamps
+  - `OwnerAdminID` (uint) - for any model that belongs to an admin, to enforce ownership rules
 - Tags: `json`, `gorm`, `validate`.
-- Migrations: `internal/migrations/` using `gormigrate` v2 and raw MariaDB/MySQL SQL (`IF NOT EXISTS`).
-- Tests: `internal/tests/models/<model_name>_test.go` using `pkg/testutils` for in-memory SQLite.
+- Migrations: `core/migrations/` using `gormigrate` v2.
+- Tests: Use `core/pkg/testutils` for in-memory SQLite if needed.
+- **Ownership**: All models that belong to an admin must have `OwnerAdminID` field, and non-super admins can only access their own objects.
+
 
 # Implementation
 1. Add model to `internal/models/`.

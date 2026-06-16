@@ -10,14 +10,17 @@ const (
 )
 
 type Administrator struct {
-	ID         uint               `json:"id" gorm:"primaryKey;autoIncrement"`
-	Username   string             `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
-	Password   string             `json:"-" gorm:"type:varchar(255);not null" validate:"required"`
-	Role       string             `json:"role" gorm:"type:varchar(32);not null;default:'admin'" validate:"required,oneof=super admin"`
-	LastLogin  *time.Time         `json:"last_login"`
-	CreatedAt  time.Time          `json:"created_at" gorm:"autoCreateTime" validate:"required"`
-	UpdatedAt  time.Time          `json:"updated_at" gorm:"autoUpdateTime" validate:"omitempty"`
-	Tokens     []AdministratorToken `json:"-" gorm:"foreignKey:AdministratorID"`
+	ID               uint               `json:"id" gorm:"primaryKey;autoIncrement"`
+	Username         string             `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
+	Password         string             `json:"-" gorm:"type:varchar(255);not null" validate:"required"`
+	Role             string             `json:"role" gorm:"type:varchar(32);not null;default:'admin'" validate:"required,oneof=super admin"`
+	IsSuspended      bool               `json:"is_suspended" gorm:"type:boolean;default:false"`
+	SuspendedAt      *time.Time         `json:"suspended_at"`
+	SuspendedReason  string             `json:"suspended_reason" gorm:"type:text"`
+	LastLogin        *time.Time         `json:"last_login"`
+	CreatedAt        time.Time          `json:"created_at" gorm:"autoCreateTime" validate:"required"`
+	UpdatedAt        time.Time          `json:"updated_at" gorm:"autoUpdateTime" validate:"omitempty"`
+	Tokens           []AdministratorToken `json:"-" gorm:"foreignKey:AdministratorID"`
 }
 
 

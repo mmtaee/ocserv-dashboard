@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 )
 
 type OcservUser struct{}

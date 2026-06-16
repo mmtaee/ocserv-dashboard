@@ -1,0 +1,12 @@
+{
+  "project_name": "Gozar Carpooling API",
+  "project_description": "A Go backend API for a carpooling platform with admin and client panels",
+  "permissions": {
+    "allow": [
+      "Bash(go test *)"
+    ]
+  },
+  "project_structure": ".agents/project-structure.json",
+  "instructions": "First, ALWAYS read the project-structure.json file before scanning the entire project! Use the key patterns to locate files instead of full scans! Also review skills in .agents/skills first!"
+}
+

@@ -3,8 +3,16 @@ package routing
 import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/auth"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/ocserv_group"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/ocserv_user"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/super_admin"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/system"
 )
 
 func Register(e *echo.Echo) {
 	auth.RegisterRoutes(e)
+	system.RegisterRoutes(e)
+	super_admin.RegisterRoutes(e)
+	ocserv_group.RegisterRoutes(e)
+	ocserv_user.RegisterRoutes(e)
 }

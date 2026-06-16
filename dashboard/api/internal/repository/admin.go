@@ -8,7 +8,9 @@ import (
 type AdminRepository interface {
 	FindByUsername(username string) (*models.Administrator, error)
 	FindByID(id uint) (*models.Administrator, error)
+	Create(admin *models.Administrator) error
 	Update(admin *models.Administrator) error
+	List() ([]models.Administrator, error)
 }
 
 type adminRepository struct {
@@ -31,6 +33,16 @@ func (r *adminRepository) FindByID(id uint) (*models.Administrator, error) {
 	return &admin, err
 }
 
+func (r *adminRepository) Create(admin *models.Administrator) error {
+	return r.db.Create(admin).Error
+}
+
 func (r *adminRepository) Update(admin *models.Administrator) error {
 	return r.db.Save(admin).Error
+}
+
+func (r *adminRepository) List() ([]models.Administrator, error) {
+	var admins []models.Administrator
+	err := r.db.Find(&admins).Error
+	return admins, err
 }

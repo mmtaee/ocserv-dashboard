@@ -1,0 +1,18 @@
+{
+  "roles": {
+    "super": {
+      "permissions": [
+        "*"
+      ],
+      "description": "Super admin with full access to all operations"
+    },
+    "admin": {
+      "permissions": [
+        "ocserv:group:read:own",
+        "ocserv:group:write:own",
+        "ocserv:group:delete:own"
+      ],
+      "description": "Regular admin with access to own resources"
+    }
+  }
+}

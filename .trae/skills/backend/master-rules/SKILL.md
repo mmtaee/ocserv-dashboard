@@ -15,7 +15,23 @@ description: Unified global rules for this Go backend project, covering architec
 1. **Read Project Structure**: Explore the codebase to understand existing patterns.
 2. **Check Dependencies**: Review `go.mod` for existing dependencies before adding new ones.
 3. **Follow Conventions**: Use existing naming, directory structure, and error handling patterns.
-4. **Update PROJECT.md**: After ANY change (create/delete/move/rename files/directories), update `/.trae/PROJECT.md`.
+4. **Update PROJECT.json**: After ANY change (create/delete/move/rename files/directories), update `/.trae/PROJECT.json`.
+5. **Check Role Rules**: Review `/.trae/role-rules.json` before implementing any new features, and update it if new roles or permissions are added.
+6. **Enforce Ownership**: All models that belong to an admin must have an `OwnerAdminID` field, and non-super admins can only access their own objects.
+
+## Role-Based Access Control (RBAC)
+
+### Core Rules
+- **Super Admin**: Has full access to all objects and operations (permissions: `*`).
+- **Regular Admin**: Can only access, modify, and delete objects they own (where `OwnerAdminID` matches their admin ID).
+
+### Key Requirements for New Features
+1. **Ownership Field**: Every new domain model that belongs to an admin must include an `OwnerAdminID` field.
+2. **Repository Layer**: All repository methods must accept an `adminID` and `role` parameter.
+3. **Ownership Checks**: In repository methods, for non-super admins, always add a `WHERE owner_admin_id = ?` condition to queries.
+4. **Role Propagation**: Pass the admin ID and role from the controller → use case → repository layer.
+5. **Update Role Rules**: If you add new roles or permissions, update `/.trae/role-rules.json` immediately.
+
 
 ## Project Stack & Architecture
 
@@ -67,4 +83,6 @@ Before completing a task:
 1. **Format**: Ensure code is properly formatted (`gofmt` or equivalent).
 2. **Test**: Run `go test ./...` to confirm all tests pass.
 3. **Verify**: Ensure the implementation aligns with existing patterns and requirements.
-4. **Update PROJECT.md**: Update `/.trae/PROJECT.md` to reflect any changes to the project structure or files.
+4. **Update project-structure.json**: Update `/.trae/project-structure.json` to reflect any changes to the project structure or files.
+5. **Update role-rules.json**: If new roles or permissions were added, update `/.trae/role-rules.json` accordingly.
+6. **Check Ownership**: Double-check that all new models have an `OwnerAdminID` field and that ownership checks are implemented in the repository layer.

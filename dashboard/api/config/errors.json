@@ -52,5 +52,122 @@
     "ru": "Текущий пароль неверен",
     "zh-cn": "当前密码不正确",
     "zh-tw": "當前密碼不正確"
+  },
+  "3001": {
+    "status": 404,
+    "fa": "تنظیمات سیستم یافت نشد",
+    "en": "System config not found",
+    "it": "Configurazione di sistema non trovata",
+    "ru": "Конфигурация системы не найдена",
+    "zh-cn": "系统配置未找到",
+    "zh-tw": "系統配置未找到"
+  },
+  "4001": {
+    "status": 403,
+    "fa": "فقط سوپرادمین می‌تواند این عمل را انجام دهد",
+    "en": "Only super admin can perform this action",
+    "it": "Solo il super admin può eseguire questa azione",
+    "ru": "Только суперадминистратор может выполнить это действие",
+    "zh-cn": "只有超级管理员可以执行此操作",
+    "zh-tw": "只有超級管理員可以執行此操作"
+  },
+  "4002": {
+    "status": 409,
+    "fa": "فقط یک سوپرادمین می‌تواند در سیستم وجود داشته باشد",
+    "en": "Only one super admin can exist in the system",
+    "it": "Solo un super admin può esistere nel sistema",
+    "ru": "В системе может существовать только один суперадминистратор",
+    "zh-cn": "系统中只能存在一个超级管理员",
+    "zh-tw": "系統中只能存在一個超級管理員"
+  },
+  "4003": {
+    "status": 404,
+    "fa": "ادمین یافت نشد",
+    "en": "Admin not found",
+    "it": "Admin non trovato",
+    "ru": "Администратор не найден",
+    "zh-cn": "管理员未找到",
+    "zh-tw": "管理員未找到"
+  },
+  "4004": {
+    "status": 403,
+    "fa": "نمی‌توانید سوپرادمین را تغییر دهید",
+    "en": "Cannot modify super admin",
+    "it": "Impossibile modificare il super admin",
+    "ru": "Невозможно изменить суперадминистратора",
+    "zh-cn": "无法修改超级管理员",
+    "zh-tw": "無法修改超級管理員"
+  },
+  "4005": {
+    "status": 403,
+    "fa": "حساب کاربری شما معلق شده است",
+    "en": "Your account has been suspended",
+    "it": "Il tuo account è stato sospeso",
+    "ru": "Ваш аккаунт был приостановлен",
+    "zh-cn": "您的账户已被暂停",
+    "zh-tw": "您的賬戶已被暫停"
+  },
+  "4006": {
+    "status": 409,
+    "fa": "این نام کاربری قبلا استفاده شده است",
+    "en": "Username already exists",
+    "it": "Nome utente già esistente",
+    "ru": "Имя пользователя уже существует",
+    "zh-cn": "用户名已存在",
+    "zh-tw": "用戶名已存在"
+  },
+  "6001": {
+    "status": 404,
+    "fa": "گروه یافت نشد",
+    "en": "Group not found",
+    "it": "Gruppo non trovato",
+    "ru": "Группа не найдена",
+    "zh-cn": "组未找到",
+    "zh-tw": "組未找到"
+  },
+  "6002": {
+    "status": 409,
+    "fa": "گروه با این نام وجود دارد",
+    "en": "Group with this name already exists",
+    "it": "Gruppo con questo nome già esistente",
+    "ru": "Группа с таким именем уже существует",
+    "zh-cn": "该名称的组已存在",
+    "zh-tw": "該名稱的組已存在"
+  },
+  "6003": {
+    "status": 400,
+    "fa": "شناسه گروه نامعتبر است",
+    "en": "Invalid group ID",
+    "it": "ID gruppo non valido",
+    "ru": "Некорректный ID группы",
+    "zh-cn": "无效的组ID",
+    "zh-tw": "無效的組ID"
+  },
+  "7001": {
+    "status": 404,
+    "fa": "کاربر یافت نشد",
+    "en": "User not found",
+    "it": "Utente non trovato",
+    "ru": "Пользователь не найден",
+    "zh-cn": "用户未找到",
+    "zh-tw": "用戶未找到"
+  },
+  "7002": {
+    "status": 409,
+    "fa": "این نام کاربری قبلا استفاده شده است",
+    "en": "Username already exists",
+    "it": "Nome utente già esistente",
+    "ru": "Имя пользователя уже существует",
+    "zh-cn": "用户名已存在",
+    "zh-tw": "用戶名已存在"
+  },
+  "7003": {
+    "status": 400,
+    "fa": "شناسه کاربر نامعتبر است",
+    "en": "Invalid user ID",
+    "it": "ID utente non valido",
+    "ru": "Некорректный ID пользователя",
+    "zh-cn": "无效的用户ID",
+    "zh-tw": "無效的用戶ID"
   }
 }

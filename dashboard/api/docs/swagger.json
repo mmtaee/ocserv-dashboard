@@ -4,6 +4,348 @@
         "contact": {}
     },
     "paths": {
+        "/api/v1/ocserv/groups": {
+            "get": {
+                "description": "Get all Ocserv groups for current admin (superadmin can access all groups)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "List Ocserv Groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OcservGroupResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create new Ocserv group (superadmin can create groups for any admin)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "Create Ocserv Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create group data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.CreateOcservGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ocserv/groups/lookup": {
+            "get": {
+                "description": "Get list of group names (superadmin can access all groups)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "Groups Lookup",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ocserv/groups/{id}": {
+            "get": {
+                "description": "Get Ocserv group by ID (superadmin can access any group)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "Get Ocserv Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservGroupResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update Ocserv group by ID (superadmin can update any group)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "Update Ocserv Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update group data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Ocserv group by ID (superadmin can delete any group)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Groups"
+                ],
+                "summary": "Delete Ocserv Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/change-password": {
             "post": {
                 "description": "Update authenticated admin's password",
@@ -140,6 +482,557 @@
                     }
                 }
             }
+        },
+        "/super-admin/admins": {
+            "get": {
+                "description": "List all admins",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "List Admins",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Administrator"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Create Admin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Admin",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/super_admin.CreateAdminRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Administrator"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/super-admin/admins/{id}": {
+            "get": {
+                "description": "Get an admin by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Get Admin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Administrator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update an admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Update Admin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Admin",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/super_admin.UpdateAdminRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Administrator"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/super-admin/admins/{id}/change-password": {
+            "post": {
+                "description": "Change an admin's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Change Admin Password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Change Password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/super_admin.ChangeAdminPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/super-admin/admins/{id}/suspend": {
+            "post": {
+                "description": "Suspend an admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Suspend Admin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Suspend Admin",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/super_admin.SuspendAdminRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/super-admin/admins/{id}/unsuspend": {
+            "post": {
+                "description": "Unsuspend an admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Super Admin"
+                ],
+                "summary": "Unsuspend Admin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/system": {
+            "get": {
+                "description": "Return the system configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get System Config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.System"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update the system configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Update System Config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "System Config Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.UpdateSystemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.System"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -199,6 +1092,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "is_suspended": {
+                    "type": "boolean"
+                },
                 "last_login": {
                     "type": "string"
                 },
@@ -209,11 +1105,234 @@
                         "admin"
                     ]
                 },
+                "suspended_at": {
+                    "type": "string"
+                },
+                "suspended_reason": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.OcservGroup": {
+            "type": "object",
+            "required": [
+                "name",
+                "owner_admin_id"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_admin_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.OcservGroupConfig": {
+            "type": "object",
+            "properties": {
+                "cgroup": {
+                    "description": "Linux control group to assign the VPN worker process to. Format: 'controller,subsystem:name'. Example: 'cpuset,cpu:test'",
+                    "type": "string"
+                },
+                "deny-roaming": {
+                    "description": "Disconnect client if its IP changes (e.g., due to network switch). Example: true",
+                    "type": "boolean"
+                },
+                "dns": {
+                    "description": "Comma-separated list of DNS servers to assign to the client. Example: '8.8.8.8,1.1.1.1'",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "description": "Dead Peer Detection timeout in seconds. Example: 90",
+                    "type": "integer"
+                },
+                "explicit-ipv4": {
+                    "description": "Static IPv4 address to assign to client. Example: '192.168.100.10'",
+                    "type": "string"
+                },
+                "idle-timeout": {
+                    "description": "Time in seconds before disconnecting idle clients. Example: 600",
+                    "type": "integer"
+                },
+                "ipv4-network": {
+                    "description": "The pool of addresses that leases will be given from. Example: '192.168.1.0/24'",
+                    "type": "string"
+                },
+                "iroute": {
+                    "description": "Internal route available only via VPN. Format: 'IP/prefix'. Example: '10.0.0.0/8'",
+                    "type": "string"
+                },
+                "keepalive": {
+                    "description": "Interval in seconds to send keep-alive pings. Example: 60",
+                    "type": "integer"
+                },
+                "max-same-clients": {
+                    "description": "Maximum simultaneous logins per user. Example: 2",
+                    "type": "integer"
+                },
+                "mobile-dpd": {
+                    "description": "DPD timeout specifically for mobile clients. Example: 300",
+                    "type": "integer"
+                },
+                "mobile-idle-timeout": {
+                    "description": "Idle timeout for mobile clients. Example: 900",
+                    "type": "integer"
+                },
+                "mtu": {
+                    "description": "Tunnel interface MTU to avoid fragmentation. Example: 1400",
+                    "type": "integer"
+                },
+                "nbns": {
+                    "description": "NetBIOS Name Servers (WINS) for Windows clients. Example: '192.168.1.1'",
+                    "type": "string"
+                },
+                "net-priority": {
+                    "description": "Priority for routes; lower is higher priority. Example: 1",
+                    "type": "integer"
+                },
+                "no-route": {
+                    "description": "List of networks to exclude from VPN routing. Each entry should be in 'IP/prefix' format. Example: ['192.168.0.0/16', '10.0.0.0/8']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "no-udp": {
+                    "description": "Disables UDP, enforcing TCP-only VPN connection. Example: true",
+                    "type": "boolean"
+                },
+                "restrict-user-to-ports": {
+                    "description": "Comma-separated list of allowed (or blocked, if negated) protocols and ports. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), tcp(80), udp(53)', or '!(tcp(22), udp(1194))'",
+                    "type": "string"
+                },
+                "restrict-user-to-routes": {
+                    "description": "Allow client access only to defined routes. Example: true",
+                    "type": "boolean"
+                },
+                "route": {
+                    "description": "Routes pushed to the client for routing traffic. Example: ['0.0.0.0/0', '10.10.0.0/16']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rx-data-per-sec": {
+                    "description": "Maximum receive bandwidth in bytes per second. Example: '100000' for 100 KB/s",
+                    "type": "integer"
+                },
+                "session-timeout": {
+                    "description": "Max session time in seconds before forced disconnect. Example: 3600",
+                    "type": "integer"
+                },
+                "split-dns": {
+                    "description": "List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "stats-report-time": {
+                    "description": "Interval in seconds for stats reporting. Example: 300",
+                    "type": "integer"
+                },
+                "tunnel-all-dns": {
+                    "description": "Force all DNS traffic through the VPN tunnel. Example: true",
+                    "type": "boolean"
+                },
+                "tx-data-per-sec": {
+                    "description": "Maximum transmit bandwidth in bytes per second. Example: '200000' for 200 KB/s",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.OcservGroupResponse": {
+            "type": "object",
+            "required": [
+                "name",
+                "owner_admin_id"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_admin_id": {
+                    "type": "integer"
+                },
+                "total_rx": {
+                    "type": "integer"
+                },
+                "total_tx": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.System": {
+            "type": "object",
+            "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
+                "client_profile_connection_name": {
+                    "type": "string"
+                },
+                "client_profile_server_address": {
+                    "type": "string"
+                },
+                "client_profile_server_port": {
+                    "type": "integer"
+                },
+                "google_captcha_secret": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ocserv_group.CreateOcservGroupRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ocserv_group.UpdateOcservGroupRequest": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
                 }
             }
         },
@@ -243,6 +1362,82 @@
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "super_admin.ChangeAdminPasswordRequest": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "super_admin.CreateAdminRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "super_admin.SuspendAdminRequest": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "super_admin.UpdateAdminRequest": {
+            "type": "object",
+            "required": [
+                "username"
+            ],
+            "properties": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.UpdateSystemRequest": {
+            "type": "object",
+            "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
+                "client_profile_connection_name": {
+                    "type": "string"
+                },
+                "client_profile_server_address": {
+                    "type": "string"
+                },
+                "client_profile_server_port": {
+                    "type": "integer"
+                },
+                "google_captcha_secret": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
                 }
             }
         }

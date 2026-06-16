@@ -3,11 +3,12 @@ package occtl
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 	"net"
 	"os/exec"
 	"strings"
+
+	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/utils"
 )
 
 type OcservOcctl struct{}
