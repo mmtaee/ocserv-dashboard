@@ -191,6 +191,138 @@ definitions:
     - name
     - owner_admin_id
     type: object
+  models.OcservUser:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      created_at:
+        type: string
+      deactivated_at:
+        type: string
+      description:
+        type: string
+      expire_at:
+        type: string
+      group:
+        type: string
+      id:
+        type: integer
+      is_locked:
+        type: boolean
+      owner_admin_id:
+        type: integer
+      password:
+        description: Length matches migration 007 (ocserv_users.password column);
+          do not widen without a new migration.
+        type: string
+      rx:
+        description: Receive in bytes
+        type: integer
+      traffic_size:
+        description: in GiB  >> x * 1024 ** 3
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        type: string
+      tx:
+        description: Transmit in bytes
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - created_at
+    - group
+    - is_locked
+    - owner_admin_id
+    - password
+    - rx
+    - traffic_size
+    - traffic_type
+    - tx
+    - username
+    type: object
+  models.OcservUserConfig:
+    properties:
+      dns:
+        description: 'Comma-separated list of DNS servers to assign to the user. Example:
+          ''8.8.8.8,1.1.1.1'''
+        items:
+          type: string
+        type: array
+      explicit-ipv4:
+        description: 'Static IPv4 address to assign to the user. Example: ''192.168.100.10'''
+        type: string
+      idle-timeout:
+        description: 'Time in seconds before disconnecting idle users. Example: 600'
+        type: integer
+      ipv4-network:
+        description: 'The pool of addresses from which to assign to the user. Example:
+          ''192.168.1.0/24'''
+        type: string
+      iroute:
+        description: 'Internal route available only via VPN. Example: ''10.0.0.0/8'''
+        type: string
+      mobile-idle-timeout:
+        description: 'Idle timeout in seconds for mobile users. Example: 900'
+        type: integer
+      nbns:
+        description: 'NetBIOS Name Servers (WINS) for Windows clients. Example: ''192.168.1.1'''
+        type: string
+      no-route:
+        description: 'List of networks to exclude from VPN routing. Example: [''192.168.0.0/16'',
+          ''10.0.0.0/8'']'
+        items:
+          type: string
+        type: array
+      rekey-time:
+        description: 'Rekey time in seconds; triggers key renegotiation. Example:
+          86400 for 24 hours'
+        type: integer
+      restrict-to-ports:
+        description: 'Comma-separated list of allowed or blocked ports/protocols.
+          Supports ''tcp(port)'', ''udp(port)'', ''icmp()'', ''icmpv6()'', and negation
+          with ''!()''. Example: ''tcp(443), udp(53)'' or ''!(tcp(22), udp(1194))'''
+        type: string
+      restrict-to-routes:
+        description: 'Allow user access only to defined routes. Example: true'
+        type: boolean
+      route:
+        description: 'Routes pushed to the user for routing traffic. Example: [''0.0.0.0/0'',
+          ''10.10.0.0/16'']'
+        items:
+          type: string
+        type: array
+      session-timeout:
+        description: 'Maximum session time in seconds before forced disconnect. Example:
+          3600'
+        type: integer
+      split-dns:
+        description: 'List of domains over which the provided DNS servers should be
+          used. Example: [''example.com'', ''internal.company.com'']'
+        items:
+          type: string
+        type: array
+    type: object
+  models.OnlineUserSession:
+    properties:
+      _Connected at:
+        type: string
+      Average RX:
+        type: string
+      Average TX:
+        type: string
+      Groupname:
+        type: string
+      Username:
+        type: string
+    type: object
   models.System:
     properties:
       auto_delete_inactive_users:
@@ -222,6 +354,106 @@ definitions:
       config:
         $ref: '#/definitions/models.OcservGroupConfig'
     type: object
+  ocserv_user.CreateOcservUserRequest:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      group:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: in GiB
+        example: 10
+        minimum: 0
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        type: string
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - config
+    - group
+    - password
+    - traffic_type
+    - username
+    type: object
+  ocserv_user.GetOnlineSessionsRequest:
+    properties:
+      usernames:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - usernames
+    type: object
+  ocserv_user.OcservUsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Pagination'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    type: object
+  ocserv_user.UpdateOcservUserRequest:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      group:
+        example: defaults
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: in GiB
+        example: 10
+        minimum: 0
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - TotallyTransmit
+        - TotallyReceive
+        type: string
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+    type: object
   request.ErrorResponse:
     properties:
       code:
@@ -240,6 +472,17 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  request.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
     type: object
   super_admin.ChangeAdminPasswordRequest:
     properties:
@@ -294,7 +537,97 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/ocserv/groups:
+  /auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Update authenticated admin's password
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Change Password Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/request.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Change Admin Password
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Admin Login
+      tags:
+      - Auth
+  /auth/profile:
+    get:
+      consumes:
+      - application/json
+      description: Return authenticated admin's profile
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Administrator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Admin Profile
+      tags:
+      - Auth
+  /ocserv/groups:
     get:
       consumes:
       - application/json
@@ -368,7 +701,7 @@ paths:
       summary: Create Ocserv Group
       tags:
       - Ocserv Groups
-  /api/v1/ocserv/groups/{id}:
+  /ocserv/groups/{id}:
     delete:
       consumes:
       - application/json
@@ -492,7 +825,7 @@ paths:
       summary: Update Ocserv Group
       tags:
       - Ocserv Groups
-  /api/v1/ocserv/groups/lookup:
+  /ocserv/groups/lookup:
     get:
       consumes:
       - application/json
@@ -523,81 +856,59 @@ paths:
       summary: Groups Lookup
       tags:
       - Ocserv Groups
-  /auth/change-password:
-    post:
-      consumes:
-      - application/json
-      description: Update authenticated admin's password
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Change Password Data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.ChangePasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/request.MessageResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Change Admin Password
-      tags:
-      - Auth
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Login with username and password
-      parameters:
-      - description: Login Credentials
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/auth.LoginResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Admin Login
-      tags:
-      - Auth
-  /auth/profile:
+  /ocserv/users:
     get:
       consumes:
       - application/json
-      description: Return authenticated admin's profile
+      description: Get all Ocserv users for current admin (superadmin can access all
+        users)
       parameters:
       - description: Bearer TOKEN
         in: header
         name: Authorization
         required: true
+        type: string
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: ocserv username q search
+        in: query
+        minLength: 2
+        name: q
+        type: string
+      - description: filter ocserv user by statues
+        enum:
+        - active
+        - deactivated
+        - locked
+        in: query
+        name: filter
+        type: string
+      - description: filter ocserv user by group name
+        in: query
+        name: group
+        type: string
+      - description: Field to order by
+        enum:
+        - id
+        - created_at
+        in: query
+        name: order_by
+        type: string
+      - description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
         type: string
       produces:
       - application/json
@@ -605,14 +916,309 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Administrator'
+            $ref: '#/definitions/ocserv_user.OcservUsersResponse'
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Get Admin Profile
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Ocserv Users
       tags:
-      - Auth
+      - Ocserv Users
+    post:
+      consumes:
+      - application/json
+      description: Create new Ocserv user
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.CreateOcservUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Ocserv user by ID (superadmin can delete any user)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Ocserv User
+      tags:
+      - Ocserv Users
+    get:
+      consumes:
+      - application/json
+      description: Get Ocserv user by ID
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Ocserv User
+      tags:
+      - Ocserv Users
+    post:
+      consumes:
+      - application/json
+      description: Update Ocserv user by ID (superadmin can update any user)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.UpdateOcservUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/lock:
+    post:
+      consumes:
+      - application/json
+      description: Lock Ocserv user by ID (superadmin can lock any user)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Lock Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/unlock:
+    post:
+      consumes:
+      - application/json
+      description: Unlock Ocserv user by ID (superadmin can unlock any user)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Unlock Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/online-sessions:
+    post:
+      consumes:
+      - application/json
+      description: Get list of online sessions filtered by provided usernames
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: List of usernames to filter online sessions
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.GetOnlineSessionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OnlineUserSession'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Online Sessions for Specific Usernames
+      tags:
+      - Ocserv Users
   /super-admin/admins:
     get:
       consumes:

@@ -34,7 +34,13 @@ description: Create Echo v5 APIs using Service/Repository/Usecase pattern.
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Failure 401 {object} request.ErrorResponse
 ```
-- for pagination use pkg/request/pagination module 
+- for pagination use pkg/request/pagination module, and response structure MUST be:
+```go
+type <Name>Response struct {
+	Meta   request.Pagination `json:"meta"`
+	Result []<ModelType>      `json:"result"`
+}
+```
 - generate in `api/` directory with: `swag init --pd`
 - serve each documentation on its respective service route using `http-swagger` ONLY when `Debug` is true. 
 - DONT create or define api with PUT method.

@@ -15,7 +15,144 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/ocserv/groups": {
+        "/auth/change-password": {
+            "post": {
+                "description": "Update authenticated admin's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Change Admin Password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Change Password Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/request.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Login with username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Admin Login",
+                "parameters": [
+                    {
+                        "description": "Login Credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/profile": {
+            "get": {
+                "description": "Return authenticated admin's profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Admin Profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Administrator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/groups": {
             "get": {
                 "description": "Get all Ocserv groups for current admin (superadmin can access all groups)",
                 "consumes": [
@@ -125,7 +262,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/ocserv/groups/lookup": {
+        "/ocserv/groups/lookup": {
             "get": {
                 "description": "Get list of group names (superadmin can access all groups)",
                 "consumes": [
@@ -172,7 +309,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/ocserv/groups/{id}": {
+        "/ocserv/groups/{id}": {
             "get": {
                 "description": "Get Ocserv group by ID (superadmin can access any group)",
                 "consumes": [
@@ -357,108 +494,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/change-password": {
-            "post": {
-                "description": "Update authenticated admin's password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Change Admin Password",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Change Password Data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/auth.ChangePasswordRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/request.MessageResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "description": "Login with username and password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Admin Login",
-                "parameters": [
-                    {
-                        "description": "Login Credentials",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/profile": {
+        "/ocserv/users": {
             "get": {
-                "description": "Return authenticated admin's profile",
+                "description": "Get all Ocserv users for current admin (superadmin can access all users)",
                 "consumes": [
                     "application/json"
                 ],
@@ -466,9 +504,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Ocserv Users"
                 ],
-                "summary": "Get Admin Profile",
+                "summary": "List Ocserv Users",
                 "parameters": [
                     {
                         "type": "string",
@@ -476,17 +514,518 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number, starting from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minLength": 2,
+                        "type": "string",
+                        "description": "ocserv username q search",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "active",
+                            "deactivated",
+                            "locked"
+                        ],
+                        "type": "string",
+                        "description": "filter ocserv user by statues",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter ocserv user by group name",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "id",
+                            "created_at"
+                        ],
+                        "type": "string",
+                        "description": "Field to order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Administrator"
+                            "$ref": "#/definitions/ocserv_user.OcservUsersResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create new Ocserv user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Create Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create user data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.CreateOcservUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/online-sessions": {
+            "post": {
+                "description": "Get list of online sessions filtered by provided usernames",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Get Online Sessions for Specific Usernames",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "List of usernames to filter online sessions",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.GetOnlineSessionsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OnlineUserSession"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{id}": {
+            "get": {
+                "description": "Get Ocserv user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Get Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update Ocserv user by ID (superadmin can update any user)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Update Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update user data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.UpdateOcservUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Ocserv user by ID (superadmin can delete any user)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Delete Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{id}/lock": {
+            "post": {
+                "description": "Lock Ocserv user by ID (superadmin can lock any user)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Lock Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/{id}/unlock": {
+            "post": {
+                "description": "Unlock Ocserv user by ID (superadmin can unlock any user)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv Users"
+                ],
+                "summary": "Unlock Ocserv User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
@@ -1299,6 +1838,175 @@ const docTemplate = `{
                 }
             }
         },
+        "models.OcservUser": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "group",
+                "is_locked",
+                "owner_admin_id",
+                "password",
+                "rx",
+                "traffic_size",
+                "traffic_type",
+                "tx",
+                "username"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deactivated_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expire_at": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_locked": {
+                    "type": "boolean"
+                },
+                "owner_admin_id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "description": "Length matches migration 007 (ocserv_users.password column); do not widen without a new migration.",
+                    "type": "string"
+                },
+                "rx": {
+                    "description": "Receive in bytes",
+                    "type": "integer"
+                },
+                "traffic_size": {
+                    "description": "in GiB  \u003e\u003e x * 1024 ** 3",
+                    "type": "integer"
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ]
+                },
+                "tx": {
+                    "description": "Transmit in bytes",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OcservUserConfig": {
+            "type": "object",
+            "properties": {
+                "dns": {
+                    "description": "Comma-separated list of DNS servers to assign to the user. Example: '8.8.8.8,1.1.1.1'",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "explicit-ipv4": {
+                    "description": "Static IPv4 address to assign to the user. Example: '192.168.100.10'",
+                    "type": "string"
+                },
+                "idle-timeout": {
+                    "description": "Time in seconds before disconnecting idle users. Example: 600",
+                    "type": "integer"
+                },
+                "ipv4-network": {
+                    "description": "The pool of addresses from which to assign to the user. Example: '192.168.1.0/24'",
+                    "type": "string"
+                },
+                "iroute": {
+                    "description": "Internal route available only via VPN. Example: '10.0.0.0/8'",
+                    "type": "string"
+                },
+                "mobile-idle-timeout": {
+                    "description": "Idle timeout in seconds for mobile users. Example: 900",
+                    "type": "integer"
+                },
+                "nbns": {
+                    "description": "NetBIOS Name Servers (WINS) for Windows clients. Example: '192.168.1.1'",
+                    "type": "string"
+                },
+                "no-route": {
+                    "description": "List of networks to exclude from VPN routing. Example: ['192.168.0.0/16', '10.0.0.0/8']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rekey-time": {
+                    "description": "Rekey time in seconds; triggers key renegotiation. Example: 86400 for 24 hours",
+                    "type": "integer"
+                },
+                "restrict-to-ports": {
+                    "description": "Comma-separated list of allowed or blocked ports/protocols. Supports 'tcp(port)', 'udp(port)', 'icmp()', 'icmpv6()', and negation with '!()'. Example: 'tcp(443), udp(53)' or '!(tcp(22), udp(1194))'",
+                    "type": "string"
+                },
+                "restrict-to-routes": {
+                    "description": "Allow user access only to defined routes. Example: true",
+                    "type": "boolean"
+                },
+                "route": {
+                    "description": "Routes pushed to the user for routing traffic. Example: ['0.0.0.0/0', '10.10.0.0/16']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "session-timeout": {
+                    "description": "Maximum session time in seconds before forced disconnect. Example: 3600",
+                    "type": "integer"
+                },
+                "split-dns": {
+                    "description": "List of domains over which the provided DNS servers should be used. Example: ['example.com', 'internal.company.com']",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.OnlineUserSession": {
+            "type": "object",
+            "properties": {
+                "Average RX": {
+                    "type": "string"
+                },
+                "Average TX": {
+                    "type": "string"
+                },
+                "Groupname": {
+                    "type": "string"
+                },
+                "Username": {
+                    "type": "string"
+                },
+                "_Connected at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.System": {
             "type": "object",
             "properties": {
@@ -1347,6 +2055,140 @@ const docTemplate = `{
                 }
             }
         },
+        "ocserv_user.CreateOcservUserRequest": {
+            "type": "object",
+            "required": [
+                "config",
+                "group",
+                "password",
+                "traffic_type",
+                "username"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "traffic_size": {
+                    "description": "in GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ]
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                }
+            }
+        },
+        "ocserv_user.GetOnlineSessionsRequest": {
+            "type": "object",
+            "required": [
+                "usernames"
+            ],
+            "properties": {
+                "usernames": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "ocserv_user.OcservUsersResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Pagination"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservUser"
+                    }
+                }
+            }
+        },
+        "ocserv_user.UpdateOcservUserRequest": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "defaults"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "traffic_size": {
+                    "description": "in GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "TotallyTransmit",
+                        "TotallyReceive"
+                    ]
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                }
+            }
+        },
         "request.ErrorResponse": {
             "type": "object",
             "required": [
@@ -1373,6 +2215,23 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "request.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
                 }
             }
         },

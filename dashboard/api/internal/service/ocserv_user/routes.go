@@ -23,4 +23,5 @@ func RegisterRoutes(e *echo.Echo) {
 	g.DELETE("/:id", userController.DeleteUser)
 	g.POST("/:id/lock", userController.LockUser)
 	g.POST("/:id/unlock", userController.UnlockUser)
+	g.POST("/online-sessions", userController.GetOnlineSessions)
 }

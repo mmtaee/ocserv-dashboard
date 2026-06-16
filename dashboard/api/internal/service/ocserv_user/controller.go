@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/ocserv/occtl"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
 )
@@ -15,6 +16,7 @@ type OcservUserController struct {
 	userUC    usecase.OcservUserUseCase
 	req      *request.Request
 	validator *request.Validator
+	occtl     *occtl.OcservOcctl
 }
 
 func NewOcservUserController(userUC usecase.OcservUserUseCase) *OcservUserController {
@@ -22,6 +24,7 @@ func NewOcservUserController(userUC usecase.OcservUserUseCase) *OcservUserContro
 		userUC:    userUC,
 		req:      &request.Request{},
 		validator: request.NewValidator(),
+		occtl:    occtl.NewOcservOcctl(),
 	}
 }
 
@@ -32,18 +35,92 @@ func NewOcservUserController(userUC usecase.OcservUserUseCase) *OcservUserContro
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Success 200 {array} models.OcservUser
+// @Param page query int false "Page number, starting from 1" minimum(1)
+// @Param limit query int false "Number of items per page" minimum(1) maximum(100)
+// @Param q query string false "ocserv username q search" minLength(2)
+// @Param filter query string false "filter ocserv user by statues" Enums(active, deactivated, locked)
+// @Param group query string false "filter ocserv user by group name"
+// @Param order_by query string false "Field to order by" Enums(id, created_at)
+// @Param sort query string false "Sort order" Enums(asc, desc)
+// @Success 200 {object} OcservUsersResponse
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users [get]
+// @Router /ocserv/users [get]
 func (ctrl *OcservUserController) ListUsers(c *echo.Context) error {
 	adminID := c.Get("id").(uint)
 	role := c.Get("role").(string)
-	users, err := ctrl.userUC.ListUsers(adminID, role)
+
+	// Get query params
+	page, limit := request.GetPaginationParams(c)
+	q := c.QueryParam("q")
+	filter := c.QueryParam("filter")
+	group := c.QueryParam("group")
+	orderBy := c.QueryParam("order_by")
+	sort := c.QueryParam("sort")
+
+	// Validate filter
+	validFilters := map[string]bool{"active": true, "deactivated": true, "locked": true}
+	if filter != "" && !validFilters[filter] {
+		filter = ""
+	}
+
+	// Get users from use case
+	users, total, err := ctrl.userUC.ListUsersPaginated(adminID, role, page, limit, q, filter, group, orderBy, sort)
 	if err != nil {
 		return ctrl.req.InternalServerError(c, err)
 	}
-	return c.JSON(http.StatusOK, users)
+
+	// Build response
+	response := OcservUsersResponse{
+		Meta:   request.NewPagination(total, page, limit),
+		Result: users,
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+// GetOnlineSessions godoc
+// @Summary Get Online Sessions for Specific Usernames
+// @Description Get list of online sessions filtered by provided usernames
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body GetOnlineSessionsRequest true "List of usernames to filter online sessions"
+// @Success 200 {array} models.OnlineUserSession
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Router /ocserv/users/online-sessions [post]
+func (ctrl *OcservUserController) GetOnlineSessions(c *echo.Context) error {
+	var req GetOnlineSessionsRequest
+	if err := ctrl.validator.Validate(c, &req); err != nil {
+		return err
+	}
+
+	// Create a map for quick lookup
+	usernameMap := make(map[string]bool)
+	for _, u := range req.Usernames {
+		usernameMap[u] = true
+	}
+
+	// Get all online sessions
+	sessionsPtr, err := ctrl.occtl.OnlineSessions()
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+
+	// Filter sessions
+	var filteredSessions []models.OnlineUserSession
+	if sessionsPtr != nil {
+		for _, session := range *sessionsPtr {
+			if usernameMap[session.Username] {
+				filteredSessions = append(filteredSessions, session)
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, filteredSessions)
 }
 
 // GetUser godoc
@@ -59,7 +136,7 @@ func (ctrl *OcservUserController) ListUsers(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users/{id} [get]
+// @Router /ocserv/users/{id} [get]
 func (ctrl *OcservUserController) GetUser(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -92,14 +169,13 @@ func (ctrl *OcservUserController) GetUser(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 409 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users [post]
+// @Router /ocserv/users [post]
 func (ctrl *OcservUserController) CreateUser(c *echo.Context) error {
 	var req CreateOcservUserRequest
 	if err := ctrl.validator.Validate(c, &req); err != nil {
 		return err
 	}
 	adminID := c.Get("id").(uint)
-	role := c.Get("role").(string)
 
 	var expireAt *time.Time
 	if req.Unlimited {
@@ -146,7 +222,7 @@ func (ctrl *OcservUserController) CreateUser(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users/{id} [post]
+// @Router /ocserv/users/{id} [post]
 func (ctrl *OcservUserController) UpdateUser(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -206,7 +282,7 @@ func (ctrl *OcservUserController) UpdateUser(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users/{id} [delete]
+// @Router /ocserv/users/{id} [delete]
 func (ctrl *OcservUserController) DeleteUser(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -238,7 +314,7 @@ func (ctrl *OcservUserController) DeleteUser(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users/{id}/lock [post]
+// @Router /ocserv/users/{id}/lock [post]
 func (ctrl *OcservUserController) LockUser(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -270,7 +346,7 @@ func (ctrl *OcservUserController) LockUser(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/users/{id}/unlock [post]
+// @Router /ocserv/users/{id}/unlock [post]
 func (ctrl *OcservUserController) UnlockUser(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)

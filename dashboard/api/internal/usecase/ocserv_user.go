@@ -11,6 +11,7 @@ import (
 
 type OcservUserUseCase interface {
 	ListUsers(adminID uint, role string) ([]models.OcservUser, error)
+	ListUsersPaginated(adminID uint, role string, page, limit int, q, filter, group string, orderBy string, sort string) ([]models.OcservUser, int64, error)
 	GetUser(id uint, adminID uint, role string) (*models.OcservUser, error)
 	CreateUser(username, password, group string, trafficType string, trafficSize int, description string, config *models.OcservUserConfig, ownerAdminID uint, expireAt *time.Time) (*models.OcservUser, error)
 	UpdateUser(id uint, adminID uint, role string, group *string, password *string, expireAt *time.Time, unlimited bool, trafficType *string, trafficSize *int, description *string, config *models.OcservUserConfig) (*models.OcservUser, error)
@@ -29,6 +30,10 @@ func NewOcservUserUseCase(userRepo repository.OcservUserRepository) OcservUserUs
 
 func (uc *ocservUserUseCase) ListUsers(adminID uint, role string) ([]models.OcservUser, error) {
 	return uc.userRepo.FindAll(adminID, role)
+}
+
+func (uc *ocservUserUseCase) ListUsersPaginated(adminID uint, role string, page, limit int, q, filter, group string, orderBy string, sort string) ([]models.OcservUser, int64, error) {
+	return uc.userRepo.FindAllPaginated(adminID, role, page, limit, q, filter, group, orderBy, sort)
 }
 
 func (uc *ocservUserUseCase) GetUser(id uint, adminID uint, role string) (*models.OcservUser, error) {

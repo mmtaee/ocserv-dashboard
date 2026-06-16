@@ -73,9 +73,15 @@ pkg/                → Shared modules (bootstrap, middlewares, request, testuti
 - **Run Tests**: Use `go test ./...` to verify everything passes.
 
 ## Documentation
-
-- **Swagger/OpenAPI**: Document endpoints with Swagger comments; run `swag init --pd` to regenerate docs.
+- **Swagger/OpenAPI**: Document endpoints with Swagger comments; run `swag init --pd` to regenerate docs. **CRITICAL**: Swagger @Router comment MUST NOT include /api/v1/ prefix. For example, use // @Router /auth/login [post], NOT /api/v1/auth/login.
 - **Comments**: Add comments for non-trivial logic explaining "why" not just "what".
+- **Pagination Responses**: For paginated list responses, use the structure with `meta` (containing pagination) and `result` (containing the items):
+```go
+type <Name>Response struct {
+	Meta   request.Pagination `json:"meta"`
+	Result []<ModelType>      `json:"result"`
+}
+```
 
 ## Finalization Protocol
 

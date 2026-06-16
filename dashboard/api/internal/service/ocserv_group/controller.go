@@ -33,7 +33,7 @@ func NewOcservGroupController(groupUC usecase.OcservGroupUseCase) *OcservGroupCo
 // @Success 200 {array} models.OcservGroupResponse
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups [get]
+// @Router /ocserv/groups [get]
 func (ctrl *OcservGroupController) ListGroups(c *echo.Context) error {
 	adminID := c.Get("id").(uint)
 	role := c.Get("role").(string)
@@ -56,7 +56,7 @@ func (ctrl *OcservGroupController) ListGroups(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups/{id} [get]
+// @Router /ocserv/groups/{id} [get]
 func (ctrl *OcservGroupController) GetGroup(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -89,7 +89,7 @@ func (ctrl *OcservGroupController) GetGroup(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 409 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups [post]
+// @Router /ocserv/groups [post]
 func (ctrl *OcservGroupController) CreateGroup(c *echo.Context) error {
 	var req CreateOcservGroupRequest
 	if err := ctrl.validator.Validate(c, &req); err != nil {
@@ -122,7 +122,7 @@ func (ctrl *OcservGroupController) CreateGroup(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups/{id} [post]
+// @Router /ocserv/groups/{id} [post]
 func (ctrl *OcservGroupController) UpdateGroup(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -159,7 +159,7 @@ func (ctrl *OcservGroupController) UpdateGroup(c *echo.Context) error {
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
 // @Failure 404 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups/{id} [delete]
+// @Router /ocserv/groups/{id} [delete]
 func (ctrl *OcservGroupController) DeleteGroup(c *echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -188,7 +188,7 @@ func (ctrl *OcservGroupController) DeleteGroup(c *echo.Context) error {
 // @Success 200 {array} string
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
-// @Router /api/v1/ocserv/groups/lookup [get]
+// @Router /ocserv/groups/lookup [get]
 func (ctrl *OcservGroupController) GroupsLookup(c *echo.Context) error {
 	adminID := c.Get("id").(uint)
 	role := c.Get("role").(string)

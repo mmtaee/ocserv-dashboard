@@ -1,6 +1,9 @@
 package ocserv_user
 
-import "github.com/mmtaee/ocserv-dashboard/core/models"
+import (
+	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
+)
 
 type CreateOcservUserRequest struct {
 	Group       string                   `json:"group" validate:"required"`
@@ -23,4 +26,13 @@ type UpdateOcservUserRequest struct {
 	TrafficSize *int                     `json:"traffic_size" validate:"gte=0" example:"10"` // in GiB
 	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
 	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+}
+
+type OcservUsersResponse struct {
+	Meta   request.Pagination  `json:"meta"`
+	Result []models.OcservUser `json:"result"`
+}
+
+type GetOnlineSessionsRequest struct {
+	Usernames []string `json:"usernames" validate:"required,min=1"`
 }

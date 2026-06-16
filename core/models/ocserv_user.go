@@ -69,7 +69,6 @@ type OcservUser struct {
 	Rx            int               `json:"rx" gorm:"not null;default:0" validate:"required"` // Receive in bytes
 	Tx            int               `json:"tx" gorm:"not null;default:0" validate:"required"` // Transmit in bytes
 	Description   string            `json:"description" gorm:"type:text" validate:"omitempty"`
-	IsOnline      bool              `json:"is_online" gorm:"-:migration;->" validate:"required"`
 	Config        *OcservUserConfig `json:"config" gorm:"type:text"`
 }
 
