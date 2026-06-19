@@ -13,12 +13,15 @@
     },
     "frontend": {
       "framework": "Vue 3",
+      "ui": "Vuetify",
       "buildTool": "Vite",
-      "ui": "Custom components"
+      "router": "Vue Router 4",
+      "state": "Pinia",
+      "i18n": "Vue I18n"
     },
     "infrastructure": {
       "containerization": ["Docker", "Docker Compose"],
-      "deploymentOptions": ["Docker-based", "Systemd-based"],
+      "deploymentOptions": ["All-in-one Docker", "Systemd"],
       "supportedOs": ["Debian 12+", "Ubuntu 20.04+"]
     }
   },
@@ -27,17 +30,12 @@
       ".trae/": {
         "description": "TRAE AI configuration",
         "children": {
-          "PROJECT.md": "Project context file (MUST be updated after any change to file/directory structure)",
           "project-structure.json": "Project structure in JSON format (MUST be updated after any change to file/directory structure)",
           "skills/": {
             "description": "Backend-specific TRAE skills",
             "children": {
               "api-creator/": {},
-              "master-rules/": {},
-              "middleware-creator/": {},
-              "model-creator/": {},
-              "service-creator/": {},
-              "test-creator/": {}
+              "master-rules/": {}
             }
           }
         }
@@ -67,7 +65,7 @@
               "common.go": {},
               "occtl.go": {},
               "ocserv_group.go": "Added OwnerAdminID",
-              "ocserv_user.go": "Removed UID, added OwnerAdminID",
+              "ocserv_user.go": "Removed UID, added OwnerAdminID, UsageResetAt, MonthlyRxTx",
               "system.go": {},
               "telegram.go": "Added OwnerAdminID",
               "telegram_languages.go": {}
@@ -149,7 +147,8 @@
           }
         }
       },
-      "dashboard/": {
+      "admin_dashboard/": {
+        "description": "Admin dashboard (API + UI)",
         "children": {
           "api/": {
             "description": "Admin API service",
@@ -157,22 +156,8 @@
               "cmd/": {
                 "description": "CLI commands",
                 "children": {
-                  "create-super-admin.go": {},
                   "root.go": {},
                   "serve.go": {}
-                }
-              },
-              "config/": {
-                "children": {
-                  "config.go": "Wrapper around core config",
-                  "errors.json": "Error codes and messages (includes customer errors 8001-8004)"
-                }
-              },
-              "docs/": {
-                "children": {
-                  "docs.go": {},
-                  "swagger.json": {},
-                  "swagger.yaml": {}
                 }
               },
               "internal/": {
@@ -212,7 +197,6 @@
                       "ocserv_group/": {},
                       "ocserv_user/": {},
                       "report/": {},
-                      "super_admin/": {},
                       "system/": {},
                       "systemd/": {},
                       "telegram/": {}
@@ -225,7 +209,6 @@
                       "ocserv_group.go": "OcservGroupUseCase",
                       "ocserv_user.go": "OcservUserUseCase",
                       "report.go": "ReportUseCase",
-                      "super_admin.go": "SuperAdminUseCase",
                       "system.go": "SystemUseCase (Get, Update)",
                       "systemd.go": "SystemdUseCase",
                       "telegram.go": "TelegramUseCase"
@@ -242,7 +225,6 @@
                   },
                   "bootstrap/": {
                     "children": {
-                      "migration.go": "Uses core migrations",
                       "serve.go": "Initializes config, infra, migrations and runs server"
                     }
                   },
@@ -261,11 +243,6 @@
                       "serve.go": "Uses core middlewares",
                       "utils.go": {}
                     }
-                  },
-                  "testutils/": {
-                    "children": {
-                      "db_loader.go": {}
-                    }
                   }
                 }
               },
@@ -274,11 +251,53 @@
             }
           },
           "ui/": {
-            "description": "Vue 3 frontend (empty for now)"
+            "description": "Vue 3 + Vite + Vuetify admin UI",
+            "children": {
+              "src/": {
+                "children": {
+                  "assets/": {},
+                  "components/": {},
+                  "plugins/": {
+                    "children": {
+                      "vuetify.js": {},
+                      "router.js": {},
+                      "pinia.js": {},
+                      "i18n.js": {},
+                      "axios.js": {}
+                    }
+                  },
+                  "locales/": {
+                    "children": {
+                      "en.json": {},
+                      "fa.json": {}
+                    }
+                  },
+                  "stores/": {
+                    "children": {
+                      "auth.js": {}
+                    }
+                  },
+                  "views/": {
+                    "children": {
+                      "Home.vue": {},
+                      "Users.vue": {},
+                      "Groups.vue": {}
+                    }
+                  },
+                  "App.vue": {},
+                  "main.js": {}
+                }
+              },
+              "public/": {},
+              "index.html": {},
+              "package.json": {},
+              "vite.config.js": {}
+            }
           }
         }
       },
       "customer_dashboard/": {
+        "description": "Customer dashboard (API + UI)",
         "children": {
           "api/": {
             "description": "Customer API service",
@@ -286,20 +305,8 @@
               "cmd/": {
                 "description": "CLI commands",
                 "children": {
-                  "create-super-admin.go": {},
                   "root.go": {},
                   "serve.go": {}
-                }
-              },
-              "config/": {
-                "children": {
-                  "config.go": "Wrapper around core config",
-                  "errors.json": "Error codes and messages (includes customer errors 8001-8004)"
-                }
-              },
-              "docs/": {
-                "children": {
-                  "docs.go": {}
                 }
               },
               "internal/": {
@@ -355,7 +362,6 @@
                   },
                   "bootstrap/": {
                     "children": {
-                      "migration.go": "Uses core migrations",
                       "serve.go": "Initializes config, infra, migrations and runs server"
                     }
                   },
@@ -374,11 +380,6 @@
                       "serve.go": "Uses core middlewares",
                       "utils.go": {}
                     }
-                  },
-                  "testutils/": {
-                    "children": {
-                      "db_loader.go": {}
-                    }
                   }
                 }
               },
@@ -387,41 +388,49 @@
             }
           },
           "ui/": {
-            "description": "Vue 3 customer frontend (empty for now)"
+            "description": "Vue 3 + Vite + Vuetify customer UI",
+            "children": {
+              "src/": {
+                "children": {
+                  "assets/": {},
+                  "components/": {},
+                  "plugins/": {
+                    "children": {
+                      "vuetify.js": {},
+                      "router.js": {},
+                      "pinia.js": {},
+                      "i18n.js": {},
+                      "axios.js": {}
+                    }
+                  },
+                  "locales/": {
+                    "children": {
+                      "en.json": {},
+                      "fa.json": {}
+                    }
+                  },
+                  "stores/": {
+                    "children": {
+                      "auth.js": {}
+                    }
+                  },
+                  "views/": {
+                    "children": {
+                      "Home.vue": {},
+                      "Profile.vue": {},
+                      "Usage.vue": {}
+                    }
+                  },
+                  "App.vue": {},
+                  "main.js": {}
+                }
+              },
+              "public/": {},
+              "index.html": {},
+              "package.json": {},
+              "vite.config.js": {}
+            }
           }
-        }
-      },
-      "ocserv_webhook/": {
-        "description": "Ocserv webhook service (handles disconnect/lock/unlock webhook actions)",
-        "children": {
-          "cmd/": {
-            "children": {
-              "root.go": {},
-              "serve.go": {}
-            }
-          },
-          "internal/": {
-            "children": {
-              "webhook/": {
-                "children": {
-                  "controller.go": {},
-                  "routes.go": {},
-                  "types.go": {}
-                }
-              }
-            }
-          },
-          "pkg/": {
-            "children": {
-              "bootstrap/": {
-                "children": {
-                  "serve.go": {}
-                }
-              }
-            }
-          },
-          "main.go": {},
-          "go.mod": {}
         }
       },
       "ocserv_user_manager/": {
@@ -577,6 +586,51 @@
           "go.mod": {}
         }
       },
+      "deploy/": {
+        "description": "Deployment files (Docker + Systemd)",
+        "children": {
+          "docker/": {
+            "description": "Docker deployment files",
+            "children": {
+              "build/": {
+                "children": {
+                  "Dockerfile.all-in-one": "All-in-one Dockerfile (Ocserv + Postgres + APIs + UIs)",
+                  "Dockerfile.go": "Builder for Go services"
+                }
+              },
+              "compose/": {
+                "children": {
+                  "docker-compose.all-in-one.yml": "All-in-one Docker Compose"
+                }
+              },
+              "configs/": {
+                "children": {
+                  "nginx.conf": "Nginx config for all-in-one",
+                  "ocserv.conf": "Ocserv config"
+                }
+              },
+              "scripts/": {
+                "children": {
+                  "ocserv_compile.sh": "Compiles Ocserv from source",
+                  "ocserv_entrypoint.sh": "Ocserv entrypoint",
+                  "run.sh": "All-in-one entrypoint"
+                }
+              }
+            }
+          },
+          "systemd/": {
+            "description": "Systemd deployment files",
+            "children": {
+              "install.sh": "Systemd installation script",
+              "uninstall.sh": "Systemd uninstallation script",
+              "lib.sh": "Shared utilities",
+              "pre_requirements.sh": "Pre-requirements",
+              "postgres.sh": "PostgreSQL setup",
+              "ocserv.sh": "Ocserv setup"
+            }
+          }
+        }
+      },
       "docs/": {
         "description": "Project documentation & assets",
         "children": {
@@ -612,8 +666,9 @@
   },
   "importantFiles": {
     "README.md": "General project documentation",
-    "TODO.md": "Roadmap & planned features",
-    "docker-compose.yml": "Docker deployment configuration (if present)",
+    ".env.sample": "All environment variables",
+    "deploy/docker/compose/docker-compose.all-in-one.yml": "All-in-one Docker Compose",
+    "deploy/systemd/install.sh": "Systemd installation script",
     "core/go.mod": "Go dependencies for core shared code"
   }
 }

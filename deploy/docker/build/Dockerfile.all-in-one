@@ -1,0 +1,214 @@
+# ====================================================
+# Multi-Stage Builder
+# ====================================================
+FROM golang:1.26 AS go-builder
+
+ARG GO_PROXY
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+# Configure Go proxy
+RUN if [ -n "${GO_PROXY}" ]; then \
+    go env -w GOPROXY="${GO_PROXY}" && \
+    go env -w GOSUMDB=off; \
+fi
+
+WORKDIR /app
+
+# Copy root and core module files
+COPY go.mod .
+COPY go.sum .
+COPY core/go.mod core/
+COPY core/go.sum core/
+
+# Download core dependencies
+WORKDIR /app/core
+RUN go mod download
+
+# Copy core source code
+COPY core /app/core
+
+# Build Admin Dashboard API
+WORKDIR /app/admin_dashboard/api
+COPY admin_dashboard/api/go.mod .
+COPY admin_dashboard/api/go.sum .
+RUN go mod download
+COPY admin_dashboard/api .
+RUN go build -ldflags="-s -w" -o /app/bin/admin_api main.go
+
+# Build Customer Dashboard API
+WORKDIR /app/customer_dashboard/api
+COPY customer_dashboard/api/go.mod .
+COPY customer_dashboard/api/go.sum .
+RUN go mod download
+COPY customer_dashboard/api .
+RUN go build -ldflags="-s -w" -o /app/bin/customer_api main.go
+
+# Build Ocserv User Manager
+WORKDIR /app/ocserv_user_manager
+COPY ocserv_user_manager/go.mod .
+COPY ocserv_user_manager/go.sum .
+RUN go mod download
+COPY ocserv_user_manager .
+RUN go build -ldflags="-s -w" -o /app/bin/ocserv_user_manager main.go
+
+# Build Ocserv Log Parser
+WORKDIR /app/ocserv_log_parser
+COPY ocserv_log_parser/go.mod .
+COPY ocserv_log_parser/go.sum .
+RUN go mod download
+COPY ocserv_log_parser .
+RUN go build -ldflags="-s -w" -o /app/bin/ocserv_log_parser main.go
+
+# Build Ocserv Telegram Bot
+WORKDIR /app/ocserv_telegram_bot
+COPY ocserv_telegram_bot/go.mod .
+COPY ocserv_telegram_bot/go.sum .
+RUN go mod download
+COPY ocserv_telegram_bot .
+RUN go build -ldflags="-s -w" -o /app/bin/ocserv_telegram_bot main.go
+
+# ====================================================
+# UI Builder Stage
+# ====================================================
+FROM node:20 AS ui-builder
+
+ARG NPM_REGISTRY
+
+# Configure npm registry
+RUN if [ -n "${NPM_REGISTRY}" ]; then \
+    npm config set registry "${NPM_REGISTRY}"; \
+fi
+
+# Build Admin UI
+WORKDIR /app/admin_dashboard/ui
+COPY admin_dashboard/ui/package.json admin_dashboard/ui/package-lock.json ./
+RUN npm ci
+COPY admin_dashboard/ui ./
+RUN npm run build
+
+# Build Customer UI
+WORKDIR /app/customer_dashboard/ui
+COPY customer_dashboard/ui/package.json customer_dashboard/ui/package-lock.json ./
+RUN npm ci
+COPY customer_dashboard/ui ./
+RUN npm run build
+
+# ====================================================
+# Ocserv Builder Stage
+# ====================================================
+FROM golang:1.26 AS ocserv-builder
+
+ARG OCSERV_VERSION
+ARG GO_PROXY
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure apt mirrors
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+    debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+    debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+    echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+    echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list; \
+fi
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential meson ninja-build pkg-config git \
+    libgnutls28-dev libev-dev libreadline-dev libtasn1-bin \
+    libpam0g-dev liblz4-dev libseccomp-dev \
+    libnl-route-3-dev libkrb5-dev libradcli-dev \
+    libcurl4-gnutls-dev libcjose-dev libjansson-dev liboath-dev \
+    libprotobuf-c-dev libtalloc-dev libllhttp-dev protobuf-c-compiler \
+    gperf ipcalc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and run ocserv compile script
+COPY deploy/docker/scripts/ocserv_compile.sh /setup.sh
+RUN chmod +x /setup.sh && bash /setup.sh
+
+# ====================================================
+# Final Stage (All-in-One)
+# ====================================================
+FROM debian:trixie-slim
+
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure apt mirrors
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+    debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+    debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+    echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+    echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list; \
+fi
+
+# Install all required runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Ocserv dependencies
+    sudo ca-certificates procps gnutls-bin iptables openssl less dnsutils jq curl iproute2 \
+    # Postgres
+    postgresql-17 postgresql-contrib-17 \
+    # Nginx
+    nginx \
+    # Go dependencies
+    ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Postgres data directory
+RUN mkdir -p /var/lib/postgresql/17/main && \
+    chown -R postgres:postgres /var/lib/postgresql && \
+    # Initialize Postgres DB
+    su - postgres -c "/usr/lib/postgresql/17/bin/initdb -D /var/lib/postgresql/17/main -A md5" && \
+    mkdir -p /var/run/postgresql && \
+    chown -R postgres:postgres /var/run/postgresql
+
+# Copy compiled ocserv
+COPY --from=ocserv-builder /usr/local/sbin/ocserv /usr/local/sbin/ocserv
+COPY --from=ocserv-builder /usr/local/bin/occtl /usr/local/bin/occtl
+COPY --from=ocserv-builder /usr/local/bin/ocpasswd /usr/local/bin/ocpasswd
+COPY --from=ocserv-builder /usr/local/share/doc/ocserv /usr/local/share/doc/ocserv
+COPY --from=ocserv-builder /usr/local/share/man/man8/ocserv.8 /usr/local/share/man/man8/ocserv.8
+
+# Copy Go services
+COPY --from=go-builder /app/bin/* /usr/local/bin/
+RUN chmod +x /usr/local/bin/*
+
+# Copy UIs
+COPY --from=ui-builder /app/admin_dashboard/ui/dist /var/www/admin
+COPY --from=ui-builder /app/customer_dashboard/ui/dist /var/www/customer
+
+# Copy Ocserv scripts and configs
+COPY --chmod=755 deploy/docker/scripts/ocserv_entrypoint.sh /usr/local/bin/
+COPY --chmod=755 deploy/docker/configs/ocserv.conf /etc/ocserv/
+COPY --chmod=755 deploy/docker/scripts/run.sh /usr/local/bin/
+
+# Copy Nginx config
+COPY deploy/docker/configs/nginx.conf /etc/nginx/nginx.conf
+
+# Create necessary directories
+RUN mkdir -p /etc/ocserv /etc/ocserv/ssl /etc/ocserv/certs /etc/ocserv/defaults /etc/ocserv/groups /etc/ocserv/users \
+    /opt/ocserv_dashboard/uploads/receipts \
+    /var/www/admin \
+    /var/www/customer \
+    /var/lib/nginx \
+    /var/log/nginx \
+    /dev/net
+
+# Create tun device node
+RUN if [ ! -c /dev/net/tun ]; then mknod /dev/net/tun c 10 200; fi && chmod 600 /dev/net/tun
+
+# Expose ports
+EXPOSE 443 3000 3443 8080 8081 3002 3003
+
+# Volumes
+VOLUME ["/etc/ocserv", "/var/lib/postgresql/17/main", "/opt/ocserv_dashboard/uploads/receipts"]
+
+# Start everything
+ENTRYPOINT ["/usr/local/bin/run.sh"]

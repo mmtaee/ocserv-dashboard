@@ -1,0 +1,141 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: ocserv-postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ${POSTGRES_DATA_PATH:-./data/postgres}:/var/lib/postgresql/data
+    networks:
+      - shared-app
+    ports:
+      - "127.0.0.1:5432:5432"  # Only listen on localhost
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  ocserv:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.ocserv
+      args:
+        - OCSERV_VERSION=${OCSERV_VERSION:-1.3.0}
+        - GO_PROXY=${GO_PROXY}
+        - DEBIAN_MIRROR=${DEBIAN_MIRROR}
+        - DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}
+    container_name: ocserv
+    privileged: true
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${ADMIN_API_DEBUG:-false}
+      - HOST=${ADMIN_API_HOST:-0.0.0.0}
+      - PORT=${ADMIN_API_PORT:-3000}
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - ./data/ocserv:/etc/ocserv
+      - ./data/telegram_receipts:${TELEGRAM_RECEIPTS_DIR:-/opt/ocserv_dashboard/uploads/receipts}
+    ports:
+      - "${OCSERV_PORT:-443}:443/tcp"
+      - "${OCSERV_PORT:-443}:443/udp"
+      - "${ADMIN_API_PORT:-3000}:${ADMIN_API_PORT:-3000}"
+    networks:
+      - shared-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  log_parser:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.go
+      target: ocserv_log_parser
+      args:
+        - GO_PROXY=${GO_PROXY}
+        - DEBIAN_MIRROR=${DEBIAN_MIRROR}
+        - DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}
+    container_name: ocserv-log-parser
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${LOG_PARSER_DEBUG:-false}
+      - HOST=${LOG_PARSER_HOST:-0.0.0.0}
+      - PORT=${LOG_PARSER_PORT:-3003}
+      - LOG_PARSER_DOCKER_MODE=${LOG_PARSER_DOCKER_MODE:-false}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - shared-app
+    depends_on:
+      ocserv:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  user_manager:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.go
+      target: ocserv_user_manager
+      args:
+        - GO_PROXY=${GO_PROXY}
+        - DEBIAN_MIRROR=${DEBIAN_MIRROR}
+        - DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}
+    container_name: ocserv-user-manager
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${USER_MANAGER_DEBUG:-false}
+    volumes:
+      - ./data/cron_journal:/app/cron_journal
+    networks:
+      - shared-app
+    depends_on:
+      ocserv:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  telegram_bot:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.go
+      target: ocserv_telegram_bot
+      args:
+        - GO_PROXY=${GO_PROXY}
+        - DEBIAN_MIRROR=${DEBIAN_MIRROR}
+        - DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}
+    container_name: ocserv-telegram-bot
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${TELEGRAM_BOT_DEBUG:-false}
+    volumes:
+      - ./data/telegram_receipts:${TELEGRAM_RECEIPTS_DIR:-/opt/ocserv_dashboard/uploads/receipts}
+    networks:
+      - shared-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - telegram
+
+networks:
+  shared-app:
+    driver: bridge

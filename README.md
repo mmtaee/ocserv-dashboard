@@ -96,59 +96,75 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 
 ## ⚙️ System Requirements
 
-- **Docker-based:**
-  - [Docker v28.5 or higher](https://docs.docker.com/engine/install/)
-  - [Docker Compose v2.40 or higher](https://docs.docker.com/compose/install/)
+### Docker-based Deployment
+- [Docker v28.5 or higher](https://docs.docker.com/engine/install/)
+- [Docker Compose v2.40 or higher](https://docs.docker.com/compose/install/)
 
-- **Systemd-based:**
-  - **Supported Operating Systems:**
-    - [Debian 12 or higher](https://www.debian.org/download)
-    - [Ubuntu 20.04 or higher](https://ubuntu.com/download/server)
-
-  - **Programming Language:**
-    - [Golang v1.25 or higher](https://go.dev/dl/)
+### Systemd-based Deployment
+- **Supported Operating Systems:**
+  - [Debian 12 or higher](https://www.debian.org/download)
+  - [Ubuntu 20.04 or higher](https://ubuntu.com/download/server)
+- **Programming Language:**
+  - [Golang v1.26 or higher](https://go.dev/dl/)
+  - [Node.js v20 or higher](https://nodejs.org/)
 
 ---
 
 ## 🚀 Quick Start
 
+### Option 1: All-in-one Docker
 1. Clone the repository:
 ```bash
 git clone https://github.com/mmtaee/ocserv-dashboard.git
-
 cd ocserv-dashboard
-
-chmod +x install.sh
-
-./install.sh
 ```
-then select an option to continue:
-<p>
-  <img alt="Installation Menu" src="docs/menu.png" width="800"/>
-</p>
+
+2. Copy and configure environment file:
+```bash
+cp .env.sample .env
+# Edit .env with your settings
+```
+
+3. Start the container:
+```bash
+cd deploy/docker/compose
+docker-compose -f docker-compose.all-in-one.yml up -d --build
+```
+
+### Option 2: Systemd
+1. Clone the repository:
+```bash
+git clone https://github.com/mmtaee/ocserv-dashboard.git
+cd ocserv-dashboard
+```
+
+2. Copy and configure environment file:
+```bash
+cp .env.sample .env
+# Edit .env with your settings
+```
+
+3. Run the install script:
+```bash
+cd deploy/systemd
+sudo ./install.sh
+```
 
 ---
 
-## 🌐 Access the Admin Dashboard
+## 🌐 Access the Dashboards
+- Admin Dashboard: https://your-host:3443/
+- Customer Dashboard: https://your-host:3443/customer
 
 1. Open your web browser.
-2. Navigate to `https://YOUR-DOMAIN-OR-IP:3443` in the browser.
-3. Complete the administrative setup wizard.
-4. Start managing users, groups, and VPN settings from the dashboard.
-
----
-
-## 🌐 Access the Customers page for quick insights
-
-1. Open your web browser.
-2. Navigate to `https://YOUR-DOMAIN-OR-IP:3443/summary/` in the browser.
-3. Enter your Ocserv username and password to see insights.
-
+2. Navigate to the appropriate URL.
+3. Complete the administrative setup wizard (for admin dashboard).
+4. Start managing users, groups, and VPN settings.
 ---
 
 ## 🤖 Configuring the Telegram Bot
 
-The dashboard ships with an integrated Telegram bot service (`telegram_bot`) that runs alongside `api`, `log_stream` and `user_expiry`. Configuration lives entirely in the database — there is no need to edit `.env` or restart anything manually after a token change.
+The dashboard ships with an integrated Telegram bot service (`ocserv_telegram_bot`) that runs alongside the admin and customer APIs, log parser, and user manager. Configuration lives entirely in the database — there is no need to edit `.env` or restart anything manually after a token change.
 
 1. Create a new bot with [@BotFather](https://t.me/BotFather) and copy the token.
 2. Open the dashboard, navigate to **Telegram → Settings** and paste the token, set your admin chat ID, low-quota threshold, default language and the Ocserv host that customers will see when they receive new credentials.

@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  ocserv-all-in-one:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.all-in-one
+      args:
+        - OCSERV_VERSION=${OCSERV_VERSION:-1.3.0}
+        - GO_PROXY=${GO_PROXY}
+        - NPM_REGISTRY=${NPM_REGISTRY}
+        - DEBIAN_MIRROR=${DEBIAN_MIRROR}
+        - DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}
+    container_name: ocserv-all-in-one
+    privileged: true
+    env_file:
+      - ../../../.env
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./data/ocserv:/etc/ocserv
+      - ./data/postgres:/var/lib/postgresql/17/main
+      - ./data/receipts:/opt/ocserv_dashboard/uploads/receipts
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+      - "443:443/tcp"
+      - "443:443/udp"
+    restart: unless-stopped
