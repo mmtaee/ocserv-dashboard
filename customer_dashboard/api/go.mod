@@ -5,7 +5,6 @@ go 1.26.4
 replace github.com/mmtaee/ocserv-dashboard/core => ../../core
 
 require (
-	github.com/go-playground/validator/v10 v10.30.3
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/labstack/echo/v5 v5.0.3
 	github.com/mmtaee/ocserv-dashboard/core v0.0.0
@@ -34,6 +33,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.30.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
