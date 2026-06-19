@@ -1,0 +1,29 @@
+{
+  "name": "ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "@openapitools/openapi-generator-cli": "^2.38.0",
+    "@types/node": "^24.12.3",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "axios": "^1.18.0",
+    "pinia": "^3.0.4",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12",
+    "vue-i18n": "^9.14.5",
+    "vue-router": "^4.6.4",
+    "vue-tsc": "^3.2.8",
+    "vuetify": "^3.12.8"
+  }
+}

@@ -391,6 +391,192 @@
           }
         }
       },
+      "ocserv_webhook/": {
+        "description": "Ocserv webhook service (handles disconnect/lock/unlock webhook actions)",
+        "children": {
+          "cmd/": {
+            "children": {
+              "root.go": {},
+              "serve.go": {}
+            }
+          },
+          "internal/": {
+            "children": {
+              "webhook/": {
+                "children": {
+                  "controller.go": {},
+                  "routes.go": {},
+                  "types.go": {}
+                }
+              }
+            }
+          },
+          "pkg/": {
+            "children": {
+              "bootstrap/": {
+                "children": {
+                  "serve.go": {}
+                }
+              }
+            }
+          },
+          "main.go": {},
+          "go.mod": {}
+        }
+      },
+      "ocserv_user_manager/": {
+        "description": "Ocserv user manager service (handles user expiry, activation, deletion with cron jobs)",
+        "children": {
+          "cmd/": {
+            "children": {
+              "root.go": {},
+              "serve.go": {}
+            }
+          },
+          "internal/": {
+            "children": {
+              "service/": {
+                "children": {
+                  "service.go": {}
+                }
+              }
+            }
+          },
+          "pkg/": {
+            "children": {
+              "bootstrap/": {
+                "children": {
+                  "serve.go": {}
+                }
+              },
+              "state/": {
+                "children": {
+                  "service.go": {}
+                }
+              }
+            }
+          },
+          "main.go": {},
+          "go.mod": {}
+        }
+      },
+      "ocserv_log_parser/": {
+        "description": "Ocserv log parser service (reads Docker/systemd logs, calculates user traffic stats, NO SSE)",
+        "children": {
+          "cmd/": {
+            "children": {
+              "root.go": {},
+              "serve.go": {}
+            }
+          },
+          "internal/": {
+            "children": {
+              "readers/": {
+                "children": {
+                  "docker.go": {},
+                  "systemd.go": {}
+                }
+              },
+              "stats/": {
+                "children": {
+                  "service.go": {},
+                  "types.go": {}
+                }
+              }
+            }
+          },
+          "pkg/": {
+            "children": {
+              "bootstrap/": {
+                "children": {
+                  "serve.go": {}
+                }
+              }
+            }
+          },
+          "main.go": {},
+          "go.mod": {}
+        }
+      },
+      "ocserv_telegram_bot/": {
+        "description": "Ocserv Telegram bot service (customer self-service, i18n, admin panel, receipt uploads)",
+        "children": {
+          "cmd/": {
+            "children": {
+              "root.go": {},
+              "serve.go": {}
+            }
+          },
+          "internal/": {
+            "children": {
+              "auth/": {
+                "children": {
+                  "auth.go": {}
+                }
+              },
+              "bot/": {
+                "children": {
+                  "cbdata/": {
+                    "children": {
+                      "cbdata.go": {}
+                    }
+                  },
+                  "handlers/": {
+                    "children": {
+                      "hub.go": {}
+                    }
+                  },
+                  "manager.go": {},
+                  "metadata.go": {},
+                  "metadata_locales.json": {}
+                }
+              },
+              "i18n/": {
+                "children": {
+                  "i18n.go": {},
+                  "locales/": {
+                    "children": {
+                      "ar.json": {},
+                      "en.json": {},
+                      "fa.json": {},
+                      "it.json": {},
+                      "ru.json": {},
+                      "zh-cn.json": {},
+                      "zh-tw.json": {}
+                    }
+                  }
+                }
+              },
+              "notifier/": {
+                "children": {
+                  "notifier.go": {}
+                }
+              },
+              "repository/": {
+                "children": {
+                  "repository.go": {}
+                }
+              },
+              "session/": {
+                "children": {
+                  "session.go": {}
+                }
+              }
+            }
+          },
+          "pkg/": {
+            "children": {
+              "bootstrap/": {
+                "children": {
+                  "serve.go": {}
+                }
+              }
+            }
+          },
+          "main.go": {},
+          "go.mod": {}
+        }
+      },
       "docs/": {
         "description": "Project documentation & assets",
         "children": {

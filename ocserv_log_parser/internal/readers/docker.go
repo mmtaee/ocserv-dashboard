@@ -1,0 +1,56 @@
+package readers
+
+import (
+	"bufio"
+	"context"
+	"io"
+	"strings"
+
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
+)
+
+func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan<- string) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+
+	options := container.LogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Tail:       "0",
+	}
+
+	logReader, err := cli.ContainerLogs(ctx, containerName, options)
+	if err != nil {
+		return err
+	}
+	defer logReader.Close()
+
+	pr, pw := io.Pipe()
+	go func() {
+		defer pw.Close()
+		_, _ = stdcopy.StdCopy(pw, pw, logReader)
+	}()
+
+	scanner := bufio.NewScanner(pr)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			text := strings.TrimSpace(scanner.Text())
+			if strings.HasPrefix(text, "ocserv[") {
+				streamChan <- text
+			}
+			continue
+		}
+	}
+	return scanner.Err()
+}
