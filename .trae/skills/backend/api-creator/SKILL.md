@@ -47,3 +47,4 @@ type <Name>Response struct {
 - **CRITICAL**: EVERY error must have a UNIQUE code in config/errors.json; NO REUSE of codes for different error scenarios.
 - **CRITICAL**: Swagger @Router comment MUST NOT include /api/v1/ prefix. For example, use // @Router /auth/login [post], NOT /api/v1/auth/login.
 - **CRITICAL**: After creating or updating any API handlers/routes, ALWAYS run `swag init --pd` from within dashboard/api directory to regenerate Swagger docs.
+- **CRITICAL**: NEVER use pointers to arrays/slices (like `*[]<Type>`) in response structs or anywhere else. Always use direct slices (like `[]<Type>`).

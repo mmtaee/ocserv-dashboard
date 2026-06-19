@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"gorm.io/gorm"
 )
@@ -9,13 +11,21 @@ type OcservUserRepository interface {
 	FindAll(adminID uint, role string) ([]models.OcservUser, error)
 	FindAllPaginated(adminID uint, role string, page, limit int, q, filter, group string, orderBy string, sort string) ([]models.OcservUser, int64, error)
 	FindByID(id uint, adminID uint, role string) (*models.OcservUser, error)
+	FindByIDUnrestricted(id uint) (*models.OcservUser, error)
 	FindByUsername(username string, adminID uint, role string) (*models.OcservUser, error)
 	Create(user *models.OcservUser) error
+	CreateUnrestricted(user *models.OcservUser) (*models.OcservUser, error)
 	Update(user *models.OcservUser) error
+	UpdateUnrestricted(user *models.OcservUser) error
 	Delete(id uint, adminID uint, role string) error
 	Lock(id uint, adminID uint, role string) error
 	Unlock(id uint, adminID uint, role string) error
 	UpdateUsersByDeleteGroup(ownerAdminID uint, oldGroupName string) (int64, error)
+	UserSessionLogs(username string, page, limit int, orderBy, sort string, startDate, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error)
+	UserStatistics(id uint, startDate, endDate *time.Time) ([]models.DailyTraffic, error)
+	RestoreExpired(id uint, expireAt *time.Time) error
+	CreateCertificate(id uint) error
+	CertificatePath(id uint) (string, string, error)
 }
 
 type ocservUserRepository struct {
@@ -155,4 +165,73 @@ func (r *ocservUserRepository) UpdateUsersByDeleteGroup(ownerAdminID uint, oldGr
 		Where("`group` = ?", oldGroupName).
 		Update("`group`", "defaults")
 	return query.RowsAffected, query.Error
+}
+
+func (r *ocservUserRepository) UserSessionLogs(username string, page, limit int, orderBy, sort string, startDate, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
+	var logs []models.OcservUserSessionLog
+	var total int64
+
+	query := r.db.Model(&models.OcservUserSessionLog{}).Where("username = ?", username)
+
+	if startDate != nil {
+		query = query.Where("created_at >= ?", startDate)
+	}
+	if endDate != nil {
+		query = query.Where("created_at <= ?", endDate)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	validOrderFields := map[string]bool{"id": true, "created_at": true}
+	validSortOrders := map[string]bool{"asc": true, "desc": true}
+	if !validOrderFields[orderBy] {
+		orderBy = "id"
+	}
+	if !validSortOrders[sort] {
+		sort = "desc"
+	}
+
+	offset := (page - 1) * limit
+	err := query.Order(orderBy + " " + sort).Offset(offset).Limit(limit).Find(&logs).Error
+	return logs, total, err
+}
+
+func (r *ocservUserRepository) UserStatistics(id uint, startDate, endDate *time.Time) ([]models.DailyTraffic, error) {
+	var stats []models.DailyTraffic
+	query := r.db.Model(&models.OcservUserTrafficStatistics{}).Where("oc_user_id = ?", id)
+
+	if startDate != nil {
+		query = query.Where("created_at >= ?", startDate)
+	}
+	if endDate != nil {
+		query = query.Where("created_at <= ?", endDate)
+	}
+
+	err := query.Select("DATE(created_at) as date, SUM(rx)/1073741824.0 as rx, SUM(tx)/1073741824.0 as tx").
+		Group("DATE(created_at)").
+		Order("date desc").
+		Find(&stats).Error
+	return stats, err
+}
+
+func (r *ocservUserRepository) RestoreExpired(id uint, expireAt *time.Time) error {
+	return r.db.Model(&models.OcservUser{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"expire_at":      expireAt,
+			"deactivated_at": nil,
+			"is_locked":      false,
+		}).Error
+}
+
+func (r *ocservUserRepository) CreateCertificate(id uint) error {
+	// TODO: Implement certificate generation
+	return nil
+}
+
+func (r *ocservUserRepository) CertificatePath(id uint) (string, string, error) {
+	// TODO: Implement certificate path retrieval
+	return "", "", nil
 }

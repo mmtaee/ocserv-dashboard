@@ -82,6 +82,7 @@ type <Name>Response struct {
 	Result []<ModelType>      `json:"result"`
 }
 ```
+- **CRITICAL**: NEVER use pointers to arrays/slices (like `*[]<Type>`) anywhere in the code. Always use direct slices (like `[]<Type>`).
 
 ## Finalization Protocol
 

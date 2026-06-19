@@ -19,6 +19,9 @@ type OcservOcctlUsers interface {
 	ShowUser(username string) (models.OnlineUserSession, error)
 	ShowUserByID(id string) (models.OnlineUserSession, error)
 	DisconnectUser(username string) (string, error)
+	DisconnectSession(sessionID string) (string, error)
+	TerminateUser(username string) (string, error)
+	TerminateSession(sessionID string) (string, error)
 }
 
 type OcservOcctlSessions interface {
@@ -292,6 +295,39 @@ func (o *OcservOcctl) ShowSessionsValid() (*[]interface{}, error) {
 		return nil, err
 	}
 	return &sessions, nil
+}
+
+// DisconnectSession disconnects a specific session by ID.
+// Executes: occtl disconnect id <sessionID>
+func (o *OcservOcctl) DisconnectSession(sessionID string) (string, error) {
+	cmd := exec.Command(occtlExec, "disconnect", "id", sessionID)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
+}
+
+// TerminateUser terminates all sessions for a given user.
+// Executes: occtl terminate user <username>
+func (o *OcservOcctl) TerminateUser(username string) (string, error) {
+	cmd := exec.Command(occtlExec, "terminate", "user", username)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
+}
+
+// TerminateSession terminates a specific session by ID.
+// Executes: occtl terminate id <sessionID>
+func (o *OcservOcctl) TerminateSession(sessionID string) (string, error) {
+	cmd := exec.Command(occtlExec, "terminate", "id", sessionID)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
 
 // ShowEvent returns detailed information about events.

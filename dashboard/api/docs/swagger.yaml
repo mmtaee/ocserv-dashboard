@@ -55,6 +55,18 @@ definitions:
     - role
     - username
     type: object
+  models.DailyTraffic:
+    properties:
+      date:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      rx:
+        description: in GiB
+        type: number
+      tx:
+        description: in GiB
+        type: number
+    type: object
   models.OcservGroup:
     properties:
       config:
@@ -191,6 +203,16 @@ definitions:
     - name
     - owner_admin_id
     type: object
+  models.OcservInfo:
+    properties:
+      status:
+        type: string
+      version:
+        $ref: '#/definitions/models.ServerVersion'
+    required:
+    - status
+    - version
+    type: object
   models.OcservUser:
     properties:
       config:
@@ -310,6 +332,29 @@ definitions:
           type: string
         type: array
     type: object
+  models.OcservUserSessionLog:
+    properties:
+      created_at:
+        type: string
+      event:
+        enum:
+        - user-agent
+        - handshake
+        - periodic-stats
+        - disconnect
+        type: string
+      ip:
+        type: string
+      message:
+        type: string
+      username:
+        type: string
+    required:
+    - created_at
+    - event
+    - message
+    - username
+    type: object
   models.OnlineUserSession:
     properties:
       _Connected at:
@@ -321,6 +366,13 @@ definitions:
       Groupname:
         type: string
       Username:
+        type: string
+    type: object
+  models.ServerVersion:
+    properties:
+      occtl_version:
+        type: string
+      ocserv_version:
         type: string
     type: object
   models.System:
@@ -353,6 +405,12 @@ definitions:
     properties:
       config:
         $ref: '#/definitions/models.OcservGroupConfig'
+    type: object
+  ocserv_user.ActivateUserData:
+    properties:
+      expire_at:
+        example: "2025-12-31"
+        type: string
     type: object
   ocserv_user.CreateOcservUserRequest:
     properties:
@@ -418,6 +476,36 @@ definitions:
           $ref: '#/definitions/models.OcservUser'
         type: array
     type: object
+  ocserv_user.SessionLogsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Pagination'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUserSessionLog'
+        type: array
+    type: object
+  ocserv_user.StatisticsResponse:
+    properties:
+      statistics:
+        items:
+          $ref: '#/definitions/models.DailyTraffic'
+        type: array
+      total_bandwidths:
+        $ref: '#/definitions/ocserv_user.TotalBandwidths'
+    required:
+    - statistics
+    - total_bandwidths
+    type: object
+  ocserv_user.TotalBandwidths:
+    properties:
+      rx:
+        description: in GiB
+        type: number
+      tx:
+        description: in GiB
+        type: number
+    type: object
   ocserv_user.UpdateOcservUserRequest:
     properties:
       config:
@@ -453,6 +541,35 @@ definitions:
         default: false
         example: false
         type: boolean
+    type: object
+  report.OcservUserReportResponse:
+    properties:
+      active:
+        type: integer
+      deactivated:
+        type: integer
+      locked:
+        type: integer
+      online:
+        type: integer
+    type: object
+  report.SessionLogsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Pagination'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUserSessionLog'
+        type: array
+    type: object
+  repository.TotalBandwidths:
+    properties:
+      rx:
+        description: in GiB
+        type: number
+      tx:
+        description: in GiB
+        type: number
     type: object
   request.ErrorResponse:
     properties:
@@ -627,6 +744,63 @@ paths:
       summary: Get Admin Profile
       tags:
       - Auth
+  /occtl/commands:
+    get:
+      consumes:
+      - application/json
+      description: Occtl Commands
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Command Action ID (1 to 16)
+        in: query
+        name: action
+        required: true
+        type: integer
+      - description: Optional parameter depending on command
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Occtl Commands
+      tags:
+      - OCCTL
+  /occtl/server_info:
+    get:
+      consumes:
+      - application/json
+      description: Server information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Server information
+      tags:
+      - OCCTL
   /ocserv/groups:
     get:
       consumes:
@@ -1098,6 +1272,167 @@ paths:
       summary: Update Ocserv User
       tags:
       - Ocserv Users
+  /ocserv/users/{id}/activate:
+    post:
+      consumes:
+      - application/json
+      description: Activate an expired Ocserv user
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Activate user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.ActivateUserData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Activate Expired Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/certificate:
+    get:
+      description: Download the user's PKCS#12 certificate bundle
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/x-pkcs12
+      responses:
+        "200":
+          description: user.p12
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Download ocserv user certificate
+      tags:
+      - Ocserv Users
+    post:
+      consumes:
+      - application/json
+      description: Create certificate for an existing ocserv user
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create certificate for ocserv user
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/disconnect-by-id:
+    post:
+      consumes:
+      - application/json
+      description: Disconnect a specific Ocserv user session by session ID
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Disconnect Ocserv User Session by ID
+      tags:
+      - Ocserv Users
   /ocserv/users/{id}/lock:
     post:
       consumes:
@@ -1138,6 +1473,167 @@ paths:
       summary: Lock Ocserv User
       tags:
       - Ocserv Users
+  /ocserv/users/{id}/session-logs:
+    get:
+      consumes:
+      - application/json
+      description: Get Ocserv user session logs
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Field to order by
+        enum:
+        - id
+        - created_at
+        in: query
+        name: order_by
+        type: string
+      - description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: date_start
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.SessionLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv User Session Logs
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Get Ocserv user statistics
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: date_start
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.StatisticsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv User Statistics
+      tags:
+      - Ocserv Users
+  /ocserv/users/{id}/terminate-by-id:
+    post:
+      consumes:
+      - application/json
+      description: Terminate a specific Ocserv user session by session ID
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Terminate Ocserv User Session by ID
+      tags:
+      - Ocserv Users
   /ocserv/users/{id}/unlock:
     post:
       consumes:
@@ -1176,6 +1672,78 @@ paths:
           schema:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Unlock Ocserv User
+      tags:
+      - Ocserv Users
+  /ocserv/users/{username}/disconnect:
+    post:
+      consumes:
+      - application/json
+      description: Disconnect all sessions for an Ocserv user by username
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Disconnect Ocserv User (All Sessions)
+      tags:
+      - Ocserv Users
+  /ocserv/users/{username}/terminate:
+    post:
+      consumes:
+      - application/json
+      description: Terminate all sessions for an Ocserv user by username
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Terminate Ocserv User (All Sessions)
       tags:
       - Ocserv Users
   /ocserv/users/online-sessions:
@@ -1219,6 +1787,191 @@ paths:
       summary: Get Online Sessions for Specific Usernames
       tags:
       - Ocserv Users
+  /reports/session_logs:
+    get:
+      consumes:
+      - application/json
+      description: Get all Ocserv session logs
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Field to order by
+        enum:
+        - id
+        - created_at
+        in: query
+        name: order_by
+        type: string
+      - description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/report.SessionLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv session logs
+      tags:
+      - Report
+  /reports/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Get Ocserv users daily statistics
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        required: true
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DailyTraffic'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv Users Statistics
+      tags:
+      - Report
+  /reports/total-bandwidth:
+    get:
+      consumes:
+      - application/json
+      description: Calculate total bandwidth usage over date range
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.TotalBandwidths'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv Users Total Bandwidth
+      tags:
+      - Report
+  /reports/users:
+    get:
+      consumes:
+      - application/json
+      description: Get summary statistics for Ocserv users
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/report.OcservUserReportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Result of all user reports
+      tags:
+      - Report
   /super-admin/admins:
     get:
       consumes:

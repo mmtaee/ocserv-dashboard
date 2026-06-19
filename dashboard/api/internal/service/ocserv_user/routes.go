@@ -24,4 +24,13 @@ func RegisterRoutes(e *echo.Echo) {
 	g.POST("/:id/lock", userController.LockUser)
 	g.POST("/:id/unlock", userController.UnlockUser)
 	g.POST("/online-sessions", userController.GetOnlineSessions)
+	g.POST("/:username/disconnect", userController.DisconnectUser)
+	g.POST("/:id/disconnect-by-id", userController.DisconnectSession)
+	g.POST("/:username/terminate", userController.TerminateUser)
+	g.POST("/:id/terminate-by-id", userController.TerminateSession)
+	g.GET("/:id/session-logs", userController.SessionLogs)
+	g.GET("/:id/statistics", userController.Statistics)
+	g.POST("/:id/activate", userController.ActivateExpired)
+	g.POST("/:id/certificate", userController.CreateCertificate)
+	g.GET("/:id/certificate", userController.DownloadCertificate)
 }

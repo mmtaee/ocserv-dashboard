@@ -364,3 +364,345 @@ func (ctrl *OcservUserController) UnlockUser(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, nil)
 }
+
+// DisconnectUser godoc
+// @Summary Disconnect Ocserv User (All Sessions)
+// @Description Disconnect all sessions for an Ocserv user by username
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param username path string true "Username"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Router /ocserv/users/{username}/disconnect [post]
+func (ctrl *OcservUserController) DisconnectUser(c *echo.Context) error {
+	username := c.Param("username")
+	if username == "" {
+		return ctrl.req.BadRequest(c, nil, "username is required")
+	}
+	_, err := ctrl.occtl.DisconnectUser(username)
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// DisconnectSession godoc
+// @Summary Disconnect Ocserv User Session by ID
+// @Description Disconnect a specific Ocserv user session by session ID
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path string true "Session ID"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/disconnect-by-id [post]
+func (ctrl *OcservUserController) DisconnectSession(c *echo.Context) error {
+	sessionID := c.Param("id")
+	if sessionID == "" {
+		return ctrl.req.BadRequest(c, nil, "session ID is required")
+	}
+	_, err := ctrl.occtl.DisconnectSession(sessionID)
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// TerminateUser godoc
+// @Summary Terminate Ocserv User (All Sessions)
+// @Description Terminate all sessions for an Ocserv user by username
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param username path string true "Username"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Router /ocserv/users/{username}/terminate [post]
+func (ctrl *OcservUserController) TerminateUser(c *echo.Context) error {
+	username := c.Param("username")
+	if username == "" {
+		return ctrl.req.BadRequest(c, nil, "username is required")
+	}
+	_, err := ctrl.occtl.TerminateUser(username)
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// TerminateSession godoc
+// @Summary Terminate Ocserv User Session by ID
+// @Description Terminate a specific Ocserv user session by session ID
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path string true "Session ID"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/terminate-by-id [post]
+func (ctrl *OcservUserController) TerminateSession(c *echo.Context) error {
+	sessionID := c.Param("id")
+	if sessionID == "" {
+		return ctrl.req.BadRequest(c, nil, "session ID is required")
+	}
+	_, err := ctrl.occtl.TerminateSession(sessionID)
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// SessionLogs godoc
+// @Summary Ocserv User Session Logs
+// @Description Get Ocserv user session logs
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "User ID"
+// @Param page query int false "Page number, starting from 1" minimum(1)
+// @Param limit query int false "Number of items per page" minimum(1) maximum(100)
+// @Param order_by query string false "Field to order by" Enums(id, created_at)
+// @Param sort query string false "Sort order" Enums(asc, desc)
+// @Param date_start query string false "Start date (YYYY-MM-DD)"
+// @Param date_end query string false "End date (YYYY-MM-DD)"
+// @Success 200 {object} SessionLogsResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Failure 404 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/session-logs [get]
+func (ctrl *OcservUserController) SessionLogs(c *echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return ctrl.req.BadRequest(c, err, "invalid user ID")
+	}
+	adminID := c.Get("id").(uint)
+	role := c.Get("role").(string)
+	user, err := ctrl.userUC.GetUser(uint(id), adminID, role)
+	if err != nil {
+		code, parseErr := strconv.Atoi(err.Error())
+		if parseErr != nil {
+			return ctrl.req.InternalServerError(c, err)
+		}
+		return ctrl.req.ResponseWithCode(c, code, err)
+	}
+	page, limit := request.GetPaginationParams(c)
+	orderBy := c.QueryParam("order_by")
+	sort := c.QueryParam("sort")
+
+	var startDate, endDate *time.Time
+	dStart := c.QueryParam("date_start")
+	if dStart != "" {
+		parsed, err := time.Parse("2006-01-02", dStart)
+		if err == nil {
+			startDate = &parsed
+		}
+	}
+	dEnd := c.QueryParam("date_end")
+	if dEnd != "" {
+		parsed, err := time.Parse("2006-01-02", dEnd)
+		if err == nil {
+			e := parsed.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
+			endDate = &e
+		}
+	}
+
+	logs, total, err := ctrl.userUC.UserSessionLogs(user.Username, page, limit, orderBy, sort, startDate, endDate)
+	if err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+	response := SessionLogsResponse{
+		Meta:   request.NewPagination(total, page, limit),
+		Result: logs,
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+// Statistics godoc
+// @Summary Ocserv User Statistics
+// @Description Get Ocserv user statistics
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "User ID"
+// @Param date_start query string false "Start date (YYYY-MM-DD)"
+// @Param date_end query string false "End date (YYYY-MM-DD)"
+// @Success 200 {object} StatisticsResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Failure 404 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/statistics [get]
+func (ctrl *OcservUserController) Statistics(c *echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return ctrl.req.BadRequest(c, err, "invalid user ID")
+	}
+	adminID := c.Get("id").(uint)
+	role := c.Get("role").(string)
+
+	var startDate, endDate *time.Time
+	dStart := c.QueryParam("date_start")
+	if dStart != "" {
+		parsed, err := time.Parse("2006-01-02", dStart)
+		if err == nil {
+			startDate = &parsed
+		}
+	}
+	dEnd := c.QueryParam("date_end")
+	if dEnd != "" {
+		parsed, err := time.Parse("2006-01-02", dEnd)
+		if err == nil {
+			e := parsed.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
+			endDate = &e
+		}
+	}
+
+	stats, err := ctrl.userUC.UserStatistics(uint(id), adminID, role, startDate, endDate)
+	if err != nil {
+		code, parseErr := strconv.Atoi(err.Error())
+		if parseErr != nil {
+			return ctrl.req.InternalServerError(c, err)
+		}
+		return ctrl.req.ResponseWithCode(c, code, err)
+	}
+	var totalRx, totalTx float64
+	for _, s := range stats {
+		totalRx += s.Rx
+		totalTx += s.Tx
+	}
+	response := StatisticsResponse{
+		Statistics: stats,
+		TotalBandwidths: TotalBandwidths{
+			Rx: totalRx,
+			Tx: totalTx,
+		},
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+// ActivateExpired godoc
+// @Summary Activate Expired Ocserv User
+// @Description Activate an expired Ocserv user
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "User ID"
+// @Param request body ActivateUserData true "Activate user data"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Failure 404 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/activate [post]
+func (ctrl *OcservUserController) ActivateExpired(c *echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return ctrl.req.BadRequest(c, err, "invalid user ID")
+	}
+	var req ActivateUserData
+	if err := ctrl.validator.Validate(c, &req); err != nil {
+		return err
+	}
+	adminID := c.Get("id").(uint)
+	role := c.Get("role").(string)
+	var expireAt *time.Time
+	if req.ExpireAt != nil {
+		parsed, err := time.Parse("2006-01-02", *req.ExpireAt)
+		if err == nil {
+			expireAt = &parsed
+		}
+	}
+	if err := ctrl.userUC.ActivateExpired(uint(id), adminID, role, expireAt); err != nil {
+		code, parseErr := strconv.Atoi(err.Error())
+		if parseErr != nil {
+			return ctrl.req.InternalServerError(c, err)
+		}
+		return ctrl.req.ResponseWithCode(c, code, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// CreateCertificate godoc
+// @Summary Create certificate for ocserv user
+// @Description Create certificate for an existing ocserv user
+// @Tags Ocserv Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "User ID"
+// @Success 200 {object} nil
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Failure 404 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/certificate [post]
+func (ctrl *OcservUserController) CreateCertificate(c *echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return ctrl.req.BadRequest(c, err, "invalid user ID")
+	}
+	adminID := c.Get("id").(uint)
+	role := c.Get("role").(string)
+	if err := ctrl.userUC.CreateCertificate(uint(id), adminID, role); err != nil {
+		code, parseErr := strconv.Atoi(err.Error())
+		if parseErr != nil {
+			return ctrl.req.InternalServerError(c, err)
+		}
+		return ctrl.req.ResponseWithCode(c, code, err)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+// DownloadCertificate godoc
+// @Summary Download ocserv user certificate
+// @Description Download the user's PKCS#12 certificate bundle
+// @Tags Ocserv Users
+// @Produce application/x-pkcs12
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "User ID"
+// @Success 200 {file} file "user.p12"
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Failure 403 {object} request.ErrorResponse
+// @Failure 404 {object} request.ErrorResponse
+// @Router /ocserv/users/{id}/certificate [get]
+func (ctrl *OcservUserController) DownloadCertificate(c *echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return ctrl.req.BadRequest(c, err, "invalid user ID")
+	}
+	adminID := c.Get("id").(uint)
+	role := c.Get("role").(string)
+	username, path, err := ctrl.userUC.DownloadCertificate(uint(id), adminID, role)
+	if err != nil {
+		code, parseErr := strconv.Atoi(err.Error())
+		if parseErr != nil {
+			return ctrl.req.InternalServerError(c, err)
+		}
+		return ctrl.req.ResponseWithCode(c, code, err)
+	}
+	c.Response().Header().Set(echo.HeaderContentType, "application/x-pkcs12")
+	return c.Attachment(path, username+".p12")
+}

@@ -18,6 +18,11 @@ type OcservUserUseCase interface {
 	DeleteUser(id uint, adminID uint, role string) error
 	LockUser(id uint, adminID uint, role string) error
 	UnlockUser(id uint, adminID uint, role string) error
+	UserSessionLogs(username string, page, limit int, orderBy, sort string, startDate, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error)
+	UserStatistics(id uint, adminID uint, role string, startDate, endDate *time.Time) ([]models.DailyTraffic, error)
+	ActivateExpired(id uint, adminID uint, role string, expireAt *time.Time) error
+	CreateCertificate(id uint, adminID uint, role string) error
+	DownloadCertificate(id uint, adminID uint, role string) (string, string, error)
 }
 
 type ocservUserUseCase struct {
@@ -152,4 +157,40 @@ func (uc *ocservUserUseCase) UnlockUser(id uint, adminID uint, role string) erro
 	}
 
 	return nil
+}
+
+func (uc *ocservUserUseCase) UserSessionLogs(username string, page, limit int, orderBy, sort string, startDate, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
+	return uc.userRepo.UserSessionLogs(username, page, limit, orderBy, sort, startDate, endDate)
+}
+
+func (uc *ocservUserUseCase) UserStatistics(id uint, adminID uint, role string, startDate, endDate *time.Time) ([]models.DailyTraffic, error) {
+	_, err := uc.userRepo.FindByID(id, adminID, role)
+	if err != nil {
+		return nil, errors.New("7001")
+	}
+	return uc.userRepo.UserStatistics(id, startDate, endDate)
+}
+
+func (uc *ocservUserUseCase) ActivateExpired(id uint, adminID uint, role string, expireAt *time.Time) error {
+	_, err := uc.userRepo.FindByID(id, adminID, role)
+	if err != nil {
+		return errors.New("7001")
+	}
+	return uc.userRepo.RestoreExpired(id, expireAt)
+}
+
+func (uc *ocservUserUseCase) CreateCertificate(id uint, adminID uint, role string) error {
+	_, err := uc.userRepo.FindByID(id, adminID, role)
+	if err != nil {
+		return errors.New("7001")
+	}
+	return uc.userRepo.CreateCertificate(id)
+}
+
+func (uc *ocservUserUseCase) DownloadCertificate(id uint, adminID uint, role string) (string, string, error) {
+	_, err := uc.userRepo.FindByID(id, adminID, role)
+	if err != nil {
+		return "", "", errors.New("7001")
+	}
+	return uc.userRepo.CertificatePath(id)
 }
