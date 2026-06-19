@@ -16,6 +16,7 @@ type Config struct {
 	JWTSecret    string
 	AllowOrigins []string
 	DB           PostgresConfig
+	Telegram     TelegramConfig
 }
 
 type PostgresConfig struct {
@@ -25,6 +26,11 @@ type PostgresConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
+}
+
+type TelegramConfig struct {
+	APIBase     string
+	ReceiptsDir string
 }
 
 var cfg *Config
@@ -70,6 +76,17 @@ func Init() {
 		JWTSecret:    jwtSecret,
 		AllowOrigins: strings.Split(allowOrigins, ","),
 		DB:           loadDatabaseEnv(),
+		Telegram:     loadTelegramEnv(),
+	}
+}
+
+func loadTelegramEnv() TelegramConfig {
+	apiBase := getEnv("TELEGRAM_API_BASE", "https://api.telegram.org")
+	receiptsDir := getEnv("TELEGRAM_RECEIPTS_DIR", "/opt/ocserv_dashboard/uploads/receipts")
+	
+	return TelegramConfig{
+		APIBase:     apiBase,
+		ReceiptsDir: receiptsDir,
 	}
 }
 

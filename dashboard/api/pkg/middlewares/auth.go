@@ -3,10 +3,10 @@ package middlewares
 import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/repository"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/auth"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/infra"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
 	"log"
 	"strings"
 )
@@ -69,6 +69,22 @@ func SuperAdminMiddleware() echo.MiddlewareFunc {
 				return req.ResponseWithCode(c, 4001, nil)
 			}
 
+			return next(c)
+		}
+	}
+}
+
+// AdminPermissionMiddleware creates a middleware to check if the user is any authenticated admin (super or admin)
+// Usage: e.GET("/protected", handler, middlewares.AuthMiddleware(), middlewares.AdminPermissionMiddleware())
+func AdminPermissionMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			// Just check that we have an authenticated user (role is set)
+			role := c.Get("role")
+			if role == nil {
+				req := &request.Request{}
+				return req.ResponseWithCode(c, 4001, nil)
+			}
 			return next(c)
 		}
 	}

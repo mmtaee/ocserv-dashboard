@@ -16,7 +16,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/middlewares"
+	coremiddlewares "github.com/mmtaee/ocserv-dashboard/core/pkg/middlewares"
 	"golang.org/x/time/rate"
 )
 
@@ -77,11 +77,11 @@ func Serve() {
 	e.Use(middleware.RemoveTrailingSlash())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Gzip())
-	e.Use(middlewares.TimeoutMiddleware(10 * time.Second))
+	e.Use(coremiddlewares.TimeoutMiddleware(10 * time.Second))
 
 	// Rate Limiting (in-memory only)
-	rateStore := middlewares.NewSystemStore(rate.Limit(1), 5) // 1 request per second, burst 5
-	e.Use(middlewares.RateLimitMiddleware(rateStore))
+	rateStore := coremiddlewares.NewSystemStore(rate.Limit(1), 5) // 1 request per second, burst 5
+	e.Use(coremiddlewares.RateLimitMiddleware(rateStore))
 
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
@@ -89,7 +89,7 @@ func Serve() {
 		})
 	})
 
-	routing.Register(e)
+	routing.Register(e, *config.AppConfig)
 
 	if config.AppConfig.Debug {
 		VerboseLog(e, fmt.Sprintf("%s:%d", config.AppConfig.Host, config.AppConfig.Port))

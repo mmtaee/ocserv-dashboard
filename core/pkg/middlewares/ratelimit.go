@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/labstack/echo/v5"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 	"golang.org/x/time/rate"
 )
 

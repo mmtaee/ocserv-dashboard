@@ -2,7 +2,7 @@ package ocserv_user
 
 import (
 	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 )
 
 type CreateOcservUserRequest struct {

@@ -10,44 +10,6 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-// ErrorDetail represents the detailed error information from json config
-type ErrorDetail struct {
-	Status int    `json:"status"`
-	FA     string `json:"fa"`
-	EN     string `json:"en"`
-	IT     string `json:"it"`
-	RU     string `json:"ru"`
-	ZhCn   string `json:"zh-cn"`
-	ZhTw   string `json:"zh-tw"`
-}
-
-// ErrorResponse represents the structure of error responses
-type ErrorResponse struct {
-	Code    int      `json:"code" validate:"required"`
-	Message string   `json:"message" validate:"required"`
-	Error   []string `json:"error,omitempty"`
-}
-
-// AppError is a custom error type that includes an error code
-type AppError struct {
-	Code int
-	Err  error
-}
-
-func (e *AppError) Error() string {
-	if e.Err != nil {
-		return e.Err.Error()
-	}
-	return fmt.Sprintf("error code %d", e.Code)
-}
-
-func NewAppError(code int, err error) error {
-	return &AppError{
-		Code: code,
-		Err:  err,
-	}
-}
-
 // Request provides methods for handling requests and responses
 type Request struct{}
 
@@ -57,17 +19,25 @@ var (
 )
 
 // ResponseWithCode handles error responses using predefined error codes from config/errors.json
-func (r *Request) ResponseWithCode(c *echo.Context, errorCode int, errs ...interface{}) error {
+func (r *Request) ResponseWithCode(c *echo.Context, errorCode interface{}, errs ...interface{}) error {
 	loadErrorConfig()
+
+	// Handle both int and string error codes
+	var codeStr string
+	switch v := errorCode.(type) {
+	case int:
+		codeStr = fmt.Sprintf("%d", v)
+	case string:
+		codeStr = v
+	}
 
 	// If the first error is an AppError, use its code
 	if len(errs) > 0 {
 		if appErr, ok := errs[0].(*AppError); ok {
-			errorCode = appErr.Code
+			codeStr = fmt.Sprintf("%d", appErr.Code)
 		}
 	}
 
-	codeStr := fmt.Sprintf("%d", errorCode)
 	detail, ok := errorMap[codeStr]
 	if !ok {
 		// Default to 500 if code not found
@@ -78,9 +48,10 @@ func (r *Request) ResponseWithCode(c *echo.Context, errorCode int, errs ...inter
 	}
 
 	response := ErrorResponse{
-		Code:    errorCode,
+		Code:    0, // Will set later
 		Message: detail.FA,
 	}
+	fmt.Sscanf(codeStr, "%d", &response.Code)
 
 	for _, err := range errs {
 		switch v := err.(type) {

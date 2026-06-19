@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/ocserv/group"
 	"gorm.io/gorm"
 )
 
@@ -13,14 +14,20 @@ type OcservGroupRepository interface {
 	Update(group *models.OcservGroup) error
 	Delete(id uint, adminID uint, role string) error
 	GetGroupsLookup(adminID uint, role string) ([]string, error)
+	DefaultGroup() (*models.OcservGroupConfig, error)
+	UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error
 }
 
 type ocservGroupRepository struct {
-	db *gorm.DB
+	db                    *gorm.DB
+	commonOcservGroupRepo group.OcservGroupInterface
 }
 
 func NewOcservGroupRepository(db *gorm.DB) OcservGroupRepository {
-	return &ocservGroupRepository{db: db}
+	return &ocservGroupRepository{
+		db:                    db,
+		commonOcservGroupRepo: group.NewOcservGroup(),
+	}
 }
 
 func (r *ocservGroupRepository) FindAll(adminID uint, role string) ([]models.OcservGroupResponse, error) {
@@ -127,4 +134,12 @@ func (r *ocservGroupRepository) GetGroupsLookup(adminID uint, role string) ([]st
 	}
 	err := query.Pluck("name", &names).Error
 	return names, err
+}
+
+func (r *ocservGroupRepository) DefaultGroup() (*models.OcservGroupConfig, error) {
+	return r.commonOcservGroupRepo.DefaultsGroup()
+}
+
+func (r *ocservGroupRepository) UpdateDefaultGroup(groupConfig *models.OcservGroupConfig) error {
+	return r.commonOcservGroupRepo.UpdateDefaultsGroup(groupConfig)
 }

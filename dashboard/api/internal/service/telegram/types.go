@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 )
 
 // SettingsResponse mirrors TelegramSettings but exposes only what the frontend needs.

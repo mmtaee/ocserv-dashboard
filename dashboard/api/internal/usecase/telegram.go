@@ -13,6 +13,7 @@ type TelegramUseCase interface {
 	// Accounts
 	GetAccountsForOcservUser(ocservUserID uint) ([]models.TelegramAccount, error)
 	DeleteAccount(id uint) error
+	PreferredLanguageForChat(chatID int64) (string, error)
 
 	// Packages
 	GetPackages(includeInactive bool) ([]models.TelegramPackage, error)
@@ -25,7 +26,10 @@ type TelegramUseCase interface {
 	GetRequests(page, limit int, orderBy, sort, status, requestType string) ([]models.TelegramRequest, int64, error)
 	GetRequestByID(id uint) (*models.TelegramRequest, error)
 	UpdateRequestStatus(id uint, status string, adminNote *string) (*models.TelegramRequest, error)
+	SetAwaitingPaymentMessageID(requestID uint, messageID int64) error
+	ClearAwaitingPaymentMessageID(requestID uint) error
 	DeleteRequest(id uint) error
+	MarkDelivered(id uint, ocservUserID *uint) error
 }
 
 type telegramUseCase struct {
@@ -58,6 +62,10 @@ func (u *telegramUseCase) GetAccountsForOcservUser(ocservUserID uint) ([]models.
 
 func (u *telegramUseCase) DeleteAccount(id uint) error {
 	return u.telegramRepo.DeleteAccount(id)
+}
+
+func (u *telegramUseCase) PreferredLanguageForChat(chatID int64) (string, error) {
+	return u.telegramRepo.PreferredLanguageForChat(chatID)
 }
 
 // ==========================
@@ -100,6 +108,18 @@ func (u *telegramUseCase) UpdateRequestStatus(id uint, status string, adminNote 
 	return u.telegramRepo.UpdateRequestStatus(id, status, adminNote)
 }
 
+func (u *telegramUseCase) SetAwaitingPaymentMessageID(requestID uint, messageID int64) error {
+	return u.telegramRepo.SetAwaitingPaymentMessageID(requestID, messageID)
+}
+
+func (u *telegramUseCase) ClearAwaitingPaymentMessageID(requestID uint) error {
+	return u.telegramRepo.ClearAwaitingPaymentMessageID(requestID)
+}
+
 func (u *telegramUseCase) DeleteRequest(id uint) error {
 	return u.telegramRepo.DeleteRequest(id)
+}
+
+func (u *telegramUseCase) MarkDelivered(id uint, ocservUserID *uint) error {
+	return u.telegramRepo.MarkDelivered(id, ocservUserID)
 }

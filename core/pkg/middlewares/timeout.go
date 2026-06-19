@@ -2,11 +2,11 @@ package middlewares
 
 import (
 	"context"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 )
 
 // TimeoutMiddleware creates a middleware that cancels the context after a timeout

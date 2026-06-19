@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/usecase"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/request"
 )
 
 type SuperAdminController struct {

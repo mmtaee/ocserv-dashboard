@@ -347,6 +347,100 @@ func GroupConfigToModel(configInterface interface{}) (models.OcservGroupConfig, 
 	return config, nil
 }
 
+// MainConfigToModel converts a generic interface{} containing the main ocserv configuration
+// into a strongly-typed models.OcservMainConfig structure.
+// It first marshals the interface to JSON, then unmarshals it into the target struct.
+// Returns an error if either the marshaling or unmarshaling fails.
+func MainConfigToModel(configInterface interface{}) (models.OcservMainConfig, error) {
+	configJson, err := json.Marshal(configInterface)
+	if err != nil {
+		return models.OcservMainConfig{}, err
+	}
+
+	var config models.OcservMainConfig
+
+	if err = json.Unmarshal(configJson, &config); err != nil {
+		return models.OcservMainConfig{}, err
+	}
+	return config, nil
+}
+
+// ConfigWriterForMain writes key-value pairs from a configuration map to the given buffer.
+// It preserves existing header comments (lines starting with # ===============================================).
+// It skips nil values and boolean false values.
+// For main config, all keys are written as "key=value" (no list keys like dns in group config).
+func ConfigWriterForMain(buffer *bytes.Buffer, config map[string]interface{}, existingHeader []string) error {
+	// Write the existing header comments first
+	for _, line := range existingHeader {
+		if _, err := buffer.WriteString(line + "\n"); err != nil {
+			return fmt.Errorf("failed to write header: %w", err)
+		}
+	}
+
+	// Write the config key-value pairs
+	for k, v := range config {
+		if b, ok := v.(bool); ok && !b {
+			continue
+		}
+		if v == nil {
+			continue
+		}
+		if v == "" {
+			continue
+		}
+
+		if _, err := buffer.WriteString(fmt.Sprintf("%s=%v\n", k, v)); err != nil {
+			return fmt.Errorf("failed to write config: %w", err)
+		}
+	}
+	return nil
+}
+
+// ParseOcservConfigContent parses an ocserv config content string into a map[string]interface{}.
+// Also extracts the header comments (lines starting with # ===============================================).
+func ParseOcservConfigContent(content string) (map[string]interface{}, []string, error) {
+	config := make(map[string]interface{})
+	var header []string
+	scanner := bufio.NewScanner(strings.NewReader(content))
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "# ===============================================") {
+			header = append(header, line)
+			continue
+		}
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		rawValue := strings.TrimSpace(parts[1])
+
+		parsedValue := ParseTypedValue(rawValue)
+
+		if existing, exists := config[key]; exists {
+			switch v := existing.(type) {
+			case []interface{}:
+				config[key] = append(v, parsedValue)
+			default:
+				config[key] = []interface{}{v, parsedValue}
+			}
+		} else {
+			config[key] = parsedValue
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, nil, err
+	}
+	return config, header, nil
+}
+
 //// FixTrailingComma removes a trailing comma after the "in_use" key
 //// in JSON output. This is used to clean up invalid JSON emitted by
 //// some ocserv/occtl commands before unmarshalling.

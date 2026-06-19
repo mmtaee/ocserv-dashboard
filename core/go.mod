@@ -4,6 +4,8 @@ go 1.26.4
 
 require (
 	github.com/go-gormigrate/gormigrate/v2 v2.1.6
+	github.com/go-playground/validator/v10 v10.30.3
+	github.com/labstack/echo/v5 v5.0.3
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.1

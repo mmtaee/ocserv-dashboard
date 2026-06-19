@@ -81,6 +81,11 @@
                   "config.go": "Init() now gets all params from env vars (DEBUG, HOST, PORT)"
                 }
               },
+              "crypto/": {
+                "children": {
+                  "password.go": "CustomPassword with salted password hashing"
+                }
+              },
               "database/": {
                 "children": {
                   "database.go": {}
@@ -90,6 +95,12 @@
                 "children": {
                   "service.go": {},
                   "types.go": {}
+                }
+              },
+              "middlewares/": {
+                "children": {
+                  "ratelimit.go": "Rate limiting middleware with SystemStore",
+                  "timeout.go": "Request timeout middleware"
                 }
               },
               "ocserv/": {
@@ -115,6 +126,14 @@
                   }
                 }
               },
+              "request/": {
+                "children": {
+                  "errors.go": "Error handling with ResponseWithCode",
+                  "pagination.go": "Pagination logic",
+                  "response.go": "MessageResponse",
+                  "validator.go": "Validator with Iranian national code support"
+                }
+              },
               "testutils/": {
                 "description": "Test utilities for model tests",
                 "children": {
@@ -133,11 +152,12 @@
       "dashboard/": {
         "children": {
           "api/": {
-            "description": "Main API service",
+            "description": "Admin API service",
             "children": {
               "cmd/": {
                 "description": "CLI commands",
                 "children": {
+                  "create-super-admin.go": {},
                   "root.go": {},
                   "serve.go": {}
                 }
@@ -145,7 +165,7 @@
               "config/": {
                 "children": {
                   "config.go": "Wrapper around core config",
-                  "errors.json": "Error codes and messages"
+                  "errors.json": "Error codes and messages (includes customer errors 8001-8004)"
                 }
               },
               "docs/": {
@@ -169,7 +189,13 @@
                   "repository/": {
                     "children": {
                       "admin.go": "AdminRepository",
-                      "system.go": "SystemRepository"
+                      "backup.go": "BackupRepository",
+                      "ocserv_group.go": "OcservGroupRepository",
+                      "ocserv_user.go": "OcservUserRepository",
+                      "report.go": "ReportRepository",
+                      "system.go": "SystemRepository",
+                      "systemd.go": "SystemdRepository",
+                      "telegram.go": "TelegramRepository"
                     }
                   },
                   "service/": {
@@ -180,13 +206,29 @@
                           "controller.go": "HTTP handlers for auth service",
                           "routes.go": "Route registration for auth service"
                         }
-                      }
+                      },
+                      "backup/": {},
+                      "occtl/": {},
+                      "ocserv_group/": {},
+                      "ocserv_user/": {},
+                      "report/": {},
+                      "super_admin/": {},
+                      "system/": {},
+                      "systemd/": {},
+                      "telegram/": {}
                     }
                   },
                   "usecase/": {
                     "children": {
                       "admin.go": "AdminUseCase (Login, GetProfile, ChangePassword)",
-                      "system.go": "SystemUseCase (Get, Update)"
+                      "backup.go": "BackupUseCase",
+                      "ocserv_group.go": "OcservGroupUseCase",
+                      "ocserv_user.go": "OcservUserUseCase",
+                      "report.go": "ReportUseCase",
+                      "super_admin.go": "SuperAdminUseCase",
+                      "system.go": "SystemUseCase (Get, Update)",
+                      "systemd.go": "SystemdUseCase",
+                      "telegram.go": "TelegramUseCase"
                     }
                   }
                 }
@@ -211,22 +253,12 @@
                   },
                   "middlewares/": {
                     "children": {
-                      "auth.go": "Admin JWT auth middleware",
-                      "timeout.go": "Request timeout middleware",
-                      "ratelimit.go": "In-memory rate limiter"
-                    }
-                  },
-                  "request/": {
-                    "children": {
-                      "errors.go": {},
-                      "pagination.go": {},
-                      "response.go": {},
-                      "validator.go": {}
+                      "auth.go": "Admin JWT auth middleware"
                     }
                   },
                   "routing/": {
                     "children": {
-                      "serve.go": {},
+                      "serve.go": "Uses core middlewares",
                       "utils.go": {}
                     }
                   },
@@ -246,6 +278,119 @@
           }
         }
       },
+      "customer_dashboard/": {
+        "children": {
+          "api/": {
+            "description": "Customer API service",
+            "children": {
+              "cmd/": {
+                "description": "CLI commands",
+                "children": {
+                  "create-super-admin.go": {},
+                  "root.go": {},
+                  "serve.go": {}
+                }
+              },
+              "config/": {
+                "children": {
+                  "config.go": "Wrapper around core config",
+                  "errors.json": "Error codes and messages (includes customer errors 8001-8004)"
+                }
+              },
+              "docs/": {
+                "children": {
+                  "docs.go": {}
+                }
+              },
+              "internal/": {
+                "children": {
+                  "providers/": {
+                    "children": {
+                      "routing/": {
+                        "children": {
+                          "routing.go": "Aggregate route registration for customer API"
+                        }
+                      }
+                    }
+                  },
+                  "repository/": {
+                    "children": {
+                      "ocserv_user.go": "OcservUserRepository for customers",
+                      "system.go": "SystemRepository for customers",
+                      "occtl.go": "OcctlRepository for customers"
+                    }
+                  },
+                  "usecase/": {
+                    "children": {
+                      "auth.go": "AuthUseCase implementation",
+                      "customer.go": "CustomerUseCase implementation"
+                    }
+                  },
+                  "service/": {
+                    "children": {
+                      "auth/": {
+                        "children": {
+                          "types.go": "Request/response types for customer auth service",
+                          "controller.go": "HTTP handlers for customer auth service",
+                          "routes.go": "Route registration for customer auth service"
+                        }
+                      },
+                      "customer/": {
+                        "children": {
+                          "types.go": "Customer API request/response types",
+                          "controller.go": "Customer API handlers",
+                          "routes.go": "Customer API route registration with auth middleware"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "pkg/": {
+                "children": {
+                  "auth/": {
+                    "children": {
+                      "jwt.go": "CustomerClaims, CreateCustomerToken, ValidateCustomerToken"
+                    }
+                  },
+                  "bootstrap/": {
+                    "children": {
+                      "migration.go": "Uses core migrations",
+                      "serve.go": "Initializes config, infra, migrations and runs server"
+                    }
+                  },
+                  "infra/": {
+                    "children": {
+                      "infra.go": "No Redis, just DB"
+                    }
+                  },
+                  "middlewares/": {
+                    "children": {
+                      "auth.go": "Customer JWT auth middleware with locked user check"
+                    }
+                  },
+                  "routing/": {
+                    "children": {
+                      "serve.go": "Uses core middlewares",
+                      "utils.go": {}
+                    }
+                  },
+                  "testutils/": {
+                    "children": {
+                      "db_loader.go": {}
+                    }
+                  }
+                }
+              },
+              "main.go": {},
+              "go.mod": {}
+            }
+          },
+          "ui/": {
+            "description": "Vue 3 customer frontend (empty for now)"
+          }
+        }
+      },
       "docs/": {
         "description": "Project documentation & assets",
         "children": {
@@ -256,6 +401,9 @@
           "menu.png": {},
           "telegram-translations.md": {}
         }
+      },
+      "old_files/": {
+        "description": "Old customer service and API files (archived)"
       },
       ".dockerignore": {},
       ".env.sample": {},

@@ -30,10 +30,17 @@ type OcservUserPasswords interface {
 	Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error)
 }
 
+type OcservUserCertificate interface {
+	CertificateStatus(username string) CertificateStatus
+	CreateCertificate(username, password string) error
+	CertificatePath(username string) (string, error)
+}
+
 type OcservUserInterface interface {
 	OcservUserManagement
 	OcservUserConfigManagement
 	OcservUserPasswords
+	OcservUserCertificate
 }
 
 func NewOcservUser() *OcservUser {
@@ -202,3 +209,32 @@ func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error) {
 
 	return &users, total, nil
 }
+
+// CertificateStatus checks the certificate status for a user (if it's enabled and available
+func (u *OcservUser) CertificateStatus(username string) CertificateStatus {
+	// Check if certificate file exists
+	certPath := filepath.Join(utils.ConfigUserBaseDir, username+".p12")
+	_, err := os.Stat(certPath)
+	if err == nil {
+		return CertificateStatus{Enabled: true, Available: true}
+	}
+	return CertificateStatus{Enabled: false, Available: false}
+}
+
+// CreateCertificate creates a certificate for the given user
+func (u *OcservUser) CreateCertificate(username, password string) error {
+	// TODO: Actual certificate generation logic (certPath := filepath.Join(utils.ConfigUserBaseDir, username+".p12")
+	// For now, just a placeholder
+	return nil
+}
+
+// CertificatePath returns the path to the user's certificate file
+func (u *OcservUser) CertificatePath(username string) (string, error) {
+	certPath := filepath.Join(utils.ConfigUserBaseDir, username+".p12")
+	_, err := os.Stat(certPath)
+	if err != nil {
+		return "", err
+	}
+	return certPath, nil
+}
+
