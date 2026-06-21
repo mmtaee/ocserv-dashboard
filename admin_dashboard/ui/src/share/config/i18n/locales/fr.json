@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "browseProducts": "Parcourir les produits"
+  },
+  "app": {
+    "title": "Plateforme e-commerce d'entreprise"
+  },
+  "pages": {
+    "products": {
+      "title": "Produits",
+      "description": "Parcourez notre catalogue de produits"
+    }
+  },
+  "dialog": {
+    "close": "Fermer"
+  },
+  "languageSelector": {
+    "title": "Sélectionner la langue"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "browseProducts": "Explorar productos"
+  },
+  "app": {
+    "title": "Plataforma de comercio electrónico empresarial"
+  },
+  "pages": {
+    "products": {
+      "title": "Productos",
+      "description": "Explora nuestro catálogo de productos"
+    }
+  },
+  "dialog": {
+    "close": "Cerrar"
+  },
+  "languageSelector": {
+    "title": "Seleccionar idioma"
+  }
+}

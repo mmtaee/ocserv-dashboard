@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "close": "بستن",
+    "browseProducts": "مشاهده محصولات"
+  },
+  "app": {
+    "title": "پلتفرم تجارت الکترونیک سازمانی"
+  },
+  "pages": {
+    "products": {
+      "title": "محصولات",
+      "description": "به کاتالوگ محصولات ما مراجعه کنید"
+    }
+  },
+  "dialog": {
+    "close": "بستن"
+  },
+  "languageSelector": {
+    "title": "انتخاب زبان"
+  }
+}

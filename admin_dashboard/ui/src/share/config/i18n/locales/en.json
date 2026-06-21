@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "browseProducts": "Browse Products"
+  },
+  "app": {
+    "title": "Enterprise E-Commerce Platform"
+  },
+  "pages": {
+    "products": {
+      "title": "Products",
+      "description": "Browse our product catalog"
+    }
+  },
+  "dialog": {
+    "close": "Close"
+  },
+  "languageSelector": {
+    "title": "Select Language"
+  }
+}
