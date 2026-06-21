@@ -1,11 +1,12 @@
 // config/orval.config.ts
+import { BASE_API_URL } from "@/share/constant/global"
 import { defineConfig } from "orval"
 
 export default defineConfig({
   adminDashboard: {
     input: "http://185.226.117.170:8080/openapi.json",
     output: {
-      baseUrl: import.meta.env.VITE_API_URL,
+      baseUrl: BASE_API_URL,
       mode: "tags-split",
       target: "../../api/endpoints",
       schemas: "../../api/models",

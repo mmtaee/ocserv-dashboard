@@ -1,4 +1,12 @@
-import { attachTimeout, maybeRedirectToLogin, normalizeToBaseUrl, parseResponseBody, withAuthHeader } from "./http.config";
+import { BASE_API_URL } from "@/share/constant/global"
+
+import {
+  attachTimeout,
+  maybeRedirectToLogin,
+  normalizeToBaseUrl,
+  parseResponseBody,
+  withAuthHeader,
+} from "./http.config"
 
 /**
  * Orval React Query mutator.
@@ -14,7 +22,7 @@ export const customInstance = async <TData>(
 ): Promise<TData> => {
   const { timeout, ...requestOptions } = options
 
-  const baseUrl = import.meta.env.NEXT_PUBLIC_API_URL ?? ""
+  const baseUrl = BASE_API_URL ?? ""
   const requestUrl = normalizeToBaseUrl(url, baseUrl)
 
   const headers = await withAuthHeader(requestOptions.headers)
