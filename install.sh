@@ -25,7 +25,7 @@
 # ==============================================================
 
 # Load shared helpers
-source ./scripts/lib.sh
+source ./deploy/scripts/lib.sh
 
 # ===============================
 # Default Configuration

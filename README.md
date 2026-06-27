@@ -206,7 +206,7 @@ You need to update **all 4 locations**!
    - Add your language code (`es`) with translated `commands`, `long_description`, and `short_description`
 
 5. **Update supported languages list**:
-   - Open `services/common/models/telegram_languages.go`
+   - Open `services/core/models/telegram_languages.go`
    - Add your new language to the list
    
 6. **Update the Installer**:

@@ -1,0 +1,116 @@
+# -----------------------------
+# Builder Stage
+# -----------------------------
+FROM golang:1.25 AS builder
+
+ARG OCSERV_VERSION
+ARG GO_PROXY
+
+ENV OCSERV_VERSION="${OCSERV_VERSION}"
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN if [ -n "${GO_PROXY}" ]; then \
+        go env -w GOPROXY="${GO_PROXY}" && \
+        go env -w GOSUMDB=off; \
+    fi
+
+RUN mkdir /core
+
+COPY core/ /core
+
+WORKDIR /app
+
+# Copy Go modules first for caching
+COPY admin_dashbard/api/go.mod admin_dashbard/api/go.sum ./
+
+RUN go mod download
+
+# Copy source code and build
+COPY admin_dashbard/api .
+
+RUN go build -ldflags="-s -w" -o api main.go
+
+# -----------------------------
+# Build Webhook Service
+# -----------------------------
+WORKDIR /webhook
+
+# Copy webhook source
+COPY docker_webhook/go.mod docker_webhook/go.sum ./
+RUN go mod download
+
+COPY docker_webhook .
+
+RUN go build -ldflags="-s -w" -o webhook main.go
+
+# -----------------------------
+# Final Stage
+# -----------------------------
+FROM debian:trixie-slim
+
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
+ENV PATH="/usr/local/sbin:$PATH"
+
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+        debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+        debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+        echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+        echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+        echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list \
+    ; fi
+
+# Set working directory
+WORKDIR /usr/local/bin
+
+# Install dependencies
+# Install dependencies, run setup, cleanup
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+        # runtime deps
+        sudo ca-certificates procps gnutls-bin iptables \
+        openssl less dnsutils jq curl iproute2\
+        \
+        # build deps (needed for ocserv build)
+        build-essential meson ninja-build pkg-config git \
+        libgnutls28-dev libev-dev libreadline-dev libtasn1-bin \
+        libpam0g-dev liblz4-dev libseccomp-dev \
+        libnl-route-3-dev libkrb5-dev libradcli-dev \
+        libcurl4-gnutls-dev libcjose-dev libjansson-dev liboath-dev \
+        libprotobuf-c-dev libtalloc-dev libllhttp-dev protobuf-c-compiler \
+        gperf ipcalc
+
+COPY --chmod=755 deploy/scripts/docker/ocserv_compile.sh /setup.sh
+
+# build ocserv service
+RUN bash /setup.sh
+
+# 🔥 remove build deps after install (important)
+RUN apt-get purge -y \
+        build-essential meson ninja-build pkg-config git protobuf-c-compiler gperf \
+    && apt-get autoremove -y \
+    \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /setup.sh
+
+# Copy API binary and scripts
+COPY --from=builder /app/api /usr/local/bin/api
+COPY --from=builder /webhook/webhook /usr/local/bin/webhook
+
+COPY --chmod=755 deploy/scripts/docker/ocserv_entrypoint.sh /entrypoint.sh
+COPY --chmod=755 deploy/scripts/docker/ocserv_server.sh /server.sh
+
+# Expose ports
+EXPOSE 443/tcp 443/udp 8080 8888
+
+# Volumes
+VOLUME ["/etc/ocserv"]
+
+# Run entrypoint as root (required for ocserv)
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Default CMD
+CMD ["/server.sh"]

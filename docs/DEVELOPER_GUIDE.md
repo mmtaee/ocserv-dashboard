@@ -62,7 +62,7 @@ cd services/api
 go run main.go docs
 ```
 
-### Common Packages (services/common)
+### Common Packages (services/core)
 
 Shared packages used by all backend services:
 - `models/`: Data models

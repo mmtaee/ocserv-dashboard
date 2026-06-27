@@ -69,7 +69,7 @@ Same layout as the web dashboard: **one JSON file per language** under `services
 
 - **Optional overlay:** set `TELEGRAM_BOT_I18N_PATH` to a **directory** containing the same `*.json` files (merged over embedded defaults). Restart the bot after changes.
 
-Supported codes are defined in `services/common/models/telegram_languages.go` (kept in sync with `VITE_I18N_LANGUAGES` / `web/src/locales/*.json`).
+Supported codes are defined in `services/core/models/telegram_languages.go` (kept in sync with `VITE_I18N_LANGUAGES` / `web/src/locales/*.json`).
 
 ### Standalone Telegram Bot (BotFather Metadata)
 - **Embedded defaults:** `services/telegram_bot/internal/bot/metadata_locales.json`

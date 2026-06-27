@@ -3,7 +3,7 @@ services:
     image: "ocserv_users_management:telegram_bot_${LATEST_RELEASE}"
     build:
       context: .
-      dockerfile: docker/Dockerfile-Telegram-Bot
+      dockerfile: deploy/docker/Dockerfile-Telegram-Bot
       args:
         - GO_PROXY
         - DEBIAN_MIRROR

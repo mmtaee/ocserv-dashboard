@@ -1,0 +1,111 @@
+package sse
+
+import (
+	"fmt"
+	"net/http"
+	"sync"
+	"time"
+
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
+)
+
+type Server struct {
+	clients map[chan string]string // []IP
+	mu      sync.Mutex
+}
+
+func NewSSEServer() *Server {
+	return &Server{
+		clients: make(map[chan string]string),
+	}
+}
+
+func (s *Server) AddClient(client chan string, ip string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.clients[client] = ip
+	logger.Info("Added new client %v with ip %s", client, ip)
+}
+
+// RemoveClient removes a client connection
+func (s *Server) RemoveClient(client chan string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if ip, ok := s.clients[client]; ok {
+		logger.Info("Client %v with ip %s disconnected", client, ip)
+		delete(s.clients, client)
+		close(client)
+	}
+}
+
+func (s *Server) StartBroadcast(broadcaster <-chan string) {
+	go func() {
+		for msg := range broadcaster {
+			s.mu.Lock()
+			for ch := range s.clients {
+				select {
+				case ch <- msg:
+				default:
+					logger.Error("Broadcast channel full, Dropped message for client %s", s.clients[ch])
+					continue
+				}
+			}
+			s.mu.Unlock()
+		}
+	}()
+}
+
+func (s *Server) SSEHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientAddr := r.RemoteAddr
+
+		if len(s.clients) > 3 {
+			logger.Warn("Too many clients connected: %s", clientAddr)
+			http.Error(w, "Too many clients connected", http.StatusTooManyRequests)
+			return
+		}
+
+		// Setup SSE headers
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
+
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			return
+		}
+
+		clientChan := make(chan string, 10)
+		s.AddClient(clientChan, r.RemoteAddr)
+		logger.Info("Client connected: %s", clientAddr)
+
+		defer func() {
+			s.RemoveClient(clientChan)
+			logger.Info("Client disconnected: %s", clientAddr)
+		}()
+
+		for {
+			select {
+			case <-r.Context().Done():
+				return
+			case message := <-clientChan:
+				if message == "" {
+					return
+				}
+
+				_, err := fmt.Fprintf(w, "data: %s\n\n", message)
+				if err != nil {
+					logger.Error("Error writing to client %s", s.clients[clientChan])
+					return
+				}
+
+				flusher.Flush()
+
+				time.Sleep(500 * time.Millisecond)
+			}
+		}
+	}
+}

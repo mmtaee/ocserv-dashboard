@@ -1,0 +1,23 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.web.json",
+    "include": [
+      "env.d.ts", "src/**/*", "src/**/*.vue"],
+    //    "include": ["env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"],
+    "compilerOptions": {
+        "target": "ES2018",
+        "lib": ["ES2018", "DOM"],
+        "preserveValueImports": false,
+        "importsNotUsedAsValues": "remove",
+        "verbatimModuleSyntax": true,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "allowJs": true
+    },
+    "references": [
+        {
+            "path": "./tsconfig.vite-config.json"
+        }
+    ]
+}

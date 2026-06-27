@@ -1,0 +1,69 @@
+# -----------------------------
+# Builder Stage
+# -----------------------------
+FROM golang:1.25 AS builder
+
+ARG GO_PROXY
+
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+RUN if [ -n "${GO_PROXY}" ]; then \
+        go env -w GOPROXY="${GO_PROXY}" && \
+        go env -w GOSUMDB=off; \
+    fi
+
+# Optional: copy common packages if used
+RUN mkdir /core
+COPY core /core
+
+# Set working directory
+WORKDIR /app
+
+# Copy Go module files first for caching
+COPY log_parser/go.mod log_parser/go.sum ./
+
+RUN go mod download
+
+# Copy the rest of the source
+COPY log_parser .
+
+# Build the binary with optional size optimization
+RUN go build -ldflags="-s -w" -o log_stream main.go
+
+# -----------------------------
+# Final Stage
+# -----------------------------
+FROM debian:trixie-slim
+
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
+
+RUN if [ -n "${DEBIAN_MIRROR}" ] || [ -n "${DEBIAN_SECURITY_MIRROR}" ]; then \
+        debian_mirror="${DEBIAN_MIRROR:-http://deb.debian.org/debian}" && \
+        debian_security_mirror="${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}" && \
+        echo "deb ${debian_mirror} trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+        echo "deb ${debian_mirror} trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+        echo "deb ${debian_security_mirror} trixie-security main non-free-firmware" >> /etc/apt/sources.list \
+    ; fi
+
+# Install runtime dependencies only
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy the Go binary from the builder stage
+COPY --from=builder --chmod=755 /app/log_stream /usr/local/bin/log_stream
+
+COPY --chmod=755 log_parser/scripts/server.sh /server.sh
+
+# Expose application port
+EXPOSE 8080
+
+# Default command
+CMD ["/server.sh"]
