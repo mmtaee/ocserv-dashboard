@@ -8,7 +8,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
-	"github.com/mmtaee/ocserv-dashboard/api/internal/services/home"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
@@ -57,7 +56,7 @@ func (ctl *Controller) ServerInfo(c echo.Context) error {
 		return c.JSON(http.StatusOK, info)
 	}
 
-	status := home.ParseServerStatus(serverStatusMap)
+	status := models.ParseOcservServerStatus(serverStatusMap)
 	if status.GeneralInfo.Status != "" {
 		info.Status = status.GeneralInfo.Status
 	}

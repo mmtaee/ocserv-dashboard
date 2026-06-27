@@ -4,23 +4,21 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 )
 
 type Controller struct {
-	request         request.CustomRequestInterface
-	ocservUserRepo  repository.OcservUserRepositoryInterface
-	ocservGroupRepo repository.OcservGroupRepositoryInterface
-	backupRepo      repository.BackupRepositoryInterface
+	request request.CustomRequestInterface
+	usecase usecase.BackupUsecaseInterface
 }
+
 type multiReadCloser struct {
 	io.Reader
 	closers []io.Closer
@@ -33,12 +31,10 @@ func (m *multiReadCloser) Close() error {
 	return nil
 }
 
-func New() *Controller {
+func New(uc usecase.BackupUsecaseInterface) *Controller {
 	return &Controller{
-		request:         request.NewCustomRequest(),
-		ocservUserRepo:  repository.NewtOcservUserRepository(),
-		ocservGroupRepo: repository.NewOcservGroupRepository(),
-		backupRepo:      repository.NewBackupRepository(),
+		request: request.NewCustomRequest(),
+		usecase: uc,
 	}
 }
 
@@ -55,11 +51,6 @@ func New() *Controller {
 // @Success      200 {file} file "ocserv_groups_backup.json.gz"
 // @Router       /backup/ocserv_groups [get]
 func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
-	defaultGroup, err := ctl.ocservGroupRepo.DefaultGroup()
-	if err != nil {
-		return ctl.request.BadRequest(c, err)
-	}
-
 	c.Response().Header().Set(echo.HeaderContentType, "application/json")
 	c.Response().Header().Set(
 		echo.HeaderContentDisposition,
@@ -70,18 +61,10 @@ func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
 	c.Response().WriteHeader(http.StatusOK)
 
 	gz := gzip.NewWriter(c.Response())
+	defer gz.Close()
 
-	if err = ctl.backupRepo.OcservGroupBackup(
-		c.Request().Context(),
-		gz,
-		defaultGroup,
-	); err != nil {
-		_ = gz.Close()
+	if err := ctl.usecase.OcservGroupBackup(gz); err != nil {
 		return ctl.request.BadRequest(c, err)
-	}
-
-	if err = gz.Close(); err != nil {
-		return err
 	}
 
 	return nil
@@ -95,7 +78,7 @@ func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
 // @Accept       multipart/form-data
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Param        file formData file true "JSON or JSON.GZ file"
-// @Success      200 {object} RestoreResponse
+// @Success      200 {object} usecase.RestoreResponse
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Failure      403 {object} middlewares.PermissionDenied
@@ -115,12 +98,7 @@ func (ctl *Controller) OcservGroupRestore(c echo.Context) error {
 		_ = reader.Close()
 	}(reader)
 
-	type groupFile struct {
-		DefaultGroup *models.OcservGroupConfig `json:"default_group" validate:"required"`
-		Groups       []models.OcservGroup      `json:"groups"`
-	}
-
-	var groupData groupFile
+	var groupData usecase.BackupGroupFile
 
 	decoder := json.NewDecoder(reader)
 	decoder.DisallowUnknownFields()
@@ -133,20 +111,12 @@ func (ctl *Controller) OcservGroupRestore(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
 	}
 
-	if err = ctl.ocservGroupRepo.UpdateDefaultGroup(groupData.DefaultGroup); err != nil {
+	inserted, existing, err := ctl.usecase.OcservGroupRestore(owner, &groupData)
+	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	var inserted, existing *[]string
-
-	if len(groupData.Groups) > 0 {
-		inserted, existing, err = ctl.backupRepo.OcservGroupRestore(c.Request().Context(), owner, &groupData.Groups)
-		if err != nil {
-			return ctl.request.BadRequest(c, err)
-		}
-	}
-
-	return c.JSON(http.StatusOK, RestoreResponse{
+	return c.JSON(http.StatusOK, usecase.RestoreResponse{
 		Inserted: inserted,
 		Existing: existing,
 	})
@@ -175,17 +145,10 @@ func (ctl *Controller) OcservUserBackup(c echo.Context) error {
 	c.Response().WriteHeader(http.StatusOK)
 
 	gz := gzip.NewWriter(c.Response())
+	defer gz.Close()
 
-	if err := ctl.backupRepo.OcservUserBackup(
-		c.Request().Context(),
-		gz,
-	); err != nil {
-		_ = gz.Close()
+	if err := ctl.usecase.OcservUserBackup(gz); err != nil {
 		return ctl.request.BadRequest(c, err)
-	}
-
-	if err := gz.Close(); err != nil {
-		return err
 	}
 
 	return nil
@@ -199,7 +162,7 @@ func (ctl *Controller) OcservUserBackup(c echo.Context) error {
 // @Accept       multipart/form-data
 // @Param        Authorization header string true "Bearer TOKEN"
 // @Param        file formData file true "JSON or JSON.GZ file"
-// @Success      200 {object} RestoreResponse
+// @Success      200 {object} usecase.RestoreResponse
 // @Failure      400 {object} request.ErrorResponse
 // @Failure      401 {object} middlewares.Unauthorized
 // @Failure      403 {object} middlewares.PermissionDenied
@@ -231,19 +194,12 @@ func (ctl *Controller) OcservUserRestore(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
 	}
 
-	if len(users) == 0 {
-		return c.JSON(http.StatusOK, RestoreResponse{
-			Inserted: nil,
-			Existing: nil,
-		})
-	}
-
-	inserted, existing, err := ctl.backupRepo.OcservUserRestore(c.Request().Context(), owner, &users)
+	inserted, existing, err := ctl.usecase.OcservUserRestore(owner, users)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	return c.JSON(http.StatusOK, RestoreResponse{
+	return c.JSON(http.StatusOK, usecase.RestoreResponse{
 		Inserted: inserted,
 		Existing: existing,
 	})
@@ -268,7 +224,7 @@ func (ctl *Controller) fileUploadValidator(c echo.Context) (io.ReadCloser, error
 		gz, err := gzip.NewReader(file)
 		if err != nil {
 			_ = file.Close()
-			return nil, fmt.Errorf("invalid gzip file")
+			return nil, errors.New("invalid gzip file")
 		}
 
 		return &multiReadCloser{

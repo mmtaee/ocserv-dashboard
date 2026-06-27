@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	backupRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/backup"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	customerRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/customer"
 	homeRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/home"
 	occtlRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/occtl"
@@ -14,6 +15,7 @@ import (
 	systemRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/system"
 	systemdRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/systemd"
 	telegramRoutes "github.com/mmtaee/ocserv-dashboard/api/internal/services/telegram"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/config"
 )
 
@@ -24,10 +26,22 @@ func Register(e *echo.Echo) {
 	ocservGroupRoutes.Routes(group)
 	ocservUserRoutes.Routes(group)
 	occtlRoutes.Routes(group)
-	homeRoutes.Routes(group)
+
+	// home
+	occtlRepo := repository.NewOcctlRepository()
+	ocservUserRepo := repository.NewtOcservUserRepository()
+	reportRepo := repository.NewtReportRepository()
+	telegramRepo := repository.NewTelegramRepository()
+	homeUC := usecase.NewHomeUsecase(occtlRepo, ocservUserRepo, reportRepo, telegramRepo)
+	homeCtl := homeRoutes.New(homeUC)
+	homeRoutes.Routes(group, homeCtl)
 
 	// backup
-	backupRoutes.Routes(group)
+	ocservGroupRepo := repository.NewOcservGroupRepository()
+	backupRepo := repository.NewBackupRepository()
+	backupUC := usecase.NewBackupUsecase(ocservUserRepo, ocservGroupRepo, backupRepo)
+	backupCtl := backupRoutes.New(backupUC)
+	backupRoutes.Routes(group, backupCtl)
 
 	// customers
 	customerRoutes.Routes(group)
