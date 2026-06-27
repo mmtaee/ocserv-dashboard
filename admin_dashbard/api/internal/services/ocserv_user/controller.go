@@ -1,39 +1,98 @@
+
 package ocserv_user
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/ocserv/user"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
-type Controller struct {
-	request         request.CustomRequestInterface
-	userRepo        repository.UserRepositoryInterface
-	ocservUserRepo  repository.OcservUserRepositoryInterface
-	ocservOcctlRepo repository.OcctlRepositoryInterface
-	reportRepo      repository.ReportRepositoryInterface
+type CreateOcservUserData struct {
+	Group       string                   `json:"group" validate:"required"`
+	Username    string                   `json:"username" validate:"required,min=2,max=32"`
+	Password    string                   `json:"password" validate:"required,min=2,max=32"`
+	ExpireAt    string                   `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType string                   `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize int64                    `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"`
+	Description string                   `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config      *models.OcservUserConfig `json:"config" validate:"required"`
 }
 
-func New() *Controller {
+type UpdateOcservUserData struct {
+	Group       *string                  `json:"group" example:"default"`
+	Password    *string                  `json:"password" validate:"min=2,max=32"`
+	ExpireAt    *string                  `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
+	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType *string                  `json:"traffic_type" validate:"oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize *int64                   `json:"traffic_size" validate:"gte=0" example:"10737418240"`
+	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+}
+
+type OcservUsersResponse struct {
+	Meta   request.Meta        `json:"meta" validate:"required"`
+	Result []models.OcservUser `json:"result" validate:"omitempty"`
+}
+
+type SyncOcpasswdRequest struct {
+	Users       []user.Ocpasswd          `json:"users" validate:"required"`
+	ExpireAt    *string                  `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	TrafficType *string                  `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize *int64                   `json:"traffic_size" validate:"required,gte=0" example:"10737418240"`
+	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+}
+
+type OcservUsersSyncResponse struct {
+	Meta   request.Meta    `json:"meta" validate:"required"`
+	Result []user.Ocpasswd `json:"result" validate:"omitempty"`
+}
+
+type ActivateUserData struct {
+	ExpireAt *string `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+}
+
+type SessionLogsData struct {
+	DateStart string `json:"date_start" query:"date_start" validate:"omitempty" example:"2025-1-31"`
+	DateEnd   string `json:"date_end" query:"date_end" validate:"omitempty" example:"2025-12-31"`
+}
+
+type SessionLogsResponse struct {
+	Meta   request.Meta                   `json:"meta" validate:"required"`
+	Result *[]models.OcservUserSessionLog `json:"result" validate:"omitempty"`
+}
+
+type StatisticsData struct {
+	DateStart string `json:"date_start" query:"date_start" validate:"omitempty" example:"2025-1-31"`
+	DateEnd   string `json:"date_end" query:"date_end" validate:"omitempty" example:"2025-12-31"`
+}
+
+type StatisticsResponse struct {
+	Statistics      []models.DailyTraffic      `json:"statistics" validate:"required"`
+	TotalBandwidths repository.TotalBandwidths `json:"total_bandwidths" validate:"required"`
+}
+
+type Controller struct {
+	request           request.CustomRequestInterface
+	ocservUserUsecase usecase.OcservUserUsecaseInterface
+}
+
+func New(ocservUserUsecase usecase.OcservUserUsecaseInterface) *Controller {
 	return &Controller{
-		request:         request.NewCustomRequest(),
-		ocservUserRepo:  repository.NewtOcservUserRepository(),
-		ocservOcctlRepo: repository.NewOcctlRepository(),
-		reportRepo:      repository.NewtReportRepository(),
+		request:           request.NewCustomRequest(),
+		ocservUserUsecase: ocservUserUsecase,
 	}
 }
 
@@ -81,38 +140,26 @@ func (ctl *Controller) Users(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	onlineUsers, err := ctl.ocservOcctlRepo.OnlineSessions()
+	onlineUsers, err := ctl.ocservUserUsecase.OnlineSessions()
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
 	onlineUsersMap := make(map[string][]models.OnlineUserSession)
 	onlineUsernames := make([]string, 0)
 
 	for _, u := range onlineUsers {
-		if !slices.Contains(onlineUsernames, u.Username) {
+		if !strings.Contains(strings.Join(onlineUsernames, ","), u.Username) {
 			onlineUsernames = append(onlineUsernames, u.Username)
 		}
-
-		onlineUsersMap[u.Username] = append(onlineUsersMap[u.Username], models.OnlineUserSession{
-			ID:               u.ID,
-			Username:         u.Username,
-			Group:            u.Group,
-			AverageRX:        u.AverageRX,
-			AverageTX:        u.AverageTX,
-			LastConnectedAt:  u.LastConnectedAt,
-			IPv4:             u.IPv4,
-			VHost:            u.VHost,
-			Device:           u.Device,
-			SessionStartedAt: u.SessionStartedAt,
-		})
+		onlineUsersMap[u.Username] = append(onlineUsersMap[u.Username], u)
 	}
 
-	// -------------------------
-	// ONLINE FILTER MODE
-	// -------------------------
-	if filter == "online" {
-		if err != nil {
-			return ctl.request.BadRequest(c, err)
-		}
+	var users []models.OcservUser
+	var total int64
 
-		users, total, err := ctl.ocservUserRepo.UsersByUsername(
+	if filter == "online" {
+		users, total, err = ctl.ocservUserUsecase.UsersByUsername(
 			ctx,
 			pagination,
 			owner,
@@ -120,50 +167,20 @@ func (ctl *Controller) Users(c echo.Context) error {
 			q,
 			group,
 		)
-		if err != nil {
-			return ctl.request.BadRequest(c, err)
-		}
-
-		// Users are already filtered to occtl-reported sessions; IsOnline must be true
-		// or the UI shows "disconnected" (normal-list branch sets this via onlineMap).
-		for i := range users {
-			users[i].IsOnline = true
-			users[i].OnlineUserSessions = onlineUsersMap[users[i].Username]
-		}
-
-		return c.JSON(http.StatusOK, OcservUsersResponse{
-			Meta: request.Meta{
-				Page:         pagination.Page,
-				TotalRecords: total,
-				PageSize:     pagination.PageSize,
-			},
-			Result: users,
-		})
+	} else {
+		users, total, err = ctl.ocservUserUsecase.Users(
+			ctx,
+			pagination,
+			owner,
+			q,
+			filter,
+			group,
+			onlineUsers,
+		)
 	}
 
-	// -------------------------
-	// NORMAL MODE
-	// -------------------------
-	users, total, err := ctl.ocservUserRepo.Users(
-		ctx,
-		pagination,
-		owner,
-		q,
-		filter,
-		group,
-	)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
-	}
-
-	// attach online status
-	if len(users) > 0 {
-		for i := range users {
-			if item, ok := onlineUsersMap[users[i].Username]; ok {
-				users[i].IsOnline = true
-				users[i].OnlineUserSessions = item
-			}
-		}
 	}
 
 	return c.JSON(http.StatusOK, OcservUsersResponse{
@@ -190,13 +207,12 @@ func (ctl *Controller) Users(c echo.Context) error {
 // @Success      200  {object}  models.OcservUser
 // @Router       /ocserv/users/{uid} [get]
 func (ctl *Controller) User(c echo.Context) error {
-	// TODO: add staff filter to get ocserv user for same owner
 	userUID := c.Param("uid")
 	if userUID == "" {
 		return ctl.request.BadRequest(c, errors.New("invalid user uid"))
 	}
 
-	u, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userUID)
+	u, err := ctl.ocservUserUsecase.GetByUID(c.Request().Context(), userUID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -256,7 +272,7 @@ func (ctl *Controller) Create(c echo.Context) error {
 		Config:      data.Config,
 	}
 
-	u, err := ctl.ocservUserRepo.Create(c.Request().Context(), ocUser)
+	u, err := ctl.ocservUserUsecase.Create(c.Request().Context(), ocUser)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -289,7 +305,7 @@ func (ctl *Controller) Update(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	ocservUser, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userID)
+	ocservUser, err := ctl.ocservUserUsecase.GetByUID(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -306,15 +322,10 @@ func (ctl *Controller) Update(c echo.Context) error {
 	if data.TrafficSize != nil {
 		ocservUser.TrafficSize = *data.TrafficSize
 	}
-	if data.TrafficType != nil && slices.Contains([]string{
-		"Free",
-		"MonthlyTransmit",
-		"MonthlyReceive",
-		"MonthlyRxTx",
-		"TotallyTransmit",
-		"TotallyReceive",
-		"TotallyRxTx",
-	}, *data.TrafficType) {
+	if data.TrafficType != nil && strings.Contains(
+		"Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx",
+		*data.TrafficType,
+	) {
 		ocservUser.TrafficType = *data.TrafficType
 	}
 	if data.Config != nil {
@@ -329,7 +340,7 @@ func (ctl *Controller) Update(c echo.Context) error {
 		}
 	}
 
-	updatedOcservUser, err := ctl.ocservUserRepo.Update(c.Request().Context(), ocservUser)
+	updatedOcservUser, err := ctl.ocservUserUsecase.Update(c.Request().Context(), ocservUser)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -355,14 +366,10 @@ func (ctl *Controller) Delete(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	username, err := ctl.ocservUserRepo.Delete(c.Request().Context(), userID)
+	_, err := ctl.ocservUserUsecase.Delete(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-
-	go func() {
-		_, _ = ctl.ocservOcctlRepo.Terminate(username)
-	}()
 
 	return c.JSON(http.StatusNoContent, nil)
 }
@@ -386,25 +393,10 @@ func (ctl *Controller) Lock(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctl.ocservUserRepo.Lock(c.Request().Context(), userID)
+	err := ctl.ocservUserUsecase.Lock(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		u, err := ctl.ocservUserRepo.GetByUID(ctx, userID)
-		if err != nil {
-			logger.Error("failed to fetch ocserv user error: %v", err)
-		}
-		_, err = ctl.ocservOcctlRepo.Disconnect(u.Username)
-		if err != nil {
-			logger.Error("failed to disconnect ocserv user error: %v", err)
-		}
-		return
-	}()
 
 	return c.JSON(http.StatusOK, nil)
 }
@@ -428,7 +420,7 @@ func (ctl *Controller) UnLock(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	err := ctl.ocservUserRepo.UnLock(c.Request().Context(), userID)
+	err := ctl.ocservUserUsecase.Unlock(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -489,7 +481,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		s, err := ctl.ocservUserRepo.UserStatistics(ctx, userID, startDate, endDate)
+		s, err := ctl.ocservUserUsecase.UserStatistics(ctx, userID, startDate, endDate)
 		if err != nil {
 			return err
 		}
@@ -498,7 +490,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	})
 
 	g.Go(func() error {
-		t, err := ctl.reportRepo.TotalBandWidthUser(ctx, userID)
+		t, err := ctl.ocservUserUsecase.TotalBandwidthUser(ctx, userID)
 		if err != nil {
 			return err
 		}
@@ -535,7 +527,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
 	pagination := ctl.request.Pagination(c)
 
-	users, total, err := ctl.ocservUserRepo.Ocpasswd(c.Request().Context(), pagination)
+	users, total, err := ctl.ocservUserUsecase.Ocpasswd(c.Request().Context(), pagination)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -597,38 +589,26 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 	}
 
 	var users []models.OcservUser
-	var wg sync.WaitGroup
-	var mux sync.Mutex
 
 	for _, u := range data.Users {
-		wg.Add(1)
-
-		go func(u user.Ocpasswd) {
-			defer wg.Done()
-
-			newUser := models.OcservUser{
-				Username:    u.Username,
-				Password:    "Secret-Ocpasswd",
-				Group:       u.Group,
-				Owner:       owner,
-				ExpireAt:    &expireAt,
-				TrafficSize: trafficSize,
-				TrafficType: trafficType,
-				Config:      data.Config,
-			}
-
-			mux.Lock()
-			users = append(users, newUser)
-			mux.Unlock()
-		}(u)
+		newUser := models.OcservUser{
+			Username:    u.Username,
+			Password:    "Secret-Ocpasswd",
+			Group:       u.Group,
+			Owner:       owner,
+			ExpireAt:    &expireAt,
+			TrafficSize: trafficSize,
+			TrafficType: trafficType,
+			Config:      data.Config,
+		}
+		users = append(users, newUser)
 	}
-	wg.Wait()
 
 	if len(users) == 0 {
 		return ctl.request.BadRequest(c, errors.New("no users found"))
 	}
 
-	syncUsers, err := ctl.ocservUserRepo.OcpasswdSyncToDB(c.Request().Context(), users)
+	syncUsers, err := ctl.ocservUserUsecase.OcpasswdSyncToDB(c.Request().Context(), users)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -667,10 +647,7 @@ func (ctl *Controller) ActivateExpired(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	var (
-		expireAt *time.Time
-		err      error
-	)
+	var expireAt *time.Time
 	if data.ExpireAt != nil {
 		expireAtTime, err := time.Parse("2006-01-02", *data.ExpireAt)
 		if err == nil {
@@ -678,7 +655,7 @@ func (ctl *Controller) ActivateExpired(c echo.Context) error {
 		}
 	}
 
-	err = ctl.ocservUserRepo.RestoreExpired(c.Request().Context(), userID, expireAt)
+	err := ctl.ocservUserUsecase.RestoreExpired(c.Request().Context(), userID, expireAt)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -705,7 +682,7 @@ func (ctl *Controller) CreateCertificate(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	if err := ctl.ocservUserRepo.CreateCertificate(c.Request().Context(), userID); err != nil {
+	if err := ctl.ocservUserUsecase.CreateCertificate(c.Request().Context(), userID); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
@@ -730,7 +707,7 @@ func (ctl *Controller) DownloadCertificate(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
 
-	username, path, err := ctl.ocservUserRepo.CertificatePath(c.Request().Context(), userID)
+	username, path, err := ctl.ocservUserUsecase.CertificatePath(c.Request().Context(), userID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -790,7 +767,7 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 		endDate = &t
 	}
 
-	u, err := ctl.ocservUserRepo.GetByUID(c.Request().Context(), userID)
+	u, err := ctl.ocservUserUsecase.GetByUID(c.Request().Context(), userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, nil)
@@ -798,7 +775,7 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	logs, total, err := ctl.ocservUserRepo.UserSessionLogs(c.Request().Context(), pagination, u.Username, startDate, endDate)
+	logs, total, err := ctl.ocservUserUsecase.UserSessionLogs(c.Request().Context(), pagination, u.Username, startDate, endDate)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -831,7 +808,7 @@ func (ctl *Controller) Disconnect(c echo.Context) error {
 	if username == "" {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
-	_, err := ctl.ocservOcctlRepo.Disconnect(username)
+	_, err := ctl.ocservUserUsecase.Disconnect(username)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not disconnect user") {
 			return ctl.request.BadRequest(c, err)
@@ -858,7 +835,7 @@ func (ctl *Controller) DisconnectSessionById(c echo.Context) error {
 	if id == "" {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
-	_, err := ctl.ocservOcctlRepo.DisconnectSession(id)
+	_, err := ctl.ocservUserUsecase.DisconnectSession(id)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not disconnect user") {
 			return ctl.request.BadRequest(c, err)
@@ -885,7 +862,7 @@ func (ctl *Controller) Terminate(c echo.Context) error {
 	if username == "" {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
-	_, err := ctl.ocservOcctlRepo.Terminate(username)
+	_, err := ctl.ocservUserUsecase.Terminate(username)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not terminate user") {
 			return ctl.request.BadRequest(c, err)
@@ -912,7 +889,7 @@ func (ctl *Controller) TerminateSessionById(c echo.Context) error {
 	if id == "" {
 		return ctl.request.BadRequest(c, errors.New("user id is required"))
 	}
-	_, err := ctl.ocservOcctlRepo.TerminateSession(id)
+	_, err := ctl.ocservUserUsecase.TerminateSession(id)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not terminate user") {
 			return ctl.request.BadRequest(c, err)

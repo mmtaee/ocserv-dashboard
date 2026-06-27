@@ -25,7 +25,6 @@ func Register(e *echo.Echo) {
 	systemRoutes.Routes(group)
 	ocservGroupRoutes.Routes(group)
 	ocservUserRoutes.Routes(group)
-	occtlRoutes.Routes(group)
 
 	// home
 	occtlRepo := repository.NewOcctlRepository()
@@ -42,6 +41,11 @@ func Register(e *echo.Echo) {
 	backupUC := usecase.NewBackupUsecase(ocservUserRepo, ocservGroupRepo, backupRepo)
 	backupCtl := backupRoutes.New(backupUC)
 	backupRoutes.Routes(group, backupCtl)
+
+	// occtl
+	occtlUC := usecase.NewOcctlUsecase(occtlRepo)
+	occtlCtl := occtlRoutes.New(occtlUC)
+	occtlRoutes.Routes(group, occtlCtl)
 
 	// customers
 	customerRoutes.Routes(group)

@@ -1,31 +1,43 @@
 package ocserv_group
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"net/http"
-	"sync"
-	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
-	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
+	"github.com/mmtaee/ocserv-dashboard/core/ocserv/group"
 )
 
-type Controller struct {
-	request         request.CustomRequestInterface
-	ocservGroupRepo repository.OcservGroupRepositoryInterface
-	ocservUserRepo  repository.OcservUserRepositoryInterface
+type CreateOcservGroupData struct {
+	Name   string                   `json:"name" validate:"required"`
+	Config *models.OcservGroupConfig `json:"config" validate:"required"`
 }
 
-func New() *Controller {
+type UpdateOcservGroupData struct {
+	Config *models.OcservGroupConfig `json:"config" validate:"required"`
+}
+
+type OcservGroupsResponse struct {
+	Meta   request.Meta        `json:"meta" validate:"required"`
+	Result []models.OcservGroup `json:"result" validate:"omitempty"`
+}
+
+type SyncGroupRequest struct {
+	Groups []group.UnsyncedGroup `json:"groups" validate:"required,dive"`
+}
+
+type Controller struct {
+	request            request.CustomRequestInterface
+	ocservGroupUsecase usecase.OcservGroupUsecaseInterface
+}
+
+func New(ocservGroupUsecase usecase.OcservGroupUsecaseInterface) *Controller {
 	return &Controller{
-		request:         request.NewCustomRequest(),
-		ocservGroupRepo: repository.NewOcservGroupRepository(),
-		ocservUserRepo:  repository.NewtOcservUserRepository(),
+		request:            request.NewCustomRequest(),
+		ocservGroupUsecase: ocservGroupUsecase,
 	}
 }
 
@@ -51,7 +63,7 @@ func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 		}
 		owner = usernameVal
 	}
-	groups, err := ctl.ocservGroupRepo.GroupsLookup(c.Request().Context(), owner)
+	groups, err := ctl.ocservGroupUsecase.GroupsLookup(c.Request().Context(), owner)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -87,7 +99,7 @@ func (ctl *Controller) OcservGroups(c echo.Context) error {
 		owner = username
 	}
 
-	ocservGroup, total, err := ctl.ocservGroupRepo.Groups(c.Request().Context(), pagination, owner)
+	ocservGroup, total, err := ctl.ocservGroupUsecase.Groups(c.Request().Context(), pagination, owner)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -121,7 +133,7 @@ func (ctl *Controller) OcservGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid group id"))
 	}
 
-	group, err := ctl.ocservGroupRepo.GetByID(c.Request().Context(), groupID)
+	group, err := ctl.ocservGroupUsecase.GetByID(c.Request().Context(), groupID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -158,7 +170,7 @@ func (ctl *Controller) CreateOcservGroup(c echo.Context) error {
 		Config: data.Config,
 	}
 
-	newOcservGroup, err := ctl.ocservGroupRepo.Create(c.Request().Context(), &ocservGroup)
+	newOcservGroup, err := ctl.ocservGroupUsecase.Create(c.Request().Context(), &ocservGroup)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -190,12 +202,12 @@ func (ctl *Controller) UpdateOcservGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	ocservGroup, err := ctl.ocservGroupRepo.GetByID(c.Request().Context(), groupID)
+	ocservGroup, err := ctl.ocservGroupUsecase.GetByID(c.Request().Context(), groupID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	ocservGroup.Config = data.Config
-	updatedOcservGroup, err := ctl.ocservGroupRepo.Update(c.Request().Context(), ocservGroup)
+	updatedOcservGroup, err := ctl.ocservGroupUsecase.Update(c.Request().Context(), ocservGroup)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -221,39 +233,10 @@ func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("group id is empty"))
 	}
 
-	group, err := ctl.ocservGroupRepo.Delete(c.Request().Context(), groupID)
+	_, err := ctl.ocservGroupUsecase.Delete(c.Request().Context(), groupID)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-
-	go func(groupName string) {
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-
-		var wg sync.WaitGroup
-
-		users, err := ctl.ocservUserRepo.UpdateUsersByDeleteGroup(ctx, groupName)
-		if err != nil {
-			logger.Error("Failed to load users for removed group %s: %v", groupName, err)
-			return
-		}
-
-		for _, u := range users {
-			// create local copy for goroutine
-			ocservUser := u
-			ocservUser.Group = "defaults"
-
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				if _, err2 := ctl.ocservUserRepo.Update(ctx, &ocservUser); err2 != nil {
-					logger.Warn("DeleteGroup: failed to update user %s: %v", ocservUser.Username, err2)
-				}
-			}()
-		}
-
-		wg.Wait()
-	}(group.Name)
 
 	return c.JSON(http.StatusNoContent, nil)
 }
@@ -271,7 +254,7 @@ func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 // @Success      200  {object} map[string]interface{}
 // @Router       /ocserv/groups/defaults [get]
 func (ctl *Controller) GetDefaultsGroup(c echo.Context) error {
-	conf, err := ctl.ocservGroupRepo.DefaultGroup()
+	conf, err := ctl.ocservGroupUsecase.DefaultGroup()
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -297,7 +280,7 @@ func (ctl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	err := ctl.ocservGroupRepo.UpdateDefaultGroup(data.Config)
+	err := ctl.ocservGroupUsecase.UpdateDefaultGroup(data.Config)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -317,14 +300,14 @@ func (ctl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 // @Success      200  {object} []group.UnsyncedGroup
 // @Router       /ocserv/groups/unsynced [get]
 func (ctl *Controller) ListUnsyncedGroups(c echo.Context) error {
-	unsyncedGroups, err := ctl.ocservGroupRepo.ListUnsyncedGroups(c.Request().Context())
+	unsyncedGroups, err := ctl.ocservGroupUsecase.ListUnsyncedGroups(c.Request().Context())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, unsyncedGroups)
 }
 
-// SyncGroup     Ocserv Groups from file to db
+// SyncGroup      Ocserv Groups from file to db
 //
 // @Summary      Ocserv Groups from file
 // @Description  Ocserv Groups from file
@@ -345,7 +328,6 @@ func (ctl *Controller) SyncGroup(c echo.Context) error {
 
 	var data SyncGroupRequest
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		fmt.Println("error on validate: \n", err)
 		return ctl.request.BadRequest(c, err)
 	}
 
@@ -364,9 +346,8 @@ func (ctl *Controller) SyncGroup(c echo.Context) error {
 	}
 
 	// Sync to database
-	syncGroups, err := ctl.ocservGroupRepo.GroupSyncToDB(c.Request().Context(), groups)
+	syncGroups, err := ctl.ocservGroupUsecase.GroupSyncToDB(c.Request().Context(), groups)
 	if err != nil {
-		fmt.Println("SyncGroup: failed to sync groups: ", err)
 		return ctl.request.BadRequest(c, err)
 	}
 
