@@ -1,4 +1,3 @@
-
 package usecase
 
 import (
@@ -6,15 +5,15 @@ import (
 	"time"
 
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
-	"golang.org/x/sync/errgroup"
 )
 
 type OcservUserUsecaseInterface interface {
-	Users(ctx context.Context, pagination repository.Pagination, owner string, q string, filter string, group string, onlineUsers []models.OnlineUserSession) ([]models.OcservUser, int64, error)
-	UsersByUsername(ctx context.Context, pagination repository.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, owner string, q string, filter string, group string, onlineUsers []models.OnlineUserSession) ([]models.OcservUser, int64, error)
+	UsersByUsername(ctx context.Context, pagination *request.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
 	GetByUID(ctx context.Context, userUID string) (*models.OcservUser, error)
 	Create(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
@@ -24,11 +23,11 @@ type OcservUserUsecaseInterface interface {
 	RestoreExpired(ctx context.Context, userID string, expireAt *time.Time) error
 	UserStatistics(ctx context.Context, userID string, startDate *time.Time, endDate *time.Time) ([]models.DailyTraffic, error)
 	TotalBandwidthUser(ctx context.Context, userID string) (repository.TotalBandwidths, error)
-	Ocpasswd(ctx context.Context, pagination repository.Pagination) ([]user.Ocpasswd, int, error)
+	Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error)
 	OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error)
 	CreateCertificate(ctx context.Context, userID string) error
 	CertificatePath(ctx context.Context, userID string) (string, string, error)
-	UserSessionLogs(ctx context.Context, pagination repository.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error)
+	UserSessionLogs(ctx context.Context, pagination *request.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error)
 	Disconnect(username string) (interface{}, error)
 	DisconnectSession(sessionID string) (interface{}, error)
 	Terminate(username string) (interface{}, error)
@@ -54,7 +53,7 @@ func NewOcservUserUsecase(
 	}
 }
 
-func (uc *OcservUserUsecase) Users(ctx context.Context, pagination repository.Pagination, owner string, q string, filter string, group string, onlineUsers []models.OnlineUserSession) ([]models.OcservUser, int64, error) {
+func (uc *OcservUserUsecase) Users(ctx context.Context, pagination *request.Pagination, owner string, q string, filter string, group string, onlineUsers []models.OnlineUserSession) ([]models.OcservUser, int64, error) {
 	users, total, err := uc.ocservUserRepo.Users(ctx, pagination, owner, q, filter, group)
 	if err != nil {
 		return nil, 0, err
@@ -76,7 +75,7 @@ func (uc *OcservUserUsecase) Users(ctx context.Context, pagination repository.Pa
 	return users, total, nil
 }
 
-func (uc *OcservUserUsecase) UsersByUsername(ctx context.Context, pagination repository.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error) {
+func (uc *OcservUserUsecase) UsersByUsername(ctx context.Context, pagination *request.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error) {
 	users, total, err := uc.ocservUserRepo.UsersByUsername(ctx, pagination, owner, usernames, q, group)
 	if err != nil {
 		return nil, 0, err
@@ -161,10 +160,10 @@ func (uc *OcservUserUsecase) UserStatistics(ctx context.Context, userID string, 
 }
 
 func (uc *OcservUserUsecase) TotalBandwidthUser(ctx context.Context, userID string) (repository.TotalBandwidths, error) {
-	return uc.reportRepo.TotalBandwidthUser(ctx, userID)
+	return uc.reportRepo.TotalBandWidthUser(ctx, userID)
 }
 
-func (uc *OcservUserUsecase) Ocpasswd(ctx context.Context, pagination repository.Pagination) ([]user.Ocpasswd, int, error) {
+func (uc *OcservUserUsecase) Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error) {
 	return uc.ocservUserRepo.Ocpasswd(ctx, pagination)
 }
 
@@ -180,8 +179,8 @@ func (uc *OcservUserUsecase) CertificatePath(ctx context.Context, userID string)
 	return uc.ocservUserRepo.CertificatePath(ctx, userID)
 }
 
-func (uc *OcservUserUsecase) UserSessionLogs(ctx context.Context, pagination repository.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
-	return uc.ocservUserRepo.UserSessionLogs(ctx, pagination, username, startDate, endDate)
+func (uc *OcservUserUsecase) UserSessionLogs(ctx context.Context, pagination request.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
+	return uc.ocservUserRepo.UserSessionLogs(ctx, &pagination, username, startDate, endDate)
 }
 
 func (uc *OcservUserUsecase) Disconnect(username string) (interface{}, error) {

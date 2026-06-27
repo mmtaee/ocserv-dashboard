@@ -1,4 +1,3 @@
-
 package usecase
 
 import (
@@ -7,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/ocserv/group"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/logger"
@@ -14,13 +14,13 @@ import (
 
 type OcservGroupUsecaseInterface interface {
 	GroupsLookup(ctx context.Context, owner string) ([]string, error)
-	Groups(ctx context.Context, pagination repository.Pagination, owner string) ([]models.OcservGroup, int64, error)
+	Groups(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservGroup, int64, error)
 	GetByID(ctx context.Context, groupID string) (*models.OcservGroup, error)
 	Create(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, ocservGroup *models.OcservGroup) (*models.OcservGroup, error)
 	Delete(ctx context.Context, groupID string) (*models.OcservGroup, error)
 	UpdateUsersByDeleteGroup(ctx context.Context, groupName string) ([]models.OcservUser, error)
-	DefaultGroup() (map[string]interface{}, error)
+	DefaultGroup() (*models.OcservGroupConfig, error)
 	UpdateDefaultGroup(config *models.OcservGroupConfig) error
 	ListUnsyncedGroups(ctx context.Context) ([]group.UnsyncedGroup, error)
 	GroupSyncToDB(ctx context.Context, groups []models.OcservGroup) ([]models.OcservGroup, error)
@@ -45,7 +45,7 @@ func (uc *OcservGroupUsecase) GroupsLookup(ctx context.Context, owner string) ([
 	return uc.ocservGroupRepo.GroupsLookup(ctx, owner)
 }
 
-func (uc *OcservGroupUsecase) Groups(ctx context.Context, pagination repository.Pagination, owner string) ([]models.OcservGroup, int64, error) {
+func (uc *OcservGroupUsecase) Groups(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservGroup, int64, error) {
 	return uc.ocservGroupRepo.Groups(ctx, pagination, owner)
 }
 
@@ -102,7 +102,7 @@ func (uc *OcservGroupUsecase) UpdateUsersByDeleteGroup(ctx context.Context, grou
 	return uc.ocservUserRepo.UpdateUsersByDeleteGroup(ctx, groupName)
 }
 
-func (uc *OcservGroupUsecase) DefaultGroup() (map[string]interface{}, error) {
+func (uc *OcservGroupUsecase) DefaultGroup() (*models.OcservGroupConfig, error) {
 	return uc.ocservGroupRepo.DefaultGroup()
 }
 

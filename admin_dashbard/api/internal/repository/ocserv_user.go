@@ -49,7 +49,7 @@ type OcservUserStats interface {
 	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
 
 	TotalBandwidthUserDateRange(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
-	UserSessionLogs(ctx context.Context, pagination *request.Pagination, username string, dateStart, dateEnd *time.Time) (*[]models.OcservUserSessionLog, int64, error)
+	UserSessionLogs(ctx context.Context, pagination *request.Pagination, username string, dateStart, dateEnd *time.Time) ([]models.OcservUserSessionLog, int64, error)
 }
 
 type OcservUserPassword interface {
@@ -602,7 +602,7 @@ func (o *OcservUserRepository) UserSessionLogs(
 	pagination *request.Pagination,
 	username string,
 	dateStart, dateEnd *time.Time,
-) (*[]models.OcservUserSessionLog, int64, error) {
+) ([]models.OcservUserSessionLog, int64, error) {
 	var totalRecords int64
 
 	query := o.db.WithContext(ctx).
@@ -627,5 +627,5 @@ func (o *OcservUserRepository) UserSessionLogs(
 		Find(&logs).Error; err != nil {
 		return nil, 0, err
 	}
-	return &logs, totalRecords, nil
+	return logs, totalRecords, nil
 }

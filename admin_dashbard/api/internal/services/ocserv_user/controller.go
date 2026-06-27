@@ -1,4 +1,3 @@
-
 package ocserv_user
 
 import (
@@ -9,8 +8,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/ocserv/user"
@@ -70,8 +69,8 @@ type SessionLogsData struct {
 }
 
 type SessionLogsResponse struct {
-	Meta   request.Meta                   `json:"meta" validate:"required"`
-	Result *[]models.OcservUserSessionLog `json:"result" validate:"omitempty"`
+	Meta   request.Meta                  `json:"meta" validate:"required"`
+	Result []models.OcservUserSessionLog `json:"result" validate:"omitempty"`
 }
 
 type StatisticsData struct {

@@ -5,8 +5,7 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/routing/middlewares"
 )
 
-func Routes(e *echo.Group) {
-	ctl := New()
+func Routes(e *echo.Group, ctl Controller) {
 	g := e.Group("/ocserv/users", middlewares.AuthMiddleware())
 
 	g.GET("", ctl.Users)
