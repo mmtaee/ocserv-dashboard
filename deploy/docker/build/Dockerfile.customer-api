@@ -1,0 +1,37 @@
+# Build stage
+FROM golang:1.26-alpine AS builder
+
+WORKDIR /app
+
+# Copy go mod files
+COPY core/go.mod core/go.sum /core/
+COPY customer_dashboard/api/go.mod customer_dashboard/api/go.sum ./
+
+# Download dependencies
+WORKDIR /core
+RUN go mod download
+WORKDIR /app
+RUN go mod download
+
+# Copy source code
+COPY core /core
+COPY customer_dashboard/api /app
+
+# Build the app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o customer-api .
+
+# Final stage
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates curl
+
+WORKDIR /root/
+
+# Copy the binary from builder
+COPY --from=builder /app/customer-api .
+
+# Expose port
+EXPOSE 8081
+
+# Run the app
+CMD ["./customer-api"]

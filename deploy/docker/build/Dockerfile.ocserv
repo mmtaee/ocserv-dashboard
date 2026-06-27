@@ -1,0 +1,72 @@
+# Build stage for ocserv
+FROM debian:bookworm-slim AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    automake \
+    build-essential \
+    git \
+    libgnutls28-dev \
+    libpam0g-dev \
+    liblz4-dev \
+    libseccomp-dev \
+    libev-dev \
+    gnutls-bin \
+    libcurl4-gnutls-dev \
+    libprotobuf-c-dev \
+    libtalloc-dev \
+    liboath-dev \
+    libhttp-parser-dev \
+    libkrb5-dev \
+    libpcl1-dev \
+    libsystemd-dev \
+    protobuf-c-compiler \
+    meson \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy ocserv compile script
+COPY deploy/docker/scripts/ocserv_compile.sh /tmp/
+RUN chmod +x /tmp/ocserv_compile.sh && /tmp/ocserv_compile.sh
+
+# Final image
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libgnutls30 \
+    libpam0g \
+    liblz4-1 \
+    libseccomp2 \
+    libev4 \
+    gnutls-bin \
+    libprotobuf-c1 \
+    libtalloc2 \
+    liboath0 \
+    libhttp-parser2.9 \
+    libkrb5-3 \
+    libpcl1 \
+    libsystemd0 \
+    iptables \
+    iproute2 \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy ocserv from builder
+COPY --from=builder /usr/sbin/ocserv /usr/sbin/
+COPY --from=builder /usr/bin/occtl /usr/bin/
+COPY --from=builder /usr/bin/ocpasswd /usr/bin/
+
+# Create ocserv dirs
+RUN mkdir -p /etc/ocserv /var/run/ocserv
+
+# Copy ocserv config (default)
+COPY deploy/docker/configs/ocserv.conf /etc/ocserv/ocserv.conf
+
+# Expose ports
+EXPOSE 443/tcp 443/udp
+
+# Run ocserv
+CMD ["/usr/sbin/ocserv", "-c", "/etc/ocserv/ocserv.conf", "-f"]

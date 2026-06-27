@@ -1,0 +1,157 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ocserv-postgres-dev
+    restart: always
+    volumes:
+      - ../../../.docker_data/dev/pg_db:/var/lib/postgresql/data
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    ports:
+      - "127.0.0.1:5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  admin-api:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.admin-api
+    container_name: ocserv-admin-api-dev
+    restart: always
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - ../../../admin_dashboard/api:/app
+      - ../../../core:/core
+
+  customer-api:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.customer-api
+    container_name: ocserv-customer-api-dev
+    restart: always
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - ../../../customer_dashboard/api:/app
+      - ../../../core:/core
+
+  log-parser:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.log-parser
+    container_name: ocserv-log-parser-dev
+    restart: always
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      admin-api:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../../../ocserv_log_parser:/app
+      - ../../../core:/core
+
+  user-manager:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.user-manager
+    container_name: ocserv-user-manager-dev
+    restart: always
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      admin-api:
+        condition: service_healthy
+    volumes:
+      - ../../../ocserv_user_manager:/app
+      - ../../../core:/core
+
+  telegram-bot:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.telegram-bot
+    container_name: ocserv-telegram-bot-dev
+    restart: always
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      admin-api:
+        condition: service_healthy
+    volumes:
+      - ../../../ocserv_telegram_bot:/app
+      - ../../../core:/core
+
+  ocserv:
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/build/Dockerfile.ocserv
+    container_name: ocserv-dev
+    privileged: true
+    networks:
+      - shared-app
+    env_file:
+      - ../../../.env
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - ../../../.docker_data/dev/ocserv:/etc/ocserv
+    ports:
+      - "${OCSERV_PORT:-443}:443/tcp"
+      - "${OCSERV_PORT:-443}:443/udp"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  shared-app:

@@ -1,0 +1,25 @@
+services:
+  all-in-one:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/build/Dockerfile.all-in-one
+    container_name: ocserv-all-in-one
+    privileged: true
+    env_file:
+      - ../../.env
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - ../../.docker_data/all-in-one/pg_db:/var/lib/postgresql/data
+      - ../../.docker_data/all-in-one/ocserv:/etc/ocserv
+      - ../../.docker_data/all-in-one/nginx/certs:/etc/nginx/certs
+      - ../../.docker_data/all-in-one/uploads/receipts:/opt/ocserv_dashboard/uploads/receipts
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped

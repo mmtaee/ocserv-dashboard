@@ -607,26 +607,32 @@
             "children": {
               "build/": {
                 "children": {
-                  "Dockerfile.all-in-one": "All-in-one Dockerfile (Ocserv + Postgres + APIs + UIs)",
-                  "Dockerfile.go": "Builder for Go services"
+                  "Dockerfile.admin-api": "Dockerfile for Admin API",
+                  "Dockerfile.customer-api": "Dockerfile for Customer API",
+                  "Dockerfile.log-parser": "Dockerfile for Log Parser",
+                  "Dockerfile.user-manager": "Dockerfile for User Manager",
+                  "Dockerfile.telegram-bot": "Dockerfile for Telegram Bot",
+                  "Dockerfile.ocserv": "Dockerfile for Ocserv",
+                  "Dockerfile.all-in-one": "All-in-one Dockerfile (Ocserv + Postgres + APIs + UIs + Supervisor + Nginx"
                 }
               },
               "compose/": {
                 "children": {
+                  "docker-compose.dev.yml": "Development Docker Compose (separate services)",
                   "docker-compose.all-in-one.yml": "All-in-one Docker Compose"
                 }
               },
               "configs/": {
                 "children": {
                   "nginx.conf": "Nginx config for all-in-one",
-                  "ocserv.conf": "Ocserv config"
+                  "ocserv.conf": "Ocserv config",
+                  "supervisord.conf": "Supervisor config for all-in-one"
                 }
               },
               "scripts/": {
                 "children": {
                   "ocserv_compile.sh": "Compiles Ocserv from source",
-                  "ocserv_entrypoint.sh": "Ocserv entrypoint",
-                  "run.sh": "All-in-one entrypoint"
+                  "all-in-one-entrypoint.sh": "All-in-one container entrypoint"
                 }
               }
             }
@@ -634,12 +640,13 @@
           "systemd/": {
             "description": "Systemd deployment files",
             "children": {
-              "install.sh": "Systemd installation script",
-              "uninstall.sh": "Systemd uninstallation script",
               "lib.sh": "Shared utilities",
-              "pre_requirements.sh": "Pre-requirements",
+              "pre_requirements.sh": "Pre-requirements (OS check",
               "postgres.sh": "PostgreSQL setup",
-              "ocserv.sh": "Ocserv setup"
+              "ocserv.sh": "Ocserv setup",
+              "backend.sh": "Backend service (Admin API + Customer API + Log Parser + User Manager + Telegram Bot",
+              "ui.sh": "Admin UI + Customer UI + Nginx",
+              "install.sh": "Systemd full installation"
             }
           }
         }

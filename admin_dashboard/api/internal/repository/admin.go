@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"gorm.io/gorm"
 )

@@ -42,3 +42,4 @@ note
 db/
 .release
 old_files/
+.docker_data/

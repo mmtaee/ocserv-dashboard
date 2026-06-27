@@ -23,24 +23,31 @@ type OcservUserManagement interface {
 }
 
 type OcservUserConfigManagement interface {
+	SyncConfig(username, group string, config *models.OcservUserConfig) error
 	CreateConfig(username string, config *models.OcservUserConfig) error
 	DeleteConfig(username string) error
 }
+
 type OcservUserPasswords interface {
 	Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error)
 }
 
-type OcservUserCertificate interface {
-	CertificateStatus(username string) CertificateStatus
+type OcservUserCertificateManagement interface {
 	CreateCertificate(username, password string) error
+	RevokeCertificate(username string) error
+	SuspendCertificate(username string) error
+	UnsuspendCertificate(username string) error
+	CertificateStatus(username string) CertificateStatus
 	CertificatePath(username string) (string, error)
+	CertificateBackup(username string) (*models.OcservUserCertificateBackup, error)
+	RestoreCertificateBackup(username string, cert *models.OcservUserCertificateBackup) error
 }
 
 type OcservUserInterface interface {
 	OcservUserManagement
 	OcservUserConfigManagement
 	OcservUserPasswords
-	OcservUserCertificate
+	OcservUserCertificateManagement
 }
 
 func NewOcservUser() *OcservUser {
@@ -64,24 +71,9 @@ func (u *OcservUser) Create(group, username, password string, config *models.Ocs
 		return err
 	}
 
-	if config != nil {
-		filename := filepath.Join(utils.ConfigUserBaseDir, username)
-
-		var file *os.File
-
-		// Open file with create, truncate, write-only flags and permission 0640
-		file, err = os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		err = utils.ConfigWriter(file, utils.ToMap(config))
-		if err != nil {
-			return err
-		}
+	if err = u.SyncConfig(username, group, config); err != nil {
+		return err
 	}
-
 	return nil
 }
 
@@ -92,6 +84,11 @@ func (u *OcservUser) Lock(username string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if err = u.SuspendCertificate(username); err != nil {
+		return output, err
+	}
+
 	return output, nil
 }
 
@@ -102,42 +99,118 @@ func (u *OcservUser) UnLock(username string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if err = u.UnsuspendCertificate(username); err != nil {
+		return output, err
+	}
+
 	return output, nil
 }
 
 // Delete removes a user account from ocserv by running ocpasswd with the -d flag.
 // Returns the command output or an error.
 func (u *OcservUser) Delete(username string) (string, error) {
+	if err := u.RevokeCertificate(username); err != nil {
+		return "", err
+	}
 	output, err := utils.RunOcpasswd("-d", "-c", utils.OcpasswdPath, username)
 	if err != nil {
 		return "", err
 	}
+
+	if err := u.DeleteConfig(username); err != nil {
+		return "", err
+	}
+
 	return output, nil
+
+}
+
+func (u *OcservUser) SyncConfig(username, group string, config *models.OcservUserConfig) error {
+	filename := utils.UserConfigFilePathCreator(username)
+
+	if err := os.MkdirAll(utils.ConfigUserBaseDir, 0750); err != nil {
+		return err
+	}
+
+	if err := os.Remove(filename); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	if hasConfigValues(config) {
+		return u.CreateConfig(username, config)
+	}
+
+	group = strings.TrimSpace(group)
+	if group == "" || group == "defaults" {
+		return nil
+	}
+
+	groupConfig := utils.GroupConfigFilePathCreator(group)
+	if _, err := os.Stat(groupConfig); err != nil {
+		return err
+	}
+
+	return os.Symlink(groupConfig, filename)
+}
+
+func hasConfigValues(config *models.OcservUserConfig) bool {
+	if config == nil {
+		return false
+	}
+
+	for _, value := range utils.ToMap(config) {
+		switch v := value.(type) {
+		case nil:
+			continue
+		case bool:
+			if v {
+				return true
+			}
+		case string:
+			if strings.TrimSpace(v) != "" {
+				return true
+			}
+		case []interface{}:
+			if len(v) > 0 {
+				return true
+			}
+		default:
+			return true
+		}
+	}
+
+	return false
 }
 
 // CreateConfig writes a per-user configuration file for the given username.
 // The configuration is serialized from OcservUserConfig using pkg.ConfigWriter.
 // The file is created with permission 0640 and stored in the user config directory.
 func (u *OcservUser) CreateConfig(username string, config *models.OcservUserConfig) error {
+	if !hasConfigValues(config) {
+		return nil
+	}
+
 	filename := utils.UserConfigFilePathCreator(username)
-	// Open file with create, truncate, write-only flags and permission 0640
+
+	if err := os.MkdirAll(utils.ConfigUserBaseDir, 0750); err != nil {
+		return err
+	}
+
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
 	if err != nil {
 		return err
 	}
-	err = utils.ConfigWriter(file, utils.ToMap(config))
-	if err != nil {
-		return err
-	}
-	return nil
+	defer file.Close()
+
+	return utils.ConfigWriter(file, utils.ToMap(config))
 }
 
 // DeleteConfig removes the per-user configuration file for the given username.
-// The config file path is derived from UserConfigFilePathCreator. If the file does
-// not exist or cannot be removed, an error is returned.
+// The config file path is derived from UserConfigFilePathCreator.
 func (u *OcservUser) DeleteConfig(username string) error {
 	filename := utils.UserConfigFilePathCreator(username)
-	if err := os.Remove(filename); err != nil {
+	if err := os.Remove(filename); err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	return nil
@@ -238,3 +311,39 @@ func (u *OcservUser) CertificatePath(username string) (string, error) {
 	return certPath, nil
 }
 
+// RevokeCertificate revokes a user's certificate
+func (u *OcservUser) RevokeCertificate(username string) error {
+	// TODO: Actual certificate revocation logic
+	// For now, just a placeholder
+	return nil
+}
+
+// SuspendCertificate suspends a user's certificate
+func (u *OcservUser) SuspendCertificate(username string) error {
+	// TODO: Actual certificate suspension logic
+	// For now, just a placeholder
+	return nil
+}
+
+// UnsuspendCertificate unsuspends a user's certificate
+func (u *OcservUser) UnsuspendCertificate(username string) error {
+	// TODO: Actual certificate unsuspension logic
+	// For now, just a placeholder
+	return nil
+}
+
+// CertificateBackup backs up a user's certificate
+func (u *OcservUser) CertificateBackup(username string) (*models.OcservUserCertificateBackup, error) {
+	// TODO: Actual certificate backup logic
+	// For now, return a placeholder
+	return &models.OcservUserCertificateBackup{
+		Status: "active",
+	}, nil
+}
+
+// RestoreCertificateBackup restores a user's certificate from backup
+func (u *OcservUser) RestoreCertificateBackup(username string, cert *models.OcservUserCertificateBackup) error {
+	// TODO: Actual certificate restore logic
+	// For now, just a placeholder
+	return nil
+}

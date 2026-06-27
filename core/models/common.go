@@ -13,6 +13,7 @@ const (
 	Free            = "Free"
 	MonthlyTransmit = "MonthlyTransmit"
 	MonthlyReceive  = "MonthlyReceive"
+	MonthlyRxTx     = "MonthlyRxTx"
 	TotallyTransmit = "TotallyTransmit"
 	TotallyReceive  = "TotallyReceive"
 )

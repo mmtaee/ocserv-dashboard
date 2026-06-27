@@ -1,0 +1,167 @@
+# Build stage for ocserv
+FROM debian:bookworm-slim AS ocserv-builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    automake \
+    build-essential \
+    git \
+    libgnutls28-dev \
+    libpam0g-dev \
+    liblz4-dev \
+    libseccomp-dev \
+    libev-dev \
+    gnutls-bin \
+    libcurl4-gnutls-dev \
+    libprotobuf-c-dev \
+    libtalloc-dev \
+    liboath-dev \
+    libhttp-parser-dev \
+    libkrb5-dev \
+    libpcl1-dev \
+    libsystemd-dev \
+    protobuf-c-compiler \
+    meson \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy ocserv compile script
+COPY deploy/docker/scripts/ocserv_compile.sh /tmp/
+RUN chmod +x /tmp/ocserv_compile.sh && /tmp/ocserv_compile.sh
+
+# Build stage for Go services (admin-api, customer-api, ocserv_log_parser, etc.)
+FROM golang:1.23-bookworm AS go-builder
+
+# Set work dirs
+WORKDIR /app
+
+# Copy all go mod files first for layer caching
+COPY core/go.mod core/go.sum /core/
+COPY admin_dashboard/api/go.mod admin_dashboard/api/go.sum /admin-api/
+COPY customer_dashboard/api/go.mod customer_dashboard/api/go.sum /customer-api/
+COPY ocserv_log_parser/go.mod ocserv_log_parser/go.sum /log-parser/
+COPY ocserv_user_manager/go.mod ocserv_user_manager/go.sum /user-manager/
+COPY ocserv_telegram_bot/go.mod ocserv_telegram_bot/go.sum /telegram-bot/
+
+# Download dependencies
+WORKDIR /core
+RUN go mod download
+
+WORKDIR /admin-api
+RUN go mod download
+
+WORKDIR /customer-api
+RUN go mod download
+
+WORKDIR /log-parser
+RUN go mod download
+
+WORKDIR /user-manager
+RUN go mod download
+
+WORKDIR /telegram-bot
+RUN go mod download
+
+# Now copy all source code
+COPY core /core
+
+# Build admin-api
+WORKDIR /admin-api
+COPY admin_dashboard/api /admin-api
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o admin-api .
+
+# Build customer-api
+WORKDIR /customer-api
+COPY customer_dashboard/api /customer-api
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o customer-api .
+
+# Build log parser
+WORKDIR /log-parser
+COPY ocserv_log_parser /log-parser
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o log-parser .
+
+# Build user manager
+WORKDIR /user-manager
+COPY ocserv_user_manager /user-manager
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o user-manager .
+
+# Build telegram bot
+WORKDIR /telegram-bot
+COPY ocserv_telegram_bot /telegram-bot
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o telegram-bot .
+
+# Build stage for UI
+FROM node:20-bookworm AS ui-builder
+
+WORKDIR /app
+
+# Copy admin UI
+COPY admin_dashboard/ui /app/admin-ui
+WORKDIR /app/admin-ui
+RUN npm install && npm run build
+
+# Copy customer UI
+COPY customer_dashboard/ui /app/customer-ui
+WORKDIR /app/customer-ui
+RUN npm install && npm run build
+
+# Final all-in-one image
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    libgnutls30 \
+    libpam0g \
+    liblz4-1 \
+    libseccomp2 \
+    libev4 \
+    gnutls-bin \
+    libprotobuf-c1 \
+    libtalloc2 \
+    liboath0 \
+    libhttp-parser2.9 \
+    libkrb5-3 \
+    libpcl1 \
+    libsystemd0 \
+    iptables \
+    iproute2 \
+    net-tools \
+    nginx \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy ocserv from builder
+COPY --from=ocserv-builder /usr/sbin/ocserv /usr/sbin/
+COPY --from=ocserv-builder /usr/bin/occtl /usr/bin/
+COPY --from=ocserv-builder /usr/bin/ocpasswd /usr/bin/
+
+# Create ocserv dirs
+RUN mkdir -p /etc/ocserv /var/run/ocserv
+
+# Copy Go binaries
+COPY --from=go-builder /admin-api/admin-api /usr/local/bin/
+COPY --from=go-builder /customer-api/customer-api /usr/local/bin/
+COPY --from=go-builder /log-parser/log-parser /usr/local/bin/
+COPY --from=go-builder /user-manager/user-manager /usr/local/bin/
+COPY --from=go-builder /telegram-bot/telegram-bot /usr/local/bin/
+
+# Copy UI builds
+COPY --from=ui-builder /app/admin-ui/dist /var/www/admin
+COPY --from=ui-builder /app/customer-ui/dist /var/www/customer
+
+# Copy config files
+COPY deploy/docker/configs/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/docker/configs/supervisord.conf /etc/supervisord.conf
+
+# Copy entrypoint
+COPY deploy/docker/scripts/all-in-one-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/all-in-one-entrypoint.sh
+
+# Expose ports
+EXPOSE 80 443 8080 8081
+
+# Start entrypoint
+ENTRYPOINT ["/usr/local/bin/all-in-one-entrypoint.sh"]

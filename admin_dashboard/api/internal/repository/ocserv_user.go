@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/mmtaee/ocserv-dashboard/core/models"
+	"github.com/mmtaee/ocserv-dashboard/core/pkg/ocserv/user"
 	"gorm.io/gorm"
 )
 
@@ -29,11 +30,15 @@ type OcservUserRepository interface {
 }
 
 type ocservUserRepository struct {
-	db *gorm.DB
+	db               *gorm.DB
+	commonOcservUser user.OcservUserInterface
 }
 
 func NewOcservUserRepository(db *gorm.DB) OcservUserRepository {
-	return &ocservUserRepository{db: db}
+	return &ocservUserRepository{
+		db:               db,
+		commonOcservUser: user.NewOcservUser(),
+	}
 }
 
 func (r *ocservUserRepository) FindAll(adminID uint, role string) ([]models.OcservUser, error) {
@@ -114,6 +119,15 @@ func (r *ocservUserRepository) FindByID(id uint, adminID uint, role string) (*mo
 	return &user, nil
 }
 
+func (r *ocservUserRepository) FindByIDUnrestricted(id uint) (*models.OcservUser, error) {
+	var user models.OcservUser
+	err := r.db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *ocservUserRepository) FindByUsername(username string, adminID uint, role string) (*models.OcservUser, error) {
 	var user models.OcservUser
 	query := r.db.Where("username = ?", username)
@@ -127,8 +141,19 @@ func (r *ocservUserRepository) FindByUsername(username string, adminID uint, rol
 	return &user, nil
 }
 
+func (r *ocservUserRepository) UpdateUnrestricted(user *models.OcservUser) error {
+	return r.db.Save(user).Error
+}
+
 func (r *ocservUserRepository) Create(user *models.OcservUser) error {
 	return r.db.Create(user).Error
+}
+
+func (r *ocservUserRepository) CreateUnrestricted(user *models.OcservUser) (*models.OcservUser, error) {
+	if err := r.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (r *ocservUserRepository) Update(user *models.OcservUser) error {
@@ -227,11 +252,26 @@ func (r *ocservUserRepository) RestoreExpired(id uint, expireAt *time.Time) erro
 }
 
 func (r *ocservUserRepository) CreateCertificate(id uint) error {
-	// TODO: Implement certificate generation
-	return nil
+	var ocservUser models.OcservUser
+
+	if err := r.db.Where("id = ?", id).First(&ocservUser).Error; err != nil {
+		return err
+	}
+
+	return r.commonOcservUser.CreateCertificate(ocservUser.Username, ocservUser.Password)
 }
 
 func (r *ocservUserRepository) CertificatePath(id uint) (string, string, error) {
-	// TODO: Implement certificate path retrieval
-	return "", "", nil
+	var ocservUser models.OcservUser
+
+	if err := r.db.Where("id = ?", id).First(&ocservUser).Error; err != nil {
+		return "", "", err
+	}
+
+	path, err := r.commonOcservUser.CertificatePath(ocservUser.Username)
+	if err != nil {
+		return "", "", err
+	}
+
+	return ocservUser.Username, path, nil
 }
