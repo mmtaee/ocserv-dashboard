@@ -19,3 +19,9 @@ type ChangePasswordRequest struct {
 	OldPassword string `json:"old_password" validate:"required"`
 	NewPassword string `json:"new_password" validate:"required,min=8"`
 }
+
+// ChangePasswordResponse represents the response for successful password change
+type ChangePasswordResponse struct {
+	Token string                 `json:"token"`
+	Admin *models.Administrator `json:"admin"`
+}

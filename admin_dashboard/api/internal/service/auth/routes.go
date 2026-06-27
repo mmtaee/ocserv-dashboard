@@ -23,4 +23,5 @@ func RegisterRoutes(e *echo.Echo) {
 	protected.Use(middlewares.AuthMiddleware())
 	protected.GET("/profile", authController.GetProfile)
 	protected.POST("/change-password", authController.ChangePassword)
+	protected.POST("/logout", authController.Logout)
 }

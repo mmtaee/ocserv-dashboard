@@ -13,7 +13,8 @@ import (
 type AdminUseCase interface {
 	Login(username, password string) (string, *models.Administrator, error)
 	GetProfile(adminID uint) (*models.Administrator, error)
-	ChangePassword(adminID uint, oldPassword, newPassword string) error
+	ChangePassword(adminID uint, oldPassword, newPassword string) (string, *models.Administrator, error)
+	Logout(token string) error
 }
 
 type adminUseCase struct {
@@ -40,8 +41,17 @@ func (uc *adminUseCase) Login(username, password string) (string, *models.Admini
 		return "", nil, errors.New("5001") // Internal server error
 	}
 
-	token, err := auth.CreateAdministratorToken(admin.ID, admin.Role, false)
+	token, err := auth.CreateAdministratorToken()
 	if err != nil {
+		return "", nil, errors.New("5001")
+	}
+
+	adminToken := &models.AdministratorToken{
+		AdministratorID: admin.ID,
+		Token:           token,
+	}
+
+	if err := uc.adminRepo.CreateToken(adminToken); err != nil {
 		return "", nil, errors.New("5001")
 	}
 
@@ -52,21 +62,49 @@ func (uc *adminUseCase) GetProfile(adminID uint) (*models.Administrator, error) 
 	return uc.adminRepo.FindByID(adminID)
 }
 
-func (uc *adminUseCase) ChangePassword(adminID uint, oldPassword, newPassword string) error {
+func (uc *adminUseCase) ChangePassword(adminID uint, oldPassword, newPassword string) (string, *models.Administrator, error) {
 	admin, err := uc.adminRepo.FindByID(adminID)
 	if err != nil {
-		return errors.New("5001")
+		return "", nil, errors.New("5001")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(oldPassword)); err != nil {
-		return errors.New("2004") // Current password is incorrect
+		return "", nil, errors.New("2004") // Current password is incorrect
+	}
+
+	// Delete all existing tokens for this admin
+	if err := uc.adminRepo.DeleteAllTokensByAdmin(adminID); err != nil {
+		return "", nil, errors.New("5001")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return errors.New("5001")
+		return "", nil, errors.New("5001")
 	}
 
 	admin.Password = string(hashedPassword)
-	return uc.adminRepo.Update(admin)
+	if err := uc.adminRepo.Update(admin); err != nil {
+		return "", nil, errors.New("5001")
+	}
+
+	// Create new token
+	newToken, err := auth.CreateAdministratorToken()
+	if err != nil {
+		return "", nil, errors.New("5001")
+	}
+
+	adminToken := &models.AdministratorToken{
+		AdministratorID: admin.ID,
+		Token:           newToken,
+	}
+
+	if err := uc.adminRepo.CreateToken(adminToken); err != nil {
+		return "", nil, errors.New("5001")
+	}
+
+	return newToken, admin, nil
+}
+
+func (uc *adminUseCase) Logout(token string) error {
+	return uc.adminRepo.DeleteToken(token)
 }

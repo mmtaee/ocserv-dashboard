@@ -5,13 +5,12 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 	"github.com/mmtaee/ocserv-dashboard/core/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/repository"
-	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/auth"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/pkg/infra"
 	"log"
 	"strings"
 )
 
-// AuthMiddleware creates a middleware to check JWT access token and if admin is suspended
+// AuthMiddleware creates a middleware to check auth token and if admin is suspended
 // Usage: e.GET("/protected", handler, middlewares.AuthMiddleware())
 func AuthMiddleware() echo.MiddlewareFunc {
 	req := &request.Request{}
@@ -32,26 +31,24 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			tokenString := parts[1]
-			claims, err := auth.ValidateAdministratorToken(tokenString)
+			
+			adminToken, err := adminRepo.FindToken(tokenString)
 			if err != nil {
-				log.Printf("error accoured in AuthMiddleware validate token %v", err)
-				return req.Unauthorized(c, err, "invalid or expired token")
+				log.Printf("error accoured in AuthMiddleware find token %v", err)
+				return req.Unauthorized(c, err, "invalid token")
 			}
-
-			// Load admin from DB to check suspension status
-			admin, err := adminRepo.FindByID(claims.ID)
-			if err != nil {
-				return req.ResponseWithCode(c, 4003, err)
-			}
-
-			if admin.IsSuspended {
+			
+			// Check if admin is suspended
+			if adminToken.Administrator.IsSuspended {
 				return req.ResponseWithCode(c, 4005, nil)
 			}
-
+			
+			// Set token on context so we can use it for logout
+			c.Set("token", tokenString)
 			// Set user information to echo context
-			c.Set("id", claims.ID)
-			c.Set("role", claims.Role)
-
+			c.Set("id", adminToken.Administrator.ID)
+			c.Set("role", adminToken.Administrator.Role)
+			
 			return next(c)
 		}
 	}

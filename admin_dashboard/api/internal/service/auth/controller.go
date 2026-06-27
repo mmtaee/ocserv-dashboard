@@ -84,7 +84,7 @@ func (ctrl *AuthController) GetProfile(c *echo.Context) error {
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param request body ChangePasswordRequest true "Change Password Data"
-// @Success 200 {object} request.MessageResponse
+// @Success 200 {object} ChangePasswordResponse
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} request.ErrorResponse
 // @Router /auth/change-password [post]
@@ -96,7 +96,8 @@ func (ctrl *AuthController) ChangePassword(c *echo.Context) error {
 		return err
 	}
 
-	if err := ctrl.adminUseCase.ChangePassword(adminID, req.OldPassword, req.NewPassword); err != nil {
+	token, admin, err := ctrl.adminUseCase.ChangePassword(adminID, req.OldPassword, req.NewPassword)
+	if err != nil {
 		code, parseErr := strconv.Atoi(err.Error())
 		if parseErr != nil {
 			return ctrl.req.InternalServerError(c, err)
@@ -104,7 +105,30 @@ func (ctrl *AuthController) ChangePassword(c *echo.Context) error {
 		return ctrl.req.ResponseWithCode(c, code, err)
 	}
 
+	return c.JSON(http.StatusOK, ChangePasswordResponse{
+		Token: token,
+		Admin: admin,
+	})
+}
+
+// Logout handles admin logout
+// @Summary Admin Logout
+// @Description Logout current admin and invalidate token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Success 200 {object} request.MessageResponse
+// @Failure 401 {object} request.ErrorResponse
+// @Router /auth/logout [post]
+func (ctrl *AuthController) Logout(c *echo.Context) error {
+	token := c.Get("token").(string)
+
+	if err := ctrl.adminUseCase.Logout(token); err != nil {
+		return ctrl.req.InternalServerError(c, err)
+	}
+
 	return c.JSON(http.StatusOK, request.MessageResponse{
-		Message: "Password changed successfully",
+		Message: "Logged out successfully",
 	})
 }

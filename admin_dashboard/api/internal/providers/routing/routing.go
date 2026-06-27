@@ -9,6 +9,7 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/ocserv_group"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/ocserv_user"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/report"
+	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/secondaryserver"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/super_admin"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/system"
 	"github.com/mmtaee/ocserv-dashboard/dashboard/api/internal/service/systemd"
@@ -26,4 +27,5 @@ func Register(e *echo.Echo, cfg config.Config) {
 	telegram.RegisterRoutes(e, cfg.Telegram)
 	backup.RegisterRoutes(e)
 	systemd.RegisterRoutes(e)
+	secondaryserver.RegisterRoutes(e)
 }

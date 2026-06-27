@@ -5,7 +5,6 @@ go 1.26.4
 replace github.com/mmtaee/ocserv-dashboard/core => ../../core
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/labstack/echo/v5 v5.0.3
 	github.com/mmtaee/ocserv-dashboard/core v0.0.0
 	github.com/olekukonko/tablewriter v1.1.4

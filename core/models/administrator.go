@@ -29,6 +29,5 @@ type AdministratorToken struct {
 	AdministratorID  uint         `gorm:"index;not null" validate:"required"`
 	Token            string       `json:"token" gorm:"type:text;not null" validate:"required"`
 	CreatedAt        time.Time    `json:"created_at" gorm:"autoCreateTime"`
-	ExpireAt         time.Time    `json:"expire_at"`
 	Administrator    Administrator `json:"-" gorm:"foreignKey:AdministratorID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

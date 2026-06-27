@@ -205,5 +205,23 @@
     "ru": "Текущий пароль неверен",
     "zh-cn": "当前密码错误",
     "zh-tw": "當前密碼錯誤"
+  },
+  "9001": {
+    "status": 404,
+    "fa": "سرور ثانویه یافت نشد",
+    "en": "Secondary server not found",
+    "it": "Server secondario non trovato",
+    "ru": "Вторичный сервер не найден",
+    "zh-cn": "未找到辅助服务器",
+    "zh-tw": "未找到輔助服務器"
+  },
+  "9002": {
+    "status": 400,
+    "fa": "شناسه سرور ثانویه نامعتبر است",
+    "en": "Invalid secondary server ID",
+    "it": "ID server secondario non valido",
+    "ru": "Некорректный ID вторичного сервера",
+    "zh-cn": "无效的辅助服务器ID",
+    "zh-tw": "無效的輔助服務器ID"
   }
 }
