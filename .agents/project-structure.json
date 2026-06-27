@@ -27,7 +27,7 @@
   },
   "projectStructure": {
     "ocserv-dashboard/": {
-      ".trae/": {
+      ".agents/": {
         "description": "TRAE AI configuration",
         "children": {
           "project-structure.json": "Project structure in JSON format (MUST be updated after any change to file/directory structure)",
