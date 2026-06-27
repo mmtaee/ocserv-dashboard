@@ -1,40 +1,14 @@
 package request
 
 import (
-	"errors"
-	"fmt"
-	"net/http"
-
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
+	"github.com/mmtaee/ocserv-dashboard/api/pkg/errors"
 )
 
-type ErrorResponse struct {
-	Error   []string `json:"error" validate:"required"`
-	Message []string `json:"message" validate:"required"`
-}
-
-func (r *Request) BadRequest(c echo.Context, err interface{}, msg ...string) error {
-	var response ErrorResponse
-
-	switch err.(type) {
-	case error:
-		var pqErr *pgconn.PgError
-		if errors.As(err.(error), &pqErr) {
-			response.Error = append(response.Error, fmt.Sprintf("%s-{%s}", pqErr.Code, pqErr.Message))
-		} else {
-			response.Error = append(response.Error, err.(error).Error())
-		}
-	case string:
-		response.Error = append(response.Error, err.(string))
-	case map[string]interface{}:
-		errs := err.(map[string]interface{})["error"]
-		if errSlice, ok := errs.([]string); ok && len(errSlice) > 0 {
-			response.Error = append(response.Error, errSlice...)
-		}
-	default:
-		response.Error = append(response.Error, err.(string))
+func (r *Request) BadRequest(c echo.Context, err interface{}, code ...string) error {
+	cd := "1000"
+	if len(code) > 0 {
+		cd = code[0]
 	}
-	response.Message = append(response.Message, msg...)
-	return c.JSON(http.StatusBadRequest, response)
+	return errors.RespondError(c, cd)
 }

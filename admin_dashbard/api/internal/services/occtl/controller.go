@@ -60,21 +60,21 @@ func (ctl *Controller) ServerInfo(c echo.Context) error {
 func (ctl *Controller) Commands(c echo.Context) error {
 	var data CommandParamsData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	res, err := ctl.occtlUsecase.ExecuteCommand(data.Action, data.Value)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	if res == nil {
-		return ctl.request.BadRequest(c, fmt.Errorf("unknown action %d", data.Action))
+		return ctl.request.BadRequest(c, fmt.Errorf("unknown action %d", data.Action), "1033")
 	}
 
 	results, err := json.Marshal(res)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, strings.TrimSpace(string(results)))

@@ -59,13 +59,13 @@ func (ctl *Controller) OcservGroupsLookup(c echo.Context) error {
 	if !ok || !val { // not admin or missing
 		usernameVal, ok := c.Get("username").(string)
 		if !ok || usernameVal == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+			return ctl.request.BadRequest(c, errors.New("invalid user uid"), "1004")
 		}
 		owner = usernameVal
 	}
 	groups, err := ctl.ocservGroupUsecase.GroupsLookup(c.Request().Context(), owner)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	groups = append([]string{"defaults"}, groups...)
 	return c.JSON(http.StatusOK, groups)
@@ -94,14 +94,14 @@ func (ctl *Controller) OcservGroups(c echo.Context) error {
 	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
 		username := c.Get("username").(string)
 		if username == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid username context"))
+			return ctl.request.BadRequest(c, errors.New("invalid username context"), "1004")
 		}
 		owner = username
 	}
 
 	ocservGroup, total, err := ctl.ocservGroupUsecase.Groups(c.Request().Context(), pagination, owner)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, OcservGroupsResponse{
@@ -130,12 +130,12 @@ func (ctl *Controller) OcservGroups(c echo.Context) error {
 func (ctl *Controller) OcservGroup(c echo.Context) error {
 	groupID := c.Param("id")
 	if groupID == "" {
-		return ctl.request.BadRequest(c, errors.New("invalid group id"))
+		return ctl.request.BadRequest(c, errors.New("invalid group id"), "1025")
 	}
 
 	group, err := ctl.ocservGroupUsecase.GetByID(c.Request().Context(), groupID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, group)
 }
@@ -156,12 +156,12 @@ func (ctl *Controller) OcservGroup(c echo.Context) error {
 func (ctl *Controller) CreateOcservGroup(c echo.Context) error {
 	var data CreateOcservGroupData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	ocservGroup := models.OcservGroup{
@@ -172,7 +172,7 @@ func (ctl *Controller) CreateOcservGroup(c echo.Context) error {
 
 	newOcservGroup, err := ctl.ocservGroupUsecase.Create(c.Request().Context(), &ocservGroup)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusCreated, newOcservGroup)
 }
@@ -194,22 +194,22 @@ func (ctl *Controller) CreateOcservGroup(c echo.Context) error {
 func (ctl *Controller) UpdateOcservGroup(c echo.Context) error {
 	groupID := c.Param("id")
 	if groupID == "" {
-		return ctl.request.BadRequest(c, errors.New("invalid group id"))
+		return ctl.request.BadRequest(c, errors.New("invalid group id"), "1025")
 	}
 
 	var data UpdateOcservGroupData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	ocservGroup, err := ctl.ocservGroupUsecase.GetByID(c.Request().Context(), groupID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	ocservGroup.Config = data.Config
 	updatedOcservGroup, err := ctl.ocservGroupUsecase.Update(c.Request().Context(), ocservGroup)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, updatedOcservGroup)
 }
@@ -230,12 +230,12 @@ func (ctl *Controller) UpdateOcservGroup(c echo.Context) error {
 func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 	groupID := c.Param("id")
 	if groupID == "" {
-		return ctl.request.BadRequest(c, errors.New("group id is empty"))
+		return ctl.request.BadRequest(c, errors.New("group id is empty"), "1027")
 	}
 
 	_, err := ctl.ocservGroupUsecase.Delete(c.Request().Context(), groupID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusNoContent, nil)
@@ -256,7 +256,7 @@ func (ctl *Controller) DeleteOcservGroup(c echo.Context) error {
 func (ctl *Controller) GetDefaultsGroup(c echo.Context) error {
 	conf, err := ctl.ocservGroupUsecase.DefaultGroup()
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, conf)
 }
@@ -277,12 +277,12 @@ func (ctl *Controller) GetDefaultsGroup(c echo.Context) error {
 func (ctl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 	var data UpdateOcservGroupData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	err := ctl.ocservGroupUsecase.UpdateDefaultGroup(data.Config)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -302,7 +302,7 @@ func (ctl *Controller) UpdateDefaultsGroup(c echo.Context) error {
 func (ctl *Controller) ListUnsyncedGroups(c echo.Context) error {
 	unsyncedGroups, err := ctl.ocservGroupUsecase.ListUnsyncedGroups(c.Request().Context())
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, unsyncedGroups)
 }
@@ -323,16 +323,16 @@ func (ctl *Controller) ListUnsyncedGroups(c echo.Context) error {
 func (ctl *Controller) SyncGroup(c echo.Context) error {
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	var data SyncGroupRequest
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	if len(data.Groups) == 0 {
-		return ctl.request.BadRequest(c, errors.New("no groups found"))
+		return ctl.request.BadRequest(c, errors.New("no groups found"), "1028")
 	}
 
 	// Convert UnsyncedGroup -> OcservGroup
@@ -348,7 +348,7 @@ func (ctl *Controller) SyncGroup(c echo.Context) error {
 	// Sync to database
 	syncGroups, err := ctl.ocservGroupUsecase.GroupSyncToDB(c.Request().Context(), groups)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	// Prepare names to return

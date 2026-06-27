@@ -179,8 +179,8 @@ func (uc *OcservUserUsecase) CertificatePath(ctx context.Context, userID string)
 	return uc.ocservUserRepo.CertificatePath(ctx, userID)
 }
 
-func (uc *OcservUserUsecase) UserSessionLogs(ctx context.Context, pagination request.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
-	return uc.ocservUserRepo.UserSessionLogs(ctx, &pagination, username, startDate, endDate)
+func (uc *OcservUserUsecase) UserSessionLogs(ctx context.Context, pagination *request.Pagination, username string, startDate *time.Time, endDate *time.Time) ([]models.OcservUserSessionLog, int64, error) {
+	return uc.ocservUserRepo.UserSessionLogs(ctx, pagination, username, startDate, endDate)
 }
 
 func (uc *OcservUserUsecase) Disconnect(username string) (interface{}, error) {

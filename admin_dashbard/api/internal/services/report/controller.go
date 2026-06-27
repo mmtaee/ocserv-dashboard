@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
-	"strings"
-	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mmtaee/ocserv-dashboard/api/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/api/internal/usecase"
 	"github.com/mmtaee/ocserv-dashboard/api/pkg/request"
 	"github.com/mmtaee/ocserv-dashboard/core/models"
 )
@@ -22,7 +20,7 @@ type SessionLogsData struct {
 
 type SessionLogsResponse struct {
 	Meta   request.Meta                   `json:"meta" validate:"required"`
-	Result *[]models.OcservUserSessionLog `json:"result" validate:"omitempty"`
+	Result []models.OcservUserSessionLog `json:"result" validate:"omitempty"`
 }
 
 type StatisticsData struct {
@@ -48,16 +46,14 @@ type OcservUserReportResponse struct {
 }
 
 type Controller struct {
-	request         request.CustomRequestInterface
-	reportRepo      repository.ReportRepositoryInterface
-	ocservOcctlRepo repository.OcctlRepositoryInterface
+	request request.CustomRequestInterface
+	usecase usecase.ReportUsecaseInterface
 }
 
-func New() *Controller {
+func New(reportUsecase usecase.ReportUsecaseInterface) *Controller {
 	return &Controller{
-		request:         request.NewCustomRequest(),
-		reportRepo:      repository.NewtReportRepository(),
-		ocservOcctlRepo: repository.NewOcctlRepository(),
+		request: request.NewCustomRequest(),
+		usecase: reportUsecase,
 	}
 }
 
@@ -82,7 +78,7 @@ func New() *Controller {
 func (ctl *Controller) SessionLogs(c echo.Context) error {
 	var data SessionLogsData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	pagination := ctl.request.Pagination(c)
@@ -92,7 +88,7 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 	if data.DateStart != "" {
 		t, err := time.Parse("2006-01-02", data.DateStart)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err), "1010")
 		}
 		startDate = &t
 	}
@@ -100,15 +96,15 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 	if data.DateEnd != "" {
 		t, err := time.Parse("2006-01-02", data.DateEnd)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err), "1011")
 		}
 		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 		endDate = &t
 	}
 
-	logs, total, err := ctl.reportRepo.SessionLogs(c.Request().Context(), pagination, startDate, endDate)
+	logs, total, err := ctl.usecase.SessionLogs(c.Request().Context(), pagination, startDate, endDate)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, SessionLogsResponse{
@@ -138,35 +134,35 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 func (ctl *Controller) Statistics(c echo.Context) error {
 	var data StatisticsData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	if data.DateStart == "" || data.DateEnd == "" {
-		return ctl.request.BadRequest(c, errors.New("statistics date start and end are required"))
+		return ctl.request.BadRequest(c, errors.New("statistics date start and end are required"), "1031")
 	}
 
 	var startDate, endDate *time.Time
 
 	tStart, err := time.Parse("2006-01-02", data.DateStart)
 	if err != nil {
-		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err), "1010")
 	}
 	startDate = &tStart
 
 	tEnd, err := time.Parse("2006-01-02", data.DateEnd)
 	if err != nil {
-		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+		return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err), "1011")
 	}
 	tEnd = tEnd.Add(23*time.Hour + 59*time.Minute + 59*time.Second + 999999999*time.Nanosecond)
 	endDate = &tEnd
 
 	if tStart.After(*endDate) {
-		return ctl.request.BadRequest(c, errors.New("date start is after end"))
+		return ctl.request.BadRequest(c, errors.New("date start is after end"), "1030")
 	}
 
-	stats, err := ctl.reportRepo.Statistics(c.Request().Context(), startDate, endDate)
+	stats, err := ctl.usecase.Statistics(c.Request().Context(), startDate, endDate)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, stats)
 }
@@ -188,7 +184,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 	var data TotalBandwidthData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	var startDate, endDate *time.Time
@@ -196,7 +192,7 @@ func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 	if data.DateStart != "" {
 		t, err := time.Parse("2006-01-02", data.DateStart)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err), "1010")
 		}
 		startDate = &t
 	}
@@ -204,19 +200,19 @@ func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 	if data.DateEnd != "" {
 		t, err := time.Parse("2006-01-02", data.DateEnd)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err), "1011")
 		}
 		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second + 999999999*time.Nanosecond)
 		endDate = &t
 	}
 
 	if startDate != nil && endDate != nil && startDate.After(*endDate) {
-		return ctl.request.BadRequest(c, errors.New("date start is after end"))
+		return ctl.request.BadRequest(c, errors.New("date start is after end"), "1030")
 	}
 
-	bandwidth, err := ctl.reportRepo.TotalBandwidthDateRange(c.Request().Context(), startDate, endDate)
+	bandwidth, err := ctl.usecase.TotalBandwidth(c.Request().Context(), startDate, endDate)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, bandwidth)
 }
@@ -234,58 +230,15 @@ func (ctl *Controller) TotalBandwidth(c echo.Context) error {
 // @Success      200 {object} OcservUserReportResponse
 // @Router       /reports/users [get]
 func (ctl *Controller) OcservUserReport(c echo.Context) error {
-	var wg sync.WaitGroup
-	var onlineUsers []string
-	var result repository.UserStatsResult
-
-	errChan := make(chan error, 2)
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-
-		users, err := ctl.ocservOcctlRepo.OnlineSessions()
-		if err != nil {
-			errChan <- fmt.Errorf("failed to get online users: %w", err)
-			return
-		}
-		onlineUsernames := make([]string, 0)
-
-		for _, u := range users {
-			if !slices.Contains(onlineUsernames, u.Username) {
-				onlineUsernames = append(onlineUsernames, u.Username)
-			}
-		}
-		onlineUsers = onlineUsernames
-	}()
-
-	go func() {
-		defer wg.Done()
-
-		res, err := ctl.reportRepo.UsersStat(c.Request().Context())
-		if err != nil {
-			errChan <- fmt.Errorf("failed to get users stats: %w", err)
-			return
-		}
-		result = res
-	}()
-
-	wg.Wait()
-	close(errChan)
-
-	var errs []string
-	for e := range errChan {
-		errs = append(errs, e.Error())
-	}
-
-	if len(errs) > 0 {
-		return ctl.request.BadRequest(c, errors.New(strings.Join(errs, "; ")))
+	online, userStats, err := ctl.usecase.UsersReport(c.Request().Context())
+	if err != nil {
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, OcservUserReportResponse{
-		Online:      len(onlineUsers),
-		Active:      result.Active,
-		Deactivated: result.Deactivated,
-		Locked:      result.Locked,
+		Online:      online,
+		Active:      userStats.Active,
+		Deactivated: userStats.Deactivated,
+		Locked:      userStats.Locked,
 	})
 }

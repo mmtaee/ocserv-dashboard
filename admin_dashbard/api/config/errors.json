@@ -1,0 +1,308 @@
+{
+  "1000": {
+    "status": 400,
+    "fa": "درخواست نامعتبر است",
+    "en": "Bad Request",
+    "it": "Richiesta non valida",
+    "ru": "Неверный запрос",
+    "zh-cn": "无效请求",
+    "zh-tw": "無效請求"
+  },
+  "1001": {
+    "status": 401,
+    "fa": "عدم مجوز یا عدم اعتبار",
+    "en": "Unauthorized",
+    "it": "Non autorizzato",
+    "ru": "Неавторизован",
+    "zh-cn": "未授权",
+    "zh-tw": "未授權"
+  },
+  "1002": {
+    "status": 403,
+    "fa": "دسترسی ممنوع است",
+    "en": "Forbidden",
+    "it": "Vietato",
+    "ru": "Запрещено",
+    "zh-cn": "禁止访问",
+    "zh-tw": "禁止訪問"
+  },
+  "1003": {
+    "status": 400,
+    "fa": "اطلاعات ارسالی معتبر نیست",
+    "en": "Validation failed",
+    "it": "Convalida non riuscita",
+    "ru": "Проверка не удалась",
+    "zh-cn": "验证失败",
+    "zh-tw": "驗證失敗"
+  },
+  "1004": {
+    "status": 400,
+    "fa": "شناسه کاربری نامعتبر است",
+    "en": "Invalid user ID",
+    "it": "ID utente non valido",
+    "ru": "Неверный ID пользователя",
+    "zh-cn": "无效用户ID",
+    "zh-tw": "無效用戶ID"
+  },
+  "1005": {
+    "status": 400,
+    "fa": "نام کاربری ادمین یا کارمند یافت نشد",
+    "en": "Admin or staff username not found",
+    "it": "Nome utente amministratore o dipendente non trovato",
+    "ru": "Имя пользователя администратора или сотрудника не найдено",
+    "zh-cn": "未找到管理员或员工用户名",
+    "zh-tw": "未找到管理員或員工用戶名"
+  },
+  "1006": {
+    "status": 400,
+    "fa": "نوع ترافیک لازم است",
+    "en": "Traffic type is required",
+    "it": "Il tipo di traffico è obbligatorio",
+    "ru": "Тип трафика обязателен",
+    "zh-cn": "流量类型是必需的",
+    "zh-tw": "流量類型是必需的"
+  },
+  "1007": {
+    "status": 400,
+    "fa": "حجم ترافیک لازم است",
+    "en": "Traffic size is required",
+    "it": "La dimensione del traffico è obbligatoria",
+    "ru": "Размер трафика обязателен",
+    "zh-cn": "流量大小是必需的",
+    "zh-tw": "流量大小是必需的"
+  },
+  "1008": {
+    "status": 400,
+    "fa": "هیچ کاربری یافت نشد",
+    "en": "No users found",
+    "it": "Nessun utente trovato",
+    "ru": "Пользователи не найдены",
+    "zh-cn": "未找到用户",
+    "zh-tw": "未找到用戶"
+  },
+  "1009": {
+    "status": 400,
+    "fa": "شناسه کاربری لازم است",
+    "en": "User ID is required",
+    "it": "L'ID utente è obbligatorio",
+    "ru": "ID пользователя обязателен",
+    "zh-cn": "用户ID是必需的",
+    "zh-tw": "用戶ID是必需的"
+  },
+  "1010": {
+    "status": 400,
+    "fa": "تاریخ شروع نامعتبر است",
+    "en": "Invalid date start",
+    "it": "Data di inizio non valida",
+    "ru": "Неверная дата начала",
+    "zh-cn": "无效的开始日期",
+    "zh-tw": "無效的開始日期"
+  },
+  "1011": {
+    "status": 400,
+    "fa": "تاریخ پایان نامعتبر است",
+    "en": "Invalid date end",
+    "it": "Data di fine non valida",
+    "ru": "Неверная дата окончания",
+    "zh-cn": "无效的结束日期",
+    "zh-tw": "無效的結束日期"
+  },
+  "1012": {
+    "status": 401,
+    "fa": "هدر Authorization وجود ندارد یا نامعتبر است",
+    "en": "Missing or invalid Authorization header",
+    "it": "Intestazione Authorization mancante o non valida",
+    "ru": "Отсутствует или неверный заголовок Authorization",
+    "zh-cn": "缺少或无效的授权头",
+    "zh-tw": "缺少或無效的授權頭"
+  },
+  "1013": {
+    "status": 401,
+    "fa": "توکن نامعتبر است",
+    "en": "Invalid token",
+    "it": "Token non valido",
+    "ru": "Неверный токен",
+    "zh-cn": "无效的令牌",
+    "zh-tw": "無效的令牌"
+  },
+  "1014": {
+    "status": 400,
+    "fa": "نام کاربری یا رمز عبور نامعتبر است",
+    "en": "Invalid username or password",
+    "it": "Nome utente o password non validi",
+    "ru": "Неверное имя пользователя или пароль",
+    "zh-cn": "无效的用户名或密码",
+    "zh-tw": "無效的用戶名或密碼"
+  },
+  "1015": {
+    "status": 400,
+    "fa": "سیستم قبلاً پیکربندی شده است",
+    "en": "The system is already configured",
+    "it": "Il sistema è già configurato",
+    "ru": "Система уже настроена",
+    "zh-cn": "系统已配置",
+    "zh-tw": "系統已配置"
+  },
+  "1016": {
+    "status": 400,
+    "fa": "کلید خصوصی نامعتبر است",
+    "en": "The secret key is invalid",
+    "it": "La chiave segreta non è valida",
+    "ru": "Секретный ключ неверен",
+    "zh-cn": "密钥无效",
+    "zh-tw": "密鑰無效"
+  },
+  "1017": {
+    "status": 400,
+    "fa": "نام کاربری یافت نشد",
+    "en": "Username not found",
+    "it": "Nome utente non trovato",
+    "ru": "Имя пользователя не найдено",
+    "zh-cn": "未找到用户名",
+    "zh-tw": "未找到用戶名"
+  },
+  "1018": {
+    "status": 400,
+    "fa": "کاربر یافت نشد",
+    "en": "User not found",
+    "it": "Utente non trovato",
+    "ru": "Пользователь не найден",
+    "zh-cn": "未找到用户",
+    "zh-tw": "未找到用戶"
+  },
+  "1019": {
+    "status": 429,
+    "fa": "تعداد درخواست‌ها بیش از حد است",
+    "en": "Too many requests",
+    "it": "Troppe richieste",
+    "ru": "Слишком много запросов",
+    "zh-cn": "请求过多",
+    "zh-tw": "請求過多"
+  },
+  "1020": {
+    "status": 400,
+    "fa": "فایل لازم است",
+    "en": "File is required",
+    "it": "Il file è obbligatorio",
+    "ru": "Файл обязателен",
+    "zh-cn": "文件是必需的",
+    "zh-tw": "文件是必需的"
+  },
+  "1021": {
+    "status": 400,
+    "fa": "فایل gzip نامعتبر است",
+    "en": "Invalid gzip file",
+    "it": "File gzip non valido",
+    "ru": "Неверный gzip файл",
+    "zh-cn": "无效的gzip文件",
+    "zh-tw": "無效的gzip文件"
+  },
+  "1022": {
+    "status": 400,
+    "fa": "فایل باید json یا json.gz باشد",
+    "en": "File must be .json or .json.gz",
+    "it": "Il file deve essere .json o .json.gz",
+    "ru": "Файл должен быть .json или .json.gz",
+    "zh-cn": "文件必须是.json或.json.gz",
+    "zh-tw": "文件必須是.json或.json.gz"
+  },
+  "1023": {
+    "status": 400,
+    "fa": "فایل json نامعتبر است",
+    "en": "Invalid json file",
+    "it": "File json non valido",
+    "ru": "Неверный json файл",
+    "zh-cn": "无效的json文件",
+    "zh-tw": "無效的json文件"
+  },
+  "1024": {
+    "status": 400,
+    "fa": "فایل json EOF نامعتبر است",
+    "en": "Invalid json EOF file",
+    "it": "File json EOF non valido",
+    "ru": "Неверный json EOF файл",
+    "zh-cn": "无效的json EOF文件",
+    "zh-tw": "無效的json EOF文件"
+  },
+  "1025": {
+    "status": 400,
+    "fa": "شناسه گروه نامعتبر است",
+    "en": "Invalid group id",
+    "it": "ID gruppo non valido",
+    "ru": "Неверный ID группы",
+    "zh-cn": "无效的组ID",
+    "zh-tw": "無效的組ID"
+  },
+  "1026": {
+    "status": 400,
+    "fa": "شناسه گروه لازم است",
+    "en": "Group id is required",
+    "it": "L'ID del gruppo è obbligatorio",
+    "ru": "ID группы обязателен",
+    "zh-cn": "组ID是必需的",
+    "zh-tw": "組ID是必需的"
+  },
+  "1027": {
+    "status": 400,
+    "fa": "شناسه گروه خالی است",
+    "en": "Group id is empty",
+    "it": "L'ID del gruppo è vuoto",
+    "ru": "ID группы пуст",
+    "zh-cn": "组ID是空的",
+    "zh-tw": "組ID是空的"
+  },
+  "1028": {
+    "status": 400,
+    "fa": "هیچ گروهی یافت نشد",
+    "en": "No groups found",
+    "it": "Nessun gruppo trovato",
+    "ru": "Группы не найдены",
+    "zh-cn": "未找到组",
+    "zh-tw": "未找到組"
+  },
+  "1029": {
+    "status": 400,
+    "fa": "شناسه نامعتبر است",
+    "en": "Invalid ID",
+    "it": "ID non valido",
+    "ru": "Неверный ID",
+    "zh-cn": "无效的ID",
+    "zh-tw": "無效的ID"
+  },
+  "1030": {
+    "status": 400,
+    "fa": "تاریخ شروع بعد از پایان است",
+    "en": "Date start is after end",
+    "it": "La data di inizio è dopo la fine",
+    "ru": "Дата начала после даты окончания",
+    "zh-cn": "开始日期在结束日期之后",
+    "zh-tw": "開始日期在結束日期之後"
+  },
+  "1031": {
+    "status": 400,
+    "fa": "تاریخ شروع و پایان آمار لازم است",
+    "en": "Statistics date start and end are required",
+    "it": "Le date di inizio e fine delle statistiche sono obbligatorie",
+    "ru": "Даты начала и окончания статистики обязательны",
+    "zh-cn": "统计开始和结束日期是必需的",
+    "zh-tw": "統計開始和結束日期是必需的"
+  },
+  "1032": {
+    "status": 400,
+    "fa": "شناسه کاربر ocserv لازم است",
+    "en": "ocserv_user_uid query parameter is required",
+    "it": "Il parametro di query ocserv_user_uid è obbligatorio",
+    "ru": "Параметр запроса ocserv_user_uid обязателен",
+    "zh-cn": "ocserv_user_uid查询参数是必需的",
+    "zh-tw": "ocserv_user_uid查詢參數是必需的"
+  },
+  "1033": {
+    "status": 400,
+    "fa": "عملیات نامعتبر است",
+    "en": "Unknown action",
+    "it": "Azione sconosciuta",
+    "ru": "Неизвестное действие",
+    "zh-cn": "未知操作",
+    "zh-tw": "未知操作"
+  }
+}

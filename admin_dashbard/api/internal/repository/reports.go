@@ -17,8 +17,8 @@ type ReportRepository struct {
 }
 
 type ReportRepositoryInterface interface {
-	SessionLogs(ctx context.Context, pagination *request.Pagination, dateStart, dateEnd *time.Time) (*[]models.OcservUserSessionLog, int64, error)
-	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
+	SessionLogs(ctx context.Context, pagination *request.Pagination, dateStart, dateEnd *time.Time) ([]models.OcservUserSessionLog, int64, error)
+	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
 	TopBandwidthUser(ctx context.Context) (TopBandwidthUsers, error)
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
 	TotalUsers(ctx context.Context) (int64, error)
@@ -45,7 +45,7 @@ func (r *ReportRepository) SessionLogs(
 	ctx context.Context,
 	pagination *request.Pagination,
 	dateStart, dateEnd *time.Time,
-) (*[]models.OcservUserSessionLog, int64, error) {
+) ([]models.OcservUserSessionLog, int64, error) {
 	var totalRecords int64
 
 	query := r.db.WithContext(ctx).Model(&models.OcservUserSessionLog{})
@@ -68,10 +68,10 @@ func (r *ReportRepository) SessionLogs(
 		Find(&logs).Error; err != nil {
 		return nil, 0, err
 	}
-	return &logs, totalRecords, nil
+	return logs, totalRecords, nil
 }
 
-func (r *ReportRepository) Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error) {
+func (r *ReportRepository) Statistics(ctx context.Context, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 	err := r.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
@@ -90,7 +90,7 @@ func (r *ReportRepository) Statistics(ctx context.Context, dateStart, dateEnd *t
 	if err != nil {
 		return nil, err
 	}
-	return &results, nil
+	return results, nil
 }
 
 func (r *ReportRepository) TotalUsers(ctx context.Context) (int64, error) {

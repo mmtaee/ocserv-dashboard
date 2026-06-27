@@ -37,7 +37,7 @@ func (ctl *Controller) Home(c echo.Context) error {
 	resp, err := ctl.homeUC.Home()
 	if err != nil {
 		logger.Warn("error in Home handler: %v", err)
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -74,7 +74,7 @@ func (ctl *Controller) OcservStats(c echo.Context) error {
 func (ctl *Controller) SystemUsageStats(c echo.Context) error {
 	resp, err := ctl.homeUC.SystemUsageStats()
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -94,7 +94,7 @@ func (ctl *Controller) SystemUsageStats(c echo.Context) error {
 func (ctl *Controller) ContainerUsageStats(c echo.Context) error {
 	resp, err := ctl.homeUC.ContainerUsageStats()
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, resp)
 }

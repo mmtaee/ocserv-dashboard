@@ -31,9 +31,9 @@ type HomeTelegramServiceStatus struct {
 }
 
 type HomeGetHomeResponse struct {
-	Statistics       *[]models.DailyTraffic       `json:"statistics" validate:"omitempty"`
+	Statistics       []models.DailyTraffic       `json:"statistics" validate:"omitempty"`
 	Users            HomeGetHomeUser              `json:"users" validate:"omitempty"`
-	IPBans           *[]models.IPBanPoints        `json:"ip_bans" validate:"omitempty"`
+	IPBans           []models.IPBanPoints        `json:"ip_bans" validate:"omitempty"`
 	TopBandwidthUser repository.TopBandwidthUsers `json:"top_bandwidth_user" validate:"omitempty"`
 	TotalBandwidth   repository.TotalBandwidths   `json:"total_bandwidth" validate:"omitempty"`
 	TelegramService  *HomeTelegramServiceStatus   `json:"telegram_service,omitempty" validate:"omitempty"`
@@ -117,10 +117,10 @@ func (u *HomeUsecase) Home() (*HomeGetHomeResponse, error) {
 	g, ctx := errgroup.WithContext(context.Background())
 
 	var (
-		statistics       *[]models.DailyTraffic
+		statistics       []models.DailyTraffic
 		onlineUsers      []models.OnlineUserSession
 		TotalUser        int64
-		ipBans           *[]models.IPBanPoints
+		ipBans           []models.IPBanPoints
 		topBandwidthUser repository.TopBandwidthUsers
 		totalBandwidth   repository.TotalBandwidths
 		telegramSnap     *HomeTelegramServiceStatus
@@ -134,7 +134,7 @@ func (u *HomeUsecase) Home() (*HomeGetHomeResponse, error) {
 			return err
 		}
 		mu.Lock()
-		statistics = &data
+		statistics = data
 		mu.Unlock()
 		return nil
 	})

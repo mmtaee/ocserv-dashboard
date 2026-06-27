@@ -1,31 +1,22 @@
 package middlewares
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
+	"github.com/mmtaee/ocserv-dashboard/api/pkg/errors"
 )
 
-type Unauthorized struct {
-	Error string `json:"error"`
+func UnauthorizedError(c echo.Context, code ...string) error {
+	cd := "1001"
+	if len(code) > 0 {
+		cd = code[0]
+	}
+	return errors.RespondError(c, cd)
 }
 
-type PermissionDenied struct {
-	Error string `json:"error"`
+func PermissionDeniedError(c echo.Context, msg ...string) error {
+	return errors.RespondError(c, "1002")
 }
 
-type TooManyRequests struct {
-	Error string `json:"error"`
-}
-
-func UnauthorizedError(c echo.Context, msg string) error {
-	return c.JSON(http.StatusUnauthorized, Unauthorized{Error: msg})
-}
-
-func PermissionDeniedError(c echo.Context, msg string) error {
-	return c.JSON(http.StatusForbidden, PermissionDenied{Error: msg})
-}
-
-func TooManyRequestsError(c echo.Context, msg string) error {
-	return c.JSON(http.StatusTooManyRequests, TooManyRequests{Error: msg})
+func TooManyRequestsError(c echo.Context, msg ...string) error {
+	return errors.RespondError(c, "1019")
 }

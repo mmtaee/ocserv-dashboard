@@ -30,7 +30,7 @@ type UserAuth interface {
 
 type UserQuery interface {
 	Users(ctx context.Context, pagination *request.Pagination) ([]models.User, int64, error)
-	UsersLookup(ctx context.Context) (*[]models.UsersLookup, error)
+	UsersLookup(ctx context.Context) ([]models.UsersLookup, error)
 }
 
 type UserRepositoryInterface interface {
@@ -153,11 +153,11 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, user *models.User)
 	return err
 }
 
-func (r *UserRepository) UsersLookup(ctx context.Context) (*[]models.UsersLookup, error) {
+func (r *UserRepository) UsersLookup(ctx context.Context) ([]models.UsersLookup, error) {
 	var users []models.UsersLookup
 	err := r.db.Model(&models.User{}).WithContext(ctx).Scan(&users).Error
 	if err != nil {
 		return nil, err
 	}
-	return &users, nil
+	return users, nil
 }

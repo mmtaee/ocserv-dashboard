@@ -26,7 +26,7 @@ type OcservUserConfigManagement interface {
 	DeleteConfig(username string) error
 }
 type OcservUserPasswords interface {
-	Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error)
+	Ocpasswd(ctx context.Context) ([]Ocpasswd, int, error)
 }
 
 type OcservUserCertificateManagement interface {
@@ -225,7 +225,7 @@ func (u *OcservUser) DeleteConfig(username string) error {
 // raw line from the file for debugging or additional processing.
 //
 // If the ocpasswd file cannot be opened or read, an error is returned.
-func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error) {
+func (u *OcservUser) Ocpasswd(ctx context.Context) ([]Ocpasswd, int, error) {
 	f, err := os.Open(utils.OcpasswdPath)
 	if err != nil {
 		return nil, 0, err
@@ -277,5 +277,5 @@ func (u *OcservUser) Ocpasswd(ctx context.Context) (*[]Ocpasswd, int, error) {
 		total = 0
 	}
 
-	return &users, total, nil
+	return users, total, nil
 }

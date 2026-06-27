@@ -25,19 +25,19 @@ type OcservOcctlUsers interface {
 
 type OcservOcctlSessions interface {
 	ShowSession(sid string) (map[string]interface{}, error)
-	ShowSessionAll() (*[]interface{}, error)
-	ShowSessionsValid() (*[]interface{}, error)
+	ShowSessionAll() ([]interface{}, error)
+	ShowSessionsValid() ([]interface{}, error)
 }
 
 type OcservOcctlIPBans interface {
-	ShowIPBans() (*[]models.IPBanPoints, error)
+	ShowIPBans() ([]models.IPBanPoints, error)
 	UnbanIP(ip string) (string, error)
 }
 
 type OcservOcctlServer interface {
 	ShowStatus(raw bool) (interface{}, error)
 	ReloadConfigs() (string, error)
-	ShowIRoutes() (*[]models.IRoute, error)
+	ShowIRoutes() ([]models.IRoute, error)
 	ShowEvent() string
 	Version() *models.ServerVersion
 }
@@ -126,7 +126,7 @@ func (o *OcservOcctl) ReloadConfigs() (string, error) {
 
 // ShowIPBans returns the current list of IP bans with scores.
 // Executes: occtl -j show ip bans points
-func (o *OcservOcctl) ShowIPBans() (*[]models.IPBanPoints, error) {
+func (o *OcservOcctl) ShowIPBans() ([]models.IPBanPoints, error) {
 	cmd := exec.Command(occtlExec, "-j", "show", "ip", "bans", "points")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -140,7 +140,7 @@ func (o *OcservOcctl) ShowIPBans() (*[]models.IPBanPoints, error) {
 		}
 	}
 
-	return &ipBans, nil
+	return ipBans, nil
 
 }
 
@@ -187,12 +187,12 @@ func (o *OcservOcctl) ShowStatus(raw bool) (interface{}, error) {
 
 // ShowIRoutes returns the current iRoutes information.
 // Executes: occtl -j show iroutes
-func (o *OcservOcctl) ShowIRoutes() (*[]models.IRoute, error) {
+func (o *OcservOcctl) ShowIRoutes() ([]models.IRoute, error) {
 	var routes []models.IRoute
 
 	version := utils.GetOcservVersion()
 	if version == "1.2.4" { // has bug on IRoute Command
-		return &routes, nil
+		return routes, nil
 	}
 
 	cmd := exec.Command(occtlExec, "-j", "show", "iroutes")
@@ -203,13 +203,13 @@ func (o *OcservOcctl) ShowIRoutes() (*[]models.IRoute, error) {
 
 	outString := strings.TrimSpace(string(out))
 	if strings.HasPrefix(outString, "{") {
-		return &routes, nil
+		return routes, nil
 	}
 
 	if err = json.Unmarshal(out, &routes); err != nil {
 		return nil, err
 	}
-	return &routes, nil
+	return routes, nil
 }
 
 // ShowUser returns detailed information about a specific user by username.
@@ -272,7 +272,7 @@ func (o *OcservOcctl) ShowSession(sid string) (map[string]interface{}, error) {
 
 // ShowSessionAll returns detailed information about all sessions.
 // Executes: occtl -j show sessions all
-func (o *OcservOcctl) ShowSessionAll() (*[]interface{}, error) {
+func (o *OcservOcctl) ShowSessionAll() ([]interface{}, error) {
 	var sessions []interface{}
 
 	cmd := exec.Command(occtlExec, "-j", "show", "sessions", "all")
@@ -284,12 +284,12 @@ func (o *OcservOcctl) ShowSessionAll() (*[]interface{}, error) {
 	if err = json.Unmarshal(out, &sessions); err != nil {
 		return nil, err
 	}
-	return &sessions, nil
+	return sessions, nil
 }
 
 // ShowSessionsValid returns detailed information  about all valid sessions.
 // Executes: occtl -j show sessions valid
-func (o *OcservOcctl) ShowSessionsValid() (*[]interface{}, error) {
+func (o *OcservOcctl) ShowSessionsValid() ([]interface{}, error) {
 	var sessions []interface{}
 
 	cmd := exec.Command(occtlExec, "-j", "show", "sessions", "valid")
@@ -301,7 +301,7 @@ func (o *OcservOcctl) ShowSessionsValid() (*[]interface{}, error) {
 	if err = json.Unmarshal(out, &sessions); err != nil {
 		return nil, err
 	}
-	return &sessions, nil
+	return sessions, nil
 }
 
 // ShowEvent returns detailed information about events.

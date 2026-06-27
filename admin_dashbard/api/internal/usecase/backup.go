@@ -13,8 +13,8 @@ type BackupGroupFile struct {
 }
 
 type RestoreResponse struct {
-	Inserted *[]string `json:"inserted"`
-	Existing *[]string `json:"existing"`
+	Inserted []string `json:"inserted"`
+	Existing []string `json:"existing"`
 }
 
 type BackupUsecase struct {
@@ -25,9 +25,9 @@ type BackupUsecase struct {
 
 type BackupUsecaseInterface interface {
 	OcservGroupBackup(writer io.Writer) error
-	OcservGroupRestore(owner string, groupData *BackupGroupFile) (*[]string, *[]string, error)
+	OcservGroupRestore(owner string, groupData *BackupGroupFile) ([]string, []string, error)
 	OcservUserBackup(writer io.Writer) error
-	OcservUserRestore(owner string, users []models.OcservUser) (*[]string, *[]string, error)
+	OcservUserRestore(owner string, users []models.OcservUser) ([]string, []string, error)
 }
 
 func NewBackupUsecase(
@@ -50,7 +50,7 @@ func (u *BackupUsecase) OcservGroupBackup(writer io.Writer) error {
 	return u.backupRepo.OcservGroupBackup(nil, writer, defaultGroup)
 }
 
-func (u *BackupUsecase) OcservGroupRestore(owner string, groupData *BackupGroupFile) (*[]string, *[]string, error) {
+func (u *BackupUsecase) OcservGroupRestore(owner string, groupData *BackupGroupFile) ([]string, []string, error) {
 	if err := u.ocservGroupRepo.UpdateDefaultGroup(groupData.DefaultGroup); err != nil {
 		return nil, nil, err
 	}
@@ -66,7 +66,7 @@ func (u *BackupUsecase) OcservUserBackup(writer io.Writer) error {
 	return u.backupRepo.OcservUserBackup(nil, writer)
 }
 
-func (u *BackupUsecase) OcservUserRestore(owner string, users []models.OcservUser) (*[]string, *[]string, error) {
+func (u *BackupUsecase) OcservUserRestore(owner string, users []models.OcservUser) ([]string, []string, error) {
 	if len(users) == 0 {
 		return nil, nil, nil
 	}

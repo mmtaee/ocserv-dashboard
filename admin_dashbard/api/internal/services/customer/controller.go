@@ -43,20 +43,20 @@ func (ctl *Controller) Summary(c echo.Context) error {
 	var data SummaryData
 
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	if data.Password == "Secret-Ocpasswd" {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	user, err := ctl.ocservUserRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1017")
 	}
 
 	if user.Password != data.Password {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	dateEnd := time.Now()
@@ -70,7 +70,7 @@ func (ctl *Controller) Summary(c echo.Context) error {
 		&dateEnd,
 	)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, SummaryResponse{
@@ -111,25 +111,25 @@ func (ctl *Controller) DownloadCertificate(c echo.Context) error {
 	var data SummaryData
 
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	if data.Password == "Secret-Ocpasswd" {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	user, err := ctl.ocservUserRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1017")
 	}
 
 	if user.Password != data.Password {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	path, err := ctl.ocservUserRepo.CertificatePathByUsername(c.Request().Context(), user.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, "application/x-pkcs12")
@@ -152,20 +152,20 @@ func (ctl *Controller) DisconnectSessions(c echo.Context) error {
 	var data SummaryData
 
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	if data.Password == "Secret-Ocpasswd" {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	user, err := ctl.ocservUserRepo.GetByUsername(c.Request().Context(), data.Username)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1017")
 	}
 
 	if user.Password != data.Password {
-		return ctl.request.BadRequest(c, errors.New("invalid username or password"))
+		return ctl.request.BadRequest(c, errors.New("invalid username or password"), "1014")
 	}
 
 	_, _ = ctl.occtl.Disconnect(user.Username)

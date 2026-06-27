@@ -12,14 +12,14 @@ func AuthMiddleware() echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-				return UnauthorizedError(c, "missing or invalid Authorization header")
+				return UnauthorizedError(c, "1012")
 			}
 
 			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 
 			claims, ok := token.Check(tokenStr)
 			if !ok {
-				return UnauthorizedError(c, "invalid token")
+				return UnauthorizedError(c, "1013")
 			}
 
 			c.Set("userUID", claims["sub"])

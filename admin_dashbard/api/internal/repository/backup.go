@@ -23,9 +23,9 @@ type BackupRepository struct {
 
 type BackupRepositoryInterface interface {
 	OcservGroupBackup(ctx context.Context, writer io.Writer, defaultGroup *models.OcservGroupConfig) error
-	OcservGroupRestore(ctx context.Context, owner string, users *[]models.OcservGroup) (*[]string, *[]string, error)
+	OcservGroupRestore(ctx context.Context, owner string, users *[]models.OcservGroup) ([]string, []string, error)
 	OcservUserBackup(ctx context.Context, writer io.Writer) error
-	OcservUserRestore(ctx context.Context, owner string, users *[]models.OcservUser) (*[]string, *[]string, error)
+	OcservUserRestore(ctx context.Context, owner string, users *[]models.OcservUser) ([]string, []string, error)
 }
 
 func NewBackupRepository() *BackupRepository {
@@ -103,7 +103,7 @@ func (b *BackupRepository) OcservGroupBackup(ctx context.Context, writer io.Writ
 	return nil
 }
 
-func (b *BackupRepository) OcservGroupRestore(ctx context.Context, owner string, groups *[]models.OcservGroup) (*[]string, *[]string, error) {
+func (b *BackupRepository) OcservGroupRestore(ctx context.Context, owner string, groups *[]models.OcservGroup) ([]string, []string, error) {
 	names := make([]string, 0, len(*groups))
 	for _, u := range *groups {
 		names = append(names, u.Name)
@@ -136,7 +136,7 @@ func (b *BackupRepository) OcservGroupRestore(ctx context.Context, owner string,
 	}
 
 	if len(toInsert) == 0 {
-		return &insertedNames, &dbExisting, nil
+		return insertedNames, dbExisting, nil
 	}
 
 	var wg sync.WaitGroup
@@ -187,10 +187,10 @@ func (b *BackupRepository) OcservGroupRestore(ctx context.Context, owner string,
 	}
 
 	if len(errs) > 0 {
-		return &insertedNames, &dbExisting, fmt.Errorf("%s", strings.Join(errs, "; "))
+		return insertedNames, dbExisting, fmt.Errorf("%s", strings.Join(errs, "; "))
 	}
 
-	return &insertedNames, &dbExisting, nil
+	return insertedNames, dbExisting, nil
 }
 
 func (b *BackupRepository) OcservUserBackup(ctx context.Context, writer io.Writer) error {
@@ -247,7 +247,7 @@ func (b *BackupRepository) OcservUserBackup(ctx context.Context, writer io.Write
 	return nil
 }
 
-func (b *BackupRepository) OcservUserRestore(ctx context.Context, owner string, users *[]models.OcservUser) (*[]string, *[]string, error) {
+func (b *BackupRepository) OcservUserRestore(ctx context.Context, owner string, users *[]models.OcservUser) ([]string, []string, error) {
 	usernames := make([]string, 0, len(*users))
 	for _, u := range *users {
 		usernames = append(usernames, u.Username)
@@ -280,7 +280,7 @@ func (b *BackupRepository) OcservUserRestore(ctx context.Context, owner string, 
 	}
 
 	if len(toInsert) == 0 {
-		return &insertedNames, &dbExisting, nil
+		return insertedNames, dbExisting, nil
 	}
 
 	var wg sync.WaitGroup
@@ -338,8 +338,8 @@ func (b *BackupRepository) OcservUserRestore(ctx context.Context, owner string, 
 	}
 
 	if len(errs) > 0 {
-		return &insertedNames, &dbExisting, fmt.Errorf("%s", strings.Join(errs, "; "))
+		return insertedNames, dbExisting, fmt.Errorf("%s", strings.Join(errs, "; "))
 	}
 
-	return &insertedNames, &dbExisting, nil
+	return insertedNames, dbExisting, nil
 }

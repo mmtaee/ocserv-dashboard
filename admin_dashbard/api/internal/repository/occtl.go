@@ -19,8 +19,8 @@ type OcctlUserManager interface {
 	OnlineSessions() ([]models.OnlineUserSession, error)
 	ShowUserByUsername(username string) (models.OnlineUserSession, error)
 	ShowUserByID(uid string) (models.OnlineUserSession, error)
-	ShowSessionsAll() (*[]interface{}, error)
-	ShowSessionsValid() (*[]interface{}, error)
+	ShowSessionsAll() ([]interface{}, error)
+	ShowSessionsValid() ([]interface{}, error)
 	ShowSessionBySID(sid string) (map[string]interface{}, error)
 
 	Disconnect(username string) (string, error)
@@ -31,9 +31,9 @@ type OcctlUserManager interface {
 }
 
 type OcctlSecurityManager interface {
-	IPBans() (*[]models.IPBanPoints, error)
+	IPBans() ([]models.IPBanPoints, error)
 	UnbanIP(ip string) (string, error)
-	IRoutes() (*[]models.IRoute, error)
+	IRoutes() ([]models.IRoute, error)
 	Reload() (string, error)
 }
 
@@ -76,7 +76,7 @@ func (o *OcctlRepository) OnlineSessions() ([]models.OnlineUserSession, error) {
 //	return sessions, nil
 //}
 
-func (o *OcctlRepository) IPBans() (*[]models.IPBanPoints, error) {
+func (o *OcctlRepository) IPBans() ([]models.IPBanPoints, error) {
 	ipBans, err := o.commonOcservOcctlRepo.ShowIPBans()
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (o *OcctlRepository) IPBans() (*[]models.IPBanPoints, error) {
 	return ipBans, nil
 }
 
-func (o *OcctlRepository) IRoutes() (*[]models.IRoute, error) {
+func (o *OcctlRepository) IRoutes() ([]models.IRoute, error) {
 	iRoutes, err := o.commonOcservOcctlRepo.ShowIRoutes()
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (o *OcctlRepository) ShowUserByID(uid string) (models.OnlineUserSession, er
 	return user, nil
 }
 
-func (o *OcctlRepository) ShowSessionsAll() (*[]interface{}, error) {
+func (o *OcctlRepository) ShowSessionsAll() ([]interface{}, error) {
 	res, err := o.commonOcservOcctlRepo.ShowSessionAll()
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func (o *OcctlRepository) ShowSessionsAll() (*[]interface{}, error) {
 	return res, nil
 }
 
-func (o *OcctlRepository) ShowSessionsValid() (*[]interface{}, error) {
+func (o *OcctlRepository) ShowSessionsValid() ([]interface{}, error) {
 	res, err := o.commonOcservOcctlRepo.ShowSessionsValid()
 	if err != nil {
 		return nil, err

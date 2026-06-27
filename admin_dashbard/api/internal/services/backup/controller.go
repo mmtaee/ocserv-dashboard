@@ -64,7 +64,7 @@ func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
 	defer gz.Close()
 
 	if err := ctl.usecase.OcservGroupBackup(gz); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return nil
@@ -86,12 +86,21 @@ func (ctl *Controller) OcservGroupBackup(c echo.Context) error {
 func (ctl *Controller) OcservGroupRestore(c echo.Context) error {
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	reader, err := ctl.fileUploadValidator(c)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		if err.Error() == "file is required" {
+			return ctl.request.BadRequest(c, err, "1020")
+		}
+		if err.Error() == "invalid gzip file" {
+			return ctl.request.BadRequest(c, err, "1021")
+		}
+		if err.Error() == "file must be .json or .json.gz" {
+			return ctl.request.BadRequest(c, err, "1022")
+		}
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	defer func(reader io.ReadCloser) {
@@ -104,16 +113,16 @@ func (ctl *Controller) OcservGroupRestore(c echo.Context) error {
 	decoder.DisallowUnknownFields()
 
 	if err = decoder.Decode(&groupData); err != nil {
-		return ctl.request.BadRequest(c, errors.New("invalid json file"))
+		return ctl.request.BadRequest(c, errors.New("invalid json file"), "1023")
 	}
 
 	if err = decoder.Decode(&struct{}{}); err != io.EOF {
-		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
+		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"), "1024")
 	}
 
 	inserted, existing, err := ctl.usecase.OcservGroupRestore(owner, &groupData)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, usecase.RestoreResponse{
@@ -148,7 +157,7 @@ func (ctl *Controller) OcservUserBackup(c echo.Context) error {
 	defer gz.Close()
 
 	if err := ctl.usecase.OcservUserBackup(gz); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return nil
@@ -170,12 +179,21 @@ func (ctl *Controller) OcservUserBackup(c echo.Context) error {
 func (ctl *Controller) OcservUserRestore(c echo.Context) error {
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	reader, err := ctl.fileUploadValidator(c)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		if err.Error() == "file is required" {
+			return ctl.request.BadRequest(c, err, "1020")
+		}
+		if err.Error() == "invalid gzip file" {
+			return ctl.request.BadRequest(c, err, "1021")
+		}
+		if err.Error() == "file must be .json or .json.gz" {
+			return ctl.request.BadRequest(c, err, "1022")
+		}
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	defer func(reader io.ReadCloser) {
@@ -187,16 +205,16 @@ func (ctl *Controller) OcservUserRestore(c echo.Context) error {
 	decoder.DisallowUnknownFields()
 
 	if err = decoder.Decode(&users); err != nil {
-		return ctl.request.BadRequest(c, errors.New("invalid json file"))
+		return ctl.request.BadRequest(c, errors.New("invalid json file"), "1023")
 	}
 
 	if err = decoder.Decode(&struct{}{}); err != io.EOF {
-		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
+		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"), "1024")
 	}
 
 	inserted, existing, err := ctl.usecase.OcservUserRestore(owner, users)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, usecase.RestoreResponse{

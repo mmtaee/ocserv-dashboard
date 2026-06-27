@@ -18,25 +18,25 @@ import (
 )
 
 type CreateOcservUserData struct {
-	Group       string                   `json:"group" validate:"required"`
-	Username    string                   `json:"username" validate:"required,min=2,max=32"`
-	Password    string                   `json:"password" validate:"required,min=2,max=32"`
-	ExpireAt    string                   `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
-	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
-	TrafficType string                   `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize int64                    `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"`
-	Description string                   `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Group       string            `json:"group" validate:"required"`
+	Username    string            `json:"username" validate:"required,min=2,max=32"`
+	Password    string            `json:"password" validate:"required,min=2,max=32"`
+	ExpireAt    string            `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	Unlimited   bool              `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType string            `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize int64             `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"`
+	Description string            `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
 	Config      *models.OcservUserConfig `json:"config" validate:"required"`
 }
 
 type UpdateOcservUserData struct {
-	Group       *string                  `json:"group" example:"default"`
-	Password    *string                  `json:"password" validate:"min=2,max=32"`
-	ExpireAt    *string                  `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
-	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
-	TrafficType *string                  `json:"traffic_type" validate:"oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize *int64                   `json:"traffic_size" validate:"gte=0" example:"10737418240"`
-	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Group       *string            `json:"group" example:"default"`
+	Password    *string            `json:"password" validate:"min=2,max=32"`
+	ExpireAt    *string            `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
+	Unlimited   bool               `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType *string            `json:"traffic_type" validate:"oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize *int64             `json:"traffic_size" validate:"gte=0" example:"10737418240"`
+	Description *string            `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
 	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 
@@ -46,11 +46,11 @@ type OcservUsersResponse struct {
 }
 
 type SyncOcpasswdRequest struct {
-	Users       []user.Ocpasswd          `json:"users" validate:"required"`
-	ExpireAt    *string                  `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
-	TrafficType *string                  `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize *int64                   `json:"traffic_size" validate:"required,gte=0" example:"10737418240"`
-	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Users       []user.Ocpasswd            `json:"users" validate:"required"`
+	ExpireAt    *string            `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	TrafficType *string            `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize *int64             `json:"traffic_size" validate:"required,gte=0" example:"10737418240"`
+	Description *string            `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
 	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 
@@ -121,7 +121,7 @@ func (ctl *Controller) Users(c echo.Context) error {
 	if !ok || !val {
 		usernameVal, ok := c.Get("username").(string)
 		if !ok || usernameVal == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+			return ctl.request.BadRequest(c, errors.New("invalid user uid"), "1004")
 		}
 		owner = usernameVal
 	}
@@ -141,7 +141,7 @@ func (ctl *Controller) Users(c echo.Context) error {
 
 	onlineUsers, err := ctl.ocservUserUsecase.OnlineSessions()
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	onlineUsersMap := make(map[string][]models.OnlineUserSession)
@@ -179,7 +179,7 @@ func (ctl *Controller) Users(c echo.Context) error {
 	}
 
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, OcservUsersResponse{
@@ -208,12 +208,12 @@ func (ctl *Controller) Users(c echo.Context) error {
 func (ctl *Controller) User(c echo.Context) error {
 	userUID := c.Param("uid")
 	if userUID == "" {
-		return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+		return ctl.request.BadRequest(c, errors.New("invalid user uid"), "1004")
 	}
 
 	u, err := ctl.ocservUserUsecase.GetByUID(c.Request().Context(), userUID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, u)
 }
@@ -236,11 +236,11 @@ func (ctl *Controller) Create(c echo.Context) error {
 
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	var expireAt *time.Time
@@ -273,7 +273,7 @@ func (ctl *Controller) Create(c echo.Context) error {
 
 	u, err := ctl.ocservUserUsecase.Create(c.Request().Context(), ocUser)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusCreated, u)
@@ -296,17 +296,17 @@ func (ctl *Controller) Create(c echo.Context) error {
 func (ctl *Controller) Update(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	var data UpdateOcservUserData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	ocservUser, err := ctl.ocservUserUsecase.GetByUID(c.Request().Context(), userID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	if data.Group != nil {
@@ -341,7 +341,7 @@ func (ctl *Controller) Update(c echo.Context) error {
 
 	updatedOcservUser, err := ctl.ocservUserUsecase.Update(c.Request().Context(), ocservUser)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, updatedOcservUser)
 }
@@ -362,12 +362,12 @@ func (ctl *Controller) Update(c echo.Context) error {
 func (ctl *Controller) Delete(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	_, err := ctl.ocservUserUsecase.Delete(c.Request().Context(), userID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusNoContent, nil)
@@ -389,12 +389,12 @@ func (ctl *Controller) Delete(c echo.Context) error {
 func (ctl *Controller) Lock(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	err := ctl.ocservUserUsecase.Lock(c.Request().Context(), userID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, nil)
@@ -416,12 +416,12 @@ func (ctl *Controller) Lock(c echo.Context) error {
 func (ctl *Controller) UnLock(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	err := ctl.ocservUserUsecase.Unlock(c.Request().Context(), userID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 	return c.JSON(http.StatusOK, nil)
 }
@@ -444,12 +444,12 @@ func (ctl *Controller) UnLock(c echo.Context) error {
 func (ctl *Controller) Statistics(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	var data StatisticsData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	var startDate, endDate *time.Time
@@ -457,7 +457,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	if data.DateStart != "" {
 		t, err := time.Parse("2006-01-02", data.DateStart)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err), "1010")
 		}
 		startDate = &t
 	}
@@ -465,7 +465,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	if data.DateEnd != "" {
 		t, err := time.Parse("2006-01-02", data.DateEnd)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err), "1011")
 		}
 		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 		endDate = &t
@@ -498,7 +498,7 @@ func (ctl *Controller) Statistics(c echo.Context) error {
 	})
 
 	if err := g.Wait(); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, StatisticsResponse{
@@ -528,7 +528,7 @@ func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
 
 	users, total, err := ctl.ocservUserUsecase.Ocpasswd(c.Request().Context(), pagination)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, OcservUsersSyncResponse{
@@ -557,12 +557,12 @@ func (ctl *Controller) OcpasswdUsers(c echo.Context) error {
 func (ctl *Controller) SyncToDB(c echo.Context) error {
 	owner := c.Get("username").(string)
 	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"), "1005")
 	}
 
 	var data SyncOcpasswdRequest
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	expireAt := time.Now().AddDate(0, 0, 30)
@@ -574,11 +574,11 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 	}
 
 	if data.TrafficType == nil {
-		return ctl.request.BadRequest(c, errors.New("traffic_type is required"))
+		return ctl.request.BadRequest(c, errors.New("traffic_type is required"), "1006")
 	}
 
 	if data.TrafficSize == nil {
-		return ctl.request.BadRequest(c, errors.New("traffic_size is required"))
+		return ctl.request.BadRequest(c, errors.New("traffic_size is required"), "1007")
 	}
 
 	trafficType := *data.TrafficType
@@ -604,12 +604,12 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 	}
 
 	if len(users) == 0 {
-		return ctl.request.BadRequest(c, errors.New("no users found"))
+		return ctl.request.BadRequest(c, errors.New("no users found"), "1008")
 	}
 
 	syncUsers, err := ctl.ocservUserUsecase.OcpasswdSyncToDB(c.Request().Context(), users)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	var syncUsernames []string
@@ -638,12 +638,12 @@ func (ctl *Controller) SyncToDB(c echo.Context) error {
 func (ctl *Controller) ActivateExpired(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	var data ActivateUserData
 	if err := ctl.request.DoValidate(c, &data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1003")
 	}
 
 	var expireAt *time.Time
@@ -656,7 +656,7 @@ func (ctl *Controller) ActivateExpired(c echo.Context) error {
 
 	err := ctl.ocservUserUsecase.RestoreExpired(c.Request().Context(), userID, expireAt)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, nil)
@@ -678,11 +678,11 @@ func (ctl *Controller) ActivateExpired(c echo.Context) error {
 func (ctl *Controller) CreateCertificate(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	if err := ctl.ocservUserUsecase.CreateCertificate(c.Request().Context(), userID); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, nil)
@@ -703,12 +703,12 @@ func (ctl *Controller) CreateCertificate(c echo.Context) error {
 func (ctl *Controller) DownloadCertificate(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	username, path, err := ctl.ocservUserUsecase.CertificatePath(c.Request().Context(), userID)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, "application/x-pkcs12")
@@ -737,12 +737,12 @@ func (ctl *Controller) DownloadCertificate(c echo.Context) error {
 func (ctl *Controller) SessionLogs(c echo.Context) error {
 	userID := c.Param("uid")
 	if userID == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 
 	var data SessionLogsData
 	if err := c.Bind(&data); err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	pagination := ctl.request.Pagination(c)
@@ -752,7 +752,7 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 	if data.DateStart != "" {
 		t, err := time.Parse("2006-01-02", data.DateStart)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_start: %w", err), "1010")
 		}
 		startDate = &t
 	}
@@ -760,7 +760,7 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 	if data.DateEnd != "" {
 		t, err := time.Parse("2006-01-02", data.DateEnd)
 		if err != nil {
-			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err))
+			return ctl.request.BadRequest(c, fmt.Errorf("invalid date_end: %w", err), "1011")
 		}
 		t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 		endDate = &t
@@ -771,12 +771,12 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, nil)
 		}
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	logs, total, err := ctl.ocservUserUsecase.UserSessionLogs(c.Request().Context(), pagination, u.Username, startDate, endDate)
 	if err != nil {
-		return ctl.request.BadRequest(c, err)
+		return ctl.request.BadRequest(c, err, "1000")
 	}
 
 	return c.JSON(http.StatusOK, SessionLogsResponse{
@@ -805,12 +805,12 @@ func (ctl *Controller) SessionLogs(c echo.Context) error {
 func (ctl *Controller) Disconnect(c echo.Context) error {
 	username := c.Param("username")
 	if username == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 	_, err := ctl.ocservUserUsecase.Disconnect(username)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not disconnect user") {
-			return ctl.request.BadRequest(c, err)
+			return ctl.request.BadRequest(c, err, "1000")
 		}
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -832,12 +832,12 @@ func (ctl *Controller) Disconnect(c echo.Context) error {
 func (ctl *Controller) DisconnectSessionById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 	_, err := ctl.ocservUserUsecase.DisconnectSession(id)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not disconnect user") {
-			return ctl.request.BadRequest(c, err)
+			return ctl.request.BadRequest(c, err, "1000")
 		}
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -859,12 +859,12 @@ func (ctl *Controller) DisconnectSessionById(c echo.Context) error {
 func (ctl *Controller) Terminate(c echo.Context) error {
 	username := c.Param("username")
 	if username == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 	_, err := ctl.ocservUserUsecase.Terminate(username)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not terminate user") {
-			return ctl.request.BadRequest(c, err)
+			return ctl.request.BadRequest(c, err, "1000")
 		}
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -886,12 +886,12 @@ func (ctl *Controller) Terminate(c echo.Context) error {
 func (ctl *Controller) TerminateSessionById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return ctl.request.BadRequest(c, errors.New("user id is required"))
+		return ctl.request.BadRequest(c, errors.New("user id is required"), "1009")
 	}
 	_, err := ctl.ocservUserUsecase.TerminateSession(id)
 	if err != nil {
 		if !strings.Contains(err.Error(), "could not terminate user") {
-			return ctl.request.BadRequest(c, err)
+			return ctl.request.BadRequest(c, err, "1000")
 		}
 	}
 	return c.JSON(http.StatusOK, nil)

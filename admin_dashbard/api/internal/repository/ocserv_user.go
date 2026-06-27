@@ -417,12 +417,12 @@ func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request
 	if err != nil {
 		return nil, 0, err
 	}
-	if len(*users) == 0 {
+	if len(users) == 0 {
 		return []user.Ocpasswd{}, 0, nil
 	}
 
-	usernames := make([]string, len(*users))
-	for i, u := range *users {
+	usernames := make([]string, len(users))
+	for i, u := range users {
 		usernames[i] = u.Username
 	}
 
@@ -440,7 +440,7 @@ func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request
 	}
 
 	newUsers := make([]user.Ocpasswd, 0)
-	for _, u := range *users {
+	for _, u := range users {
 		if _, exists := existingSet[u.Username]; !exists {
 			newUsers = append(newUsers, user.Ocpasswd{
 				Username: u.Username,
