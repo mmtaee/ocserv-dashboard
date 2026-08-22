@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go"
+  short_description: "Project Go architecture and workflow"
+  default_prompt: "Use $golang to implement a Go change following this repository's architecture and conventions."
+policy:
+  allow_implicit_invocation: true

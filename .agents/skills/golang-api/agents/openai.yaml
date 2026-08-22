@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go API"
+  short_description: "Echo API architecture and endpoint rules"
+  default_prompt: "Use $golang-api to build or update an Echo v5 endpoint in this repository."
+policy:
+  allow_implicit_invocation: true
