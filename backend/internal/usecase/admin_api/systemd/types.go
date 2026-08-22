@@ -1,0 +1,32 @@
+package systemd
+
+import (
+	"context"
+	"errors"
+)
+
+var ErrUnavailable = errors.New("systemd is not running")
+
+type Repository interface {
+	Status(ctx context.Context) (string, error)
+	Restart(ctx context.Context) error
+	Enable(ctx context.Context) error
+	Disable(ctx context.Context) error
+}
+
+type Status struct {
+	ID            string `json:"id"`
+	Description   string `json:"description"`
+	ActiveState   string `json:"active_state"`
+	SubState      string `json:"sub_state"`
+	UnitFileState string `json:"unit_file_state"`
+	MainPID       int    `json:"main_pid"`
+	StartTime     string `json:"start_time"`
+	Memory        int64  `json:"memory"`
+	CPUUsageNSec  int64  `json:"cpu_usage_nsec"`
+	Tasks         int    `json:"tasks"`
+}
+
+type ActionResult struct {
+	Message string `json:"message" validate:"required"`
+}

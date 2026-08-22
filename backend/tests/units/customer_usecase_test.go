@@ -8,7 +8,7 @@ import (
 
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
-	customerusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/customer"
+	customerusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/customer_api"
 	"github.com/stretchr/testify/require"
 )
 

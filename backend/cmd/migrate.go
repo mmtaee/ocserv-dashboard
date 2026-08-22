@@ -5,9 +5,9 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/mmtaee/ocserv-dashboard/backend/config"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/bootstrap"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	logging "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
+	"github.com/mmtaee/ocserv-dashboard/backend/pkg/bootstrap"
 	"github.com/spf13/cobra"
 )
 

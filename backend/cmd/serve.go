@@ -13,10 +13,10 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/httpserver"
 	logging "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
-	adminapi "github.com/mmtaee/ocserv-dashboard/backend/services/admin_api"
-	customerapi "github.com/mmtaee/ocserv-dashboard/backend/services/customer_api"
-	telegrambot "github.com/mmtaee/ocserv-dashboard/backend/services/telegram_bot"
-	"github.com/mmtaee/ocserv-dashboard/backend/services/worker"
+	adminapi "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api"
+	customerapi "github.com/mmtaee/ocserv-dashboard/backend/internal/services/customer_api"
+	telegrambot "github.com/mmtaee/ocserv-dashboard/backend/internal/services/telegram_bot"
+	workerservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/worker"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
@@ -64,7 +64,7 @@ func serve() error {
 	admin := adminapi.New(telegramEnabled || cfg.Debug)
 	customer := customerapi.New(cfg)
 	apiServer := httpserver.New(cfg, admin, customer)
-	backgroundWorker := worker.New(dockerMode)
+	backgroundWorker := workerservice.New(dockerMode)
 
 	group, groupCtx := errgroup.WithContext(ctx)
 	group.Go(func() error { return apiServer.Run(groupCtx) })

@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"gorm.io/gorm"
@@ -11,8 +10,7 @@ import (
 )
 
 type ReportRepository struct {
-	db                   *gorm.DB
-	commonOcservUserRepo user.OcservUserInterface
+	db *gorm.DB
 }
 
 type ReportRepositoryInterface interface {
@@ -35,8 +33,7 @@ type UserStatsResult struct {
 
 func NewtReportRepository() *ReportRepository {
 	return &ReportRepository{
-		db:                   database.GetConnection(),
-		commonOcservUserRepo: user.NewOcservUser(),
+		db: database.GetConnection(),
 	}
 }
 

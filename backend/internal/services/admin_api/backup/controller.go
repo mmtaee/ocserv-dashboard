@@ -1,0 +1,246 @@
+package backup
+
+import (
+	"compress/gzip"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
+	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
+	backupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/backup"
+	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
+)
+
+type Controller struct {
+	request request.CustomRequestInterface
+	backup  *backupusecase.Usecase
+}
+type multiReadCloser struct {
+	io.Reader
+	closers []io.Closer
+}
+
+func (m *multiReadCloser) Close() error {
+	for _, c := range m.closers {
+		_ = c.Close()
+	}
+	return nil
+}
+
+func New(backupUsecase *backupusecase.Usecase) *Controller {
+	return &Controller{
+		request: request.NewCustomRequest(),
+		backup:  backupUsecase,
+	}
+}
+
+// OcservGroupBackup
+// @Summary      Backup ocserv groups
+// @Description  Download gzip compressed JSON backup of all ocserv groups including default group configuration
+// @Tags         System(Backup)
+// @Produce      application/json
+// @Produce      application/gzip
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      200 {file} file "ocserv_groups_backup.json.gz"
+// @Router       /backup/ocserv_groups [get]
+func (ctl *Controller) OcservGroupBackup(c *echo.Context) error {
+	c.Response().Header().Set(echo.HeaderContentType, "application/json")
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		"attachment; filename=ocserv_groups_backup.json.gz",
+	)
+	c.Response().Header().Set(echo.HeaderContentEncoding, "gzip")
+
+	c.Response().WriteHeader(http.StatusOK)
+
+	gz := gzip.NewWriter(c.Response())
+
+	if err := ctl.backup.GroupBackup(c.Request().Context(), gz); err != nil {
+		_ = gz.Close()
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if err := gz.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// OcservGroupRestore
+// @Summary      Restore ocserv groups
+// @Description  Upload JSON or gzip-compressed (.json.gz) backup of ocserv groups
+// @Tags         System(Restore)
+// @Produce      application/json
+// @Accept       multipart/form-data
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        file formData file true "JSON or JSON.GZ file"
+// @Success      200 {object} RestoreResponse
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Router       /backup/ocserv_groups [post]
+func (ctl *Controller) OcservGroupRestore(c *echo.Context) error {
+	owner := c.Get("username").(string)
+	if owner == "" {
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+	}
+
+	reader, err := ctl.fileUploadValidator(c)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	defer func(reader io.ReadCloser) {
+		_ = reader.Close()
+	}(reader)
+
+	var groupData backupusecase.GroupFile
+
+	decoder := json.NewDecoder(reader)
+	decoder.DisallowUnknownFields()
+
+	if err = decoder.Decode(&groupData); err != nil {
+		return ctl.request.BadRequest(c, errors.New("invalid json file"))
+	}
+
+	if err = decoder.Decode(&struct{}{}); err != io.EOF {
+		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
+	}
+
+	result, err := ctl.backup.RestoreGroups(c.Request().Context(), owner, groupData)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+// OcservUserBackup
+// @Summary      Backup ocserv users
+// @Description  Download gzip compressed JSON backup of all ocserv users
+// @Tags         System(Backup)
+// @Produce      application/json
+// @Produce      application/gzip
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Success      200 {file} file "ocserv_users_backup.json.gz"
+// @Router       /backup/ocserv_users [get]
+func (ctl *Controller) OcservUserBackup(c *echo.Context) error {
+	c.Response().Header().Set(echo.HeaderContentType, "application/json")
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		"attachment; filename=ocserv_users_backup.json.gz",
+	)
+	c.Response().Header().Set(echo.HeaderContentEncoding, "gzip")
+
+	c.Response().WriteHeader(http.StatusOK)
+
+	gz := gzip.NewWriter(c.Response())
+
+	if err := ctl.backup.UserBackup(
+		c.Request().Context(),
+		gz,
+	); err != nil {
+		_ = gz.Close()
+		return ctl.request.BadRequest(c, err)
+	}
+
+	if err := gz.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// OcservUserRestore
+// @Summary      Restore ocserv users
+// @Description  Upload JSON or gzip-compressed (.json.gz) backup of ocserv users
+// @Tags         System(Restore)
+// @Produce      application/json
+// @Accept       multipart/form-data
+// @Param        Authorization header string true "Bearer TOKEN"
+// @Param        file formData file true "JSON or JSON.GZ file"
+// @Success      200 {object} RestoreResponse
+// @Failure      400 {object} request.ErrorResponse
+// @Failure      401 {object} middlewares.Unauthorized
+// @Failure      403 {object} middlewares.PermissionDenied
+// @Router       /backup/ocserv_users [post]
+func (ctl *Controller) OcservUserRestore(c *echo.Context) error {
+	owner := c.Get("username").(string)
+	if owner == "" {
+		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
+	}
+
+	reader, err := ctl.fileUploadValidator(c)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	defer func(reader io.ReadCloser) {
+		_ = reader.Close()
+	}(reader)
+
+	var users []models.OcservUser
+	decoder := json.NewDecoder(reader)
+	decoder.DisallowUnknownFields()
+
+	if err = decoder.Decode(&users); err != nil {
+		return ctl.request.BadRequest(c, errors.New("invalid json file"))
+	}
+
+	if err = decoder.Decode(&struct{}{}); err != io.EOF {
+		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
+	}
+
+	result, err := ctl.backup.RestoreUsers(c.Request().Context(), owner, users)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+// fileUploadValidator validate request file format and extension
+func (ctl *Controller) fileUploadValidator(c *echo.Context) (io.ReadCloser, error) {
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return nil, errors.New("file is required")
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	filename := strings.ToLower(fileHeader.Filename)
+
+	switch {
+	case strings.HasSuffix(filename, ".json.gz"):
+		gz, err := gzip.NewReader(file)
+		if err != nil {
+			_ = file.Close()
+			return nil, fmt.Errorf("invalid gzip file")
+		}
+
+		return &multiReadCloser{
+			Reader:  gz,
+			closers: []io.Closer{gz, file},
+		}, nil
+
+	case strings.HasSuffix(filename, ".json"):
+		return file, nil
+
+	default:
+		_ = file.Close()
+		return nil, errors.New("file must be .json or .json.gz")
+	}
+}

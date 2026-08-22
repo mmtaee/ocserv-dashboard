@@ -2,10 +2,7 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/occtl"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"gorm.io/gorm"
@@ -23,15 +20,8 @@ type TotalBandwidths struct {
 	TX float64 `json:"tx" validate:"required"`
 }
 
-type OcpasswdUser struct {
-	Username string `json:"username" validate:"required"`
-	Group    string `json:"group" validate:"required"`
-}
-
 type OcservUserRepository struct {
-	db                    *gorm.DB
-	commonOcservUserRepo  user.OcservUserInterface
-	commonOcservOcctlRepo occtl.OcservOcctlInterface
+	db *gorm.DB
 }
 
 type OcservUserCRUD interface {
@@ -41,7 +31,7 @@ type OcservUserCRUD interface {
 	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
-	Delete(ctx context.Context, uid string) (string, error)
+	Delete(ctx context.Context, uid string) (*models.OcservUser, error)
 }
 
 type OcservUserStats interface {
@@ -52,7 +42,7 @@ type OcservUserStats interface {
 }
 
 type OcservUserPassword interface {
-	Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error)
+	ExistingUsernames(ctx context.Context, usernames []string) ([]string, error)
 	OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error)
 }
 
@@ -64,9 +54,6 @@ type OcservUserActions interface {
 	Lock(ctx context.Context, uid string) error
 	UnLock(ctx context.Context, uid string) error
 	RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error
-	CreateCertificate(ctx context.Context, uid string) error
-	CertificatePath(ctx context.Context, uid string) (string, string, error)
-	CertificatePathByUsername(ctx context.Context, username string) (string, error)
 }
 
 type OcservUserRepositoryInterface interface {
@@ -78,17 +65,7 @@ type OcservUserRepositoryInterface interface {
 }
 
 func NewtOcservUserRepository() *OcservUserRepository {
-	return &OcservUserRepository{
-		db:                    database.GetConnection(),
-		commonOcservUserRepo:  user.NewOcservUser(),
-		commonOcservOcctlRepo: occtl.NewOcservOcctl(),
-	}
-}
-
-func (o *OcservUserRepository) applyCertificateStatus(ocservUser *models.OcservUser) {
-	status := o.commonOcservUserRepo.CertificateStatus(ocservUser.Username)
-	ocservUser.CertificateEnabled = status.Enabled
-	ocservUser.CertificateAvailable = status.Available
+	return &OcservUserRepository{db: database.GetConnection()}
 }
 
 func (o *OcservUserRepository) Users(
@@ -138,10 +115,6 @@ func (o *OcservUserRepository) Users(
 	query := applyFilters(txPaginator.Model(&ocservUser))
 	if err := query.Find(&ocservUser).Error; err != nil {
 		return nil, 0, err
-	}
-
-	for i := range ocservUser {
-		o.applyCertificateStatus(&ocservUser[i])
 	}
 
 	return ocservUser, totalRecords, nil
@@ -200,27 +173,7 @@ func (o *OcservUserRepository) UsersByUsername(
 }
 
 func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
-	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(ocservUser).Error; err != nil {
-			return err
-		}
-		if err := o.commonOcservUserRepo.Create(ocservUser.Group, ocservUser.Username, ocservUser.Password, ocservUser.Config); err != nil {
-			return err
-		}
-
-		if err := o.commonOcservUserRepo.CreateCertificate(ocservUser.Username, ocservUser.Password); err != nil {
-			_, _ = o.commonOcservUserRepo.Delete(ocservUser.Username)
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
-	o.applyCertificateStatus(ocservUser)
-	return ocservUser, err
+	return ocservUser, o.db.WithContext(ctx).Create(ocservUser).Error
 }
 
 func (o *OcservUserRepository) GetByUID(ctx context.Context, uid string) (*models.OcservUser, error) {
@@ -229,7 +182,6 @@ func (o *OcservUserRepository) GetByUID(ctx context.Context, uid string) (*model
 	if err != nil {
 		return nil, err
 	}
-	o.applyCertificateStatus(&ocservUser)
 	return &ocservUser, nil
 }
 
@@ -240,27 +192,11 @@ func (o *OcservUserRepository) GetByUsername(ctx context.Context, username strin
 		return nil, err
 	}
 
-	o.applyCertificateStatus(&ocservUser)
-
 	return &ocservUser, nil
 }
 
 func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
-	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(&ocservUser).Error; err != nil {
-			return err
-		}
-		if err := o.commonOcservUserRepo.Create(ocservUser.Group, ocservUser.Username, ocservUser.Password, ocservUser.Config); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
-	return ocservUser, nil
+	return ocservUser, o.db.WithContext(ctx).Save(ocservUser).Error
 }
 
 func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
@@ -276,9 +212,6 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if _, err := o.commonOcservUserRepo.Lock(ocservUser.Username); err != nil {
-			return err
-		}
 		return nil
 	})
 	return err
@@ -297,15 +230,12 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 			return err
 		}
 
-		if _, err := o.commonOcservUserRepo.UnLock(ocservUser.Username); err != nil {
-			return err
-		}
 		return nil
 	})
 	return err
 }
 
-func (o *OcservUserRepository) Delete(ctx context.Context, uid string) (string, error) {
+func (o *OcservUserRepository) Delete(ctx context.Context, uid string) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
@@ -314,22 +244,16 @@ func (o *OcservUserRepository) Delete(ctx context.Context, uid string) (string, 
 		if err := tx.Delete(&ocservUser).Error; err != nil {
 			return err
 		}
-		if _, err := o.commonOcservUserRepo.Delete(ocservUser.Username); err != nil {
-			return err
-		}
 		return nil
 	})
-
-	_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
-
-	return ocservUser.Username, err
+	return &ocservUser, err
 }
 
 func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, groupName string) ([]models.OcservUser, error) {
 	var users []models.OcservUser
 
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("`group` = ?", groupName).Select("id", "group", "username").Find(&users).Error; err != nil {
+		if err := tx.Where("`group` = ?", groupName).Find(&users).Error; err != nil {
 			return err
 		}
 
@@ -341,8 +265,6 @@ func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, gro
 
 		return nil
 	})
-
-	_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
 
 	return users, err
 }
@@ -403,90 +325,17 @@ func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, 
 	return total, nil
 }
 
-func (o *OcservUserRepository) Ocpasswd(ctx context.Context, pagination *request.Pagination) ([]user.Ocpasswd, int, error) {
-	users, _, err := o.commonOcservUserRepo.Ocpasswd(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-	if len(*users) == 0 {
-		return []user.Ocpasswd{}, 0, nil
-	}
-
-	usernames := make([]string, len(*users))
-	for i, u := range *users {
-		usernames[i] = u.Username
-	}
-
+func (o *OcservUserRepository) ExistingUsernames(ctx context.Context, usernames []string) ([]string, error) {
 	var existing []string
-	if err = o.db.WithContext(ctx).
+	err := o.db.WithContext(ctx).
 		Model(&models.OcservUser{}).
 		Where("username IN ?", usernames).
-		Pluck("username", &existing).Error; err != nil {
-		return nil, 0, err
-	}
-
-	existingSet := make(map[string]struct{}, len(existing))
-	for _, u := range existing {
-		existingSet[u] = struct{}{}
-	}
-
-	newUsers := make([]user.Ocpasswd, 0)
-	for _, u := range *users {
-		if _, exists := existingSet[u.Username]; !exists {
-			newUsers = append(newUsers, user.Ocpasswd{
-				Username: u.Username,
-				Group:    u.Group,
-			})
-		}
-	}
-
-	totalNew := len(newUsers)
-	if totalNew == 0 {
-		return []user.Ocpasswd{}, 0, nil
-	}
-
-	start := (pagination.Page - 1) * pagination.PageSize
-	if start >= totalNew {
-		return []user.Ocpasswd{}, totalNew, nil
-	}
-
-	end := start + pagination.PageSize
-	if end > totalNew {
-		end = totalNew
-	}
-
-	paged := newUsers[start:end]
-
-	return paged, totalNew, nil
+		Pluck("username", &existing).Error
+	return existing, err
 }
 
 func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error) {
-	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&users).Error; err != nil {
-			return err
-		}
-
-		//for _, i := range users {
-		//	if err := o.commonOcservUserRepo.Create(i.Group, i.Username, i.Password, i.Config); err != nil {
-		//		return err
-		//	}
-		//}
-
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Reload configs if any user has a custom config
-	for _, u := range users {
-		if u.Config != nil {
-			_, _ = o.commonOcservOcctlRepo.ReloadConfigs()
-			break
-		}
-	}
-
-	return users, nil
+	return users, o.db.WithContext(ctx).Create(&users).Error
 }
 
 func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error {
@@ -496,16 +345,6 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, e
 			Where("uid = ?", uid).
 			First(&u).Error; err != nil {
 			return err
-		}
-
-		terminateOutput, err := o.commonOcservOcctlRepo.TerminateUser(u.Username)
-		if err != nil && !isNoActiveOcctlUserError(terminateOutput, err) {
-			return fmt.Errorf("failed to terminate ocserv user %q: %s: %w", u.Username, strings.TrimSpace(terminateOutput), err)
-		}
-
-		unlockOutput, err := o.commonOcservUserRepo.UnLock(u.Username)
-		if err != nil && !isAlreadyUnlockedOcpasswdError(unlockOutput, err) {
-			return fmt.Errorf("failed to unlock ocserv user %q: %s: %w", u.Username, strings.TrimSpace(unlockOutput), err)
 		}
 
 		now := time.Now()
@@ -525,65 +364,6 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, e
 
 		return nil
 	})
-}
-
-func (o *OcservUserRepository) CreateCertificate(ctx context.Context, uid string) error {
-	var ocservUser models.OcservUser
-
-	if err := o.db.WithContext(ctx).
-		Where("uid = ?", uid).
-		First(&ocservUser).Error; err != nil {
-		return err
-	}
-
-	return o.commonOcservUserRepo.CreateCertificate(ocservUser.Username, ocservUser.Password)
-}
-
-func (o *OcservUserRepository) CertificatePath(ctx context.Context, uid string) (string, string, error) {
-	var ocservUser models.OcservUser
-
-	if err := o.db.WithContext(ctx).
-		Where("uid = ?", uid).
-		First(&ocservUser).Error; err != nil {
-		return "", "", err
-	}
-
-	path, err := o.commonOcservUserRepo.CertificatePath(ocservUser.Username)
-	if err != nil {
-		return "", "", err
-	}
-
-	return ocservUser.Username, path, nil
-}
-
-func (o *OcservUserRepository) CertificatePathByUsername(ctx context.Context, username string) (string, error) {
-	var ocservUser models.OcservUser
-
-	if err := o.db.WithContext(ctx).
-		Where("username = ?", username).
-		First(&ocservUser).Error; err != nil {
-		return "", err
-	}
-
-	return o.commonOcservUserRepo.CertificatePath(ocservUser.Username)
-}
-
-func isAlreadyUnlockedOcpasswdError(output string, err error) bool {
-	text := strings.ToLower(strings.TrimSpace(output + " " + err.Error()))
-
-	return strings.Contains(text, "not locked") ||
-		strings.Contains(text, "not disabled") ||
-		strings.Contains(text, "already unlocked") ||
-		strings.Contains(text, "already enabled")
-}
-
-func isNoActiveOcctlUserError(output string, err error) bool {
-	text := strings.ToLower(strings.TrimSpace(output + " " + err.Error()))
-
-	return strings.Contains(text, "could not terminate user") ||
-		strings.Contains(text, "could not disconnect user") ||
-		strings.Contains(text, "not found") ||
-		strings.Contains(text, "no such user")
 }
 
 func (o *OcservUserRepository) UserSessionLogs(
