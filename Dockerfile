@@ -15,7 +15,7 @@ RUN go mod download
 COPY backend/ ./
 RUN go build -trimpath -ldflags="-s -w" -o /out/backend ./main.go
 
-FROM debian:trixie-slim
+FROM postgres:18-trixie
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -44,6 +44,14 @@ ENV OCSERV_PORT=443 \
     SSL_ORG=ocserv-dashboard \
     SSL_EXPIRE=3650 \
     OCSERV_PRESERVE_CONFIG=false \
+    PGDATA=/var/lib/postgresql/18/docker \
+    POSTGRES_HOST=127.0.0.1 \
+    POSTGRES_PORT=5432 \
+    POSTGRES_USER=ocserv \
+    POSTGRES_DB=ocserv_db \
+    POSTGRES_SSLMODE=disable \
+    POSTGRES_READY_MAX_ATTEMPTS=60 \
+    POSTGRES_READY_RETRY_SECONDS=1 \
     RUN_MIGRATIONS=true \
     MIGRATION_MAX_ATTEMPTS=30 \
     MIGRATION_RETRY_SECONDS=2 \
@@ -56,9 +64,9 @@ RUN mkdir -p \
         /etc/ocserv/groups \
         /etc/ocserv/users
 
-EXPOSE 443/tcp 443/udp 8080/tcp
+EXPOSE 443/tcp 443/udp 5432/tcp 8080/tcp
 
-VOLUME ["/etc/ocserv", "/app/cron_journal", "/app/uploads/receipts"]
+VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/app/uploads/receipts"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl --fail --silent http://127.0.0.1:8080/health >/dev/null || exit 1

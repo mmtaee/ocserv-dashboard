@@ -213,7 +213,10 @@ ensure_networking() {
         exit 1
     fi
 
-    external_interface="$(ip route | awk '/default/ {print $5; exit}')"
+    external_interface="${ETH:-}"
+    if [[ -z "${external_interface}" ]]; then
+        external_interface="$(ip route | awk '/default/ {print $5; exit}')"
+    fi
     external_interface="${external_interface:-eth0}"
 
     iptables -t nat -C POSTROUTING -s "${OC_NET}" -o "${external_interface}" -j MASQUERADE 2>/dev/null || \
@@ -236,10 +239,16 @@ ensure_networking() {
     chmod 600 /dev/net/tun
 }
 
-main() {
+setup_ocserv() {
     ensure_ocserv_layout
     ensure_networking
+}
+
+main() {
+    setup_ocserv
     exec "$@"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

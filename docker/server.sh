@@ -5,11 +5,17 @@ set -Eeuo pipefail
 : "${RUN_MIGRATIONS:=true}"
 : "${MIGRATION_MAX_ATTEMPTS:=30}"
 : "${MIGRATION_RETRY_SECONDS:=2}"
+: "${POSTGRES_PORT:=5432}"
+: "${POSTGRES_USER:=ocserv}"
+: "${POSTGRES_DB:=ocserv_db}"
+: "${POSTGRES_READY_MAX_ATTEMPTS:=60}"
+: "${POSTGRES_READY_RETRY_SECONDS:=1}"
 : "${DEBUG:=0}"
 : "${OCSERV_DEBUG:=0}"
 
 backend_pid=''
 ocserv_pid=''
+postgres_pid=''
 stopping=false
 
 log() {
@@ -21,6 +27,30 @@ is_true() {
         1|true|yes|on) return 0 ;;
         *) return 1 ;;
     esac
+}
+
+load_postgres_password() {
+    if [[ -n "${POSTGRES_PASSWORD:-}" && -n "${POSTGRES_PASSWORD_FILE:-}" ]]; then
+        log "POSTGRES_PASSWORD and POSTGRES_PASSWORD_FILE are mutually exclusive"
+        return 1
+    fi
+    if [[ -z "${POSTGRES_PASSWORD:-}" && -n "${POSTGRES_PASSWORD_FILE:-}" ]]; then
+        [[ -r "${POSTGRES_PASSWORD_FILE}" ]] || {
+            log "cannot read POSTGRES_PASSWORD_FILE=${POSTGRES_PASSWORD_FILE}"
+            return 1
+        }
+        POSTGRES_PASSWORD="$(<"${POSTGRES_PASSWORD_FILE}")"
+        export POSTGRES_PASSWORD
+        unset POSTGRES_PASSWORD_FILE
+    fi
+    if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
+        log "POSTGRES_PASSWORD is required for the bundled PostgreSQL server"
+        return 1
+    fi
+    if [[ "${POSTGRES_PASSWORD}" == "replace-with-a-strong-database-password" ]]; then
+        log "replace the sample POSTGRES_PASSWORD before starting the container"
+        return 1
+    fi
 }
 
 run_migrations() {
@@ -48,17 +78,60 @@ run_migrations() {
     done
 }
 
+start_postgres() {
+    local attempt=1
+
+    # This image is intentionally all-in-one; backend always uses its local PostgreSQL.
+    export POSTGRES_HOST=127.0.0.1
+    export PGPORT="${POSTGRES_PORT}"
+
+    log "starting PostgreSQL 18"
+    /usr/local/bin/docker-entrypoint.sh postgres -p "${POSTGRES_PORT}" &
+    postgres_pid=$!
+
+    while (( attempt <= POSTGRES_READY_MAX_ATTEMPTS )); do
+        if pg_isready \
+            --host="${POSTGRES_HOST}" \
+            --port="${POSTGRES_PORT}" \
+            --username="${POSTGRES_USER}" \
+            --dbname="${POSTGRES_DB}" >/dev/null 2>&1; then
+            log "PostgreSQL is ready"
+            return
+        fi
+
+        if ! kill -0 "${postgres_pid}" 2>/dev/null; then
+            set +e
+            wait "${postgres_pid}"
+            local exit_code=$?
+            set -e
+            log "PostgreSQL exited during startup with status ${exit_code}"
+            if (( exit_code == 0 )); then
+                return 1
+            fi
+            return "${exit_code}"
+        fi
+
+        sleep "${POSTGRES_READY_RETRY_SECONDS}"
+        ((attempt += 1))
+    done
+
+    log "PostgreSQL did not become ready after ${POSTGRES_READY_MAX_ATTEMPTS} attempts"
+    return 1
+}
+
 stop_services() {
     if [[ "${stopping}" == true ]]; then
         return
     fi
     stopping=true
 
-    log "stopping backend and OCServ"
+    log "stopping backend, OCServ, and PostgreSQL"
     [[ -n "${backend_pid}" ]] && kill -TERM "${backend_pid}" 2>/dev/null || true
     [[ -n "${ocserv_pid}" ]] && kill -TERM "${ocserv_pid}" 2>/dev/null || true
+    [[ -n "${postgres_pid}" ]] && kill -INT "${postgres_pid}" 2>/dev/null || true
     [[ -n "${backend_pid}" ]] && wait "${backend_pid}" 2>/dev/null || true
     [[ -n "${ocserv_pid}" ]] && wait "${ocserv_pid}" 2>/dev/null || true
+    [[ -n "${postgres_pid}" ]] && wait "${postgres_pid}" 2>/dev/null || true
 }
 
 handle_signal() {
@@ -72,8 +145,17 @@ main() {
     local backend_args=(serve --docker-mode)
     local exit_code
 
-    run_migrations
     trap handle_signal SIGINT SIGTERM
+
+    load_postgres_password
+    if ! start_postgres; then
+        stop_services
+        return 1
+    fi
+    if ! run_migrations; then
+        stop_services
+        return 1
+    fi
 
     if is_true "${DEBUG}"; then
         backend_args+=(--debug)
@@ -97,7 +179,7 @@ main() {
     ocserv_pid=$!
 
     set +e
-    wait -n "${backend_pid}" "${ocserv_pid}"
+    wait -n "${backend_pid}" "${ocserv_pid}" "${postgres_pid}"
     exit_code=$?
     set -e
 
