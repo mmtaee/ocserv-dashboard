@@ -73,18 +73,18 @@ type TelegramPackage struct {
 // TelegramRequest tracks the lifecycle of a new-account or renewal request
 // submitted by a Telegram bot user.
 type TelegramRequest struct {
-	ID               uint       `json:"id" gorm:"primaryKey;autoIncrement"`
-	ChatID           int64      `json:"chat_id" gorm:"index;not null"`
-	TelegramUsername string     `json:"telegram_username" gorm:"type:varchar(64)"`
-	Type             string     `json:"type" gorm:"type:varchar(16);not null"`
-	PackageID        *uint      `json:"package_id"`
-	TargetOcservID   *uint      `json:"target_ocserv_id"`
-	DesiredUsername  string     `json:"desired_username" gorm:"type:varchar(64)"`
-	Status           string     `json:"status" gorm:"type:varchar(32);index;default:'pending'"`
-	ReceiptFilePath  string     `json:"receipt_file_path" gorm:"type:varchar(255)"`
-	UserMessage      string     `json:"user_message" gorm:"type:text"`
-	AdminNote        string     `json:"admin_note" gorm:"type:text"`
-	DeliveredAt      *time.Time `json:"delivered_at"`
+	ID                 uint       `json:"id" gorm:"primaryKey;autoIncrement"`
+	ChatID             int64      `json:"chat_id" gorm:"index;not null"`
+	TelegramUsername   string     `json:"telegram_username" gorm:"type:varchar(64)"`
+	Type               string     `json:"type" gorm:"type:varchar(16);not null"`
+	PackageID          *uint      `json:"package_id"`
+	TargetOcservUserID *uint      `json:"target_ocserv_user_id"`
+	DesiredUsername    string     `json:"desired_username" gorm:"type:varchar(64)"`
+	Status             string     `json:"status" gorm:"type:varchar(32);index;default:'pending'"`
+	ReceiptFilePath    string     `json:"receipt_file_path" gorm:"type:varchar(255)"`
+	UserMessage        string     `json:"user_message" gorm:"type:text"`
+	AdminNote          string     `json:"admin_note" gorm:"type:text"`
+	DeliveredAt        *time.Time `json:"delivered_at"`
 	// AwaitingPaymentMessageID is the Telegram message_id of the bot message sent when
 	// the request moved to awaiting_payment (may contain card details). Used to delete
 	// that message if the request is later rejected.

@@ -408,8 +408,8 @@ func renderRequestList(lang string, requests []models.TelegramRequest) string {
 			b.WriteString("\n\n")
 		}
 		label := r.DesiredUsername
-		if label == "" && r.TargetOcservID != nil {
-			label = "user_id=" + strconv.FormatUint(uint64(*r.TargetOcservID), 10)
+		if label == "" && r.TargetOcservUserID != nil {
+			label = "user_id=" + strconv.FormatUint(uint64(*r.TargetOcservUserID), 10)
 		}
 		if label == "" {
 			label = "—"
@@ -870,13 +870,13 @@ func (h *Hub) finalizeRenewRequest(ctx context.Context, chatID int64, sess *sess
 	target := sess.BufferTargetID
 
 	req := &models.TelegramRequest{
-		ChatID:           chatID,
-		TelegramUsername: tgUsername,
-		Type:             models.TelegramRequestTypeRenew,
-		PackageID:        ptrUint(pkgID),
-		TargetOcservID:   ptrUint(target),
-		Status:           models.TelegramRequestStatusPending,
-		UserMessage:      note,
+		ChatID:             chatID,
+		TelegramUsername:   tgUsername,
+		Type:               models.TelegramRequestTypeRenew,
+		PackageID:          ptrUint(pkgID),
+		TargetOcservUserID: ptrUint(target),
+		Status:             models.TelegramRequestStatusPending,
+		UserMessage:        note,
 	}
 	created, err := h.deps.Repo.CreateRequest(ctx, req)
 	if err != nil {
@@ -979,7 +979,7 @@ func (h *Hub) notifyAdminNewRequest(ctx context.Context, req *models.TelegramReq
 // renewal without opening the dashboard.
 func (h *Hub) notifyAdminRenewRequest(ctx context.Context, req *models.TelegramRequest) {
 	pkg := h.lookupPackage(ctx, req.PackageID)
-	target := h.lookupOcservUser(ctx, req.TargetOcservID)
+	target := h.lookupOcservUser(ctx, req.TargetOcservUserID)
 	body := "🔄 <b>Renewal request</b>\n" +
 		"<b>Request:</b> <code>#" + strconv.FormatUint(uint64(req.ID), 10) + "</code>\n\n" +
 		formatRequester(req) +

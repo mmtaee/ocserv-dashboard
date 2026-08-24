@@ -53,7 +53,7 @@ func (u *Usecase) Settings(ctx context.Context) (*GetSystemResponse, error) {
 	return systemResponse(settings), nil
 }
 
-func (u *Usecase) Update(ctx context.Context, userUID string, input PatchSystemUpdateData) (*GetSystemResponse, error) {
+func (u *Usecase) Update(ctx context.Context, userID uint, input PatchSystemUpdateData) (*GetSystemResponse, error) {
 	settings := &models.System{}
 	if input.GoogleCaptchaSiteKey != nil {
 		settings.GoogleCaptchaSiteKey = *input.GoogleCaptchaSiteKey
@@ -90,7 +90,7 @@ func (u *Usecase) Update(ctx context.Context, userUID string, input PatchSystemU
 	if err != nil {
 		return nil, err
 	}
-	ctx = context.WithValue(ctx, "userUID", userUID)
+	ctx = context.WithValue(ctx, "userID", userID)
 	updated, err := u.systems.SystemUpdate(ctx, settings)
 	if err != nil {
 		return nil, err

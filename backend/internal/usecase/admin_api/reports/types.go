@@ -14,7 +14,7 @@ type Repository interface {
 	Statistics(ctx context.Context, dateStart, dateEnd *time.Time) (*[]models.DailyTraffic, error)
 	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (repository.TotalBandwidths, error)
 	UsersStat(ctx context.Context) (repository.UserStatsResult, error)
-	TotalBandWidthUser(ctx context.Context, uid string) (repository.TotalBandwidths, error)
+	TotalBandWidthUser(ctx context.Context, id uint) (repository.TotalBandwidths, error)
 	TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error)
 	TotalUsers(ctx context.Context) (int64, error)
 	TopBandwidthUser(ctx context.Context) (repository.TopBandwidthUsers, error)

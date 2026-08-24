@@ -29,7 +29,7 @@ func (r customerUserRepository) GetByUsername(context.Context, string) (*models.
 	return r.user, nil
 }
 
-func (customerUserRepository) TotalBandwidthUserDateRange(context.Context, string, *time.Time, *time.Time) (repository.TotalBandwidths, error) {
+func (customerUserRepository) TotalBandwidthUserDateRange(context.Context, uint, *time.Time, *time.Time) (repository.TotalBandwidths, error) {
 	return repository.TotalBandwidths{RX: 10, TX: 20}, nil
 }
 

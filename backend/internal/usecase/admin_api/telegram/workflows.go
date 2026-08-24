@@ -224,11 +224,11 @@ func (u *Usecase) ConfirmPayment(ctx context.Context, id uint, input ConfirmPaym
 	}
 }
 
-func (u *Usecase) Accounts(ctx context.Context, uid string) ([]models.TelegramAccount, error) {
-	if uid == "" {
-		return nil, errors.New("ocserv_user_uid query parameter is required")
+func (u *Usecase) Accounts(ctx context.Context, id uint) ([]models.TelegramAccount, error) {
+	if id == 0 {
+		return nil, errors.New("ocserv_user_id query parameter is required")
 	}
-	user, err := u.users.GetByUID(ctx, uid)
+	user, err := u.users.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -276,10 +276,10 @@ func (u *Usecase) deliverNew(ctx context.Context, req *models.TelegramRequest, p
 }
 
 func (u *Usecase) deliverRenewal(ctx context.Context, req *models.TelegramRequest, plan *models.TelegramPackage, settings *models.TelegramSettings, input ConfirmPaymentData) (map[string]interface{}, error) {
-	if req.TargetOcservID == nil {
+	if req.TargetOcservUserID == nil {
 		return nil, errors.New("renewal request has no target user")
 	}
-	user, err := u.Repository.OcservUserByID(ctx, *req.TargetOcservID)
+	user, err := u.Repository.OcservUserByID(ctx, *req.TargetOcservUserID)
 	if err != nil {
 		return nil, fmt.Errorf("target ocserv user not found: %w", err)
 	}

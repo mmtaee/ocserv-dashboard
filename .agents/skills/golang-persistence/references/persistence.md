@@ -10,6 +10,8 @@ Use GORM unless a raw query is clearly required. Prefer readable, explicit queri
 
 Target PostgreSQL 18. Use UUIDv7 primary keys instead of new auto-incrementing integer IDs unless an existing schema explicitly requires otherwise. Reuse the project's UUIDv7 helper and do not introduce a second UUID library.
 
+Name entity identity fields `ID`, expose them as `id` where appropriate, and name foreign keys `{Entity}ID` with `{entity}_id` JSON and database columns. Do not add `UID` fields or `uid` columns. Repository identity methods must use ID-based names such as `GetByID`, and migrations must never introduce UID identity columns or indexes.
+
 Persistent and request model fields should carry the tags required by their purpose. Use applicable `json`, `gorm`, and `validate` tags without inventing validation rules merely to make a tag non-empty.
 
 ```go

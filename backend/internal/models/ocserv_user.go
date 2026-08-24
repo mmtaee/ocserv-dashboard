@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -62,8 +61,7 @@ type OcservUserCertificateBackup struct {
 }
 
 type OcservUser struct {
-	ID                   uint                         `json:"-" gorm:"primaryKey;autoIncrement" `
-	UID                  string                       `json:"uid" gorm:"gorm:type:char(26);not null;uniqueIndex" validate:"required"`
+	ID                   uint                         `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
 	Owner                string                       `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
 	Group                string                       `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
 	Username             string                       `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
@@ -74,7 +72,7 @@ type OcservUser struct {
 	ExpireAt             *time.Time                   `json:"expire_at" gorm:"type:date" validate:"omitempty"`
 	DeactivatedAt        *time.Time                   `json:"deactivated_at" gorm:"type:date" validate:"omitempty"`
 	UsageResetAt         *time.Time                   `json:"-" gorm:"type:timestamptz" validate:"omitempty"`
-	TrafficType          string                       `json:"traffic_type" gorm:"type:varchar(32);not null;default:1" enums:"Free,MonthlyTransmit,MonthlyReceive,MonthlyRxTx,TotallyTransmit,TotallyReceive,TotallyRxTx" validate:"required"`
+	TrafficType          string                       `json:"traffic_type" gorm:"type:varchar(32);not null;default:'Free'" enums:"Free,MonthlyTransmit,MonthlyReceive,MonthlyRxTx,TotallyTransmit,TotallyReceive,TotallyRxTx" validate:"required"`
 	TrafficSize          int64                        `json:"traffic_size" gorm:"not null" validate:"required"` // in bytes
 	Rx                   int                          `json:"rx" gorm:"not null;default:0" validate:"required"` // Receive in bytes
 	Tx                   int                          `json:"tx" gorm:"not null;default:0" validate:"required"` // Transmit in bytes
@@ -88,11 +86,11 @@ type OcservUser struct {
 }
 
 type OcservUserTrafficStatistics struct {
-	ID        uint      `json:"-" gorm:"primaryKey;autoIncrement"`
-	OcUserID  uint      `json:"-" gorm:"index;constraint:OnDelete:CASCADE"`
-	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
-	Rx        int       `json:"rx" gorm:"default:0"` // in bytes
-	Tx        int       `json:"tx" gorm:"default:0"` // in bytes
+	ID           uint      `json:"-" gorm:"primaryKey;autoIncrement"`
+	OcservUserID uint      `json:"ocserv_user_id" gorm:"index;not null;constraint:OnDelete:CASCADE"`
+	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
+	Rx           int       `json:"rx" gorm:"default:0"` // in bytes
+	Tx           int       `json:"tx" gorm:"default:0"` // in bytes
 }
 
 type DailyTraffic struct {
@@ -167,9 +165,6 @@ func (o *OcservUser) BeforeCreate(tx *gorm.DB) (err error) {
 		o.TrafficSize = 0
 	}
 
-	if o.UID == "" {
-		o.UID = ulid.Make().String()
-	}
 	return
 }
 

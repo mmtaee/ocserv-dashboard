@@ -18,7 +18,7 @@ type OcctlServerInfo interface {
 type OcctlUserManager interface {
 	OnlineSessions() ([]models.OnlineUserSession, error)
 	ShowUserByUsername(username string) (models.OnlineUserSession, error)
-	ShowUserByID(uid string) (models.OnlineUserSession, error)
+	ShowUserByID(id string) (models.OnlineUserSession, error)
 	ShowSessionsAll() (*[]interface{}, error)
 	ShowSessionsValid() (*[]interface{}, error)
 	ShowSessionBySID(sid string) (map[string]interface{}, error)
@@ -141,8 +141,8 @@ func (o *Client) ShowUserByUsername(username string) (models.OnlineUserSession, 
 	return user, nil
 }
 
-func (o *Client) ShowUserByID(uid string) (models.OnlineUserSession, error) {
-	user, err := o.commonOcservOcctlRepo.ShowUserByID(uid)
+func (o *Client) ShowUserByID(id string) (models.OnlineUserSession, error) {
+	user, err := o.commonOcservOcctlRepo.ShowUserByID(id)
 	if err != nil {
 		return models.OnlineUserSession{}, err
 	}

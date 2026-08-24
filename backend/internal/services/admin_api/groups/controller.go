@@ -39,7 +39,7 @@ func (ctl *Controller) OcservGroupsLookup(c *echo.Context) error {
 	if !ok || !val { // not admin or missing
 		usernameVal, ok := c.Get("username").(string)
 		if !ok || usernameVal == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid user uid"))
+			return ctl.request.BadRequest(c, errors.New("invalid user id"))
 		}
 		owner = usernameVal
 	}

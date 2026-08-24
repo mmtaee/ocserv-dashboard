@@ -221,234 +221,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/customers/certificate": {
-            "post": {
-                "description": "Download customer's own .p12 certificate bundle using ocserv username/password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/x-pkcs12"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Download customer certificate",
-                "parameters": [
-                    {
-                        "description": "customer username and password (same ocserv account).",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.SummaryData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "user.p12",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
-                    }
-                }
-            }
-        },
-        "/customers/disconnect_sessions": {
-            "post": {
-                "description": "disconnects all online sessions for a customer",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Disconnect all online sessions of a customer",
-                "parameters": [
-                    {
-                        "description": "customer username and password (same ocserv account).",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.SummaryData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
-                    }
-                }
-            }
-        },
-        "/customers/setup/cisco": {
-            "post": {
-                "description": "Create Cisco Secure Client certificate import and connection creation URIs using ocserv username/password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Create customer Cisco Secure Client setup links",
-                "parameters": [
-                    {
-                        "description": "customer username and password (same ocserv account).",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.SummaryData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.CiscoSetupResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
-                    }
-                }
-            }
-        },
-        "/customers/setup/cisco/certificate/{token}": {
-            "get": {
-                "description": "Download customer's PKCS#12 certificate using a short-lived Cisco Secure Client setup token",
-                "produces": [
-                    "application/x-pkcs12"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Download customer Cisco Secure Client setup certificate",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Cisco Secure Client setup certificate token",
-                        "name": "token",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "user.p12",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
-                    }
-                }
-            }
-        },
-        "/customers/summary": {
-            "post": {
-                "description": "Customer summary account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Customer summary account",
-                "parameters": [
-                    {
-                        "description": "customer username and password (same ocserv account).",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.SummaryData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.SummaryResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
-                    }
-                }
-            }
-        },
         "/home": {
             "get": {
                 "description": "Content of home",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -469,7 +244,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/home.GetHomeResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse"
                         }
                     },
                     "400": {
@@ -490,9 +265,6 @@ const docTemplate = `{
         "/home/container-stats": {
             "get": {
                 "description": "Content of docker system usage stats (cpu, ram, swap)",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -513,10 +285,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/home.DockerService"
-                            }
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService"
                         }
                     },
                     "400": {
@@ -537,9 +306,6 @@ const docTemplate = `{
         "/home/ocserv-stats": {
             "get": {
                 "description": "Content of ocserv server stats",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -560,7 +326,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/home.OcservStatusResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse"
                         }
                     },
                     "400": {
@@ -581,9 +347,6 @@ const docTemplate = `{
         "/home/system-stats": {
             "get": {
                 "description": "Content of os system usage stats (cpu, ram, swap)",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -604,7 +367,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/home.ServerStatusResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse"
                         }
                     },
                     "400": {
@@ -765,7 +528,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ocserv_group.OcservGroupsResponse"
+                            "$ref": "#/definitions/groups.OcservGroupsResponse"
                         }
                     },
                     "400": {
@@ -808,7 +571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ocserv_group.CreateOcservGroupData"
+                            "$ref": "#/definitions/groups.CreateOcservGroupData"
                         }
                     }
                 ],
@@ -904,7 +667,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
+                            "$ref": "#/definitions/groups.UpdateOcservGroupData"
                         }
                     }
                 ],
@@ -1001,7 +764,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ocserv_group.SyncGroupRequest"
+                            "$ref": "#/definitions/groups.SyncGroupRequest"
                         }
                     }
                 ],
@@ -1206,7 +969,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
+                            "$ref": "#/definitions/groups.UpdateOcservGroupData"
                         }
                     }
                 ],
@@ -1234,1035 +997,231 @@ const docTemplate = `{
         },
         "/ocserv/users": {
             "get": {
-                "description": "List of Ocserv Users",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "List of Ocserv Users",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number, starting from 1",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Field to order by",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "ASC",
-                            "DESC"
-                        ],
-                        "type": "string",
-                        "description": "Sort order, either ASC or DESC",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "minLength": 2,
-                        "type": "string",
-                        "description": "ocserv username q search",
-                        "name": "q",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "online",
-                            "active",
-                            "deactivated",
-                            "locked"
-                        ],
-                        "type": "string",
-                        "description": "filter ocserv user by statues",
-                        "name": "filter",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "filter ocserv user by group name",
-                        "name": "group",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.OcservUsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "post": {
-                "description": "Ocserv User creation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Ocserv User creation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "ocserv user create data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.CreateOcservUserData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.OcservUser"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/ocserv/users/ocpasswd": {
             "get": {
-                "description": "Ocserv Users from ocpasswd file",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Ocpasswd)"
                 ],
-                "summary": "Ocserv Users from ocpasswd file",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number, starting from 1",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Field to order by",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "ASC",
-                            "DESC"
-                        ],
-                        "type": "string",
-                        "description": "Sort order, either ASC or DESC",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.OcservUsersSyncResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/ocserv/users/ocpasswd/sync": {
             "post": {
-                "description": "Ocserv Users from ocpasswd file to db",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Ocpasswd)"
                 ],
-                "summary": "Ocserv Users from ocpasswd file to db",
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}": {
+            "get": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "list of users with config to sync in db",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.SyncOcpasswdRequest"
-                        }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
+                "responses": {}
+            },
+            "delete": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
-                }
+                ],
+                "responses": {}
+            },
+            "patch": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/activate": {
+            "post": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/certificate": {
+            "get": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/ocserv/users/{id}/disconnect_by_id": {
             "post": {
-                "description": "Disconnect Ocserv User Session BY ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Disconnect Ocserv User Session BY ID",
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/lock": {
+            "post": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User Session ID",
+                        "type": "integer",
+                        "description": "Ocserv User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/session_logs": {
+            "get": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
-                }
+                ],
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/statistics": {
+            "get": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/ocserv/users/{id}/terminate_by_id": {
             "post": {
-                "description": "Terminate Ocserv User Session BY ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Terminate Ocserv User Session BY ID",
+                "responses": {}
+            }
+        },
+        "/ocserv/users/{id}/unlock": {
+            "post": {
+                "tags": [
+                    "Ocserv(Users)"
+                ],
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User Session ID",
+                        "type": "integer",
+                        "description": "Ocserv User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}": {
-            "get": {
-                "description": "Ocserv user detail",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv user detail",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.OcservUser"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Ocserv User delete",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User delete",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Ocserv User update",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User update",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ocserv user update data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.UpdateOcservUserData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.OcservUser"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/activate": {
-            "post": {
-                "description": "Restore and activate expired Ocserv User accounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Restore and activate expired Ocserv User accounts",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "list of ocserv users and expire time",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.ActivateUserData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/certificate": {
-            "get": {
-                "description": "Download the user's .p12 certificate bundle",
-                "produces": [
-                    "application/x-pkcs12"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Download ocserv user certificate",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "user.p12",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create certificate for an existing ocserv user using the currently stored password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Create certificate for ocserv user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/lock": {
-            "post": {
-                "description": "Ocserv User locking",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User locking",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/session_logs": {
-            "get": {
-                "description": "Ocserv User session logs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User session logs",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number, starting from 1",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Field to order by",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "ASC",
-                            "DESC"
-                        ],
-                        "type": "string",
-                        "description": "Sort order, either ASC or DESC",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "date_start",
-                        "name": "date_start",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "date_end",
-                        "name": "date_end",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.SessionLogsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/statistics": {
-            "get": {
-                "description": "Ocserv User Statistics",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User Statistics",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "date_start",
-                        "name": "date_start",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "date_end",
-                        "name": "date_end",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ocserv_user.StatisticsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
-            }
-        },
-        "/ocserv/users/{uid}/unlock": {
-            "post": {
-                "description": "Ocserv User unlocking",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Ocserv(Users)"
-                ],
-                "summary": "Ocserv User unlocking",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User UID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/ocserv/users/{username}/disconnect": {
             "post": {
-                "description": "Disconnect Ocserv User (All Sessions)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Disconnect Ocserv User (All Sessions)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User username",
-                        "name": "username",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/ocserv/users/{username}/terminate": {
             "post": {
-                "description": "Terminate Ocserv User (All Sessions)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Terminate Ocserv User (All Sessions)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer TOKEN",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ocserv User username",
-                        "name": "username",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/reports/session_logs": {
@@ -2334,7 +1293,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/report.SessionLogsResponse"
+                            "$ref": "#/definitions/reports.SessionLogsResponse"
                         }
                     },
                     "400": {
@@ -2497,7 +1456,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/report.OcservUserReportResponse"
+                            "$ref": "#/definitions/reports.OcservUserReportResponse"
                         }
                     },
                     "400": {
@@ -2517,10 +1476,6 @@ const docTemplate = `{
         },
         "/system": {
             "get": {
-                "description": "Get panel System Config",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2541,7 +1496,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.GetSystemResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse"
                         }
                     },
                     "400": {
@@ -2559,7 +1514,6 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Update panel System Config",
                 "consumes": [
                     "application/json"
                 ],
@@ -2577,7 +1531,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.PatchSystemUpdateData"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData"
                         }
                     },
                     {
@@ -2592,7 +1546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.GetSystemResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse"
                         }
                     },
                     "400": {
@@ -2612,10 +1566,6 @@ const docTemplate = `{
         },
         "/system/init": {
             "get": {
-                "description": "Get panel System init Config",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2627,7 +1577,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.GetSystemInitResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse"
                         }
                     },
                     "400": {
@@ -2641,10 +1591,6 @@ const docTemplate = `{
         },
         "/system/release": {
             "get": {
-                "description": "Get Dashboard current and latest release",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2656,7 +1602,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.DashboardRelease"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease"
                         }
                     },
                     "400": {
@@ -2670,7 +1616,6 @@ const docTemplate = `{
         },
         "/system/setup": {
             "post": {
-                "description": "Setup user and system config",
                 "consumes": [
                     "application/json"
                 ],
@@ -2688,7 +1633,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.SetupSystem"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem"
                         }
                     }
                 ],
@@ -2696,7 +1641,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/system.SetupSystemResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse"
                         }
                     },
                     "400": {
@@ -2710,7 +1655,6 @@ const docTemplate = `{
         },
         "/system/user/reset-password": {
             "post": {
-                "description": "Reset admin password by secret key",
                 "consumes": [
                     "application/json"
                 ],
@@ -2728,7 +1672,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.ResetAdminPassword"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword"
                         }
                     }
                 ],
@@ -2736,7 +1680,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.ResetPasswordResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse"
                         }
                     },
                     "400": {
@@ -2750,10 +1694,6 @@ const docTemplate = `{
         },
         "/system/users": {
             "get": {
-                "description": "List of Admin or simple users",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2762,37 +1702,6 @@ const docTemplate = `{
                 ],
                 "summary": "List of Admin or simple users",
                 "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number, starting from 1",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Field to order by",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "ASC",
-                            "DESC"
-                        ],
-                        "type": "string",
-                        "description": "Sort order, either ASC or DESC",
-                        "name": "sort",
-                        "in": "query"
-                    },
                     {
                         "type": "string",
                         "description": "Bearer TOKEN",
@@ -2805,31 +1714,12 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.UsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse"
                         }
                     }
                 }
             },
             "post": {
-                "description": "Create user Admin or simple",
                 "consumes": [
                     "application/json"
                 ],
@@ -2854,7 +1744,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.CreateUserData"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData"
                         }
                     }
                 ],
@@ -2870,25 +1760,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.PermissionDenied"
-                        }
                     }
                 }
             }
         },
         "/system/users/login": {
             "post": {
-                "description": "Admin users login with Google captcha(captcha site key required in get config api)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2906,7 +1783,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.LoginData"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData"
                         }
                     }
                 ],
@@ -2914,7 +1791,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.UserLoginResponse"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse"
                         }
                     },
                     "400": {
@@ -2928,10 +1805,6 @@ const docTemplate = `{
         },
         "/system/users/lookup": {
             "get": {
-                "description": "List of Users Lookup",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -2957,31 +1830,12 @@ const docTemplate = `{
                                 "$ref": "#/definitions/models.UsersLookup"
                             }
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.PermissionDenied"
-                        }
                     }
                 }
             }
         },
         "/system/users/password": {
             "post": {
-                "description": "Change user password by self",
                 "consumes": [
                     "application/json"
                 ],
@@ -2999,7 +1853,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.ChangeUserPasswordBySelf"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf"
                         }
                     },
                     {
@@ -3012,32 +1866,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/system.UsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
+                        "description": "OK"
                     }
                 }
             }
         },
         "/system/users/profile": {
             "get": {
-                "description": "Get User Profile",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3060,28 +1895,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
                     }
                 }
             }
         },
-        "/system/users/{uid}": {
+        "/system/users/{id}": {
             "delete": {
-                "description": "Delete simple user",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3091,9 +1910,9 @@ const docTemplate = `{
                 "summary": "Delete simple user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User UID",
-                        "name": "uid",
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -3108,31 +1927,12 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.PermissionDenied"
-                        }
                     }
                 }
             }
         },
-        "/system/users/{uid}/password": {
+        "/system/users/{id}/password": {
             "post": {
-                "description": "Change user password by admin",
                 "consumes": [
                     "application/json"
                 ],
@@ -3145,9 +1945,9 @@ const docTemplate = `{
                 "summary": "Change user password by admin",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User UID",
-                        "name": "uid",
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -3157,7 +1957,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.ChangeUserPassword"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword"
                         }
                     },
                     {
@@ -3170,41 +1970,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/system.UsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.PermissionDenied"
-                        }
+                        "description": "OK"
                     }
                 }
             }
         },
         "/systemd/disable": {
             "post": {
-                "description": "Disable ocserv systemd service (remove from auto start)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Systemd"
                 ],
@@ -3230,31 +2002,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
                     }
                 }
             }
         },
         "/systemd/enable": {
             "post": {
-                "description": "Enable ocserv systemd service (auto start on boot)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Systemd"
                 ],
@@ -3280,31 +2033,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
                     }
                 }
             }
         },
         "/systemd/restart": {
             "post": {
-                "description": "Restart ocserv systemd service",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Systemd"
                 ],
@@ -3330,31 +2064,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
                     }
                 }
             }
         },
         "/systemd/status": {
             "get": {
-                "description": "Ocserv systemctl status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Systemd"
                 ],
@@ -3380,18 +2095,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.Unauthorized"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/middlewares.TooManyRequests"
-                        }
                     }
                 }
             }
@@ -3415,105 +2118,124 @@ const docTemplate = `{
                 }
             }
         },
-        "customer.CiscoSetupResponse": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService": {
             "type": "object",
             "required": [
-                "certificate_import_uri",
-                "certificate_password",
-                "connection_create_uri",
-                "connection_name",
-                "expires_at",
-                "server_address",
-                "server_port"
+                "backend",
+                "ocserv",
+                "postgres",
+                "web"
             ],
             "properties": {
-                "certificate_import_uri": {
-                    "type": "string"
+                "backend": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
                 },
-                "certificate_password": {
-                    "type": "string"
+                "ocserv": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
                 },
-                "connection_create_uri": {
-                    "type": "string"
+                "postgres": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
                 },
-                "connection_name": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "server_address": {
-                    "type": "string"
-                },
-                "server_port": {
-                    "type": "integer"
+                "web": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
                 }
             }
         },
-        "customer.ModelCustomer": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse": {
             "type": "object",
-            "required": [
-                "certificate_available",
-                "certificate_enabled",
-                "deactivated_at",
-                "expire_at",
-                "is_locked",
-                "owner",
-                "rx",
-                "traffic_size",
-                "traffic_type",
-                "tx",
-                "username"
-            ],
             "properties": {
-                "certificate_available": {
-                    "type": "boolean"
+                "ip_bans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IPBanPoints"
+                    }
                 },
-                "certificate_enabled": {
-                    "type": "boolean"
+                "statistics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DailyTraffic"
+                    }
                 },
-                "deactivated_at": {
-                    "type": "string"
-                },
-                "expire_at": {
-                    "type": "string"
-                },
-                "is_locked": {
-                    "type": "boolean"
-                },
-                "owner": {
-                    "type": "string"
-                },
-                "rx": {
-                    "description": "Receive in bytes",
-                    "type": "integer"
-                },
-                "traffic_size": {
-                    "description": "in GiB  \u003e\u003e x * 1024 ** 3",
-                    "type": "integer"
-                },
-                "traffic_type": {
-                    "type": "string",
-                    "enum": [
-                        "Free",
-                        "MonthlyTransmit",
-                        "MonthlyReceive",
-                        "MonthlyRxTx",
-                        "TotallyTransmit",
-                        "TotallyReceive",
-                        "TotallyRxTx"
+                "telegram_service": {
+                    "description": "TelegramService is a lightweight snapshot for the admin dashboard (no outbound Telegram calls).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus"
+                        }
                     ]
                 },
-                "tx": {
-                    "description": "Transmit in bytes",
-                    "type": "integer"
+                "top_bandwidth_user": {
+                    "$ref": "#/definitions/repository.TopBandwidthUsers"
                 },
-                "username": {
-                    "type": "string"
+                "total_bandwidth": {
+                    "$ref": "#/definitions/repository.TotalBandwidths"
+                },
+                "users": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser"
                 }
             }
         },
-        "customer.SummaryData": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse": {
+            "type": "object",
+            "properties": {
+                "current_stats": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats"
+                },
+                "general_info": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU"
+                },
+                "disk": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk"
+                },
+                "ram": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM"
+                },
+                "swap": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "old_password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData": {
             "type": "object",
             "required": [
                 "password",
@@ -3522,69 +2244,258 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease": {
+            "type": "object",
+            "required": [
+                "current",
+                "latest"
+            ],
+            "properties": {
+                "current": {
+                    "type": "string"
+                },
+                "latest": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse": {
+            "type": "object",
+            "properties": {
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "telegram_bot_enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse": {
+            "type": "object",
+            "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
+                "client_profile_connection_name": {
+                    "type": "string"
+                },
+                "client_profile_server_address": {
+                    "type": "string"
+                },
+                "client_profile_server_port": {
+                    "type": "integer"
+                },
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "doe123456"
+                },
+                "remember_me": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",
-                    "maxLength": 32,
+                    "maxLength": 16,
+                    "minLength": 2,
+                    "example": "john_doe"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData": {
+            "type": "object",
+            "required": [
+                "auto_delete_inactive_users",
+                "client_profile_connection_name",
+                "client_profile_server_address",
+                "client_profile_server_port",
+                "google_captcha_secret_key",
+                "google_captcha_site_key",
+                "keep_inactive_user_days"
+            ],
+            "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
+                "client_profile_connection_name": {
+                    "type": "string"
+                },
+                "client_profile_server_address": {
+                    "type": "string"
+                },
+                "client_profile_server_port": {
+                    "type": "integer"
+                },
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "secret_key",
+                "username"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "secret_key": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 16
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse": {
+            "type": "object",
+            "required": [
+                "token",
+                "user"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "auto_delete_inactive_users": {
+                    "type": "boolean"
+                },
+                "client_profile_connection_name": {
+                    "type": "string"
+                },
+                "client_profile_server_address": {
+                    "type": "string"
+                },
+                "client_profile_server_port": {
+                    "type": "integer"
+                },
+                "google_captcha_secret_key": {
+                    "type": "string"
+                },
+                "google_captcha_site_key": {
+                    "type": "string"
+                },
+                "keep_inactive_user_days": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 4
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 16,
                     "minLength": 2
                 }
             }
         },
-        "customer.SummaryResponse": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse": {
             "type": "object",
             "required": [
-                "ocserv_user",
-                "usage"
+                "system",
+                "token",
+                "user"
             ],
             "properties": {
-                "ocserv_user": {
-                    "$ref": "#/definitions/customer.ModelCustomer"
+                "system": {
+                    "$ref": "#/definitions/models.System"
                 },
-                "usage": {
-                    "$ref": "#/definitions/customer.UsageResponse"
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },
-        "customer.UsageResponse": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse": {
             "type": "object",
             "required": [
-                "bandwidths",
-                "date_end",
-                "date_start"
+                "token",
+                "user"
             ],
             "properties": {
-                "bandwidths": {
-                    "$ref": "#/definitions/repository.TotalBandwidths"
-                },
-                "date_end": {
+                "token": {
                     "type": "string"
                 },
-                "date_start": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },
-        "group.UnsyncedGroup": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse": {
             "type": "object",
             "required": [
-                "config",
-                "name"
+                "meta"
             ],
             "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservGroupConfig"
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
                 },
-                "name": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 }
             }
         },
-        "home.CPU": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU": {
             "type": "object",
             "properties": {
                 "avg_percent": {
@@ -3598,7 +2509,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.CurrentStats": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats": {
             "type": "object",
             "properties": {
                 "Authentication failures": {
@@ -3664,7 +2575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.Disk": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk": {
             "type": "object",
             "properties": {
                 "total": {
@@ -3678,47 +2589,24 @@ const docTemplate = `{
                 }
             }
         },
-        "home.DockerService": {
-            "type": "object",
-            "required": [
-                "backend",
-                "ocserv",
-                "postgres",
-                "web"
-            ],
-            "properties": {
-                "backend": {
-                    "$ref": "#/definitions/home.DockerStats"
-                },
-                "ocserv": {
-                    "$ref": "#/definitions/home.DockerStats"
-                },
-                "postgres": {
-                    "$ref": "#/definitions/home.DockerStats"
-                },
-                "web": {
-                    "$ref": "#/definitions/home.DockerStats"
-                }
-            }
-        },
-        "home.DockerStats": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats": {
             "type": "object",
             "required": [
                 "name"
             ],
             "properties": {
                 "cpu": {
-                    "$ref": "#/definitions/home.CPU"
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU"
                 },
                 "name": {
                     "type": "string"
                 },
                 "ram": {
-                    "$ref": "#/definitions/home.RAM"
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM"
                 }
             }
         },
-        "home.GeneralInfo": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo": {
             "type": "object",
             "properties": {
                 "Active sessions": {
@@ -3772,41 +2660,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.GetHomeResponse": {
-            "type": "object",
-            "properties": {
-                "ip_bans": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.IPBanPoints"
-                    }
-                },
-                "statistics": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.DailyTraffic"
-                    }
-                },
-                "telegram_service": {
-                    "description": "TelegramService is a lightweight snapshot for the admin dashboard (no outbound Telegram calls).",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/home.TelegramServiceStatus"
-                        }
-                    ]
-                },
-                "top_bandwidth_user": {
-                    "$ref": "#/definitions/repository.TopBandwidthUsers"
-                },
-                "total_bandwidth": {
-                    "$ref": "#/definitions/repository.TotalBandwidths"
-                },
-                "users": {
-                    "$ref": "#/definitions/home.GetHomeUser"
-                }
-            }
-        },
-        "home.GetHomeUser": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser": {
             "type": "object",
             "properties": {
                 "online_users_session": {
@@ -3820,18 +2674,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.OcservStatusResponse": {
-            "type": "object",
-            "properties": {
-                "current_stats": {
-                    "$ref": "#/definitions/home.CurrentStats"
-                },
-                "general_info": {
-                    "$ref": "#/definitions/home.GeneralInfo"
-                }
-            }
-        },
-        "home.RAM": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM": {
             "type": "object",
             "properties": {
                 "total": {
@@ -3845,24 +2688,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.ServerStatusResponse": {
-            "type": "object",
-            "properties": {
-                "cpu": {
-                    "$ref": "#/definitions/home.CPU"
-                },
-                "disk": {
-                    "$ref": "#/definitions/home.Disk"
-                },
-                "ram": {
-                    "$ref": "#/definitions/home.RAM"
-                },
-                "swap": {
-                    "$ref": "#/definitions/home.Swap"
-                }
-            }
-        },
-        "home.Swap": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap": {
             "type": "object",
             "properties": {
                 "total": {
@@ -3876,7 +2702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "home.TelegramServiceStatus": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus": {
             "type": "object",
             "properties": {
                 "bot_username": {
@@ -3890,15 +2716,82 @@ const docTemplate = `{
                 }
             }
         },
-        "middlewares.PermissionDenied": {
+        "group.UnsyncedGroup": {
             "type": "object",
+            "required": [
+                "config",
+                "name"
+            ],
             "properties": {
-                "error": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 }
             }
         },
-        "middlewares.TooManyRequests": {
+        "groups.CreateOcservGroupData": {
+            "type": "object",
+            "required": [
+                "config",
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "groups.OcservGroupsResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservGroup"
+                    }
+                }
+            }
+        },
+        "groups.SyncGroupRequest": {
+            "type": "object",
+            "required": [
+                "groups"
+            ],
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/group.UnsyncedGroup"
+                    }
+                }
+            }
+        },
+        "groups.UpdateOcservGroupData": {
+            "type": "object",
+            "required": [
+                "config"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                }
+            }
+        },
+        "middlewares.PermissionDenied": {
             "type": "object",
             "properties": {
                 "error": {
@@ -4110,6 +3003,7 @@ const docTemplate = `{
             "required": [
                 "created_at",
                 "group",
+                "id",
                 "is_locked",
                 "is_online",
                 "online_sessions",
@@ -4119,7 +3013,6 @@ const docTemplate = `{
                 "traffic_size",
                 "traffic_type",
                 "tx",
-                "uid",
                 "username"
             ],
             "properties": {
@@ -4149,6 +3042,9 @@ const docTemplate = `{
                 },
                 "group": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "is_locked": {
                     "type": "boolean"
@@ -4191,9 +3087,6 @@ const docTemplate = `{
                 "tx": {
                     "description": "Transmit in bytes",
                     "type": "integer"
-                },
-                "uid": {
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -4411,22 +3304,22 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "required": [
+                "id",
                 "is_admin",
                 "last_login",
-                "uid",
                 "username"
             ],
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "is_admin": {
                     "type": "boolean"
                 },
                 "last_login": {
-                    "type": "string"
-                },
-                "uid": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -4440,309 +3333,19 @@ const docTemplate = `{
         "models.UsersLookup": {
             "type": "object",
             "required": [
-                "uid",
+                "id",
                 "username"
             ],
             "properties": {
-                "uid": {
-                    "type": "string"
+                "id": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
                 }
             }
         },
-        "ocserv_group.CreateOcservGroupData": {
-            "type": "object",
-            "required": [
-                "config",
-                "name"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservGroupConfig"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "ocserv_group.OcservGroupsResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OcservGroup"
-                    }
-                }
-            }
-        },
-        "ocserv_group.SyncGroupRequest": {
-            "type": "object",
-            "required": [
-                "groups"
-            ],
-            "properties": {
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/group.UnsyncedGroup"
-                    }
-                }
-            }
-        },
-        "ocserv_group.UpdateOcservGroupData": {
-            "type": "object",
-            "required": [
-                "config"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservGroupConfig"
-                }
-            }
-        },
-        "ocserv_user.ActivateUserData": {
-            "type": "object",
-            "properties": {
-                "expire_at": {
-                    "type": "string",
-                    "example": "2025-12-31"
-                }
-            }
-        },
-        "ocserv_user.CreateOcservUserData": {
-            "type": "object",
-            "required": [
-                "config",
-                "group",
-                "password",
-                "traffic_type",
-                "username"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservUserConfig"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 1024,
-                    "example": "User for testing VPN access"
-                },
-                "expire_at": {
-                    "type": "string",
-                    "example": "2025-12-31"
-                },
-                "group": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "traffic_size": {
-                    "description": "10 GiB",
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 10737418240
-                },
-                "traffic_type": {
-                    "type": "string",
-                    "enum": [
-                        "Free",
-                        "MonthlyTransmit",
-                        "MonthlyReceive",
-                        "MonthlyRxTx",
-                        "TotallyTransmit",
-                        "TotallyReceive",
-                        "TotallyRxTx"
-                    ]
-                },
-                "unlimited": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                }
-            }
-        },
-        "ocserv_user.OcservUsersResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OcservUser"
-                    }
-                }
-            }
-        },
-        "ocserv_user.OcservUsersSyncResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.Ocpasswd"
-                    }
-                }
-            }
-        },
-        "ocserv_user.SessionLogsResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OcservUserSessionLog"
-                    }
-                }
-            }
-        },
-        "ocserv_user.StatisticsResponse": {
-            "type": "object",
-            "required": [
-                "statistics",
-                "total_bandwidths"
-            ],
-            "properties": {
-                "statistics": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.DailyTraffic"
-                    }
-                },
-                "total_bandwidths": {
-                    "$ref": "#/definitions/repository.TotalBandwidths"
-                }
-            }
-        },
-        "ocserv_user.SyncOcpasswdRequest": {
-            "type": "object",
-            "required": [
-                "traffic_size",
-                "traffic_type",
-                "users"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservUserConfig"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 1024,
-                    "example": "User for testing VPN access"
-                },
-                "expire_at": {
-                    "type": "string",
-                    "example": "2025-12-31"
-                },
-                "traffic_size": {
-                    "description": "10 GiB",
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 10737418240
-                },
-                "traffic_type": {
-                    "type": "string",
-                    "enum": [
-                        "Free",
-                        "MonthlyTransmit",
-                        "MonthlyReceive",
-                        "MonthlyRxTx",
-                        "TotallyTransmit",
-                        "TotallyReceive",
-                        "TotallyRxTx"
-                    ]
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.Ocpasswd"
-                    }
-                }
-            }
-        },
-        "ocserv_user.UpdateOcservUserData": {
-            "type": "object",
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservUserConfig"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 1024,
-                    "example": "User for testing VPN access"
-                },
-                "expire_at": {
-                    "type": "string",
-                    "example": "2025-12-31"
-                },
-                "group": {
-                    "type": "string",
-                    "example": "default"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "traffic_size": {
-                    "description": "10 GiB",
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 10737418240
-                },
-                "traffic_type": {
-                    "type": "string",
-                    "enum": [
-                        "Free",
-                        "MonthlyTransmit",
-                        "MonthlyReceive",
-                        "MonthlyRxTx",
-                        "TotallyTransmit",
-                        "TotallyReceive",
-                        "TotallyRxTx"
-                    ]
-                },
-                "unlimited": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                }
-            }
-        },
-        "report.OcservUserReportResponse": {
+        "reports.OcservUserReportResponse": {
             "type": "object",
             "properties": {
                 "active": {
@@ -4759,7 +3362,7 @@ const docTemplate = `{
                 }
             }
         },
-        "report.SessionLogsResponse": {
+        "reports.SessionLogsResponse": {
             "type": "object",
             "required": [
                 "meta"
@@ -4848,298 +3451,6 @@ const docTemplate = `{
                 }
             }
         },
-        "system.ChangeUserPassword": {
-            "type": "object",
-            "required": [
-                "password"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                }
-            }
-        },
-        "system.ChangeUserPasswordBySelf": {
-            "type": "object",
-            "required": [
-                "new_password",
-                "old_password"
-            ],
-            "properties": {
-                "new_password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                },
-                "old_password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                }
-            }
-        },
-        "system.CreateUserData": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "system.DashboardRelease": {
-            "type": "object",
-            "required": [
-                "current",
-                "latest"
-            ],
-            "properties": {
-                "current": {
-                    "type": "string"
-                },
-                "latest": {
-                    "type": "string"
-                }
-            }
-        },
-        "system.GetSystemInitResponse": {
-            "type": "object",
-            "properties": {
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "telegram_bot_enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "system.GetSystemResponse": {
-            "type": "object",
-            "properties": {
-                "auto_delete_inactive_users": {
-                    "type": "boolean"
-                },
-                "client_profile_connection_name": {
-                    "type": "string"
-                },
-                "client_profile_server_address": {
-                    "type": "string"
-                },
-                "client_profile_server_port": {
-                    "type": "integer"
-                },
-                "google_captcha_secret_key": {
-                    "type": "string"
-                },
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "keep_inactive_user_days": {
-                    "type": "integer"
-                }
-            }
-        },
-        "system.LoginData": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "doe123456"
-                },
-                "remember_me": {
-                    "type": "boolean"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2,
-                    "example": "john_doe"
-                }
-            }
-        },
-        "system.PatchSystemUpdateData": {
-            "type": "object",
-            "required": [
-                "auto_delete_inactive_users",
-                "client_profile_connection_name",
-                "client_profile_server_address",
-                "client_profile_server_port",
-                "google_captcha_secret_key",
-                "google_captcha_site_key",
-                "keep_inactive_user_days"
-            ],
-            "properties": {
-                "auto_delete_inactive_users": {
-                    "type": "boolean"
-                },
-                "client_profile_connection_name": {
-                    "type": "string"
-                },
-                "client_profile_server_address": {
-                    "type": "string"
-                },
-                "client_profile_server_port": {
-                    "type": "integer"
-                },
-                "google_captcha_secret_key": {
-                    "type": "string"
-                },
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "keep_inactive_user_days": {
-                    "type": "integer"
-                }
-            }
-        },
-        "system.ResetAdminPassword": {
-            "type": "object",
-            "required": [
-                "new_password",
-                "secret_key",
-                "username"
-            ],
-            "properties": {
-                "new_password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                },
-                "secret_key": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 16
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "system.ResetPasswordResponse": {
-            "type": "object",
-            "required": [
-                "token",
-                "user"
-            ],
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                }
-            }
-        },
-        "system.SetupSystem": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "auto_delete_inactive_users": {
-                    "type": "boolean"
-                },
-                "client_profile_connection_name": {
-                    "type": "string"
-                },
-                "client_profile_server_address": {
-                    "type": "string"
-                },
-                "client_profile_server_port": {
-                    "type": "integer"
-                },
-                "google_captcha_secret_key": {
-                    "type": "string"
-                },
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "keep_inactive_user_days": {
-                    "type": "integer"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2
-                }
-            }
-        },
-        "system.SetupSystemResponse": {
-            "type": "object",
-            "required": [
-                "system",
-                "token",
-                "user"
-            ],
-            "properties": {
-                "system": {
-                    "$ref": "#/definitions/models.System"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                }
-            }
-        },
-        "system.UserLoginResponse": {
-            "type": "object",
-            "required": [
-                "token",
-                "user"
-            ],
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                }
-            }
-        },
-        "system.UsersResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.User"
-                    }
-                }
-            }
-        },
         "systemd.ActionResponse": {
             "type": "object",
             "required": [
@@ -5185,29 +3496,18 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "user.Ocpasswd": {
-            "type": "object",
-            "properties": {
-                "group": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Ocserv User management Example Api",
-	Description:      "This is a sample Ocserv User management Api server.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

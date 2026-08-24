@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   backup.RestoreResponse:
     properties:
@@ -11,129 +10,266 @@ definitions:
           type: string
         type: array
     type: object
-  customer.CiscoSetupResponse:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService:
     properties:
-      certificate_import_uri:
-        type: string
-      certificate_password:
-        type: string
-      connection_create_uri:
-        type: string
-      connection_name:
-        type: string
-      expires_at:
-        type: string
-      server_address:
-        type: string
-      server_port:
-        type: integer
+      backend:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
+      ocserv:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
+      postgres:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
+      web:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
     required:
-    - certificate_import_uri
-    - certificate_password
-    - connection_create_uri
-    - connection_name
-    - expires_at
-    - server_address
-    - server_port
+    - backend
+    - ocserv
+    - postgres
+    - web
     type: object
-  customer.ModelCustomer:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse:
     properties:
-      certificate_available:
-        type: boolean
-      certificate_enabled:
-        type: boolean
-      deactivated_at:
-        type: string
-      expire_at:
-        type: string
-      is_locked:
-        type: boolean
-      owner:
-        type: string
-      rx:
-        description: Receive in bytes
-        type: integer
-      traffic_size:
-        description: in GiB  >> x * 1024 ** 3
-        type: integer
-      traffic_type:
-        enum:
-        - Free
-        - MonthlyTransmit
-        - MonthlyReceive
-        - MonthlyRxTx
-        - TotallyTransmit
-        - TotallyReceive
-        - TotallyRxTx
-        type: string
-      tx:
-        description: Transmit in bytes
-        type: integer
-      username:
-        type: string
-    required:
-    - certificate_available
-    - certificate_enabled
-    - deactivated_at
-    - expire_at
-    - is_locked
-    - owner
-    - rx
-    - traffic_size
-    - traffic_type
-    - tx
-    - username
+      ip_bans:
+        items:
+          $ref: '#/definitions/models.IPBanPoints'
+        type: array
+      statistics:
+        items:
+          $ref: '#/definitions/models.DailyTraffic'
+        type: array
+      telegram_service:
+        allOf:
+        - $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus'
+        description: TelegramService is a lightweight snapshot for the admin dashboard
+          (no outbound Telegram calls).
+      top_bandwidth_user:
+        $ref: '#/definitions/repository.TopBandwidthUsers'
+      total_bandwidth:
+        $ref: '#/definitions/repository.TotalBandwidths'
+      users:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser'
     type: object
-  customer.SummaryData:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse:
+    properties:
+      current_stats:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats'
+      general_info:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse:
+    properties:
+      cpu:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
+      disk:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk'
+      ram:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
+      swap:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword:
     properties:
       password:
-        maxLength: 32
-        minLength: 2
+        maxLength: 16
+        minLength: 4
+        type: string
+    required:
+    - password
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf:
+    properties:
+      new_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      old_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData:
+    properties:
+      password:
+        maxLength: 16
+        minLength: 4
         type: string
       username:
-        maxLength: 32
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease:
+    properties:
+      current:
+        type: string
+      latest:
+        type: string
+    required:
+    - current
+    - latest
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse:
+    properties:
+      google_captcha_site_key:
+        type: string
+      telegram_bot_enabled:
+        type: boolean
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse:
+    properties:
+      auto_delete_inactive_users:
+        type: boolean
+      client_profile_connection_name:
+        type: string
+      client_profile_server_address:
+        type: string
+      client_profile_server_port:
+        type: integer
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      keep_inactive_user_days:
+        type: integer
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData:
+    properties:
+      password:
+        example: doe123456
+        maxLength: 16
+        minLength: 2
+        type: string
+      remember_me:
+        type: boolean
+      token:
+        type: string
+      username:
+        example: john_doe
+        maxLength: 16
         minLength: 2
         type: string
     required:
     - password
     - username
     type: object
-  customer.SummaryResponse:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData:
     properties:
-      ocserv_user:
-        $ref: '#/definitions/customer.ModelCustomer'
-      usage:
-        $ref: '#/definitions/customer.UsageResponse'
+      auto_delete_inactive_users:
+        type: boolean
+      client_profile_connection_name:
+        type: string
+      client_profile_server_address:
+        type: string
+      client_profile_server_port:
+        type: integer
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      keep_inactive_user_days:
+        type: integer
     required:
-    - ocserv_user
-    - usage
+    - auto_delete_inactive_users
+    - client_profile_connection_name
+    - client_profile_server_address
+    - client_profile_server_port
+    - google_captcha_secret_key
+    - google_captcha_site_key
+    - keep_inactive_user_days
     type: object
-  customer.UsageResponse:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword:
     properties:
-      bandwidths:
-        $ref: '#/definitions/repository.TotalBandwidths'
-      date_end:
+      new_password:
+        maxLength: 16
+        minLength: 4
         type: string
-      date_start:
+      secret_key:
+        maxLength: 64
+        minLength: 16
+        type: string
+      username:
         type: string
     required:
-    - bandwidths
-    - date_end
-    - date_start
+    - new_password
+    - secret_key
+    - username
     type: object
-  group.UnsyncedGroup:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse:
     properties:
-      config:
-        $ref: '#/definitions/models.OcservGroupConfig'
-      name:
+      token:
         type: string
-      path:
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem:
+    properties:
+      auto_delete_inactive_users:
+        type: boolean
+      client_profile_connection_name:
+        type: string
+      client_profile_server_address:
+        type: string
+      client_profile_server_port:
+        type: integer
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      keep_inactive_user_days:
+        type: integer
+      password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      username:
+        maxLength: 16
+        minLength: 2
         type: string
     required:
-    - config
-    - name
+    - password
+    - username
     type: object
-  home.CPU:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse:
+    properties:
+      system:
+        $ref: '#/definitions/models.System'
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - system
+    - token
+    - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    required:
+    - meta
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU:
     properties:
       avg_percent:
         type: number
@@ -142,7 +278,7 @@ definitions:
       used_units:
         type: number
     type: object
-  home.CurrentStats:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats:
     properties:
       _Last stats reset:
         type: string
@@ -186,7 +322,7 @@ definitions:
       raw_tx:
         type: integer
     type: object
-  home.Disk:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk:
     properties:
       total:
         type: number
@@ -195,34 +331,18 @@ definitions:
       used_percent:
         type: number
     type: object
-  home.DockerService:
-    properties:
-      backend:
-        $ref: '#/definitions/home.DockerStats'
-      ocserv:
-        $ref: '#/definitions/home.DockerStats'
-      postgres:
-        $ref: '#/definitions/home.DockerStats'
-      web:
-        $ref: '#/definitions/home.DockerStats'
-    required:
-    - backend
-    - ocserv
-    - postgres
-    - web
-    type: object
-  home.DockerStats:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats:
     properties:
       cpu:
-        $ref: '#/definitions/home.CPU'
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
       name:
         type: string
       ram:
-        $ref: '#/definitions/home.RAM'
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
     required:
     - name
     type: object
-  home.GeneralInfo:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo:
     properties:
       _Up since:
         type: string
@@ -258,29 +378,7 @@ definitions:
       uptime:
         type: integer
     type: object
-  home.GetHomeResponse:
-    properties:
-      ip_bans:
-        items:
-          $ref: '#/definitions/models.IPBanPoints'
-        type: array
-      statistics:
-        items:
-          $ref: '#/definitions/models.DailyTraffic'
-        type: array
-      telegram_service:
-        allOf:
-        - $ref: '#/definitions/home.TelegramServiceStatus'
-        description: TelegramService is a lightweight snapshot for the admin dashboard
-          (no outbound Telegram calls).
-      top_bandwidth_user:
-        $ref: '#/definitions/repository.TopBandwidthUsers'
-      total_bandwidth:
-        $ref: '#/definitions/repository.TotalBandwidths'
-      users:
-        $ref: '#/definitions/home.GetHomeUser'
-    type: object
-  home.GetHomeUser:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser:
     properties:
       online_users_session:
         items:
@@ -289,14 +387,7 @@ definitions:
       total:
         type: integer
     type: object
-  home.OcservStatusResponse:
-    properties:
-      current_stats:
-        $ref: '#/definitions/home.CurrentStats'
-      general_info:
-        $ref: '#/definitions/home.GeneralInfo'
-    type: object
-  home.RAM:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM:
     properties:
       total:
         type: number
@@ -305,18 +396,7 @@ definitions:
       used_percent:
         type: number
     type: object
-  home.ServerStatusResponse:
-    properties:
-      cpu:
-        $ref: '#/definitions/home.CPU'
-      disk:
-        $ref: '#/definitions/home.Disk'
-      ram:
-        $ref: '#/definitions/home.RAM'
-      swap:
-        $ref: '#/definitions/home.Swap'
-    type: object
-  home.Swap:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap:
     properties:
       total:
         type: number
@@ -325,7 +405,7 @@ definitions:
       used_percent:
         type: number
     type: object
-  home.TelegramServiceStatus:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus:
     properties:
       bot_username:
         type: string
@@ -334,12 +414,56 @@ definitions:
       has_bot_token:
         type: boolean
     type: object
-  middlewares.PermissionDenied:
+  group.UnsyncedGroup:
     properties:
-      error:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
         type: string
+      path:
+        type: string
+    required:
+    - config
+    - name
     type: object
-  middlewares.TooManyRequests:
+  groups.CreateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+    required:
+    - config
+    - name
+    type: object
+  groups.OcservGroupsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservGroup'
+        type: array
+    required:
+    - meta
+    type: object
+  groups.SyncGroupRequest:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/group.UnsyncedGroup'
+        type: array
+    required:
+    - groups
+    type: object
+  groups.UpdateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+    required:
+    - config
+    type: object
+  middlewares.PermissionDenied:
     properties:
       error:
         type: string
@@ -520,6 +644,8 @@ definitions:
         type: string
       group:
         type: string
+      id:
+        type: integer
       is_locked:
         type: boolean
       is_online:
@@ -551,8 +677,6 @@ definitions:
       tx:
         description: Transmit in bytes
         type: integer
-      uid:
-        type: string
       updated_at:
         type: string
       username:
@@ -560,6 +684,7 @@ definitions:
     required:
     - created_at
     - group
+    - id
     - is_locked
     - is_online
     - online_sessions
@@ -569,7 +694,6 @@ definitions:
     - traffic_size
     - traffic_type
     - tx
-    - uid
     - username
     type: object
   models.OcservUserCertificateBackup:
@@ -728,241 +852,33 @@ definitions:
     properties:
       created_at:
         type: string
+      id:
+        type: integer
       is_admin:
         type: boolean
       last_login:
-        type: string
-      uid:
         type: string
       updated_at:
         type: string
       username:
         type: string
     required:
+    - id
     - is_admin
     - last_login
-    - uid
     - username
     type: object
   models.UsersLookup:
     properties:
-      uid:
-        type: string
+      id:
+        type: integer
       username:
         type: string
     required:
-    - uid
+    - id
     - username
     type: object
-  ocserv_group.CreateOcservGroupData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservGroupConfig'
-      name:
-        type: string
-    required:
-    - config
-    - name
-    type: object
-  ocserv_group.OcservGroupsResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/models.OcservGroup'
-        type: array
-    required:
-    - meta
-    type: object
-  ocserv_group.SyncGroupRequest:
-    properties:
-      groups:
-        items:
-          $ref: '#/definitions/group.UnsyncedGroup'
-        type: array
-    required:
-    - groups
-    type: object
-  ocserv_group.UpdateOcservGroupData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservGroupConfig'
-    required:
-    - config
-    type: object
-  ocserv_user.ActivateUserData:
-    properties:
-      expire_at:
-        example: "2025-12-31"
-        type: string
-    type: object
-  ocserv_user.CreateOcservUserData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservUserConfig'
-      description:
-        example: User for testing VPN access
-        maxLength: 1024
-        type: string
-      expire_at:
-        example: "2025-12-31"
-        type: string
-      group:
-        type: string
-      password:
-        maxLength: 32
-        minLength: 2
-        type: string
-      traffic_size:
-        description: 10 GiB
-        example: 10737418240
-        minimum: 0
-        type: integer
-      traffic_type:
-        enum:
-        - Free
-        - MonthlyTransmit
-        - MonthlyReceive
-        - MonthlyRxTx
-        - TotallyTransmit
-        - TotallyReceive
-        - TotallyRxTx
-        type: string
-      unlimited:
-        default: false
-        example: false
-        type: boolean
-      username:
-        maxLength: 32
-        minLength: 2
-        type: string
-    required:
-    - config
-    - group
-    - password
-    - traffic_type
-    - username
-    type: object
-  ocserv_user.OcservUsersResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/models.OcservUser'
-        type: array
-    required:
-    - meta
-    type: object
-  ocserv_user.OcservUsersSyncResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/user.Ocpasswd'
-        type: array
-    required:
-    - meta
-    type: object
-  ocserv_user.SessionLogsResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/models.OcservUserSessionLog'
-        type: array
-    required:
-    - meta
-    type: object
-  ocserv_user.StatisticsResponse:
-    properties:
-      statistics:
-        items:
-          $ref: '#/definitions/models.DailyTraffic'
-        type: array
-      total_bandwidths:
-        $ref: '#/definitions/repository.TotalBandwidths'
-    required:
-    - statistics
-    - total_bandwidths
-    type: object
-  ocserv_user.SyncOcpasswdRequest:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservUserConfig'
-      description:
-        example: User for testing VPN access
-        maxLength: 1024
-        type: string
-      expire_at:
-        example: "2025-12-31"
-        type: string
-      traffic_size:
-        description: 10 GiB
-        example: 10737418240
-        minimum: 0
-        type: integer
-      traffic_type:
-        enum:
-        - Free
-        - MonthlyTransmit
-        - MonthlyReceive
-        - MonthlyRxTx
-        - TotallyTransmit
-        - TotallyReceive
-        - TotallyRxTx
-        type: string
-      users:
-        items:
-          $ref: '#/definitions/user.Ocpasswd'
-        type: array
-    required:
-    - traffic_size
-    - traffic_type
-    - users
-    type: object
-  ocserv_user.UpdateOcservUserData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservUserConfig'
-      description:
-        example: User for testing VPN access
-        maxLength: 1024
-        type: string
-      expire_at:
-        example: "2025-12-31"
-        type: string
-      group:
-        example: default
-        type: string
-      password:
-        maxLength: 32
-        minLength: 2
-        type: string
-      traffic_size:
-        description: 10 GiB
-        example: 10737418240
-        minimum: 0
-        type: integer
-      traffic_type:
-        enum:
-        - Free
-        - MonthlyTransmit
-        - MonthlyReceive
-        - MonthlyRxTx
-        - TotallyTransmit
-        - TotallyReceive
-        - TotallyRxTx
-        type: string
-      unlimited:
-        default: false
-        example: false
-        type: boolean
-    type: object
-  report.OcservUserReportResponse:
+  reports.OcservUserReportResponse:
     properties:
       active:
         type: integer
@@ -973,7 +889,7 @@ definitions:
       online:
         type: integer
     type: object
-  report.SessionLogsResponse:
+  reports.SessionLogsResponse:
     properties:
       meta:
         $ref: '#/definitions/request.Meta'
@@ -1032,209 +948,6 @@ definitions:
     - size
     - total_records
     type: object
-  system.ChangeUserPassword:
-    properties:
-      password:
-        maxLength: 16
-        minLength: 4
-        type: string
-    required:
-    - password
-    type: object
-  system.ChangeUserPasswordBySelf:
-    properties:
-      new_password:
-        maxLength: 16
-        minLength: 4
-        type: string
-      old_password:
-        maxLength: 16
-        minLength: 4
-        type: string
-    required:
-    - new_password
-    - old_password
-    type: object
-  system.CreateUserData:
-    properties:
-      password:
-        maxLength: 16
-        minLength: 4
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  system.DashboardRelease:
-    properties:
-      current:
-        type: string
-      latest:
-        type: string
-    required:
-    - current
-    - latest
-    type: object
-  system.GetSystemInitResponse:
-    properties:
-      google_captcha_site_key:
-        type: string
-      telegram_bot_enabled:
-        type: boolean
-    type: object
-  system.GetSystemResponse:
-    properties:
-      auto_delete_inactive_users:
-        type: boolean
-      client_profile_connection_name:
-        type: string
-      client_profile_server_address:
-        type: string
-      client_profile_server_port:
-        type: integer
-      google_captcha_secret_key:
-        type: string
-      google_captcha_site_key:
-        type: string
-      keep_inactive_user_days:
-        type: integer
-    type: object
-  system.LoginData:
-    properties:
-      password:
-        example: doe123456
-        maxLength: 16
-        minLength: 2
-        type: string
-      remember_me:
-        type: boolean
-      token:
-        type: string
-      username:
-        example: john_doe
-        maxLength: 16
-        minLength: 2
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  system.PatchSystemUpdateData:
-    properties:
-      auto_delete_inactive_users:
-        type: boolean
-      client_profile_connection_name:
-        type: string
-      client_profile_server_address:
-        type: string
-      client_profile_server_port:
-        type: integer
-      google_captcha_secret_key:
-        type: string
-      google_captcha_site_key:
-        type: string
-      keep_inactive_user_days:
-        type: integer
-    required:
-    - auto_delete_inactive_users
-    - client_profile_connection_name
-    - client_profile_server_address
-    - client_profile_server_port
-    - google_captcha_secret_key
-    - google_captcha_site_key
-    - keep_inactive_user_days
-    type: object
-  system.ResetAdminPassword:
-    properties:
-      new_password:
-        maxLength: 16
-        minLength: 4
-        type: string
-      secret_key:
-        maxLength: 64
-        minLength: 16
-        type: string
-      username:
-        type: string
-    required:
-    - new_password
-    - secret_key
-    - username
-    type: object
-  system.ResetPasswordResponse:
-    properties:
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-    required:
-    - token
-    - user
-    type: object
-  system.SetupSystem:
-    properties:
-      auto_delete_inactive_users:
-        type: boolean
-      client_profile_connection_name:
-        type: string
-      client_profile_server_address:
-        type: string
-      client_profile_server_port:
-        type: integer
-      google_captcha_secret_key:
-        type: string
-      google_captcha_site_key:
-        type: string
-      keep_inactive_user_days:
-        type: integer
-      password:
-        maxLength: 16
-        minLength: 4
-        type: string
-      username:
-        maxLength: 16
-        minLength: 2
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  system.SetupSystemResponse:
-    properties:
-      system:
-        $ref: '#/definitions/models.System'
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-    required:
-    - system
-    - token
-    - user
-    type: object
-  system.UserLoginResponse:
-    properties:
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-    required:
-    - token
-    - user
-    type: object
-  system.UsersResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/models.User'
-        type: array
-    required:
-    - meta
-    type: object
   systemd.ActionResponse:
     properties:
       message:
@@ -1265,18 +978,8 @@ definitions:
       unit_file_state:
         type: string
     type: object
-  user.Ocpasswd:
-    properties:
-      group:
-        type: string
-      username:
-        type: string
-    type: object
 info:
   contact: {}
-  description: This is a sample Ocserv User management Api server.
-  title: Ocserv User management Example Api
-  version: "1.0"
 paths:
   /backup/ocserv_groups:
     get:
@@ -1417,157 +1120,8 @@ paths:
       summary: Restore ocserv users
       tags:
       - System(Restore)
-  /customers/certificate:
-    post:
-      consumes:
-      - application/json
-      description: Download customer's own .p12 certificate bundle using ocserv username/password
-      parameters:
-      - description: customer username and password (same ocserv account).
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/customer.SummaryData'
-      produces:
-      - application/x-pkcs12
-      responses:
-        "200":
-          description: user.p12
-          schema:
-            type: file
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
-      summary: Download customer certificate
-      tags:
-      - Customers
-  /customers/disconnect_sessions:
-    post:
-      consumes:
-      - application/json
-      description: disconnects all online sessions for a customer
-      parameters:
-      - description: customer username and password (same ocserv account).
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/customer.SummaryData'
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
-      summary: Disconnect all online sessions of a customer
-      tags:
-      - Customers
-  /customers/setup/cisco:
-    post:
-      consumes:
-      - application/json
-      description: Create Cisco Secure Client certificate import and connection creation
-        URIs using ocserv username/password
-      parameters:
-      - description: customer username and password (same ocserv account).
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/customer.SummaryData'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.CiscoSetupResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
-      summary: Create customer Cisco Secure Client setup links
-      tags:
-      - Customers
-  /customers/setup/cisco/certificate/{token}:
-    get:
-      description: Download customer's PKCS#12 certificate using a short-lived Cisco
-        Secure Client setup token
-      parameters:
-      - description: Cisco Secure Client setup certificate token
-        in: path
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/x-pkcs12
-      responses:
-        "200":
-          description: user.p12
-          schema:
-            type: file
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
-      summary: Download customer Cisco Secure Client setup certificate
-      tags:
-      - Customers
-  /customers/summary:
-    post:
-      consumes:
-      - application/json
-      description: Customer summary account
-      parameters:
-      - description: customer username and password (same ocserv account).
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/customer.SummaryData'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.SummaryResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
-      summary: Customer summary account
-      tags:
-      - Customers
   /home:
     get:
-      consumes:
-      - application/json
       description: Content of home
       parameters:
       - description: Bearer TOKEN
@@ -1581,7 +1135,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/home.GetHomeResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse'
         "400":
           description: Bad Request
           schema:
@@ -1595,8 +1149,6 @@ paths:
       - Home
   /home/container-stats:
     get:
-      consumes:
-      - application/json
       description: Content of docker system usage stats (cpu, ram, swap)
       parameters:
       - description: Bearer TOKEN
@@ -1610,9 +1162,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/home.DockerService'
-            type: array
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService'
         "400":
           description: Bad Request
           schema:
@@ -1626,8 +1176,6 @@ paths:
       - Home
   /home/ocserv-stats:
     get:
-      consumes:
-      - application/json
       description: Content of ocserv server stats
       parameters:
       - description: Bearer TOKEN
@@ -1641,7 +1189,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/home.OcservStatusResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse'
         "400":
           description: Bad Request
           schema:
@@ -1655,8 +1203,6 @@ paths:
       - Home
   /home/system-stats:
     get:
-      consumes:
-      - application/json
       description: Content of os system usage stats (cpu, ram, swap)
       parameters:
       - description: Bearer TOKEN
@@ -1670,7 +1216,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/home.ServerStatusResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse'
         "400":
           description: Bad Request
           schema:
@@ -1778,7 +1324,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
+            $ref: '#/definitions/groups.OcservGroupsResponse'
         "400":
           description: Bad Request
           schema:
@@ -1805,7 +1351,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ocserv_group.CreateOcservGroupData'
+          $ref: '#/definitions/groups.CreateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -1909,7 +1455,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+          $ref: '#/definitions/groups.UpdateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -1973,7 +1519,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+          $ref: '#/definitions/groups.UpdateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -2037,7 +1583,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ocserv_group.SyncGroupRequest'
+          $ref: '#/definitions/groups.SyncGroupRequest'
       produces:
       - application/json
       responses:
@@ -2091,697 +1637,150 @@ paths:
       - Ocserv(UnsyncedGroup)
   /ocserv/users:
     get:
-      consumes:
-      - application/json
-      description: List of Ocserv Users
-      parameters:
-      - description: Page number, starting from 1
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: size
-        type: integer
-      - description: Field to order by
-        in: query
-        name: order
-        type: string
-      - description: Sort order, either ASC or DESC
-        enum:
-        - ASC
-        - DESC
-        in: query
-        name: sort
-        type: string
-      - description: ocserv username q search
-        in: query
-        minLength: 2
-        name: q
-        type: string
-      - description: filter ocserv user by statues
-        enum:
-        - online
-        - active
-        - deactivated
-        - locked
-        in: query
-        name: filter
-        type: string
-      - description: filter ocserv user by group name
-        in: query
-        name: group
-        type: string
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ocserv_user.OcservUsersResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: List of Ocserv Users
+      responses: {}
       tags:
       - Ocserv(Users)
     post:
-      consumes:
-      - application/json
-      description: Ocserv User creation
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}:
+    delete:
       parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
+      - description: Ocserv User ID
+        in: path
+        name: id
         required: true
-        type: string
-      - description: ocserv user create data
-        in: body
-        name: request
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/ocserv_user.CreateOcservUserData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.OcservUser'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User creation
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    patch:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/activate:
+    post:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/certificate:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    post:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/disconnect_by_id:
     post:
-      consumes:
-      - application/json
-      description: Disconnect Ocserv User Session BY ID
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/lock:
+    post:
       parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User Session ID
+      - description: Ocserv User ID
         in: path
         name: id
         required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Disconnect Ocserv User Session BY ID
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/session_logs:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/statistics:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/terminate_by_id:
     post:
-      consumes:
-      - application/json
-      description: Terminate Ocserv User Session BY ID
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/unlock:
+    post:
       parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User Session ID
+      - description: Ocserv User ID
         in: path
         name: id
         required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Terminate Ocserv User Session BY ID
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}:
-    delete:
-      consumes:
-      - application/json
-      description: Ocserv User delete
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User delete
-      tags:
-      - Ocserv(Users)
-    get:
-      consumes:
-      - application/json
-      description: Ocserv user detail
-      parameters:
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.OcservUser'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv user detail
-      tags:
-      - Ocserv(Users)
-    patch:
-      consumes:
-      - application/json
-      description: Ocserv User update
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: ocserv user update data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ocserv_user.UpdateOcservUserData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.OcservUser'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User update
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/activate:
-    post:
-      consumes:
-      - application/json
-      description: Restore and activate expired Ocserv User accounts
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: list of ocserv users and expire time
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ocserv_user.ActivateUserData'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Restore and activate expired Ocserv User accounts
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/certificate:
-    get:
-      description: Download the user's .p12 certificate bundle
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      produces:
-      - application/x-pkcs12
-      responses:
-        "200":
-          description: user.p12
-          schema:
-            type: file
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Download ocserv user certificate
-      tags:
-      - Ocserv(Users)
-    post:
-      consumes:
-      - application/json
-      description: Create certificate for an existing ocserv user using the currently
-        stored password
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Create certificate for ocserv user
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/lock:
-    post:
-      consumes:
-      - application/json
-      description: Ocserv User locking
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User locking
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/session_logs:
-    get:
-      consumes:
-      - application/json
-      description: Ocserv User session logs
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Page number, starting from 1
-        in: query
-        minimum: 1
-        name: page
         type: integer
-      - description: Number of items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: size
-        type: integer
-      - description: Field to order by
-        in: query
-        name: order
-        type: string
-      - description: Sort order, either ASC or DESC
-        enum:
-        - ASC
-        - DESC
-        in: query
-        name: sort
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: date_start
-        in: query
-        name: date_start
-        type: string
-      - description: date_end
-        in: query
-        name: date_end
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ocserv_user.SessionLogsResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User session logs
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/statistics:
-    get:
-      consumes:
-      - application/json
-      description: Ocserv User Statistics
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: date_start
-        in: query
-        name: date_start
-        type: string
-      - description: date_end
-        in: query
-        name: date_end
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ocserv_user.StatisticsResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User Statistics
-      tags:
-      - Ocserv(Users)
-  /ocserv/users/{uid}/unlock:
-    post:
-      consumes:
-      - application/json
-      description: Ocserv User unlocking
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User UID
-        in: path
-        name: uid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv User unlocking
+      responses: {}
       tags:
       - Ocserv(Users)
   /ocserv/users/{username}/disconnect:
     post:
-      consumes:
-      - application/json
-      description: Disconnect Ocserv User (All Sessions)
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User username
-        in: path
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Disconnect Ocserv User (All Sessions)
+      responses: {}
       tags:
       - Ocserv(Users)
   /ocserv/users/{username}/terminate:
     post:
-      consumes:
-      - application/json
-      description: Terminate Ocserv User (All Sessions)
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Ocserv User username
-        in: path
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Terminate Ocserv User (All Sessions)
+      responses: {}
       tags:
       - Ocserv(Users)
   /ocserv/users/ocpasswd:
     get:
-      consumes:
-      - application/json
-      description: Ocserv Users from ocpasswd file
-      parameters:
-      - description: Page number, starting from 1
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: size
-        type: integer
-      - description: Field to order by
-        in: query
-        name: order
-        type: string
-      - description: Sort order, either ASC or DESC
-        enum:
-        - ASC
-        - DESC
-        in: query
-        name: sort
-        type: string
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ocserv_user.OcservUsersSyncResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv Users from ocpasswd file
+      responses: {}
       tags:
       - Ocserv(Ocpasswd)
   /ocserv/users/ocpasswd/sync:
     post:
-      consumes:
-      - application/json
-      description: Ocserv Users from ocpasswd file to db
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: list of users with config to sync in db
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ocserv_user.SyncOcpasswdRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-      summary: Ocserv Users from ocpasswd file to db
+      responses: {}
       tags:
       - Ocserv(Ocpasswd)
   /reports/session_logs:
@@ -2831,7 +1830,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/report.SessionLogsResponse'
+            $ref: '#/definitions/reports.SessionLogsResponse'
         "400":
           description: Bad Request
           schema:
@@ -2940,7 +1939,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/report.OcservUserReportResponse'
+            $ref: '#/definitions/reports.OcservUserReportResponse'
         "400":
           description: Bad Request
           schema:
@@ -2954,9 +1953,6 @@ paths:
       - Report
   /system:
     get:
-      consumes:
-      - application/json
-      description: Get panel System Config
       parameters:
       - description: Bearer TOKEN
         in: header
@@ -2969,7 +1965,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.GetSystemResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse'
         "400":
           description: Bad Request
           schema:
@@ -2984,14 +1980,13 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update panel System Config
       parameters:
       - description: update system config data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.PatchSystemUpdateData'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData'
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -3003,7 +1998,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.GetSystemResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse'
         "400":
           description: Bad Request
           schema:
@@ -3017,16 +2012,13 @@ paths:
       - System
   /system/init:
     get:
-      consumes:
-      - application/json
-      description: Get panel System init Config
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.GetSystemInitResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse'
         "400":
           description: Bad Request
           schema:
@@ -3036,16 +2028,13 @@ paths:
       - System
   /system/release:
     get:
-      consumes:
-      - application/json
-      description: Get Dashboard current and latest release
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.DashboardRelease'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease'
         "400":
           description: Bad Request
           schema:
@@ -3057,21 +2046,20 @@ paths:
     post:
       consumes:
       - application/json
-      description: Setup user and system config
       parameters:
       - description: system setup data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.SetupSystem'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/system.SetupSystemResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse'
         "400":
           description: Bad Request
           schema:
@@ -3083,21 +2071,20 @@ paths:
     post:
       consumes:
       - application/json
-      description: Reset admin password by secret key
       parameters:
       - description: Reset admin password data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.ResetAdminPassword'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.ResetPasswordResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse'
         "400":
           description: Bad Request
           schema:
@@ -3107,32 +2094,7 @@ paths:
       - System(User)
   /system/users:
     get:
-      consumes:
-      - application/json
-      description: List of Admin or simple users
       parameters:
-      - description: Page number, starting from 1
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: size
-        type: integer
-      - description: Field to order by
-        in: query
-        name: order
-        type: string
-      - description: Sort order, either ASC or DESC
-        enum:
-        - ASC
-        - DESC
-        in: query
-        name: sort
-        type: string
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -3144,26 +2106,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.UsersResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse'
       summary: List of Admin or simple users
       tags:
       - System(Users)
     post:
       consumes:
       - application/json
-      description: Create user Admin or simple
       parameters:
       - description: Bearer TOKEN
         in: header
@@ -3175,7 +2124,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.CreateUserData'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData'
       produces:
       - application/json
       responses:
@@ -3187,28 +2136,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Create user
       tags:
       - System(Users)
-  /system/users/{uid}:
+  /system/users/{id}:
     delete:
-      consumes:
-      - application/json
-      description: Delete simple user
       parameters:
-      - description: User UID
+      - description: User ID
         in: path
-        name: uid
+        name: id
         required: true
-        type: string
+        type: integer
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -3219,38 +2157,25 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Delete simple user
       tags:
       - System(Users)
-  /system/users/{uid}/password:
+  /system/users/{id}/password:
     post:
       consumes:
       - application/json
-      description: Change user password by admin
       parameters:
-      - description: User UID
+      - description: User ID
         in: path
-        name: uid
+        name: id
         required: true
-        type: string
+        type: integer
       - description: user new password
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.ChangeUserPassword'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword'
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -3261,20 +2186,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/system.UsersResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
       summary: Change user password by admin
       tags:
       - System(Users)
@@ -3282,22 +2193,20 @@ paths:
     post:
       consumes:
       - application/json
-      description: Admin users login with Google captcha(captcha site key required
-        in get config api)
       parameters:
       - description: login data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.LoginData'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/system.UserLoginResponse'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse'
         "400":
           description: Bad Request
           schema:
@@ -3307,9 +2216,6 @@ paths:
       - System(Users)
   /system/users/lookup:
     get:
-      consumes:
-      - application/json
-      description: List of Users Lookup
       parameters:
       - description: Bearer TOKEN
         in: header
@@ -3325,18 +2231,6 @@ paths:
             items:
               $ref: '#/definitions/models.UsersLookup'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/middlewares.PermissionDenied'
       summary: List of Users Lookup
       tags:
       - System(Users)
@@ -3344,14 +2238,13 @@ paths:
     post:
       consumes:
       - application/json
-      description: Change user password by self
       parameters:
       - description: user new password
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/system.ChangeUserPasswordBySelf'
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf'
       - description: Bearer TOKEN
         in: header
         name: Authorization
@@ -3362,24 +2255,11 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/system.UsersResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
       summary: Change user password by self
       tags:
       - System(Users)
   /system/users/profile:
     get:
-      consumes:
-      - application/json
-      description: Get User Profile
       parameters:
       - description: Bearer TOKEN
         in: header
@@ -3393,30 +2273,17 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
       summary: Get User Profile
       tags:
       - System(Users)
   /systemd/disable:
     post:
-      consumes:
-      - application/json
-      description: Disable ocserv systemd service (remove from auto start)
       parameters:
       - description: Bearer TOKEN
         in: header
         name: Authorization
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -3426,30 +2293,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
       summary: Disable ocserv service
       tags:
       - Systemd
   /systemd/enable:
     post:
-      consumes:
-      - application/json
-      description: Enable ocserv systemd service (auto start on boot)
       parameters:
       - description: Bearer TOKEN
         in: header
         name: Authorization
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -3459,30 +2313,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
       summary: Enable ocserv service
       tags:
       - Systemd
   /systemd/restart:
     post:
-      consumes:
-      - application/json
-      description: Restart ocserv systemd service
       parameters:
       - description: Bearer TOKEN
         in: header
         name: Authorization
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -3492,30 +2333,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
       summary: Restart ocserv service
       tags:
       - Systemd
   /systemd/status:
     get:
-      consumes:
-      - application/json
-      description: Ocserv systemctl status
       parameters:
       - description: Bearer TOKEN
         in: header
         name: Authorization
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -3525,14 +2353,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/middlewares.Unauthorized'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/middlewares.TooManyRequests'
       summary: Ocserv systemctl status
       tags:
       - Systemd

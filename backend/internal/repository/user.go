@@ -16,14 +16,14 @@ type UserRepository struct {
 
 type UserCRUD interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
-	GetByUID(ctx context.Context, uid string) (*models.User, error)
+	GetByID(ctx context.Context, id uint) (*models.User, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
-	DeleteUser(ctx context.Context, uid string) error
+	DeleteUser(ctx context.Context, id uint) error
 }
 
 type UserAuth interface {
 	CreateToken(ctx context.Context, user *models.User, rememberMe bool) (string, error)
-	ChangePassword(ctx context.Context, uid, password, salt string) error
+	ChangePassword(ctx context.Context, id uint, password, salt string) error
 	UpdateLastLogin(ctx context.Context, user *models.User) error
 }
 
@@ -59,7 +59,7 @@ func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rem
 		expire = expire.AddDate(0, 1, 0)
 	}
 
-	access, err := crypto.GenerateAccessToken(user.UID, user.Username, expire.Unix(), user.IsAdmin)
+	access, err := crypto.GenerateAccessToken(user.ID, user.Username, expire.Unix(), user.IsAdmin)
 	if err != nil {
 		return "", err
 	}
@@ -103,10 +103,10 @@ func (r *UserRepository) Users(ctx context.Context, pagination *request.Paginati
 	return staffs, totalRecords, nil
 }
 
-func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt string) error {
+func (r *UserRepository) ChangePassword(ctx context.Context, id uint, password, salt string) error {
 	var user models.User
 
-	err := r.db.WithContext(ctx).Model(&user).Where("uid = ?", uid).Updates(
+	err := r.db.WithContext(ctx).Model(&user).Where("id = ?", id).Updates(
 		map[string]interface{}{
 			"password": password,
 			"salt":     salt,
@@ -119,9 +119,9 @@ func (r *UserRepository) ChangePassword(ctx context.Context, uid, password, salt
 	return nil
 }
 
-func (r *UserRepository) DeleteUser(ctx context.Context, uid string) error {
+func (r *UserRepository) DeleteUser(ctx context.Context, id uint) error {
 	var user models.User
-	err := r.db.WithContext(ctx).Where("uid = ? AND is_admin = ?", uid, false).First(&user).Error
+	err := r.db.WithContext(ctx).Where("id = ? AND is_admin = ?", id, false).First(&user).Error
 	if err != nil {
 		return err
 	}
@@ -133,9 +133,9 @@ func (r *UserRepository) DeleteUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (r *UserRepository) GetByUID(ctx context.Context, uid string) (*models.User, error) {
+func (r *UserRepository) GetByID(ctx context.Context, id uint) (*models.User, error) {
 	var user models.User
-	err := r.db.WithContext(ctx).Where("uid = ?", uid).First(&user).Error
+	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

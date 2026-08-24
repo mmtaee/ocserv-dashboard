@@ -36,7 +36,7 @@ func (r *reportRepository) UsersStat(context.Context) (repository.UserStatsResul
 	return repository.UserStatsResult{}, nil
 }
 
-func (r *reportRepository) TotalBandWidthUser(context.Context, string) (repository.TotalBandwidths, error) {
+func (r *reportRepository) TotalBandWidthUser(context.Context, uint) (repository.TotalBandwidths, error) {
 	return repository.TotalBandwidths{}, nil
 }
 

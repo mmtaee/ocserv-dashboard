@@ -58,15 +58,15 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 	return &ListResult{Users: users, Total: total}, nil
 }
 
-func (u *Usecase) User(ctx context.Context, uid string) (*models.OcservUser, error) {
-	if uid == "" {
-		return nil, errors.New("invalid user uid")
+func (u *Usecase) User(ctx context.Context, id uint) (*models.OcservUser, error) {
+	if id == 0 {
+		return nil, errors.New("invalid user id")
 	}
-	return u.GetByUID(ctx, uid)
+	return u.GetByID(ctx, id)
 }
 
-func (u *Usecase) GetByUID(ctx context.Context, uid string) (*models.OcservUser, error) {
-	user, err := u.Repository.GetByUID(ctx, uid)
+func (u *Usecase) GetByID(ctx context.Context, id uint) (*models.OcservUser, error) {
+	user, err := u.Repository.GetByID(ctx, id)
 	if err == nil {
 		u.applyCertificateStatus(user)
 	}
@@ -108,12 +108,12 @@ func (u *Usecase) Create(ctx context.Context, account *models.OcservUser) (*mode
 		return nil, err
 	}
 	if err := u.accounts.Create(created.Group, created.Username, created.Password, created.Config); err != nil {
-		_, _ = u.Repository.Delete(ctx, created.UID)
+		_, _ = u.Repository.Delete(ctx, created.ID)
 		return nil, err
 	}
 	if err := u.accounts.CreateCertificate(created.Username, created.Password); err != nil {
 		_, _ = u.accounts.Delete(created.Username)
-		_, _ = u.Repository.Delete(ctx, created.UID)
+		_, _ = u.Repository.Delete(ctx, created.ID)
 		return nil, err
 	}
 	u.reload()
@@ -121,11 +121,11 @@ func (u *Usecase) Create(ctx context.Context, account *models.OcservUser) (*mode
 	return created, nil
 }
 
-func (u *Usecase) UpdateUser(ctx context.Context, uid string, input UpdateOcservUserData) (*models.OcservUser, error) {
-	if uid == "" {
+func (u *Usecase) UpdateUser(ctx context.Context, id uint, input UpdateOcservUserData) (*models.OcservUser, error) {
+	if id == 0 {
 		return nil, errors.New("user id is required")
 	}
-	user, err := u.GetByUID(ctx, uid)
+	user, err := u.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (u *Usecase) UpdateUser(ctx context.Context, uid string, input UpdateOcserv
 }
 
 func (u *Usecase) Update(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error) {
-	previous, err := u.Repository.GetByUID(ctx, account.UID)
+	previous, err := u.Repository.GetByID(ctx, account.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -175,11 +175,11 @@ func (u *Usecase) Update(ctx context.Context, account *models.OcservUser) (*mode
 	return updated, nil
 }
 
-func (u *Usecase) DeleteUser(ctx context.Context, uid string) error {
-	if uid == "" {
+func (u *Usecase) DeleteUser(ctx context.Context, id uint) error {
+	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.Delete(ctx, uid)
+	account, err := u.Repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -192,19 +192,19 @@ func (u *Usecase) DeleteUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (u *Usecase) LockUser(ctx context.Context, uid string) error {
-	if uid == "" {
+func (u *Usecase) LockUser(ctx context.Context, id uint) error {
+	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByUID(ctx, uid)
+	account, err := u.Repository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
-	if err := u.Repository.Lock(ctx, uid); err != nil {
+	if err := u.Repository.Lock(ctx, id); err != nil {
 		return err
 	}
 	if _, err := u.accounts.Lock(account.Username); err != nil {
-		_ = u.Repository.UnLock(ctx, uid)
+		_ = u.Repository.UnLock(ctx, id)
 		return err
 	}
 	if _, err := u.occtl.Disconnect(account.Username); err != nil {
@@ -213,26 +213,26 @@ func (u *Usecase) LockUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (u *Usecase) UnlockUser(ctx context.Context, uid string) error {
-	if uid == "" {
+func (u *Usecase) UnlockUser(ctx context.Context, id uint) error {
+	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByUID(ctx, uid)
+	account, err := u.Repository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
-	if err := u.Repository.UnLock(ctx, uid); err != nil {
+	if err := u.Repository.UnLock(ctx, id); err != nil {
 		return err
 	}
 	if _, err := u.accounts.UnLock(account.Username); err != nil {
-		_ = u.Repository.Lock(ctx, uid)
+		_ = u.Repository.Lock(ctx, id)
 		return err
 	}
 	return nil
 }
 
-func (u *Usecase) Statistics(ctx context.Context, uid string, input StatisticsData) (*StatisticsResponse, error) {
-	if uid == "" {
+func (u *Usecase) Statistics(ctx context.Context, id uint, input StatisticsData) (*StatisticsResponse, error) {
+	if id == 0 {
 		return nil, errors.New("user id is required")
 	}
 	start, end, err := parseDateRange(input.DateStart, input.DateEnd)
@@ -242,12 +242,12 @@ func (u *Usecase) Statistics(ctx context.Context, uid string, input StatisticsDa
 	group, groupCtx := errgroup.WithContext(ctx)
 	var result StatisticsResponse
 	group.Go(func() error {
-		value, err := u.Repository.UserStatistics(groupCtx, uid, start, end)
+		value, err := u.Repository.UserStatistics(groupCtx, id, start, end)
 		result.Statistics = value
 		return err
 	})
 	group.Go(func() error {
-		value, err := u.reports.TotalBandWidthUser(groupCtx, uid)
+		value, err := u.reports.TotalBandWidthUser(groupCtx, id)
 		result.TotalBandwidths = value
 		return err
 	})
@@ -337,8 +337,8 @@ func (u *Usecase) SyncOcpasswd(ctx context.Context, owner string, input SyncOcpa
 	return names, nil
 }
 
-func (u *Usecase) Activate(ctx context.Context, uid string, input ActivateUserData) error {
-	if uid == "" {
+func (u *Usecase) Activate(ctx context.Context, id uint, input ActivateUserData) error {
+	if id == 0 {
 		return errors.New("user id is required")
 	}
 	var expiresAt *time.Time
@@ -347,7 +347,7 @@ func (u *Usecase) Activate(ctx context.Context, uid string, input ActivateUserDa
 			expiresAt = &parsed
 		}
 	}
-	account, err := u.Repository.GetByUID(ctx, uid)
+	account, err := u.Repository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -359,25 +359,25 @@ func (u *Usecase) Activate(ctx context.Context, uid string, input ActivateUserDa
 	if err != nil && !isAlreadyUnlockedOcpasswdError(output, err) {
 		return fmt.Errorf("failed to unlock ocserv user %q: %s: %w", account.Username, strings.TrimSpace(output), err)
 	}
-	return u.Repository.RestoreExpired(ctx, uid, expiresAt)
+	return u.Repository.RestoreExpired(ctx, id, expiresAt)
 }
 
-func (u *Usecase) CreateUserCertificate(ctx context.Context, uid string) error {
-	if uid == "" {
+func (u *Usecase) CreateUserCertificate(ctx context.Context, id uint) error {
+	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByUID(ctx, uid)
+	account, err := u.Repository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
 	return u.accounts.CreateCertificate(account.Username, account.Password)
 }
 
-func (u *Usecase) UserCertificate(ctx context.Context, uid string) (string, string, error) {
-	if uid == "" {
+func (u *Usecase) UserCertificate(ctx context.Context, id uint) (string, string, error) {
+	if id == 0 {
 		return "", "", errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByUID(ctx, uid)
+	account, err := u.Repository.GetByID(ctx, id)
 	if err != nil {
 		return "", "", err
 	}
@@ -385,15 +385,15 @@ func (u *Usecase) UserCertificate(ctx context.Context, uid string) (string, stri
 	return account.Username, path, err
 }
 
-func (u *Usecase) SessionLogs(ctx context.Context, uid string, pagination *request.Pagination, input SessionLogsData) (*SessionLogsResult, error) {
-	if uid == "" {
+func (u *Usecase) SessionLogs(ctx context.Context, id uint, pagination *request.Pagination, input SessionLogsData) (*SessionLogsResult, error) {
+	if id == 0 {
 		return nil, errors.New("user id is required")
 	}
 	start, end, err := parseDateRange(input.DateStart, input.DateEnd)
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.GetByUID(ctx, uid)
+	user, err := u.GetByID(ctx, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
 	}

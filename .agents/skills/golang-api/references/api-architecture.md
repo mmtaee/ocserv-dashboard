@@ -72,6 +72,8 @@ Follow the repository's Echo v5 context convention, including `*echo.Context` wh
 
 Service-specific routes belong in `internal/service/{service-name}/router.go`. Global registration belongs in the established routing provider, normally `internal/provider/routing/routes.go` or `pkg/routing/router.go`.
 
+Entity routes and request parameters must use `id`, never `uid`. Controllers parse the ID at the HTTP boundary and pass the typed ID to usecases.
+
 Do not register a route twice. Inspect route groups, middleware, version prefixes, authentication requirements, and naming conventions before adding one.
 
 ## New Endpoint Checklist

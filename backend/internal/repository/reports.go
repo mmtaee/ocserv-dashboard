@@ -20,7 +20,7 @@ type ReportRepositoryInterface interface {
 	TotalBandwidth(ctx context.Context) (TotalBandwidths, error)
 	TotalUsers(ctx context.Context) (int64, error)
 	TotalBandwidthDateRange(ctx context.Context, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
-	TotalBandWidthUser(ctx context.Context, uid string) (TotalBandwidths, error)
+	TotalBandWidthUser(ctx context.Context, id uint) (TotalBandwidths, error)
 	TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error)
 	UsersStat(ctx context.Context) (UserStatsResult, error)
 }
@@ -71,7 +71,7 @@ func (r *ReportRepository) Statistics(ctx context.Context, dateStart, dateEnd *t
 	var results []models.DailyTraffic
 	err := r.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
-		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
+		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.ocserv_user_id").
 		Select(`
 		DATE(ocserv_user_traffic_statistics.created_at) AS date,
 		SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
@@ -110,7 +110,7 @@ func (r *ReportRepository) TopBandwidthUser(ctx context.Context) (TopBandwidthUs
 	// Top RX
 	if err := r.db.WithContext(ctx).
 		Model(&models.OcservUser{}).
-		Select("uid, rx, tx, username, created_at").
+		Select("id, rx, tx, username, created_at").
 		Where("rx > 0").
 		Order("rx DESC, id DESC").
 		Limit(4).
@@ -122,7 +122,7 @@ func (r *ReportRepository) TopBandwidthUser(ctx context.Context) (TopBandwidthUs
 	// Top TX
 	if err := r.db.WithContext(ctx).
 		Model(&models.OcservUser{}).
-		Select("uid, rx, tx, username, created_at").
+		Select("id, rx, tx, username, created_at").
 		Where("tx > 0").
 		Order("tx DESC, id DESC").
 		Limit(4).
@@ -214,22 +214,12 @@ func (r *ReportRepository) UsersStat(ctx context.Context) (UserStatsResult, erro
 	return result, nil
 }
 
-func (r *ReportRepository) TotalBandWidthUser(ctx context.Context, uid string) (TotalBandwidths, error) {
+func (r *ReportRepository) TotalBandWidthUser(ctx context.Context, id uint) (TotalBandwidths, error) {
 	var total TotalBandwidths
-
-	//err := o.db.WithContext(ctx).
-	//	Model(&models.OcservUserTrafficStatistics{}).
-	//	Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
-	//	Where("ou.uid = ?", uid).
-	//	Select(`
-	//    COALESCE(SUM(rx),0) / 1073741824.0 AS rx,
-	//    COALESCE(SUM(tx),0) / 1073741824.0 AS tx`).
-	//	Scan(&total).Error
 
 	err := r.db.WithContext(ctx).
 		Table("ocserv_user_traffic_statistics AS t").
-		Joins("JOIN ocserv_users ou ON ou.id = t.oc_user_id").
-		Where("ou.uid = ?", uid).
+		Where("t.ocserv_user_id = ?", id).
 		Select(`
             COALESCE(SUM(t.rx),0) / 1073741824.0 AS rx,
             COALESCE(SUM(t.tx),0) / 1073741824.0 AS tx

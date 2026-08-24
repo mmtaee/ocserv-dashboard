@@ -1,7 +1,9 @@
 package system
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v5"
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/system"
@@ -123,7 +125,11 @@ func (ctl *Controller) SystemUpdate(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.system.Update(c.Request().Context(), c.Param("userUID"), input)
+	userID, err := currentUserID(c)
+	if err != nil {
+		return middlewares.UnauthorizedError(c, err.Error())
+	}
+	result, err := ctl.system.Update(c.Request().Context(), userID, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -194,17 +200,21 @@ func (ctl *Controller) Users(c *echo.Context) error {
 // @Tags System(Users)
 // @Accept json
 // @Produce json
-// @Param uid path string true "User UID"
+// @Param id path int true "User ID"
 // @Param request body ChangeUserPassword true "user new password"
 // @Param Authorization header string true "Bearer TOKEN"
 // @Success 200 {object} nil
-// @Router /system/users/{uid}/password [post]
+// @Router /system/users/{id}/password [post]
 func (ctl *Controller) ChangeUserPasswordByAdmin(c *echo.Context) error {
 	var input ChangeUserPassword
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.system.ChangeUserPassword(c.Request().Context(), c.Param("uid"), input.Password); err != nil {
+	id, err := parseID(c.Param("id"))
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	if err := ctl.system.ChangeUserPassword(c.Request().Context(), id, input.Password); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -214,12 +224,20 @@ func (ctl *Controller) ChangeUserPasswordByAdmin(c *echo.Context) error {
 // @Summary Delete simple user
 // @Tags System(Users)
 // @Produce json
-// @Param uid path string true "User UID"
+// @Param id path int true "User ID"
 // @Param Authorization header string true "Bearer TOKEN"
 // @Success 204 {object} nil
-// @Router /system/users/{uid} [delete]
+// @Router /system/users/{id} [delete]
 func (ctl *Controller) DeleteUser(c *echo.Context) error {
-	if err := ctl.system.DeleteUser(c.Request().Context(), c.Param("userUID"), c.Param("uid")); err != nil {
+	actorID, err := currentUserID(c)
+	if err != nil {
+		return middlewares.UnauthorizedError(c, err.Error())
+	}
+	targetID, err := parseID(c.Param("id"))
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	if err := ctl.system.DeleteUser(c.Request().Context(), actorID, targetID); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusNoContent, nil)
@@ -239,7 +257,11 @@ func (ctl *Controller) ChangePasswordBySelf(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.system.ChangeOwnPassword(c.Request().Context(), c.Get("userUID").(string), input); err != nil {
+	userID, err := currentUserID(c)
+	if err != nil {
+		return middlewares.UnauthorizedError(c, err.Error())
+	}
+	if err := ctl.system.ChangeOwnPassword(c.Request().Context(), userID, input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -253,11 +275,31 @@ func (ctl *Controller) ChangePasswordBySelf(c *echo.Context) error {
 // @Success 200 {object} models.User
 // @Router /system/users/profile [get]
 func (ctl *Controller) Profile(c *echo.Context) error {
-	result, err := ctl.system.Profile(c.Request().Context(), c.Get("userUID").(string))
+	userID, err := currentUserID(c)
+	if err != nil {
+		return middlewares.UnauthorizedError(c, err.Error())
+	}
+	result, err := ctl.system.Profile(c.Request().Context(), userID)
 	if err != nil {
 		return middlewares.UnauthorizedError(c, "user not found")
 	}
 	return c.JSON(http.StatusOK, result)
+}
+
+func currentUserID(c *echo.Context) (uint, error) {
+	id, ok := c.Get("userID").(uint)
+	if !ok || id == 0 {
+		return 0, errors.New("invalid user id")
+	}
+	return id, nil
+}
+
+func parseID(value string) (uint, error) {
+	id, err := strconv.ParseUint(value, 10, 64)
+	if err != nil || id == 0 {
+		return 0, errors.New("invalid user id")
+	}
+	return uint(id), nil
 }
 
 // UsersLookup lists panel users for selectors.

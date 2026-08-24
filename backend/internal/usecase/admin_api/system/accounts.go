@@ -51,7 +51,7 @@ func (u *Usecase) ResetPassword(ctx context.Context, input ResetAdminPassword) (
 		return nil, errors.New("username not found")
 	}
 	password := u.passwords.CreatePassword(input.NewPassword)
-	if err := u.users.ChangePassword(ctx, user.UID, password.Hash, password.Salt); err != nil {
+	if err := u.users.ChangePassword(ctx, user.ID, password.Hash, password.Salt); err != nil {
 		return nil, err
 	}
 	token, err := u.users.CreateToken(ctx, user, true)
@@ -70,28 +70,28 @@ func (u *Usecase) Users(ctx context.Context, pagination *request.Pagination) ([]
 	return u.users.Users(ctx, pagination)
 }
 
-func (u *Usecase) ChangeUserPassword(ctx context.Context, uid, passwordValue string) error {
+func (u *Usecase) ChangeUserPassword(ctx context.Context, id uint, passwordValue string) error {
 	password := u.passwords.CreatePassword(passwordValue)
-	return u.users.ChangePassword(ctx, uid, password.Hash, password.Salt)
+	return u.users.ChangePassword(ctx, id, password.Hash, password.Salt)
 }
 
-func (u *Usecase) DeleteUser(ctx context.Context, actorUID, targetUID string) error {
-	return u.users.DeleteUser(context.WithValue(ctx, "userUID", actorUID), targetUID)
+func (u *Usecase) DeleteUser(ctx context.Context, actorID, targetID uint) error {
+	return u.users.DeleteUser(context.WithValue(ctx, "userID", actorID), targetID)
 }
 
-func (u *Usecase) ChangeOwnPassword(ctx context.Context, uid string, input ChangeUserPasswordBySelf) error {
-	user, err := u.users.GetByUID(ctx, uid)
+func (u *Usecase) ChangeOwnPassword(ctx context.Context, id uint, input ChangeUserPasswordBySelf) error {
+	user, err := u.users.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
 	if !u.passwords.CheckPassword(input.OldPassword, user.Password, user.Salt) {
 		return ErrInvalidOldPassword
 	}
-	return u.ChangeUserPassword(ctx, uid, input.NewPassword)
+	return u.ChangeUserPassword(ctx, id, input.NewPassword)
 }
 
-func (u *Usecase) Profile(ctx context.Context, uid string) (*models.User, error) {
-	return u.users.GetByUID(ctx, uid)
+func (u *Usecase) Profile(ctx context.Context, id uint) (*models.User, error) {
+	return u.users.GetByID(ctx, id)
 }
 
 func (u *Usecase) UsersLookup(ctx context.Context) (*[]models.UsersLookup, error) {

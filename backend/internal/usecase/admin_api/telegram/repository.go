@@ -15,7 +15,7 @@ type Repository interface {
 type UserManager interface {
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	Update(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
-	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
+	GetByID(ctx context.Context, id uint) (*models.OcservUser, error)
 }
 
 type Client interface {

@@ -15,7 +15,7 @@ type SystemRepository interface {
 
 type OcservUserRepository interface {
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
-	TotalBandwidthUserDateRange(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (repository.TotalBandwidths, error)
+	TotalBandwidthUserDateRange(ctx context.Context, id uint, dateStart, dateEnd *time.Time) (repository.TotalBandwidths, error)
 }
 
 type CertificateStore interface {

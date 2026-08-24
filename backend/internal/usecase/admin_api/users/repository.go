@@ -27,5 +27,5 @@ type OCCTL interface {
 }
 
 type Reports interface {
-	TotalBandWidthUser(ctx context.Context, uid string) (repository.TotalBandwidths, error)
+	TotalBandWidthUser(ctx context.Context, id uint) (repository.TotalBandwidths, error)
 }

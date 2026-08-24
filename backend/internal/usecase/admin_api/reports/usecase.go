@@ -44,8 +44,8 @@ func (u *Usecase) TotalBandwidthDateRange(ctx context.Context, input TotalBandwi
 	return u.repository.TotalBandwidthDateRange(ctx, start, end)
 }
 
-func (u *Usecase) TotalBandWidthUser(ctx context.Context, uid string) (repository.TotalBandwidths, error) {
-	return u.repository.TotalBandWidthUser(ctx, uid)
+func (u *Usecase) TotalBandWidthUser(ctx context.Context, id uint) (repository.TotalBandwidths, error) {
+	return u.repository.TotalBandWidthUser(ctx, id)
 }
 
 func (u *Usecase) TenDaysStats(ctx context.Context) ([]models.DailyTraffic, error) {

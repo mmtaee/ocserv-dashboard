@@ -35,9 +35,9 @@ package middlewares
 //			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 //			defer cancel()
 //			db := database.Get()
-//			uid := c.Get("userUID").(string)
+//			id := c.Get("userID").(uint)
 //			user := &models.User{}
-//			if err := db.WithContext(ctx).Model(&models.User{UID: uid}).Where("uid = ? ", uid).First(&user).Error; err != nil {
+//			if err := db.WithContext(ctx).Where("id = ?", id).First(&user).Error; err != nil {
 //				return PermissionDeniedError(c, "user with permission not exist")
 //			}
 //

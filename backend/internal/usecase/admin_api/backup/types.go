@@ -21,7 +21,7 @@ type GroupManager interface {
 
 type UserManager interface {
 	Create(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error)
-	DeleteUser(ctx context.Context, uid string) error
+	DeleteUser(ctx context.Context, id uint) error
 }
 
 type CertificateStore interface {

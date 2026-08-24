@@ -115,7 +115,7 @@ func (u *Usecase) RestoreUsers(ctx context.Context, owner string, users []models
 		}
 		if account.Certificate != nil {
 			if err := u.certificates.RestoreCertificateBackup(account.Username, account.Certificate); err != nil {
-				_ = u.users.DeleteUser(ctx, account.UID)
+				_ = u.users.DeleteUser(ctx, account.ID)
 				return nil, fmt.Errorf("user %s certificate: %w", account.Username, err)
 			}
 		}

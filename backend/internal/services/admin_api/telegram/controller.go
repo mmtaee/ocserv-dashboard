@@ -190,7 +190,11 @@ func (ctl *Controller) ConfirmPayment(c *echo.Context) error {
 }
 
 func (ctl *Controller) AccountsForOcservUser(c *echo.Context) error {
-	result, err := ctl.telegram.Accounts(c.Request().Context(), c.QueryParam("ocserv_user_uid"))
+	id, err := parseID(c.QueryParam("ocserv_user_id"))
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	result, err := ctl.telegram.Accounts(c.Request().Context(), id)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -210,5 +214,8 @@ func (ctl *Controller) DeleteAccount(c *echo.Context) error {
 
 func parseID(value string) (uint, error) {
 	id, err := strconv.ParseUint(value, 10, 64)
-	return uint(id), err
+	if err != nil || id == 0 {
+		return 0, strconv.ErrSyntax
+	}
+	return uint(id), nil
 }

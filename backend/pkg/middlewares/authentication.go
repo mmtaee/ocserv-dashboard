@@ -3,6 +3,7 @@ package middlewares
 import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/token"
+	"strconv"
 	"strings"
 )
 
@@ -21,7 +22,16 @@ func AuthMiddleware() echo.MiddlewareFunc {
 				return UnauthorizedError(c, "invalid token")
 			}
 
-			c.Set("userUID", claims["sub"])
+			subject, ok := claims["sub"].(string)
+			if !ok {
+				return UnauthorizedError(c, "invalid user id")
+			}
+			userID, err := strconv.ParseUint(subject, 10, 64)
+			if err != nil || userID == 0 {
+				return UnauthorizedError(c, "invalid user id")
+			}
+
+			c.Set("userID", uint(userID))
 			c.Set("isAdmin", claims["isAdmin"])
 			c.Set("username", claims["username"])
 			return next(c)

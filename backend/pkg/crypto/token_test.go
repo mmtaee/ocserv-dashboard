@@ -10,7 +10,7 @@ import (
 )
 
 func TestGenerateAccessToken(t *testing.T) {
-	userID := "12345"
+	userID := uint(12345)
 	adminUsername := "admin"
 	secret := "my-secret-key"
 	t.Setenv("JWT_SECRET", secret)
@@ -33,6 +33,6 @@ func TestGenerateAccessToken(t *testing.T) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
-	assert.Equal(t, userID, claims["sub"])
+	assert.Equal(t, "12345", claims["sub"])
 	assert.Equal(t, true, claims["isAdmin"])
 }

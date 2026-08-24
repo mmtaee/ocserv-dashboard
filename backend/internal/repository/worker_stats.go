@@ -40,7 +40,7 @@ func (r *WorkerStatsRepository) CurrentMonthTotals(ctx context.Context, userID u
 	}
 	err := r.db.WithContext(ctx).Model(&models.OcservUserTrafficStatistics{}).
 		Select("COALESCE(SUM(rx), 0) AS total_rx, COALESCE(SUM(tx), 0) AS total_tx").
-		Where("oc_user_id = ? AND created_at >= ? AND created_at < ?", userID, start, start.AddDate(0, 1, 0)).
+		Where("ocserv_user_id = ? AND created_at >= ? AND created_at < ?", userID, start, start.AddDate(0, 1, 0)).
 		Scan(&totals).Error
 	return totals.TotalRX, totals.TotalTX, err
 }

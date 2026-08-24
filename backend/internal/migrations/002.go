@@ -2,48 +2,50 @@ package migrations
 
 import (
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 	"gorm.io/gorm"
 )
 
 var Migration002 = &gormigrate.Migration{
-	ID: "002_create_ocserv_user_session_logs",
-
+	ID: "002_create_ocserv_account_tables",
 	Migrate: func(tx *gorm.DB) error {
-
-		// =========================
-		// SESSION LOGS TABLE
-		// =========================
-		if err := tx.Exec(`
-			CREATE TABLE IF NOT EXISTS ocserv_user_session_logs (
+		return tx.Exec(`
+			CREATE TABLE ocserv_groups (
 				id BIGSERIAL PRIMARY KEY,
-				username VARCHAR(64),
-				ip VARCHAR(45),
-				event VARCHAR(64),
-				message TEXT,
-				created_at TIMESTAMP DEFAULT NOW()
+				name VARCHAR(255) NOT NULL UNIQUE,
+				owner VARCHAR(32) NOT NULL DEFAULT '',
+				config JSON
 			);
-		`).Error; err != nil {
-			return err
-		}
 
-		// =========================
-		// INDEXES
-		// =========================
-		if err := tx.Exec(`
-			CREATE INDEX IF NOT EXISTS idx_ocserv_logs_username
-			ON ocserv_user_session_logs(username);
-		`).Error; err != nil {
-			return err
-		}
+			CREATE TABLE ocserv_users (
+				id BIGSERIAL PRIMARY KEY,
+				owner VARCHAR(16) NOT NULL DEFAULT '',
+				"group" VARCHAR(16) NOT NULL DEFAULT 'defaults',
+				username VARCHAR(255) NOT NULL UNIQUE,
+				password VARCHAR(255) NOT NULL,
+				is_locked BOOLEAN NOT NULL DEFAULT FALSE,
+				created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				expire_at DATE NULL,
+				deactivated_at DATE NULL,
+				usage_reset_at TIMESTAMPTZ NULL,
+				traffic_type VARCHAR(32) NOT NULL DEFAULT 'Free',
+				traffic_size BIGINT NOT NULL DEFAULT 0,
+				rx BIGINT NOT NULL DEFAULT 0,
+				tx BIGINT NOT NULL DEFAULT 0,
+				description TEXT,
+				config TEXT
+			);
 
-		logger.Info("migration 002 (Postgres) complete successfully")
-		return nil
+			CREATE INDEX idx_ocserv_users_owner ON ocserv_users(owner);
+			CREATE INDEX idx_ocserv_users_group ON ocserv_users("group");
+			CREATE INDEX idx_ocserv_users_expire_at ON ocserv_users(expire_at);
+			CREATE INDEX idx_ocserv_users_deactivated_at ON ocserv_users(deactivated_at);
+		`).Error
 	},
-
 	Rollback: func(tx *gorm.DB) error {
 		return tx.Exec(`
-			DROP TABLE IF EXISTS ocserv_user_session_logs;
+			DROP TABLE IF EXISTS ocserv_users;
+			DROP TABLE IF EXISTS ocserv_groups;
 		`).Error
 	},
 }

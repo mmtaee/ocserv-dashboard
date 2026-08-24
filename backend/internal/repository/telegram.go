@@ -280,7 +280,7 @@ func (r *TelegramRepository) MarkDelivered(ctx context.Context, id uint, ocservU
 		"delivered_at": gorm.Expr("CURRENT_TIMESTAMP"),
 	}
 	if ocservUserID != nil {
-		updates["target_ocserv_id"] = *ocservUserID
+		updates["target_ocserv_user_id"] = *ocservUserID
 	}
 	return r.db.WithContext(ctx).
 		Model(&models.TelegramRequest{}).

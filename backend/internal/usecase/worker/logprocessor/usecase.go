@@ -407,9 +407,9 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 	}
 
 	traffic := models.OcservUserTrafficStatistics{
-		OcUserID: ocUser.ID,
-		Rx:       u.RX,
-		Tx:       u.TX,
+		OcservUserID: ocUser.ID,
+		Rx:           u.RX,
+		Tx:           u.TX,
 	}
 
 	err = s.repository.CreateTraffic(ctx, &traffic)

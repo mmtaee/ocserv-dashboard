@@ -28,16 +28,16 @@ type OcservUserCRUD interface {
 	Users(ctx context.Context, pagination *request.Pagination, owner string, q string, filters string, group string) ([]models.OcservUser, int64, error)
 	UsersByUsername(ctx context.Context, pagination *request.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
-	GetByUID(ctx context.Context, uid string) (*models.OcservUser, error)
+	GetByID(ctx context.Context, id uint) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
-	Delete(ctx context.Context, uid string) (*models.OcservUser, error)
+	Delete(ctx context.Context, id uint) (*models.OcservUser, error)
 }
 
 type OcservUserStats interface {
-	UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
+	UserStatistics(ctx context.Context, id uint, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error)
 
-	TotalBandwidthUserDateRange(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
+	TotalBandwidthUserDateRange(ctx context.Context, id uint, dateStart, dateEnd *time.Time) (TotalBandwidths, error)
 	UserSessionLogs(ctx context.Context, pagination *request.Pagination, username string, dateStart, dateEnd *time.Time) (*[]models.OcservUserSessionLog, int64, error)
 }
 
@@ -51,9 +51,9 @@ type OcservUserGroup interface {
 }
 
 type OcservUserActions interface {
-	Lock(ctx context.Context, uid string) error
-	UnLock(ctx context.Context, uid string) error
-	RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error
+	Lock(ctx context.Context, id uint) error
+	UnLock(ctx context.Context, id uint) error
+	RestoreExpired(ctx context.Context, id uint, expireAt *time.Time) error
 }
 
 type OcservUserRepositoryInterface interface {
@@ -176,9 +176,9 @@ func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.Oc
 	return ocservUser, o.db.WithContext(ctx).Create(ocservUser).Error
 }
 
-func (o *OcservUserRepository) GetByUID(ctx context.Context, uid string) (*models.OcservUser, error) {
+func (o *OcservUserRepository) GetByID(ctx context.Context, id uint) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
-	err := o.db.WithContext(ctx).Where("uid = ?", uid).First(&ocservUser).Error
+	err := o.db.WithContext(ctx).Where("id = ?", id).First(&ocservUser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -199,15 +199,15 @@ func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.Oc
 	return ocservUser, o.db.WithContext(ctx).Save(ocservUser).Error
 }
 
-func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
+func (o *OcservUserRepository) Lock(ctx context.Context, id uint) error {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
+		if err := tx.Where("id = ?", id).First(&ocservUser).Error; err != nil {
 			return err
 		}
 		if err := tx.
 			Model(&models.OcservUser{}).
-			Where("uid = ?", uid).
+			Where("id = ?", id).
 			Updates(map[string]interface{}{"is_locked": true}).Error; err != nil {
 			return err
 		}
@@ -217,15 +217,15 @@ func (o *OcservUserRepository) Lock(ctx context.Context, uid string) error {
 	return err
 }
 
-func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
+func (o *OcservUserRepository) UnLock(ctx context.Context, id uint) error {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
+		if err := tx.Where("id = ?", id).First(&ocservUser).Error; err != nil {
 			return err
 		}
 		if err := tx.
 			Model(&models.OcservUser{}).
-			Where("uid = ?", uid).
+			Where("id = ?", id).
 			Updates(map[string]interface{}{"is_locked": false}).Error; err != nil {
 			return err
 		}
@@ -235,10 +235,10 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, uid string) error {
 	return err
 }
 
-func (o *OcservUserRepository) Delete(ctx context.Context, uid string) (*models.OcservUser, error) {
+func (o *OcservUserRepository) Delete(ctx context.Context, id uint) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("uid = ?", uid).First(&ocservUser).Error; err != nil {
+		if err := tx.Where("id = ?", id).First(&ocservUser).Error; err != nil {
 			return err
 		}
 		if err := tx.Delete(&ocservUser).Error; err != nil {
@@ -269,13 +269,12 @@ func (o *OcservUserRepository) UpdateUsersByDeleteGroup(ctx context.Context, gro
 	return users, err
 }
 
-func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error) {
+func (o *OcservUserRepository) UserStatistics(ctx context.Context, id uint, dateStart, dateEnd *time.Time) ([]models.DailyTraffic, error) {
 	var results []models.DailyTraffic
 
 	query := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
-		Joins("JOIN ocserv_users ou ON ou.id = ocserv_user_traffic_statistics.oc_user_id").
-		Where("ou.uid = ?", uid).
+		Where("ocserv_user_id = ?", id).
 		Select(`
 		DATE(ocserv_user_traffic_statistics.created_at) AS date,
 		SUM(ocserv_user_traffic_statistics.rx) / 1073741824.0 AS rx,
@@ -300,12 +299,12 @@ func (o *OcservUserRepository) UserStatistics(ctx context.Context, uid string, d
 	return results, nil
 }
 
-func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, uid string, dateStart, dateEnd *time.Time) (TotalBandwidths, error) {
+func (o *OcservUserRepository) TotalBandwidthUserDateRange(ctx context.Context, id uint, dateStart, dateEnd *time.Time) (TotalBandwidths, error) {
 	var total TotalBandwidths
 
 	query := o.db.WithContext(ctx).
 		Model(&models.OcservUserTrafficStatistics{}).
-		Where("oc_user_id = ? ", uid).
+		Where("ocserv_user_id = ?", id).
 		Select(`
 			COALESCE(SUM(rx),0) / 1073741824.0 AS rx,
 			COALESCE(SUM(tx),0) / 1073741824.0 AS tx`)
@@ -338,11 +337,11 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 	return users, o.db.WithContext(ctx).Create(&users).Error
 }
 
-func (o *OcservUserRepository) RestoreExpired(ctx context.Context, uid string, expireAt *time.Time) error {
+func (o *OcservUserRepository) RestoreExpired(ctx context.Context, id uint, expireAt *time.Time) error {
 	return o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var u models.OcservUser
 		if err := tx.
-			Where("uid = ?", uid).
+			Where("id = ?", id).
 			First(&u).Error; err != nil {
 			return err
 		}
