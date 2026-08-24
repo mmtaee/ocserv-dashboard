@@ -79,9 +79,9 @@ type OcservUser struct {
 	DeactivatedAt                  *time.Time                   `json:"deactivated_at" gorm:"type:date" validate:"omitempty"`
 	UsageResetAt                   *time.Time                   `json:"-" gorm:"type:timestamptz" validate:"omitempty"`
 	TrafficType                    TrafficType                  `json:"traffic_type" gorm:"type:varchar(32);not null;default:'Free'" enums:"Free,MonthlyTransmit,MonthlyReceive,MonthlyRxTx,TotallyTransmit,TotallyReceive,TotallyRxTx" validate:"required"`
-	TrafficSize                    int64                        `json:"traffic_size" gorm:"not null" validate:"required"` // in bytes
-	Rx                             int                          `json:"rx" gorm:"not null;default:0" validate:"required"` // Receive in bytes
-	Tx                             int                          `json:"tx" gorm:"not null;default:0" validate:"required"` // Transmit in bytes
+	TrafficSize                    int64                        `json:"traffic_size" gorm:"not null" validate:"required"`         // in bytes
+	RunningRx                      int                          `json:"running_rx" gorm:"not null;default:0" validate:"required"` // Current received bytes since the last usage reset
+	RunningTx                      int                          `json:"running_tx" gorm:"not null;default:0" validate:"required"` // Current transmitted bytes since the last usage reset
 	Description                    string                       `json:"description" gorm:"type:text" validate:"omitempty"`
 	IsOnline                       bool                         `json:"is_online" gorm:"-:migration;->" validate:"required"`
 	OnlineUserSessions             []OnlineUserSession          `json:"online_sessions" gorm:"-" validate:"required"`

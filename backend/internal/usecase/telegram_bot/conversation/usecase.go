@@ -730,12 +730,12 @@ func (h *Hub) SendAccountUsage(ctx context.Context, chatID int64, accountID uint
 	if user.ExpireAt != nil {
 		expires = user.ExpireAt.Format("2006-01-02")
 	}
-	// In the Ocserv data model, Rx is bytes received by the server from the
-	// client (the client's upload), and Tx is bytes sent by the server to the
+	// In the Ocserv data model, RunningRx is bytes received by the server from the
+	// client (the client's upload), and RunningTx is bytes sent by the server to the
 	// client (the client's download). The bot displays everything from the
 	// user's point of view, so we map them accordingly.
-	downloadGB := float64(user.Tx) / (1 << 30)
-	uploadGB := float64(user.Rx) / (1 << 30)
+	downloadGB := float64(user.RunningTx) / (1 << 30)
+	uploadGB := float64(user.RunningRx) / (1 << 30)
 	msg := i18n.T(lang, i18n.UsageText, htmlEscape(user.Username), status, user.TrafficSize, downloadGB, uploadGB, expires)
 
 	idStr := strconv.FormatUint(uint64(accountID), 10)

@@ -287,6 +287,33 @@ func (ctl *Controller) UnLock(c *echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
+// ResetUsage clears an OCServ user's current bandwidth counters.
+// @Summary Reset OCServ user usage
+// @Tags Ocserv(Users)
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param id path int true "Ocserv User ID"
+// @Success 200 {object} models.OcservUser
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
+// @Router /ocserv/users/{id}/reset-usage [post]
+func (ctl *Controller) ResetUsage(c *echo.Context) error {
+	id, err := parseID(c.Param("id"))
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.ResetUsage(c.Request().Context(), principal, id)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
 // Statistics returns OCServ user traffic statistics. @Summary Ocserv User Statistics
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"

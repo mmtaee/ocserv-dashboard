@@ -68,6 +68,7 @@ type OcservUserGroup interface {
 type OcservUserActions interface {
 	Lock(ctx context.Context, id uint) error
 	UnLock(ctx context.Context, id uint) error
+	ResetUsage(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	RestoreExpired(ctx context.Context, user *models.OcservUser) error
 }
 
@@ -267,6 +268,24 @@ func (o *OcservUserRepository) UnLock(ctx context.Context, id uint) error {
 	return err
 }
 
+func (o *OcservUserRepository) ResetUsage(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error) {
+	result := o.db.WithContext(ctx).
+		Model(&models.OcservUser{}).
+		Where("id = ?", user.ID).
+		Updates(map[string]interface{}{
+			"running_rx":     user.RunningRx,
+			"running_tx":     user.RunningTx,
+			"usage_reset_at": user.UsageResetAt,
+		})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return user, nil
+}
+
 func (o *OcservUserRepository) Delete(ctx context.Context, id uint) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
 	err := o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -390,8 +409,8 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, user *models.
 				"deactivated_at":                     nil,
 				"usage_reset_at":                     &now,
 				"is_locked":                          false,
-				"rx":                                 0,
-				"tx":                                 0,
+				"running_rx":                         0,
+				"running_tx":                         0,
 			}).Error; err != nil {
 			return err
 		}

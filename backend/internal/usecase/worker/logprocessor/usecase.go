@@ -422,14 +422,11 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 		Tx:           u.TX,
 	}
 
-	err = s.repository.CreateTraffic(ctx, &traffic)
+	ocUser, err = s.repository.RecordUsage(ctx, &traffic)
 	if err != nil {
-		logger.Error("Error creating traffic stats: %v", err)
+		logger.Error("Error recording traffic usage: %v", err)
 		return err
 	}
-
-	ocUser.Rx += u.RX
-	ocUser.Tx += u.TX
 
 	trafficSizeBytes := ocUser.TrafficSize
 
@@ -442,13 +439,13 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 	shouldLock := false
 	switch ocUser.TrafficType {
 	case models.TotallyTransmit:
-		shouldLock = int64(ocUser.Tx) >= trafficSizeBytes
+		shouldLock = int64(ocUser.RunningTx) >= trafficSizeBytes
 
 	case models.TotallyReceive:
-		shouldLock = int64(ocUser.Rx) >= trafficSizeBytes
+		shouldLock = int64(ocUser.RunningRx) >= trafficSizeBytes
 
 	case models.TotallyRxTx:
-		shouldLock = int64(ocUser.Rx)+int64(ocUser.Tx) >= trafficSizeBytes
+		shouldLock = int64(ocUser.RunningRx)+int64(ocUser.RunningTx) >= trafficSizeBytes
 
 	case models.MonthlyTransmit:
 		shouldLock = int64(totalMonthTX) >= trafficSizeBytes
@@ -465,9 +462,6 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 		logger.Error("Unknown traffic type: %v", ocUser.TrafficType)
 	}
 	wasLocked := ocUser.IsLocked
-	if shouldLock {
-		ocUser.IsLocked = true
-	}
 
 	now := time.Now()
 	if shouldLock && !wasLocked {
@@ -481,12 +475,10 @@ func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
 			logger.Error("Error locking user: %v", err)
 		}
 
-		ocUser.DeactivatedAt = &now
-	}
-	err = s.repository.SaveUser(ctx, ocUser)
-	if err != nil {
-		logger.Error("Error updating user stats: %v", err)
-		return err
+		if err = s.repository.UpdateAccessState(ctx, ocUser.ID, true, &now); err != nil {
+			logger.Error("Error updating user access state: %v", err)
+			return err
+		}
 	}
 	return nil
 }

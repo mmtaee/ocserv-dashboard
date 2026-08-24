@@ -1510,6 +1510,59 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/ocserv/users/{id}/reset-usage": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Reset OCServ user usage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ocserv User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/{id}/session_logs": {
             "get": {
                 "tags": [
@@ -3225,10 +3278,10 @@ const docTemplate = `{
                 "online_sessions",
                 "owner_id",
                 "password",
-                "rx",
+                "running_rx",
+                "running_tx",
                 "traffic_size",
                 "traffic_type",
-                "tx",
                 "username"
             ],
             "properties": {
@@ -3302,8 +3355,12 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 },
-                "rx": {
-                    "description": "Receive in bytes",
+                "running_rx": {
+                    "description": "Current received bytes since the last usage reset",
+                    "type": "integer"
+                },
+                "running_tx": {
+                    "description": "Current transmitted bytes since the last usage reset",
                     "type": "integer"
                 },
                 "traffic_size": {
@@ -3325,10 +3382,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.TrafficType"
                         }
                     ]
-                },
-                "tx": {
-                    "description": "Transmit in bytes",
-                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

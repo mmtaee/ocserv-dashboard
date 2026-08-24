@@ -49,5 +49,5 @@ func (u *Usecase) authenticate(ctx context.Context, credentials Credentials) (*m
 }
 
 func customerFromModel(user *models.OcservUser) Customer {
-	return Customer{Owner: user.Owner.Username, Username: user.Username, IsLocked: user.IsLocked, CertificateEnabled: user.CertificateEnabled, CertificateAvailable: user.CertificateAvailable, ExpiryMode: user.ExpiryMode, ExpireAt: user.ExpireAt, ExpireDaysAfterFirstConnection: user.ExpireDaysAfterFirstConnection, FirstConnectedAt: user.FirstConnectedAt, DeactivatedAt: user.DeactivatedAt, TrafficType: user.TrafficType, TrafficSize: user.TrafficSize, Rx: user.Rx, Tx: user.Tx}
+	return Customer{Owner: user.Owner.Username, Username: user.Username, IsLocked: user.IsLocked, CertificateEnabled: user.CertificateEnabled, CertificateAvailable: user.CertificateAvailable, ExpiryMode: user.ExpiryMode, ExpireAt: user.ExpireAt, ExpireDaysAfterFirstConnection: user.ExpireDaysAfterFirstConnection, FirstConnectedAt: user.FirstConnectedAt, DeactivatedAt: user.DeactivatedAt, TrafficType: user.TrafficType, TrafficSize: user.TrafficSize, RunningRx: user.RunningRx, RunningTx: user.RunningTx}
 }

@@ -58,7 +58,7 @@ func (r *WorkerUserExpiryRepository) MonthlyUsers(ctx context.Context, today tim
 
 func (r *WorkerUserExpiryRepository) Reactivate(ctx context.Context, id uint, at time.Time) error {
 	return r.db.WithContext(ctx).Model(&models.OcservUser{}).Where("id = ?", id).
-		Updates(map[string]interface{}{"rx": 0, "tx": 0, "usage_reset_at": &at, "deactivated_at": nil, "is_locked": false}).Error
+		Updates(map[string]interface{}{"running_rx": 0, "running_tx": 0, "usage_reset_at": &at, "deactivated_at": nil, "is_locked": false}).Error
 }
 
 func (r *WorkerUserExpiryRepository) SystemSettings(ctx context.Context) (*models.System, error) {

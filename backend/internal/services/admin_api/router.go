@@ -71,6 +71,7 @@ func (s *Service) registerUserRoutes(e *echo.Group) {
 	g.POST("/:id/terminate_by_id", s.users.TerminateSessionById)
 	g.POST("/:id/lock", s.users.Lock)
 	g.POST("/:id/unlock", s.users.UnLock)
+	g.POST("/:id/reset-usage", s.users.ResetUsage)
 	g.POST("/:id/activate", s.users.ActivateExpired)
 	g.POST("/:id/certificate", s.users.CreateCertificate)
 	g.GET("/:id/certificate", s.users.DownloadCertificate)

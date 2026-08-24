@@ -46,8 +46,8 @@ type Customer struct {
 	DeactivatedAt                  *time.Time         `json:"deactivated_at"`
 	TrafficType                    models.TrafficType `json:"traffic_type"`
 	TrafficSize                    int64              `json:"traffic_size"`
-	Rx                             int                `json:"rx"`
-	Tx                             int                `json:"tx"`
+	RunningRx                      int                `json:"running_rx"`
+	RunningTx                      int                `json:"running_tx"`
 }
 
 type Usage struct {

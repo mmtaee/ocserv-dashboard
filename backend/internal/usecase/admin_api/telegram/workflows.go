@@ -305,7 +305,7 @@ func (u *Usecase) deliverRenewal(ctx context.Context, req *models.TelegramReques
 	expiresAt := base.AddDate(0, 0, plan.Days)
 	user.ExpiryMode = models.ExpiryModeFixed
 	user.ExpireAt, user.ExpireDaysAfterFirstConnection, user.FirstConnectedAt = &expiresAt, nil, nil
-	user.DeactivatedAt, user.IsLocked, user.Rx, user.Tx = nil, false, 0, 0
+	user.DeactivatedAt, user.IsLocked, user.RunningRx, user.RunningTx = nil, false, 0, 0
 	user.TrafficType, user.TrafficSize = plan.TrafficType, int64(plan.TrafficSizeGB)<<30
 	if _, err := u.users.Update(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to renew ocserv user: %w", err)

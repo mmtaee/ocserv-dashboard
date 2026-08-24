@@ -603,8 +603,11 @@ definitions:
         type: integer
       password:
         type: string
-      rx:
-        description: Receive in bytes
+      running_rx:
+        description: Current received bytes since the last usage reset
+        type: integer
+      running_tx:
+        description: Current transmitted bytes since the last usage reset
         type: integer
       traffic_size:
         description: in bytes
@@ -620,9 +623,6 @@ definitions:
         - TotallyTransmit
         - TotallyReceive
         - TotallyRxTx
-      tx:
-        description: Transmit in bytes
-        type: integer
       updated_at:
         type: string
       username:
@@ -637,10 +637,10 @@ definitions:
     - online_sessions
     - owner_id
     - password
-    - rx
+    - running_rx
+    - running_tx
     - traffic_size
     - traffic_type
-    - tx
     - username
     type: object
   models.OcservUserCertificateBackup:
@@ -2077,6 +2077,41 @@ paths:
         required: true
         type: integer
       responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/reset-usage:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Reset OCServ user usage
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/session_logs:

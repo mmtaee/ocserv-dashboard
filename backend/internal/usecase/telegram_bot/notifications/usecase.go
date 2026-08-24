@@ -82,11 +82,11 @@ func (n *Notifier) scan(ctx context.Context) error {
 		var usedBytes int64
 		switch user.TrafficType {
 		case models.MonthlyTransmit, models.TotallyTransmit:
-			usedBytes = int64(user.Tx)
+			usedBytes = int64(user.RunningTx)
 		case models.MonthlyReceive, models.TotallyReceive:
-			usedBytes = int64(user.Rx)
+			usedBytes = int64(user.RunningRx)
 		case models.MonthlyRxTx, models.TotallyRxTx:
-			usedBytes = int64(user.Rx) + int64(user.Tx)
+			usedBytes = int64(user.RunningRx) + int64(user.RunningTx)
 		default:
 			continue
 		}

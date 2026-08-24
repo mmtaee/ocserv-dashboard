@@ -517,6 +517,9 @@ func parseDateRange(startValue, endValue string) (*time.Time, *time.Time, error)
 }
 
 func (u *Usecase) applyCertificateStatus(account *models.OcservUser) {
+	if u.accounts == nil {
+		return
+	}
 	status := u.accounts.CertificateStatus(account.Username)
 	account.CertificateEnabled = status.Enabled
 	account.CertificateAvailable = status.Available

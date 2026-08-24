@@ -9,9 +9,9 @@ import (
 
 type Repository interface {
 	FindUser(ctx context.Context, username string) (*models.OcservUser, error)
-	CreateTraffic(ctx context.Context, traffic *models.OcservUserTrafficStatistics) error
+	RecordUsage(ctx context.Context, traffic *models.OcservUserTrafficStatistics) (*models.OcservUser, error)
 	CurrentMonthTotals(ctx context.Context, userID uint, usageResetAt *time.Time) (totalRX, totalTX int, err error)
-	SaveUser(ctx context.Context, user *models.OcservUser) error
+	UpdateAccessState(ctx context.Context, userID uint, locked bool, deactivatedAt *time.Time) error
 	SaveSessionLog(ctx context.Context, log *models.OcservUserSessionLog) error
 }
 

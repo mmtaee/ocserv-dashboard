@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
@@ -24,8 +25,32 @@ func (r *WorkerStatsRepository) FindUser(ctx context.Context, username string) (
 	return &user, nil
 }
 
-func (r *WorkerStatsRepository) CreateTraffic(ctx context.Context, traffic *models.OcservUserTrafficStatistics) error {
-	return r.db.WithContext(ctx).Create(traffic).Error
+func (r *WorkerStatsRepository) RecordUsage(ctx context.Context, traffic *models.OcservUserTrafficStatistics) (*models.OcservUser, error) {
+	var user models.OcservUser
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(traffic).Error; err != nil {
+			return err
+		}
+		result := tx.Raw(`
+			UPDATE ocserv_users
+			SET running_rx = running_rx + ?,
+				running_tx = running_tx + ?,
+				updated_at = CURRENT_TIMESTAMP
+			WHERE id = ?
+			RETURNING *
+		`, traffic.Rx, traffic.Tx, traffic.OcservUserID).Scan(&user)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *WorkerStatsRepository) CurrentMonthTotals(ctx context.Context, userID uint, usageResetAt *time.Time) (int, int, error) {
@@ -45,8 +70,18 @@ func (r *WorkerStatsRepository) CurrentMonthTotals(ctx context.Context, userID u
 	return totals.TotalRX, totals.TotalTX, err
 }
 
-func (r *WorkerStatsRepository) SaveUser(ctx context.Context, user *models.OcservUser) error {
-	return r.db.WithContext(ctx).Save(user).Error
+func (r *WorkerStatsRepository) UpdateAccessState(ctx context.Context, userID uint, locked bool, deactivatedAt *time.Time) error {
+	result := r.db.WithContext(ctx).
+		Model(&models.OcservUser{}).
+		Where("id = ?", userID).
+		Updates(map[string]interface{}{"is_locked": locked, "deactivated_at": deactivatedAt})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("ocserv user not found")
+	}
+	return nil
 }
 
 func (r *WorkerStatsRepository) SaveSessionLog(ctx context.Context, log *models.OcservUserSessionLog) error {
