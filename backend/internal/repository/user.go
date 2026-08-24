@@ -3,12 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
+
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
-	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"gorm.io/gorm"
-	"time"
 )
 
 type UserRepository struct {
@@ -48,7 +47,6 @@ func (r *UserRepository) EnsureSuperadmin(ctx context.Context, user *models.User
 }
 
 type UserAuth interface {
-	CreateToken(ctx context.Context, user *models.User, rememberMe bool) (string, error)
 	ChangePassword(ctx context.Context, id uint, password, salt string) error
 	UpdateLastLogin(ctx context.Context, user *models.User) error
 }
@@ -77,30 +75,6 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*m
 		return nil, err
 	}
 	return &user, nil
-}
-
-func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rememberMe bool) (string, error) {
-	expire := time.Now().Add(24 * time.Hour)
-	if rememberMe {
-		expire = expire.AddDate(0, 1, 0)
-	}
-
-	access, err := crypto.GenerateAccessToken(user.ID, user.Username, expire.Unix(), user.Superadmin)
-	if err != nil {
-		return "", err
-	}
-
-	err = r.db.WithContext(ctx).Create(
-		&models.UserToken{
-			UserID:   user.ID,
-			Token:    access,
-			ExpireAt: expire,
-		},
-	).Error
-	if err != nil {
-		return "", err
-	}
-	return access, nil
 }
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {

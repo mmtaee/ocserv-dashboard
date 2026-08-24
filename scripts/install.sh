@@ -61,14 +61,12 @@ load_environment() {
     : "${POSTGRES_PORT:?POSTGRES_PORT is required}"
     : "${POSTGRES_DB:?POSTGRES_DB is required}"
     : "${POSTGRES_USER:?POSTGRES_USER is required}"
-    : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
-    : "${SECRET_KEY:?SECRET_KEY is required}"
-    : "${JWT_SECRET:?JWT_SECRET is required}"
-    : "${SUPERADMIN_USERNAME:?SUPERADMIN_USERNAME is required}"
+	: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
+	: "${SECRET_KEY:?SECRET_KEY is required}"
+	: "${SUPERADMIN_USERNAME:?SUPERADMIN_USERNAME is required}"
     : "${SUPERADMIN_PASSWORD:?SUPERADMIN_PASSWORD is required}"
 
-    [[ "${SECRET_KEY}" != "replace-with-a-random-secret" ]] || die "replace the sample SECRET_KEY before installation"
-    [[ "${JWT_SECRET}" != "replace-with-a-random-jwt-secret" ]] || die "replace the sample JWT_SECRET before installation"
+	[[ "${SECRET_KEY}" != "replace-with-a-random-secret" ]] || die "replace the sample SECRET_KEY before installation"
     [[ "${POSTGRES_PASSWORD}" != "replace-with-a-strong-database-password" ]] || die "replace the sample POSTGRES_PASSWORD before installation"
     [[ "${SUPERADMIN_PASSWORD}" != "replace-with-a-strong-superadmin-password" ]] || die "replace the sample SUPERADMIN_PASSWORD before installation"
 

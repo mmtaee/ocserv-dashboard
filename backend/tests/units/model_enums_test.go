@@ -35,6 +35,7 @@ func TestModelEnumsValidateAllowedValues(t *testing.T) {
 }
 
 func TestEnumModelHooksRejectUnsupportedValues(t *testing.T) {
+	require.Error(t, (&models.OcservAgent{AddressType: models.AgentAddressType("socket")}).BeforeSave(nil))
 	require.Error(t, (&models.OcservUser{
 		ExpiryMode:  models.ExpiryMode("rolling"),
 		TrafficType: models.Free,

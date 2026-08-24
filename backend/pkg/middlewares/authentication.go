@@ -1,13 +1,21 @@
 package middlewares
 
 import (
+	"context"
+	"strings"
+
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
-	"github.com/mmtaee/ocserv-dashboard/backend/pkg/token"
-	"strings"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 )
 
-func AuthMiddleware() echo.MiddlewareFunc {
+type TokenAuthenticator interface {
+	FindActiveByToken(ctx context.Context, token string) (*models.UserToken, error)
+}
+
+// AuthMiddleware authenticates a database-backed bearer session.
+// Usage: e.Use(middlewares.AuthMiddleware(repository.NewUserTokenRepository()))
+func AuthMiddleware(authenticator TokenAuthenticator) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
@@ -15,25 +23,19 @@ func AuthMiddleware() echo.MiddlewareFunc {
 				return UnauthorizedError(c, "missing or invalid Authorization header")
 			}
 
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-
-			claims, ok := token.Check(tokenStr)
-			if !ok {
+			tokenValue := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
+			if tokenValue == "" {
+				return UnauthorizedError(c, "invalid token")
+			}
+			session, err := authenticator.FindActiveByToken(c.Request().Context(), tokenValue)
+			if err != nil || session.ID == 0 || session.User.ID == 0 || session.User.Username == "" {
 				return UnauthorizedError(c, "invalid token")
 			}
 
-			userID, ok := claims["user_id"].(float64)
-			if !ok || userID <= 0 || userID != float64(uint(userID)) {
-				return UnauthorizedError(c, "invalid user id")
-			}
-
-			username, usernameOK := claims["username"].(string)
-			superadmin, superadminOK := claims["superadmin"].(bool)
-			if !usernameOK || username == "" || !superadminOK {
-				return UnauthorizedError(c, "invalid token claims")
-			}
-
-			c.Set(principalContextKey, authz.Principal{UserID: uint(userID), Username: username, Superadmin: superadmin})
+			c.Set(principalContextKey, authz.Principal{
+				SessionID: session.ID, UserID: session.User.ID,
+				Username: session.User.Username, Superadmin: session.User.Superadmin,
+			})
 			return next(c)
 		}
 	}

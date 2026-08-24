@@ -50,7 +50,7 @@ Replace at least these values:
 
 ```env
 SECRET_KEY="generate-a-random-value"
-JWT_SECRET="generate-a-different-random-value"
+AGENT_NODE=false
 POSTGRES_PASSWORD="set-a-strong-database-password"
 SUPERADMIN_USERNAME="admin"
 SUPERADMIN_PASSWORD="set-a-strong-superadmin-password"
@@ -61,6 +61,11 @@ Random secrets can be generated with:
 ```bash
 openssl rand -hex 32
 ```
+
+`AGENT_NODE=false` runs the master-node agent-management APIs. Set
+`AGENT_NODE=true` on an agent deployment to enable only the local agent-token
+settings APIs and the agent-token migration. Master and agent databases receive
+different node-specific tables.
 
 Use the following Compose configuration with the production `Dockerfile`:
 

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/labstack/echo/v5"
@@ -18,7 +17,6 @@ import (
 	platformsystemd "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/systemd"
 	runtimeservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/runtime"
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
-	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/stretchr/testify/require"
 )
@@ -281,9 +279,10 @@ func TestSystemdModeUsesExistingRestartClient(t *testing.T) {
 
 func managementToken(t *testing.T, superadmin bool) string {
 	t.Helper()
-	token, err := crypto.GenerateAccessToken(7, "staff", time.Now().Add(time.Hour).Unix(), superadmin)
-	require.NoError(t, err)
-	return token
+	if superadmin {
+		return "superadmin"
+	}
+	return "normal"
 }
 
 func runManagementHandler(method, path string, body *bytes.Buffer, token string, handler echo.HandlerFunc) (*httptest.ResponseRecorder, error) {
@@ -299,7 +298,7 @@ func runManagementHandler(method, path string, body *bytes.Buffer, token string,
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	recorder := httptest.NewRecorder()
 	ctx := e.NewContext(req, recorder)
-	wrapped := middlewares.AuthMiddleware()(middlewares.SuperadminPermission()(handler))
+	wrapped := middlewares.AuthMiddleware(staticAuthenticator{})(middlewares.SuperadminPermission()(handler))
 	return recorder, wrapped(ctx)
 }
 

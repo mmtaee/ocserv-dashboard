@@ -1,27 +1,23 @@
 package crypto
 
 import (
-	"strconv"
-	"time"
-
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/mmtaee/ocserv-dashboard/backend/config"
-	"github.com/oklog/ulid/v2"
+	cryptorand "crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 )
 
-func GenerateAccessToken(userID uint, username string, expire int64, superadmin bool) (string, error) {
-	cfg := config.Get()
+const secureTokenBytes = 32
 
-	claims := jwt.MapClaims{
-		"sub":        strconv.FormatUint(uint64(userID), 10),
-		"jti":        ulid.Make().String(),
-		"exp":        expire,
-		"iat":        time.Now().Unix(),
-		"user_id":    userID,
-		"superadmin": superadmin,
-		"username":   username,
+func GenerateSecureToken() (string, error) {
+	random := make([]byte, secureTokenBytes)
+	if _, err := cryptorand.Read(random); err != nil {
+		return "", err
 	}
+	return base64.RawURLEncoding.EncodeToString(random), nil
+}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(cfg.JWTSecret))
+func HashToken(token string) string {
+	digest := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(digest[:])
 }

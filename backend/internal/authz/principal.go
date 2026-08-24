@@ -5,6 +5,7 @@ import "errors"
 var ErrForbidden = errors.New("permission denied")
 
 type Principal struct {
+	SessionID  uint
 	UserID     uint
 	Username   string
 	Superadmin bool

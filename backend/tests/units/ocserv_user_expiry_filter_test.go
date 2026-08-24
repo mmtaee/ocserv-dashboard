@@ -8,13 +8,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
-	"github.com/mmtaee/ocserv-dashboard/backend/config"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
 	usercontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/ocserv_user"
 	userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
-	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"github.com/stretchr/testify/require"
@@ -135,19 +133,16 @@ func TestOcservUserListRejectsInvalidExpireInDaysInUsecase(t *testing.T) {
 }
 
 func TestOcservUserListRejectsInvalidExpireInDaysQuery(t *testing.T) {
-	config.Init(false, "", 0)
-	token, err := crypto.GenerateAccessToken(1, "admin", time.Now().Add(time.Hour).Unix(), true)
-	require.NoError(t, err)
 	controller := usercontroller.New(userusecase.New(nil, nil, nil, nil))
 
 	for _, value := range []string{"abc", "0", "-1", ""} {
 		t.Run("value="+value, func(t *testing.T) {
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "/ocserv/users?expire_in_days="+value, nil)
-			req.Header.Set(echo.HeaderAuthorization, "Bearer "+token)
+			req.Header.Set(echo.HeaderAuthorization, "Bearer superadmin")
 			recorder := httptest.NewRecorder()
 			ctx := e.NewContext(req, recorder)
-			handler := middlewares.AuthMiddleware()(controller.Users)
+			handler := middlewares.AuthMiddleware(staticAuthenticator{})(controller.Users)
 
 			require.NoError(t, handler(ctx))
 			require.Equal(t, http.StatusBadRequest, recorder.Code)

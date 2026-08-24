@@ -6,6 +6,7 @@ import (
 )
 
 func (s *Service) Register(e *echo.Group) {
+	s.registerAuthRoutes(e)
 	s.registerSystemRoutes(e)
 	s.registerGroupRoutes(e)
 	s.registerUserRoutes(e)
@@ -17,6 +18,18 @@ func (s *Service) Register(e *echo.Group) {
 	if s.telegramRoutes {
 		s.registerTelegramRoutes(e)
 	}
+	if s.agentNode {
+		s.registerAgentSettingsRoutes(e)
+	} else {
+		s.registerAgentRoutes(e)
+	}
+}
+
+func (s *Service) registerAuthRoutes(e *echo.Group) {
+	g := e.Group("/auth", s.authenticate)
+	g.POST("/logout", s.auth.Logout)
+	g.GET("/sessions", s.auth.Sessions, middlewares.SuperadminPermission())
+	g.DELETE("/sessions/:id", s.auth.Revoke, middlewares.SuperadminPermission())
 }
 
 func (s *Service) registerSystemRoutes(e *echo.Group) {
@@ -25,13 +38,13 @@ func (s *Service) registerSystemRoutes(e *echo.Group) {
 	public.GET("/init", s.system.SystemInit)
 	public.POST("/users/login", s.system.Login, middlewares.RateLimitMiddleware(2, "m", 3))
 
-	protected := e.Group("/system", middlewares.AuthMiddleware())
+	protected := e.Group("/system", s.authenticate)
 	protected.GET("", s.system.System)
 	protected.GET("/users/profile", s.system.Profile)
 	protected.POST("/users/password", s.system.ChangePasswordBySelf)
 	protected.POST("/user/reset-password", s.system.ResetAdminPassword, middlewares.SuperadminPermission(), middlewares.RateLimitMiddleware(1, "m", 2))
 
-	admin := e.Group("/system", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	admin := e.Group("/system", s.authenticate, middlewares.SuperadminPermission())
 	admin.PATCH("", s.system.SystemUpdate)
 	admin.POST("/users", s.system.CreateUser)
 	admin.GET("/users", s.system.Users)
@@ -43,7 +56,7 @@ func (s *Service) registerSystemRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerGroupRoutes(e *echo.Group) {
-	g := e.Group("/ocserv/groups", middlewares.AuthMiddleware())
+	g := e.Group("/ocserv/groups", s.authenticate)
 	g.GET("", s.groups.OcservGroups)
 	g.GET("/lookup", s.groups.OcservGroupsLookup)
 	g.GET("/:id", s.groups.OcservGroup)
@@ -57,7 +70,7 @@ func (s *Service) registerGroupRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerUserRoutes(e *echo.Group) {
-	g := e.Group("/ocserv/users", middlewares.AuthMiddleware())
+	g := e.Group("/ocserv/users", s.authenticate)
 	g.GET("", s.users.Users)
 	g.PATCH("/bulk", s.users.BulkUpdate)
 	g.DELETE("/bulk", s.users.BulkDelete)
@@ -86,11 +99,11 @@ func (s *Service) registerUserRoutes(e *echo.Group) {
 func (s *Service) registerOCCTLRoutes(e *echo.Group) {
 	g := e.Group("/occtl")
 	g.GET("/server_info", s.occtl.ServerInfo)
-	g.GET("/commands", s.occtl.Commands, middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	g.GET("/commands", s.occtl.Commands, s.authenticate, middlewares.SuperadminPermission())
 }
 
 func (s *Service) registerDashboardRoutes(e *echo.Group) {
-	g := e.Group("/home", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	g := e.Group("/home", s.authenticate, middlewares.SuperadminPermission())
 	g.GET("", s.dashboard.Home)
 	g.GET("/ocserv-stats", s.dashboard.OcservStats)
 	g.GET("/system-stats", s.dashboard.SystemUsageStats)
@@ -98,7 +111,7 @@ func (s *Service) registerDashboardRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerBackupRoutes(e *echo.Group) {
-	g := e.Group("/backup", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	g := e.Group("/backup", s.authenticate, middlewares.SuperadminPermission())
 	g.GET("/ocserv_groups", s.backup.OcservGroupBackup)
 	g.POST("/ocserv_groups", s.backup.OcservGroupRestore)
 	g.GET("/ocserv_users", s.backup.OcservUserBackup)
@@ -106,7 +119,7 @@ func (s *Service) registerBackupRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerReportRoutes(e *echo.Group) {
-	g := e.Group("/reports", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	g := e.Group("/reports", s.authenticate, middlewares.SuperadminPermission())
 	g.GET("/session_logs", s.reports.SessionLogs)
 	g.GET("/statistics", s.reports.Statistics)
 	g.GET("/users", s.reports.OcservUserReport)
@@ -114,7 +127,7 @@ func (s *Service) registerReportRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerRuntimeRoutes(e *echo.Group) {
-	g := e.Group("/systemd", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
+	g := e.Group("/systemd", s.authenticate, middlewares.SuperadminPermission())
 	g.GET("/status", s.runtime.Status)
 	g.POST("/restart", s.runtime.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
 	g.POST("/disable", s.runtime.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
@@ -122,7 +135,7 @@ func (s *Service) registerRuntimeRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerTelegramRoutes(e *echo.Group) {
-	g := e.Group("/telegram", middlewares.AuthMiddleware())
+	g := e.Group("/telegram", s.authenticate)
 	g.GET("/settings", s.telegram.GetSettings)
 	g.PATCH("/settings", s.telegram.UpdateSettings, middlewares.SuperadminPermission())
 	g.POST("/test", s.telegram.Test, middlewares.SuperadminPermission())
@@ -139,4 +152,20 @@ func (s *Service) registerTelegramRoutes(e *echo.Group) {
 	g.DELETE("/requests/:id", s.telegram.DeleteRequest, middlewares.SuperadminPermission())
 	g.GET("/accounts", s.telegram.AccountsForOcservUser)
 	g.DELETE("/accounts/:id", s.telegram.DeleteAccount, middlewares.SuperadminPermission())
+}
+
+func (s *Service) registerAgentRoutes(e *echo.Group) {
+	g := e.Group("/ocserv/agents", s.authenticate, middlewares.SuperadminPermission())
+	g.GET("", s.agents.List)
+	g.GET("/:id", s.agents.Get)
+	g.POST("", s.agents.Create)
+	g.PATCH("/:id", s.agents.Update)
+	g.DELETE("/:id", s.agents.Delete)
+}
+
+func (s *Service) registerAgentSettingsRoutes(e *echo.Group) {
+	g := e.Group("/agent/settings", s.authenticate, middlewares.SuperadminPermission())
+	g.GET("/token", s.agentSettings.GetToken)
+	g.POST("/token/renew", s.agentSettings.RenewToken)
+	g.DELETE("/token", s.agentSettings.RemoveToken)
 }

@@ -8,6 +8,7 @@ import (
 type Usecase struct {
 	systems         Repository
 	users           UserRepository
+	sessions        SessionRepository
 	captcha         CaptchaVerifier
 	passwords       PasswordManager
 	httpClient      *http.Client
@@ -17,13 +18,13 @@ type Usecase struct {
 	captchaMu       sync.Mutex
 }
 
-func New(systems Repository, users UserRepository, captcha CaptchaVerifier, passwords PasswordManager, options Options) *Usecase {
+func New(systems Repository, users UserRepository, sessions SessionRepository, captcha CaptchaVerifier, passwords PasswordManager, options Options) *Usecase {
 	client := options.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: options.ReleaseTimeout}
 	}
 	return &Usecase{
-		systems: systems, users: users, captcha: captcha, passwords: passwords, httpClient: client,
+		systems: systems, users: users, sessions: sessions, captcha: captcha, passwords: passwords, httpClient: client,
 		secretKey: options.SecretKey, currentRelease: options.CurrentRelease, telegramEnabled: options.TelegramEnabled,
 	}
 }

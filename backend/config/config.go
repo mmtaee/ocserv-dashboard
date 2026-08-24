@@ -11,7 +11,7 @@ type Config struct {
 	Host         string
 	Port         int
 	SecretKey    string
-	JWTSecret    string
+	AgentNode    bool
 	AllowOrigins []string
 	DB           PostgresConfig
 }
@@ -38,18 +38,12 @@ func Init(debug bool, host string, port int) {
 		logger.Warn("Warning: ALLOW_ORIGINS environment variable not set")
 	}
 
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		logger.Warn("Warning: JWT_SECRET environment variable not set, Default value set to secret")
-		jwtSecret = "secret1234"
-	}
-
 	cfg = &Config{
 		Debug:        debug,
 		Host:         host,
 		Port:         port,
 		SecretKey:    secretKey,
-		JWTSecret:    jwtSecret,
+		AgentNode:    strings.EqualFold(strings.TrimSpace(os.Getenv("AGENT_NODE")), "true"),
 		AllowOrigins: strings.Split(allowOrigins, ","),
 		DB:           loadDatabaseEnv(),
 	}

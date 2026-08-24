@@ -1,4 +1,19 @@
 definitions:
+  auth.Session:
+    properties:
+      created_at:
+        type: string
+      expire_at:
+        type: string
+      id:
+        type: integer
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
   backup.RestoreResponse:
     properties:
       existing:
@@ -8,6 +23,15 @@ definitions:
       inserted:
         items:
           type: string
+        type: array
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_auth.SessionsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/auth.Session'
         type: array
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService:
@@ -395,6 +419,25 @@ definitions:
       error:
         type: string
     type: object
+  models.AgentAddressType:
+    enum:
+    - ip
+    - domain
+    type: string
+    x-enum-varnames:
+    - AgentAddressTypeIP
+    - AgentAddressTypeDomain
+  models.AgentToken:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      token:
+        type: string
+      updated_at:
+        type: string
+    type: object
   models.DailyTraffic:
     properties:
       date:
@@ -427,6 +470,35 @@ definitions:
         type: integer
       Since:
         type: string
+    type: object
+  models.OcservAgent:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 128
+        type: string
+      token:
+        maxLength: 512
+        type: string
+      updated_at:
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
     type: object
   models.OcservGroup:
     properties:
@@ -849,6 +921,52 @@ definitions:
     required:
     - id
     - username
+    type: object
+  ocserv_agent.CreateInput:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      name:
+        maxLength: 128
+        type: string
+      token:
+        maxLength: 512
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
+    type: object
+  ocserv_agent.UpdateInput:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      name:
+        maxLength: 128
+        type: string
+      token:
+        maxLength: 512
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
     type: object
   ocserv_group.CreateOcservGroupData:
     properties:
@@ -1335,6 +1453,160 @@ definitions:
 info:
   contact: {}
 paths:
+  /agent/settings/token:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Remove local agent token
+      tags:
+      - Agent Settings
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AgentToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get or create local agent token
+      tags:
+      - Agent Settings
+  /agent/settings/token/renew:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AgentToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Renew local agent token
+      tags:
+      - Agent Settings
+  /auth/logout:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Logout current session
+      tags:
+      - Auth
+  /auth/sessions:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_auth.SessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List active user sessions
+      tags:
+      - Auth
+  /auth/sessions/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Revoke user session
+      tags:
+      - Auth
   /backup/ocserv_groups:
     get:
       description: Download gzip compressed JSON backup of all ocserv groups including
@@ -1639,6 +1911,166 @@ paths:
       summary: Server information
       tags:
       - OCCTL
+  /ocserv/agents:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OcservAgent'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List OCServ agents
+      tags:
+      - OCServ Agents
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_agent.CreateInput'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create OCServ agent
+      tags:
+      - OCServ Agents
+  /ocserv/agents/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete OCServ agent
+      tags:
+      - OCServ Agents
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get OCServ agent
+      tags:
+      - OCServ Agents
+    patch:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Agent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_agent.UpdateInput'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update OCServ agent
+      tags:
+      - OCServ Agents
   /ocserv/groups:
     get:
       consumes:

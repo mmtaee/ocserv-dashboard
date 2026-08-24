@@ -10,11 +10,15 @@ import (
 )
 
 func TestFreshMigrationSetIsCompleteAndUnique(t *testing.T) {
-	require.Len(t, bootstrap.Migrations, 6)
-	require.Equal(t, "006_rename_ocserv_user_running_usage", bootstrap.Migrations[5].ID)
+	master := bootstrap.MigrationsFor(false)
+	agent := bootstrap.MigrationsFor(true)
+	require.Len(t, master, 8)
+	require.Len(t, agent, 8)
+	require.Equal(t, "008_create_ocserv_agents", master[7].ID)
+	require.Equal(t, "009_create_agent_tokens", agent[7].ID)
 
-	seen := make(map[string]struct{}, len(bootstrap.Migrations))
-	for _, migration := range bootstrap.Migrations {
+	seen := make(map[string]struct{}, len(master))
+	for _, migration := range master {
 		require.NotNil(t, migration)
 		require.NotEmpty(t, migration.ID)
 		require.NotNil(t, migration.Migrate)
@@ -23,6 +27,15 @@ func TestFreshMigrationSetIsCompleteAndUnique(t *testing.T) {
 		require.False(t, exists, "duplicate migration ID %q", migration.ID)
 		seen[migration.ID] = struct{}{}
 	}
+	require.NotContains(t, seen, "009_create_agent_tokens")
+
+	seen = make(map[string]struct{}, len(agent))
+	for _, migration := range agent {
+		_, exists := seen[migration.ID]
+		require.False(t, exists, "duplicate migration ID %q", migration.ID)
+		seen[migration.ID] = struct{}{}
+	}
+	require.NotContains(t, seen, "008_create_ocserv_agents")
 }
 
 func TestEntityResponsesExposeIDOnly(t *testing.T) {

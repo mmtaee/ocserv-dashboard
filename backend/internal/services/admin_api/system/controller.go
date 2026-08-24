@@ -49,7 +49,7 @@ func (ctl *Controller) ResetAdminPassword(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.system.ResetPassword(c.Request().Context(), input)
+	result, err := ctl.system.ResetPassword(c.Request().Context(), input, c.Request().UserAgent())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -129,7 +129,7 @@ func (ctl *Controller) Login(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.system.Login(c.Request().Context(), input)
+	result, err := ctl.system.Login(c.Request().Context(), input, c.Request().UserAgent())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

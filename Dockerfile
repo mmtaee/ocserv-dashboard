@@ -38,6 +38,7 @@ COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/container-entrypoint
 COPY --chmod=755 docker/server.sh /usr/local/bin/container-server
 
 ENV OCSERV_PORT=443 \
+    AGENT_NODE=false \
     OC_NET=172.16.24.0/24 \
     OCSERV_DNS=1.1.1.1 \
     SSL_CN=ocserv-dashboard \
