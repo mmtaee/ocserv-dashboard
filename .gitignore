@@ -37,6 +37,7 @@ dist-ssr
 .env
 volumes
 .volumes
+.volume/
 note
 
 db/

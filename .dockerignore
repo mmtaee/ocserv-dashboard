@@ -8,6 +8,8 @@ node_modules/
 dist/
 **/dist
 
+.volume/
+
 *.backup
 
 # Ignore all env files by default

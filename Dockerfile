@@ -55,7 +55,8 @@ ENV OCSERV_PORT=443 \
     RUN_MIGRATIONS=true \
     MIGRATION_MAX_ATTEMPTS=30 \
     MIGRATION_RETRY_SECONDS=2 \
-    TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts
+    TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
+    OCSERV_DEBUG=999
 
 RUN mkdir -p \
         /app/cron_journal \

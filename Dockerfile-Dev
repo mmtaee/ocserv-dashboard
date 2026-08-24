@@ -64,7 +64,7 @@ ENV DEBUG=1 \
     RUN_MIGRATIONS=true \
     MIGRATION_MAX_ATTEMPTS=30 \
     MIGRATION_RETRY_SECONDS=2 \
-    OCSERV_DEBUG=0
+    OCSERV_DEBUG=999
 
 RUN mkdir -p \
         /app/cron_journal \
@@ -75,7 +75,8 @@ RUN mkdir -p \
 
 EXPOSE 443/tcp 443/udp 5432/tcp 8080/tcp
 
-VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/opt/ocserv_dashboard/uploads/receipts"]
+# scripts/dev.sh and the development Compose example bind-mount the
+# repository-local .volume directory onto these runtime paths.
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
     CMD curl --fail --silent http://127.0.0.1:8080/health >/dev/null || exit 1

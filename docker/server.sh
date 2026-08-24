@@ -11,7 +11,7 @@ set -Eeuo pipefail
 : "${POSTGRES_READY_MAX_ATTEMPTS:=60}"
 : "${POSTGRES_READY_RETRY_SECONDS:=1}"
 : "${DEBUG:=0}"
-: "${OCSERV_DEBUG:=0}"
+: "${OCSERV_DEBUG:=999}"
 
 backend_pid=''
 ocserv_pid=''
@@ -165,7 +165,7 @@ main() {
     /usr/local/bin/backend "${backend_args[@]}" &
     backend_pid=$!
 
-    log "starting OCServ"
+    log "starting OCServ with debug level ${OCSERV_DEBUG}"
     if [[ "${OCSERV_DEBUG}" == 0 ]]; then
         /usr/sbin/ocserv \
             --foreground \

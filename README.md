@@ -26,11 +26,11 @@ If PostgreSQL, OCServ, or the backend exits unexpectedly, the remaining processe
 - Permission to read `/var/run/docker.sock`
 - Ports `443/tcp`, `443/udp`, and `8080/tcp` available
 
-Create persistent host directories:
+For production, create persistent host directories:
 
 ```bash
 sudo mkdir -p \
-  /opt/ocserv_dashboard/docker_volumes/pg_db \
+  /opt/ocserv_dashboard/docker_volumes/postgresql18 \
   /opt/ocserv_dashboard/docker_volumes/ocserv \
   /opt/ocserv_dashboard/docker_volumes/cron_journal \
   /opt/ocserv_dashboard/docker_volumes/telegram_receipts
@@ -81,6 +81,8 @@ services:
       TELEGRAM_RECEIPTS_DIR: /opt/ocserv_dashboard/uploads/receipts
     cap_add:
       - NET_ADMIN
+    sysctls:
+      net.ipv4.ip_forward: "1"
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
@@ -89,7 +91,7 @@ services:
       - /sys:/host/sys:ro
       - /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv
       - /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
-      - /opt/ocserv_dashboard/docker_volumes/pg_db:/var/lib/postgresql
+      - /opt/ocserv_dashboard/docker_volumes/postgresql18:/var/lib/postgresql
       - /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal
     ports:
       - "${OCSERV_PORT:-443}:${OCSERV_PORT:-443}/tcp"
@@ -140,13 +142,14 @@ sudo docker run -d \
   --env POSTGRES_HOST=127.0.0.1 \
   --env TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
   --cap-add NET_ADMIN \
+  --sysctl net.ipv4.ip_forward=1 \
   --device /dev/net/tun:/dev/net/tun \
   --volume /var/run/docker.sock:/var/run/docker.sock:ro \
   --volume /proc:/host/proc:ro \
   --volume /sys:/host/sys:ro \
   --volume /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv \
   --volume /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts \
-  --volume /opt/ocserv_dashboard/docker_volumes/pg_db:/var/lib/postgresql \
+  --volume /opt/ocserv_dashboard/docker_volumes/postgresql18:/var/lib/postgresql \
   --volume /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal \
   --publish 443:443/tcp \
   --publish 443:443/udp \
@@ -162,7 +165,50 @@ sudo docker logs -f ocserv
 
 ## UI development Docker deployment
 
-`Docker-Dev` contains backend services only. It enables backend debug mode, permits local UI origins on ports `3000` and `5173`, disables Telegram by default, and supplies development-only database credentials.
+`Dockerfile-Dev` contains backend services only. It enables backend debug mode, permits local UI origins on ports `3000` and `5173`, disables Telegram by default, and supplies development-only database credentials.
+
+Development state is stored in the repository-local `.volume/` directory:
+
+```text
+.volume/
+├── postgresql18/
+├── ocserv/
+├── cron_journal/
+└── telegram_receipts/
+```
+
+The directory is excluded from Git and the Docker build context.
+
+The quickest development startup is:
+
+```bash
+./scripts/dev.sh
+```
+
+The script validates Docker and TUN access, creates `.volume/` and its persistent directories, builds with detailed logs, replaces containers marked as development or using the configured development image, starts the stack, prints endpoint information, and follows container logs. Ctrl-C stops log viewing without stopping the container.
+
+Useful overrides:
+
+```bash
+FOLLOW_LOGS=false ./scripts/dev.sh
+NO_CACHE=true ./scripts/dev.sh
+DEV_API_PORT=9080 DEV_POSTGRES_PORT=55435 ./scripts/dev.sh
+OCSERV_DEBUG=3 ./scripts/dev.sh
+REPLACE_CONTAINER=true ./scripts/dev.sh
+DEV_DATA_ROOT=/tmp/ocserv-dashboard-data ./scripts/dev.sh
+```
+
+`REPLACE_CONTAINER=true` may stop and remove an existing container named `ocserv`; persistent host data is not deleted.
+
+When using Compose or `docker run` directly instead of the development script, create the local directories from the repository root first:
+
+```bash
+mkdir -p \
+  .volume/postgresql18 \
+  .volume/ocserv \
+  .volume/cron_journal \
+  .volume/telegram_receipts
+```
 
 Use this Compose configuration:
 
@@ -173,7 +219,7 @@ services:
     image: ocserv-dashboard-dev:latest
     build:
       context: .
-      dockerfile: Docker-Dev
+      dockerfile: Dockerfile-Dev
       args:
         GO_VERSION: ${GO_VERSION:-1.26.0}
     environment:
@@ -183,16 +229,18 @@ services:
       TELEGRAM_RECEIPTS_DIR: /opt/ocserv_dashboard/uploads/receipts
     cap_add:
       - NET_ADMIN
+    sysctls:
+      net.ipv4.ip_forward: "1"
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv
-      - /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
-      - /opt/ocserv_dashboard/docker_volumes/pg_db:/var/lib/postgresql
-      - /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal
+      - ./.volume/ocserv:/etc/ocserv
+      - ./.volume/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts
+      - ./.volume/postgresql18:/var/lib/postgresql
+      - ./.volume/cron_journal:/app/cron_journal
     ports:
       - "443:443/tcp"
       - "443:443/udp"
@@ -228,7 +276,7 @@ Build the UI-development backend image without Compose:
 ```bash
 sudo docker build \
   --build-arg GO_VERSION=1.26.0 \
-  -f Docker-Dev \
+  -f Dockerfile-Dev \
   -t ocserv-dashboard-dev:latest \
   .
 ```
@@ -244,14 +292,15 @@ sudo docker run -d \
   --env POSTGRES_HOST=127.0.0.1 \
   --env TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
   --cap-add NET_ADMIN \
+  --sysctl net.ipv4.ip_forward=1 \
   --device /dev/net/tun:/dev/net/tun \
   --volume /var/run/docker.sock:/var/run/docker.sock:ro \
   --volume /proc:/host/proc:ro \
   --volume /sys:/host/sys:ro \
-  --volume /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv \
-  --volume /opt/ocserv_dashboard/docker_volumes/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts \
-  --volume /opt/ocserv_dashboard/docker_volumes/pg_db:/var/lib/postgresql \
-  --volume /opt/ocserv_dashboard/docker_volumes/cron_journal:/app/cron_journal \
+  --volume "${PWD}/.volume/ocserv:/etc/ocserv" \
+  --volume "${PWD}/.volume/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts" \
+  --volume "${PWD}/.volume/postgresql18:/var/lib/postgresql" \
+  --volume "${PWD}/.volume/cron_journal:/app/cron_journal" \
   --publish 443:443/tcp \
   --publish 443:443/udp \
   --publish 8080:8080 \
@@ -259,7 +308,7 @@ sudo docker run -d \
   ocserv-dashboard-dev:latest
 ```
 
-The development and production examples use the same host data directories and container name. Do not run them simultaneously. Change the development host paths if isolated data is required.
+Development data under `.volume/` is isolated from the production data under `/opt/ocserv_dashboard/docker_volumes`. The examples still use the same container name and default ports, so do not run them simultaneously without changing those values.
 
 ## Telegram Bot
 
@@ -269,11 +318,13 @@ Telegram settings and bot accounts are stored through the dashboard. Enable the 
 TELEGRAM_BOT_ENABLED=true
 ```
 
-Receipts are persisted at:
+Production receipts are persisted at:
 
 ```text
 /opt/ocserv_dashboard/docker_volumes/telegram_receipts
 ```
+
+Development receipts are persisted at `.volume/telegram_receipts` in the repository.
 
 No separate Telegram executable or container is required.
 
@@ -317,6 +368,8 @@ docker compose -f compose.development.yml up --build
 
 Reset development data only when it is safe to permanently remove the selected host directories. PostgreSQL 18 data must be mounted at `/var/lib/postgresql`; `/var/lib/postgresql/data` is the pre-18 layout and must not be used for this image.
 
+Legacy deployments stored PostgreSQL 17 data under `/opt/ocserv_dashboard/docker_volumes/pg_db`. That directory is deliberately not mounted by the PostgreSQL 18 examples. It remains untouched and must be migrated explicitly with `pg_upgrade` if its data is needed. Do not copy PostgreSQL 17 files directly into `postgresql18`.
+
 ## Troubleshooting
 
 If OCServ cannot initialize networking, confirm the TUN device and capability:
@@ -331,5 +384,11 @@ If the Worker stops because it cannot read OCServ logs, confirm:
 - the container is named `ocserv`;
 - `/var/run/docker.sock` is mounted;
 - the Docker daemon socket is readable by the container process.
+
+Development defaults to `OCSERV_DEBUG=999`, matching the legacy container and sending OCServ output to `docker logs`. Reduce the level when less output is desired:
+
+```bash
+OCSERV_DEBUG=3 ./scripts/dev.sh
+```
 
 If startup stops before the backend is launched, inspect the container logs. PostgreSQL readiness and migration failures are reported before OCServ and the backend are started.

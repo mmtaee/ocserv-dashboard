@@ -207,10 +207,16 @@ ensure_ocserv_layout() {
 
 ensure_networking() {
     local external_interface
+    local ip_forward
 
-    if ! sysctl -w net.ipv4.ip_forward=1 >/dev/null; then
-        log "cannot enable IP forwarding; run the container with NET_ADMIN/privileged permissions"
-        exit 1
+    ip_forward="$(cat /proc/sys/net/ipv4/ip_forward 2>/dev/null || true)"
+    if [[ "${ip_forward}" != 1 ]]; then
+        if ! sysctl -w net.ipv4.ip_forward=1 >/dev/null; then
+            log "cannot enable IP forwarding; create the container with --sysctl net.ipv4.ip_forward=1"
+            exit 1
+        fi
+    else
+        log "IPv4 forwarding is enabled"
     fi
 
     external_interface="${ETH:-}"
