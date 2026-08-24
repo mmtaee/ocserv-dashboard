@@ -20,6 +20,10 @@ type AccessController interface {
 	Lock(username string) error
 }
 
+type ConnectionObserver interface {
+	Observe(ctx context.Context, line string, observedAt time.Time) error
+}
+
 type UserStats struct {
 	Username  string
 	IP        string

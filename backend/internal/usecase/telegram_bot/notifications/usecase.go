@@ -99,7 +99,7 @@ func (n *Notifier) scan(ctx context.Context) error {
 		}
 
 		remainingMB := int(remaining / bytesPerMegabyte)
-		text := i18n.T(account.Language, i18n.LowQuotaWarning, user.Username, remainingMB)
+		text := i18n.T(string(account.Language), i18n.LowQuotaWarning, user.Username, remainingMB)
 		if err := n.sender.Send(account.ChatID, text); err != nil {
 			logger.Warn("telegram_bot: notifier send failed: %v", err)
 			continue

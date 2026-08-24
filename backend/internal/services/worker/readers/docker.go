@@ -3,14 +3,17 @@ package readers
 import (
 	"bufio"
 	"context"
+	"io"
+	"strings"
+	"time"
+
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"io"
-	"strings"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 )
 
-func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan<- string) error {
+func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan<- logger.StreamEntry) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -22,6 +25,7 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 		ShowStderr: true,
 		Follow:     true,
 		Tail:       "0",
+		Timestamps: true,
 	}
 
 	logReader, err := cli.ContainerLogs(ctx, containerName, options)
@@ -42,13 +46,21 @@ func DockerStreamLogs(ctx context.Context, containerName string, streamChan chan
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		text := strings.TrimSpace(scanner.Text())
+		timestamp := time.Now().UTC()
+		parts := strings.SplitN(text, " ", 2)
+		if len(parts) == 2 {
+			if parsed, err := time.Parse(time.RFC3339Nano, parts[0]); err == nil {
+				timestamp = parsed.UTC()
+				text = strings.TrimSpace(parts[1])
+			}
+		}
 		if !strings.HasPrefix(text, "ocserv[") {
 			continue
 		}
 		select {
 		case <-ctx.Done():
 			return nil
-		case streamChan <- text:
+		case streamChan <- logger.StreamEntry{Message: text, Timestamp: timestamp}:
 		}
 	}
 	scanErr := scanner.Err()

@@ -89,21 +89,20 @@ func (u *Usecase) CreateUser(ctx context.Context, principal authz.Principal, inp
 	if principal.UserID == 0 {
 		return nil, authz.ErrForbidden
 	}
-	var expiresAt *time.Time
-	if !input.Unlimited {
-		parsed, err := time.Parse("2006-01-02", input.ExpireAt)
-		if err != nil {
-			parsed = time.Now().AddDate(0, 0, 30)
-		}
-		expiresAt = &parsed
+	if !input.TrafficType.IsValid() {
+		return nil, fmt.Errorf("unsupported traffic_type %q", input.TrafficType)
 	}
 	if input.TrafficType == models.Free {
 		input.TrafficSize = 0
 	}
-	return u.Create(ctx, &models.OcservUser{
-		OwnerID: principal.UserID, Username: input.Username, Password: input.Password, Group: input.Group, ExpireAt: expiresAt,
+	account := &models.OcservUser{
+		OwnerID: principal.UserID, Username: input.Username, Password: input.Password, Group: input.Group,
 		TrafficSize: input.TrafficSize, TrafficType: input.TrafficType, Description: input.Description, Config: input.Config,
-	})
+	}
+	if err := configureNewExpiry(account, input, time.Now()); err != nil {
+		return nil, err
+	}
+	return u.Create(ctx, account)
 }
 
 func (u *Usecase) Create(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error) {
@@ -133,11 +132,13 @@ func (u *Usecase) UpdateUser(ctx context.Context, principal authz.Principal, id 
 	if err != nil {
 		return nil, err
 	}
-	applyUserUpdate(user, input)
+	if err := applyUserUpdate(user, input); err != nil {
+		return nil, err
+	}
 	return u.Update(ctx, user)
 }
 
-func applyUserUpdate(user *models.OcservUser, input UpdateOcservUserData) {
+func applyUserUpdate(user *models.OcservUser, input UpdateOcservUserData) error {
 	if input.Group != nil {
 		user.Group = *input.Group
 	}
@@ -150,19 +151,16 @@ func applyUserUpdate(user *models.OcservUser, input UpdateOcservUserData) {
 	if input.TrafficSize != nil {
 		user.TrafficSize = *input.TrafficSize
 	}
-	if input.TrafficType != nil && slices.Contains([]string{models.Free, models.MonthlyTransmit, models.MonthlyReceive, models.MonthlyRxTx, models.TotallyTransmit, models.TotallyReceive, models.TotallyRxTx}, *input.TrafficType) {
+	if input.TrafficType != nil {
+		if !input.TrafficType.IsValid() {
+			return fmt.Errorf("unsupported traffic_type %q", *input.TrafficType)
+		}
 		user.TrafficType = *input.TrafficType
 	}
 	if input.Config != nil {
 		user.Config = input.Config
 	}
-	if input.Unlimited {
-		user.ExpireAt = nil
-	} else if input.ExpireAt != nil {
-		if parsed, err := time.Parse("2006-01-02", *input.ExpireAt); err == nil {
-			user.ExpireAt = &parsed
-		}
-	}
+	return applyExpiryUpdate(user, input)
 }
 
 func (u *Usecase) Update(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error) {
@@ -310,14 +308,11 @@ func (u *Usecase) SyncOcpasswd(ctx context.Context, principal authz.Principal, i
 	if principal.UserID == 0 {
 		return nil, authz.ErrForbidden
 	}
-	expiresAt := time.Now().AddDate(0, 0, 30)
-	if input.ExpireAt != nil && *input.ExpireAt != "" {
-		if parsed, err := time.Parse("2006-01-02", *input.ExpireAt); err == nil {
-			expiresAt = parsed
-		}
-	}
 	if input.TrafficType == nil {
 		return nil, errors.New("traffic_type is required")
+	}
+	if !input.TrafficType.IsValid() {
+		return nil, fmt.Errorf("unsupported traffic_type %q", *input.TrafficType)
 	}
 	if input.TrafficSize == nil {
 		return nil, errors.New("traffic_size is required")
@@ -328,7 +323,15 @@ func (u *Usecase) SyncOcpasswd(ctx context.Context, principal authz.Principal, i
 	}
 	users := make([]models.OcservUser, 0, len(input.Users))
 	for _, item := range input.Users {
-		users = append(users, models.OcservUser{Username: item.Username, Password: "Secret-Ocpasswd", Group: item.Group, OwnerID: principal.UserID, ExpireAt: &expiresAt, TrafficSize: size, TrafficType: *input.TrafficType, Config: input.Config})
+		account := models.OcservUser{Username: item.Username, Password: "Secret-Ocpasswd", Group: item.Group, OwnerID: principal.UserID, TrafficSize: size, TrafficType: *input.TrafficType, Config: input.Config}
+		createInput := CreateOcservUserData{ExpiryMode: input.ExpiryMode, ExpireDaysAfterFirstConnection: input.ExpireDaysAfterFirstConnection}
+		if input.ExpireAt != nil {
+			createInput.ExpireAt = *input.ExpireAt
+		}
+		if err := configureNewExpiry(&account, createInput, time.Now()); err != nil {
+			return nil, err
+		}
+		users = append(users, account)
 	}
 	if len(users) == 0 {
 		return nil, errors.New("no users found")
@@ -355,14 +358,16 @@ func (u *Usecase) Activate(ctx context.Context, principal authz.Principal, id ui
 	if id == 0 {
 		return errors.New("user id is required")
 	}
-	var expiresAt *time.Time
-	if input.ExpireAt != nil {
-		if parsed, err := time.Parse("2006-01-02", *input.ExpireAt); err == nil {
-			expiresAt = &parsed
-		}
-	}
 	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
+		return err
+	}
+	update := UpdateOcservUserData{ExpireAt: input.ExpireAt, ExpiryMode: input.ExpiryMode, ExpireDaysAfterFirstConnection: input.ExpireDaysAfterFirstConnection, ResetFirstConnection: input.ResetFirstConnection}
+	if update.ExpireAt == nil && update.ExpiryMode == nil && update.ExpireDaysAfterFirstConnection == nil && !update.ResetFirstConnection {
+		mode := models.ExpiryModeUnlimited
+		update.ExpiryMode = &mode
+	}
+	if err := applyExpiryUpdate(account, update); err != nil {
 		return err
 	}
 	output, err := u.occtl.Terminate(account.Username)
@@ -373,7 +378,7 @@ func (u *Usecase) Activate(ctx context.Context, principal authz.Principal, id ui
 	if err != nil && !isAlreadyUnlockedOcpasswdError(output, err) {
 		return fmt.Errorf("failed to unlock ocserv user %q: %s: %w", account.Username, strings.TrimSpace(output), err)
 	}
-	return u.Repository.RestoreExpired(ctx, id, expiresAt)
+	return u.Repository.RestoreExpired(ctx, account)
 }
 
 func (u *Usecase) CreateUserCertificate(ctx context.Context, principal authz.Principal, id uint) error {

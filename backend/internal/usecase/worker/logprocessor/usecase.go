@@ -15,9 +15,10 @@ import (
 
 type StatService struct {
 	ctx                 context.Context
-	stream              <-chan string
+	stream              <-chan logger.StreamEntry
 	repository          Repository
 	access              AccessController
+	connections         ConnectionObserver
 	sessionStats        map[string]UserStats
 	pendingMainSessions map[string][]pendingMainSession
 	workerSessionIDs    map[string]string
@@ -28,12 +29,13 @@ type pendingMainSession struct {
 	CreatedAt time.Time
 }
 
-func New(ctx context.Context, stream <-chan string, repository Repository, access AccessController) *StatService {
+func New(ctx context.Context, stream <-chan logger.StreamEntry, repository Repository, access AccessController, connections ConnectionObserver) *StatService {
 	return &StatService{
 		ctx:                 ctx,
 		stream:              stream,
 		repository:          repository,
 		access:              access,
+		connections:         connections,
 		sessionStats:        make(map[string]UserStats),
 		pendingMainSessions: make(map[string][]pendingMainSession),
 		workerSessionIDs:    make(map[string]string),
@@ -47,7 +49,7 @@ func (s *StatService) CalculateUserStats() error {
 			logger.Warn("stopping: context cancelled")
 			return nil
 
-		case line, ok := <-s.stream:
+		case entry, ok := <-s.stream:
 			if !ok {
 				logger.Warn("stream closed, exiting ...")
 				if s.ctx.Err() != nil {
@@ -56,7 +58,7 @@ func (s *StatService) CalculateUserStats() error {
 				return errors.New("ocserv log stream closed unexpectedly")
 			}
 
-			cleanLine := strings.TrimSpace(line) // remove whitespace/newlines and normalize case
+			cleanLine := strings.TrimSpace(entry.Message) // remove whitespace/newlines and normalize case
 
 			if strings.Contains(cleanLine, "server shutdown complete") {
 				return errors.New("ocserv server shutdown abnormally")
@@ -64,6 +66,14 @@ func (s *StatService) CalculateUserStats() error {
 
 			if !strings.Contains(cleanLine, "worker[") && !strings.Contains(cleanLine, "main[") {
 				continue
+			}
+
+			connectedAt := entry.Timestamp
+			if connectedAt.IsZero() {
+				connectedAt = time.Now().UTC()
+			}
+			if err := s.connections.Observe(s.ctx, cleanLine, connectedAt); err != nil {
+				return err
 			}
 
 			s.trackSessionIdentity(cleanLine)
@@ -134,7 +144,7 @@ func (s *StatService) getUserSessionLog(cleanLine string) *models.OcservUserSess
 	}
 
 	// Step 3: detect event
-	var event string
+	var event models.OcservUserSessionEvent
 
 	switch {
 	case strings.Contains(msg, "User-agent"):

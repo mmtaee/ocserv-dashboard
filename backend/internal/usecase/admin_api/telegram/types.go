@@ -7,28 +7,28 @@ import (
 
 // SettingsResponse mirrors TelegramSettings but exposes only what the frontend needs.
 type SettingsResponse struct {
-	Enabled             bool   `json:"enabled"`
-	BotToken            string `json:"bot_token"`
-	BotUsername         string `json:"bot_username"`
-	AdminChatID         int64  `json:"admin_chat_id"`
-	LowQuotaThresholdMB int    `json:"low_quota_threshold_mb"`
-	DefaultLanguage     string `json:"default_language"`
-	OcservHost          string `json:"ocserv_host"`
-	CardNumber          string `json:"card_number"`
-	CardHolder          string `json:"card_holder"`
-	SupportUsername     string `json:"support_username"`
+	Enabled             bool                    `json:"enabled"`
+	BotToken            string                  `json:"bot_token"`
+	BotUsername         string                  `json:"bot_username"`
+	AdminChatID         int64                   `json:"admin_chat_id"`
+	LowQuotaThresholdMB int                     `json:"low_quota_threshold_mb"`
+	DefaultLanguage     models.TelegramLanguage `json:"default_language" enums:"en,fa,ar,ru,zh-cn,zh-tw,it"`
+	OcservHost          string                  `json:"ocserv_host"`
+	CardNumber          string                  `json:"card_number"`
+	CardHolder          string                  `json:"card_holder"`
+	SupportUsername     string                  `json:"support_username"`
 }
 
 // PatchSettingsData accepts partial updates from admin UI.
 type PatchSettingsData struct {
-	Enabled             *bool   `json:"enabled"`
-	BotToken            *string `json:"bot_token"`
-	AdminChatID         *int64  `json:"admin_chat_id"`
-	LowQuotaThresholdMB *int    `json:"low_quota_threshold_mb" validate:"omitempty,min=10,max=10240"`
-	DefaultLanguage     *string `json:"default_language" validate:"omitempty,oneof=en fa ar ru zh-cn zh-tw it"`
-	OcservHost          *string `json:"ocserv_host"`
-	CardNumber          *string `json:"card_number" validate:"omitempty,max=64"`
-	CardHolder          *string `json:"card_holder" validate:"omitempty,max=128"`
+	Enabled             *bool                    `json:"enabled"`
+	BotToken            *string                  `json:"bot_token"`
+	AdminChatID         *int64                   `json:"admin_chat_id"`
+	LowQuotaThresholdMB *int                     `json:"low_quota_threshold_mb" validate:"omitempty,min=10,max=10240"`
+	DefaultLanguage     *models.TelegramLanguage `json:"default_language" validate:"omitempty,oneof=en fa ar ru zh-cn zh-tw it"`
+	OcservHost          *string                  `json:"ocserv_host"`
+	CardNumber          *string                  `json:"card_number" validate:"omitempty,max=64"`
+	CardHolder          *string                  `json:"card_holder" validate:"omitempty,max=128"`
 	// SupportUsername must be a Telegram handle without @ (5–32 chars, a–z 0–9 _).
 	SupportUsername *string `json:"support_username" validate:"omitempty,max=64"`
 }
@@ -38,21 +38,21 @@ type TestData struct {
 }
 
 type CreatePackageData struct {
-	Title         string `json:"title" validate:"required,min=2,max=128"`
-	Days          int    `json:"days" validate:"required,min=1,max=3650"`
-	TrafficSizeGB int    `json:"traffic_size_gb" validate:"min=0,max=100000"`
-	TrafficType   string `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	PriceText     string `json:"price_text" validate:"omitempty,max=64"`
-	IsActive      bool   `json:"is_active"`
+	Title         string             `json:"title" validate:"required,min=2,max=128"`
+	Days          int                `json:"days" validate:"required,min=1,max=3650"`
+	TrafficSizeGB int                `json:"traffic_size_gb" validate:"min=0,max=100000"`
+	TrafficType   models.TrafficType `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	PriceText     string             `json:"price_text" validate:"omitempty,max=64"`
+	IsActive      bool               `json:"is_active"`
 }
 
 type PatchPackageData struct {
-	Title         *string `json:"title" validate:"omitempty,min=2,max=128"`
-	Days          *int    `json:"days" validate:"omitempty,min=1,max=3650"`
-	TrafficSizeGB *int    `json:"traffic_size_gb" validate:"omitempty,min=0,max=100000"`
-	TrafficType   *string `json:"traffic_type" validate:"omitempty,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	PriceText     *string `json:"price_text" validate:"omitempty,max=64"`
-	IsActive      *bool   `json:"is_active"`
+	Title         *string             `json:"title" validate:"omitempty,min=2,max=128"`
+	Days          *int                `json:"days" validate:"omitempty,min=1,max=3650"`
+	TrafficSizeGB *int                `json:"traffic_size_gb" validate:"omitempty,min=0,max=100000"`
+	TrafficType   *models.TrafficType `json:"traffic_type" validate:"omitempty,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	PriceText     *string             `json:"price_text" validate:"omitempty,max=64"`
+	IsActive      *bool               `json:"is_active"`
 }
 
 type RequestsResponse struct {

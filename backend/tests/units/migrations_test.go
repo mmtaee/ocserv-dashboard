@@ -10,7 +10,8 @@ import (
 )
 
 func TestFreshMigrationSetIsCompleteAndUnique(t *testing.T) {
-	require.Len(t, bootstrap.Migrations, 4)
+	require.Len(t, bootstrap.Migrations, 5)
+	require.Equal(t, "005_add_ocserv_user_expiry_modes", bootstrap.Migrations[4].ID)
 
 	seen := make(map[string]struct{}, len(bootstrap.Migrations))
 	for _, migration := range bootstrap.Migrations {

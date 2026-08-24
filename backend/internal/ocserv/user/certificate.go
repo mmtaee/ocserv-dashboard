@@ -259,11 +259,11 @@ func (u *OcservUser) CertificateBackup(username string) (*models.OcservUserCerti
 		return nil, fmt.Errorf("invalid username: %s", username)
 	}
 
-	status := "active"
+	status := models.OcservUserCertificateStatusActive
 	certDir := filepath.Join(certUsersDir, username)
 	if !fileExists(filepath.Join(certDir, username+".cer")) {
 		certDir = latestSuspendedCertificateDir(username)
-		status = "suspended"
+		status = models.OcservUserCertificateStatusSuspended
 	}
 
 	if certDir == "" {
@@ -297,6 +297,9 @@ func (u *OcservUser) RestoreCertificateBackup(username string, cert *models.Ocse
 	if cert == nil {
 		return nil
 	}
+	if !cert.Status.IsValid() {
+		return fmt.Errorf("invalid certificate status: %s", cert.Status)
+	}
 
 	if !validCertificateUsername(username) {
 		return fmt.Errorf("invalid username: %s", username)
@@ -312,7 +315,7 @@ func (u *OcservUser) RestoreCertificateBackup(username string, cert *models.Ocse
 	}
 
 	targetDir := filepath.Join(certUsersDir, username)
-	if cert.Status == "suspended" {
+	if cert.Status == models.OcservUserCertificateStatusSuspended {
 		targetDir = filepath.Join(
 			certDisabledDir,
 			fmt.Sprintf("%s-susp-%s", username, time.Now().Format("20060102-150405")),

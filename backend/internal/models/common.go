@@ -9,16 +9,6 @@ import (
 
 type CSVStringList []string
 
-const (
-	Free            = "Free"
-	MonthlyTransmit = "MonthlyTransmit"
-	MonthlyReceive  = "MonthlyReceive"
-	MonthlyRxTx     = "MonthlyRxTx"
-	TotallyTransmit = "TotallyTransmit"
-	TotallyReceive  = "TotallyReceive"
-	TotallyRxTx     = "TotallyRxTx"
-)
-
 func (s *CSVStringList) Value() (driver.Value, error) {
 	return strings.Join(*s, ","), nil
 }

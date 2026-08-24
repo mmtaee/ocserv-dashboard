@@ -160,7 +160,7 @@ func T(lang string, key Key, args ...interface{}) string {
 	Init()
 	lang = strings.ToLower(strings.TrimSpace(lang))
 	if lang == "" {
-		lang = models.TelegramLanguageEN
+		lang = string(models.TelegramLanguageEN)
 	}
 	k := string(key)
 
@@ -168,8 +168,8 @@ func T(lang string, key Key, args ...interface{}) string {
 	defer mu.RUnlock()
 
 	value, ok := lookup(lang, k)
-	if !ok && lang != models.TelegramLanguageEN {
-		value, ok = lookup(models.TelegramLanguageEN, k)
+	if !ok && lang != string(models.TelegramLanguageEN) {
+		value, ok = lookup(string(models.TelegramLanguageEN), k)
 	}
 	if !ok {
 		return k

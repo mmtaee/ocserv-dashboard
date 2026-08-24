@@ -34,17 +34,20 @@ type Credentials struct {
 }
 
 type Customer struct {
-	Owner                string     `json:"owner"`
-	Username             string     `json:"username"`
-	IsLocked             bool       `json:"is_locked"`
-	CertificateEnabled   bool       `json:"certificate_enabled"`
-	CertificateAvailable bool       `json:"certificate_available"`
-	ExpireAt             *time.Time `json:"expire_at"`
-	DeactivatedAt        *time.Time `json:"deactivated_at"`
-	TrafficType          string     `json:"traffic_type"`
-	TrafficSize          int64      `json:"traffic_size"`
-	Rx                   int        `json:"rx"`
-	Tx                   int        `json:"tx"`
+	Owner                          string             `json:"owner"`
+	Username                       string             `json:"username"`
+	IsLocked                       bool               `json:"is_locked"`
+	CertificateEnabled             bool               `json:"certificate_enabled"`
+	CertificateAvailable           bool               `json:"certificate_available"`
+	ExpiryMode                     models.ExpiryMode  `json:"expiry_mode"`
+	ExpireAt                       *time.Time         `json:"expire_at"`
+	ExpireDaysAfterFirstConnection *int               `json:"expire_days_after_first_connection"`
+	FirstConnectedAt               *time.Time         `json:"first_connected_at"`
+	DeactivatedAt                  *time.Time         `json:"deactivated_at"`
+	TrafficType                    models.TrafficType `json:"traffic_type"`
+	TrafficSize                    int64              `json:"traffic_size"`
+	Rx                             int                `json:"rx"`
+	Tx                             int                `json:"tx"`
 }
 
 type Usage struct {

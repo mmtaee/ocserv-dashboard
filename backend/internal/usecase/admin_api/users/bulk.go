@@ -81,7 +81,9 @@ func (u *BulkUsecase) Update(ctx context.Context, principal authz.Principal, inp
 		for _, id := range ids {
 			current := byID[id]
 			previous := *current
-			applyUserUpdate(current, changes[id])
+			if err := applyUserUpdate(current, changes[id]); err != nil {
+				return fmt.Errorf("update ocserv user %d: %w", id, err)
+			}
 			if _, err := tx.Update(ctx, current); err != nil {
 				return err
 			}
@@ -297,7 +299,8 @@ func usersByID(users []models.OcservUser) map[uint]*models.OcservUser {
 }
 
 func hasUserUpdates(input UpdateOcservUserData) bool {
-	return input.Group != nil || input.Password != nil || input.ExpireAt != nil || input.Unlimited ||
+	return input.Group != nil || input.Password != nil || input.ExpireAt != nil || input.ExpiryMode != nil ||
+		input.ExpireDaysAfterFirstConnection != nil || input.ResetFirstConnection || input.Unlimited ||
 		input.TrafficType != nil || input.TrafficSize != nil || input.Description != nil || input.Config != nil
 }
 

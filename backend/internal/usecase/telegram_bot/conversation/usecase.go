@@ -80,15 +80,15 @@ func (h *Hub) LanguageFor(ctx context.Context, chatID int64) string {
 	if err == nil {
 		for _, a := range accounts {
 			if a.Language != "" {
-				return a.Language
+				return string(a.Language)
 			}
 		}
 	}
 	settings, err := h.deps.Repo.Settings(ctx)
 	if err != nil || settings.DefaultLanguage == "" {
-		return models.TelegramLanguageEN
+		return string(models.TelegramLanguageEN)
 	}
-	return settings.DefaultLanguage
+	return string(settings.DefaultLanguage)
 }
 
 func (h *Hub) send(chatID int64, text string) {
@@ -342,7 +342,7 @@ func (h *Hub) SendAdminMenu(ctx context.Context, chatID int64, lang string, srcM
 
 func (h *Hub) ShowAdminPending(ctx context.Context, chatID int64, lang string, srcMsgID int) {
 	h.sendTyping(chatID)
-	requests, err := h.deps.Repo.RequestsByStatuses(ctx, []string{models.TelegramRequestStatusPending}, 10)
+	requests, err := h.deps.Repo.RequestsByStatuses(ctx, []models.TelegramRequestStatus{models.TelegramRequestStatusPending}, 10)
 	settings, _ := h.deps.Repo.Settings(ctx)
 	if err != nil || len(requests) == 0 {
 		h.respond(chatID, srcMsgID, i18n.T(lang, i18n.AdminNoPending), backToAdminKeyboard(lang, panelURL(settings)))
@@ -354,7 +354,7 @@ func (h *Hub) ShowAdminPending(ctx context.Context, chatID int64, lang string, s
 
 func (h *Hub) ShowAdminReceipts(ctx context.Context, chatID int64, lang string, srcMsgID int) {
 	h.sendTyping(chatID)
-	requests, err := h.deps.Repo.RequestsByStatuses(ctx, []string{
+	requests, err := h.deps.Repo.RequestsByStatuses(ctx, []models.TelegramRequestStatus{
 		models.TelegramRequestStatusAwaitingPayment,
 		models.TelegramRequestStatusPaymentUploaded,
 	}, 10)
@@ -456,15 +456,16 @@ func (h *Hub) ShowLanguageMenu(ctx context.Context, chatID int64, lang string, s
 	h.respond(chatID, srcMsgID, i18n.T(lang, i18n.BtnLanguage), &kb)
 }
 
-func (h *Hub) SetLanguage(ctx context.Context, chatID int64, newLang string, srcMsgID int) {
-	if !models.IsTelegramLanguage(newLang) {
+func (h *Hub) SetLanguage(ctx context.Context, chatID int64, newLang models.TelegramLanguage, srcMsgID int) {
+	if !newLang.IsValid() {
 		newLang = models.TelegramLanguageEN
 	}
 	if err := h.deps.Repo.UpdateLanguageForChat(ctx, chatID, newLang); err != nil {
 		logger.Warn("telegram_bot: failed to update language: %v", err)
 	}
-	text := i18n.T(newLang, i18n.LanguagePicked) + "\n\n" + i18n.T(newLang, i18n.MainMenu)
-	kb := mainMenuKeyboard(newLang)
+	language := string(newLang)
+	text := i18n.T(language, i18n.LanguagePicked) + "\n\n" + i18n.T(language, i18n.MainMenu)
+	kb := mainMenuKeyboard(language)
 	h.respond(chatID, srcMsgID, text, &kb)
 }
 
@@ -619,7 +620,7 @@ func (h *Hub) completeLink(ctx context.Context, chatID int64, username, password
 		}
 	}
 
-	if _, err := h.deps.Repo.UpsertAccount(ctx, chatID, tgUsername, lang, user.ID); err != nil {
+	if _, err := h.deps.Repo.UpsertAccount(ctx, chatID, tgUsername, models.TelegramLanguage(lang), user.ID); err != nil {
 		logger.Warn("telegram_bot: failed to link account: %v", err)
 	}
 	h.SyncTelegramUsernameFromAPI(ctx, chatID)

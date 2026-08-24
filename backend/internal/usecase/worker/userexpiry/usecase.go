@@ -20,7 +20,7 @@ func New(repository Repository, access AccessController) *Usecase {
 }
 
 func (u *Usecase) Expire(ctx context.Context, now time.Time) error {
-	users, err := u.repository.ExpiredUsers(ctx, now.UTC().AddDate(0, 0, -1))
+	users, err := u.repository.ExpiredUsers(ctx, now.UTC())
 	if err != nil {
 		return fmt.Errorf("find expired users: %w", err)
 	}

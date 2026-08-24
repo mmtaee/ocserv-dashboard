@@ -13,6 +13,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.Migration002,
 	migrations.Migration003,
 	migrations.Migration004,
+	migrations.Migration005,
 }
 
 func Migrate(db *gorm.DB) error {

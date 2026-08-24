@@ -6,15 +6,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 )
 
 type journalEntry struct {
-	Message string `json:"MESSAGE"`
-	PID     string `json:"_PID"`
+	Message           string `json:"MESSAGE"`
+	PID               string `json:"_PID"`
+	RealtimeTimestamp string `json:"__REALTIME_TIMESTAMP"`
 }
 
-func SystemdStreamLogs(ctx context.Context, serviceName string, streamChan chan<- string) error {
+func SystemdStreamLogs(ctx context.Context, serviceName string, streamChan chan<- logger.StreamEntry) error {
 	cmd := exec.CommandContext(ctx, "journalctl", "-n", "0", "-fu", serviceName, "--output=json")
 
 	stdout, err := cmd.StdoutPipe()
@@ -43,11 +48,15 @@ func SystemdStreamLogs(ctx context.Context, serviceName string, streamChan chan<
 		if entry.PID != "" && !strings.HasPrefix(message, "ocserv[") {
 			message = fmt.Sprintf("ocserv[%s]: %s", entry.PID, message)
 		}
+		timestamp := time.Now().UTC()
+		if microseconds, err := strconv.ParseInt(entry.RealtimeTimestamp, 10, 64); err == nil {
+			timestamp = time.UnixMicro(microseconds).UTC()
+		}
 
 		select {
 		case <-ctx.Done():
 			return nil
-		case streamChan <- message:
+		case streamChan <- logger.StreamEntry{Message: message, Timestamp: timestamp}:
 		}
 	}
 

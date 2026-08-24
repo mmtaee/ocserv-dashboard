@@ -68,7 +68,7 @@ type OcservUserGroup interface {
 type OcservUserActions interface {
 	Lock(ctx context.Context, id uint) error
 	UnLock(ctx context.Context, id uint) error
-	RestoreExpired(ctx context.Context, id uint, expireAt *time.Time) error
+	RestoreExpired(ctx context.Context, user *models.OcservUser) error
 }
 
 type OcservUserRepositoryInterface interface {
@@ -369,11 +369,11 @@ func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []mod
 	return users, o.db.WithContext(ctx).Omit("Owner").Create(&users).Error
 }
 
-func (o *OcservUserRepository) RestoreExpired(ctx context.Context, id uint, expireAt *time.Time) error {
+func (o *OcservUserRepository) RestoreExpired(ctx context.Context, user *models.OcservUser) error {
 	return o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var u models.OcservUser
 		if err := tx.
-			Where("id = ?", id).
+			Where("id = ?", user.ID).
 			First(&u).Error; err != nil {
 			return err
 		}
@@ -383,12 +383,15 @@ func (o *OcservUserRepository) RestoreExpired(ctx context.Context, id uint, expi
 		if err := tx.
 			Model(&u).
 			Updates(map[string]interface{}{
-				"expire_at":      expireAt,
-				"deactivated_at": nil,
-				"usage_reset_at": &now,
-				"is_locked":      false,
-				"rx":             0,
-				"tx":             0,
+				"expiry_mode":                        user.ExpiryMode,
+				"expire_at":                          user.ExpireAt,
+				"expire_days_after_first_connection": user.ExpireDaysAfterFirstConnection,
+				"first_connected_at":                 user.FirstConnectedAt,
+				"deactivated_at":                     nil,
+				"usage_reset_at":                     &now,
+				"is_locked":                          false,
+				"rx":                                 0,
+				"tx":                                 0,
 			}).Error; err != nil {
 			return err
 		}

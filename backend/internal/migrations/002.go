@@ -27,7 +27,8 @@ var Migration002 = &gormigrate.Migration{
 				expire_at DATE NULL,
 				deactivated_at DATE NULL,
 				usage_reset_at TIMESTAMPTZ NULL,
-				traffic_type VARCHAR(32) NOT NULL DEFAULT 'Free',
+				traffic_type VARCHAR(32) NOT NULL DEFAULT 'Free'
+					CHECK (traffic_type IN ('Free', 'MonthlyTransmit', 'MonthlyReceive', 'MonthlyRxTx', 'TotallyTransmit', 'TotallyReceive', 'TotallyRxTx')),
 				traffic_size BIGINT NOT NULL DEFAULT 0,
 				rx BIGINT NOT NULL DEFAULT 0,
 				tx BIGINT NOT NULL DEFAULT 0,

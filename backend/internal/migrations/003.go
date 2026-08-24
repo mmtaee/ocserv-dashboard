@@ -28,7 +28,8 @@ var Migration003 = &gormigrate.Migration{
 				id BIGSERIAL PRIMARY KEY,
 				username VARCHAR(64) NOT NULL,
 				ip VARCHAR(45),
-				event VARCHAR(64) NOT NULL,
+				event VARCHAR(64) NOT NULL
+					CHECK (event IN ('user-agent', 'handshake', 'periodic-stats', 'disconnect')),
 				message TEXT NOT NULL,
 				created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);

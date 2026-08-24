@@ -9,7 +9,9 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/occtl"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/services/worker/connectionexpiry"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/services/worker/readers"
 	userexpiryservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/worker/userexpiry"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/worker/logprocessor"
@@ -41,8 +43,10 @@ func (c accessController) Unlock(username string) error {
 }
 
 type logJob struct {
-	dockerMode bool
-	access     accessController
+	dockerMode  bool
+	access      accessController
+	repository  logprocessor.Repository
+	connections logprocessor.ConnectionObserver
 }
 
 type Component interface {
@@ -55,7 +59,7 @@ type Service struct {
 
 func (j *logJob) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
-	lines := make(chan string, 1000)
+	lines := make(chan logger.StreamEntry, 1000)
 	group.Go(func() error {
 		defer close(lines)
 		var err error
@@ -72,7 +76,7 @@ func (j *logJob) Run(ctx context.Context) error {
 		}
 		return fmt.Errorf("ocserv log reader: %w", err)
 	})
-	processor := logprocessor.New(groupCtx, lines, repository.NewWorkerStatsRepository(database.GetConnection()), j.access)
+	processor := logprocessor.New(groupCtx, lines, j.repository, j.access, j.connections)
 	group.Go(processor.CalculateUserStats)
 	return group.Wait()
 }
@@ -88,9 +92,11 @@ func New(dockerMode bool) *Service {
 		access = accessController{disconnect: control.DisconnectUser, lock: users.Lock, unlock: users.UnLock}
 	}
 	db := database.GetConnection()
-	expiryUsecase := userexpiryusecase.New(repository.NewWorkerUserExpiryRepository(db), access)
+	statsRepository := repository.NewWorkerStatsRepository(db)
+	expiryRepository := repository.NewWorkerUserExpiryRepository(db)
+	expiryUsecase := userexpiryusecase.New(expiryRepository, access)
 	return &Service{components: []Component{
-		&logJob{dockerMode: dockerMode, access: access},
+		&logJob{dockerMode: dockerMode, access: access, repository: statsRepository, connections: connectionexpiry.New(expiryRepository)},
 		userexpiryservice.NewCronService(expiryUsecase),
 	}}
 }

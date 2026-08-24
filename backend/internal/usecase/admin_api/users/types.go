@@ -32,26 +32,31 @@ type SessionLogsResult struct {
 }
 
 type CreateOcservUserData struct {
-	Group       string                   `json:"group" validate:"required"`
-	Username    string                   `json:"username" validate:"required,min=2,max=32"`
-	Password    string                   `json:"password" validate:"required,min=2,max=32"`
-	ExpireAt    string                   `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
-	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
-	TrafficType string                   `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize int64                    `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"` // 10 GiB
-	Description string                   `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
-	Config      *models.OcservUserConfig `json:"config" validate:"required"`
+	Group                          string                   `json:"group" validate:"required"`
+	Username                       string                   `json:"username" validate:"required,min=2,max=32"`
+	Password                       string                   `json:"password" validate:"required,min=2,max=32"`
+	ExpireAt                       string                   `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	ExpiryMode                     models.ExpiryMode        `json:"expiry_mode" validate:"omitempty,oneof=unlimited fixed first_connection" example:"fixed"`
+	ExpireDaysAfterFirstConnection *int                     `json:"expire_days_after_first_connection" validate:"omitempty,gt=0" example:"30"`
+	Unlimited                      bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType                    models.TrafficType       `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize                    int64                    `json:"traffic_size" validate:"omitempty,gte=0" example:"10737418240"` // 10 GiB
+	Description                    string                   `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config                         *models.OcservUserConfig `json:"config" validate:"required"`
 }
 
 type UpdateOcservUserData struct {
-	Group       *string                  `json:"group" example:"default"`
-	Password    *string                  `json:"password" validate:"min=2,max=32"`
-	ExpireAt    *string                  `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
-	Unlimited   bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
-	TrafficType *string                  `json:"traffic_type" validate:"oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize *int64                   `json:"traffic_size" validate:"gte=0" example:"10737418240"` // 10 GiB
-	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
-	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+	Group                          *string                  `json:"group" example:"default"`
+	Password                       *string                  `json:"password" validate:"min=2,max=32"`
+	ExpireAt                       *string                  `json:"expire_at"  validate:"omitempty" example:"2025-12-31"`
+	ExpiryMode                     *models.ExpiryMode       `json:"expiry_mode" validate:"omitempty,oneof=unlimited fixed first_connection" example:"first_connection"`
+	ExpireDaysAfterFirstConnection *int                     `json:"expire_days_after_first_connection" validate:"omitempty,gt=0" example:"30"`
+	ResetFirstConnection           bool                     `json:"reset_first_connection" validate:"omitempty" example:"false"`
+	Unlimited                      bool                     `json:"unlimited" validate:"omitempty" example:"false" default:"false"`
+	TrafficType                    *models.TrafficType      `json:"traffic_type" validate:"omitempty,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize                    *int64                   `json:"traffic_size" validate:"gte=0" example:"10737418240"` // 10 GiB
+	Description                    *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config                         *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 
 type BulkUpdateItem struct {
@@ -92,12 +97,14 @@ type OcservUsersResponse struct {
 }
 
 type SyncOcpasswdRequest struct {
-	Users       []user.Ocpasswd          `json:"users" validate:"required"`
-	ExpireAt    *string                  `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
-	TrafficType *string                  `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
-	TrafficSize *int64                   `json:"traffic_size" validate:"required,gte=0" example:"10737418240"` // 10 GiB
-	Description *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
-	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
+	Users                          []user.Ocpasswd          `json:"users" validate:"required"`
+	ExpireAt                       *string                  `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	ExpiryMode                     models.ExpiryMode        `json:"expiry_mode" validate:"omitempty,oneof=unlimited fixed first_connection" example:"fixed"`
+	ExpireDaysAfterFirstConnection *int                     `json:"expire_days_after_first_connection" validate:"omitempty,gt=0" example:"30"`
+	TrafficType                    *models.TrafficType      `json:"traffic_type" validate:"required,oneof=Free MonthlyTransmit MonthlyReceive MonthlyRxTx TotallyTransmit TotallyReceive TotallyRxTx"`
+	TrafficSize                    *int64                   `json:"traffic_size" validate:"required,gte=0" example:"10737418240"` // 10 GiB
+	Description                    *string                  `json:"description" validate:"omitempty,max=1024" example:"User for testing VPN access"`
+	Config                         *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 
 type OcservUsersSyncResponse struct {
@@ -106,7 +113,10 @@ type OcservUsersSyncResponse struct {
 }
 
 type ActivateUserData struct {
-	ExpireAt *string `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	ExpireAt                       *string            `json:"expire_at" validate:"omitempty" example:"2025-12-31"`
+	ExpiryMode                     *models.ExpiryMode `json:"expiry_mode" validate:"omitempty,oneof=unlimited fixed first_connection" example:"fixed"`
+	ExpireDaysAfterFirstConnection *int               `json:"expire_days_after_first_connection" validate:"omitempty,gt=0" example:"30"`
+	ResetFirstConnection           bool               `json:"reset_first_connection" validate:"omitempty" example:"false"`
 }
 
 type SessionLogsData struct {

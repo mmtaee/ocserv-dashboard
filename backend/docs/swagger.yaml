@@ -407,6 +407,16 @@ definitions:
         description: in GiB
         type: number
     type: object
+  models.ExpiryMode:
+    enum:
+    - unlimited
+    - fixed
+    - first_connection
+    type: string
+    x-enum-varnames:
+    - ExpiryModeUnlimited
+    - ExpiryModeFixed
+    - ExpiryModeFirstConnection
   models.IPBanPoints:
     properties:
       _Since:
@@ -560,6 +570,20 @@ definitions:
       description:
         type: string
       expire_at:
+        description: |-
+          ExpireAt is the effective expiry instant. It remains nil for a
+          first-connection account until the worker observes its first session.
+        type: string
+      expire_days_after_first_connection:
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+      first_connected_at:
         type: string
       group:
         type: string
@@ -586,6 +610,8 @@ definitions:
         description: in bytes
         type: integer
       traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
         enum:
         - Free
         - MonthlyTransmit
@@ -594,7 +620,6 @@ definitions:
         - TotallyTransmit
         - TotallyReceive
         - TotallyRxTx
-        type: string
       tx:
         description: Transmit in bytes
         type: integer
@@ -604,6 +629,7 @@ definitions:
         type: string
     required:
     - created_at
+    - expiry_mode
     - group
     - id
     - is_locked
@@ -626,9 +652,22 @@ definitions:
       p12_base64:
         type: string
       status:
-        description: active or suspended
-        type: string
+        allOf:
+        - $ref: '#/definitions/models.OcservUserCertificateStatus'
+        enum:
+        - active
+        - suspended
+    required:
+    - status
     type: object
+  models.OcservUserCertificateStatus:
+    enum:
+    - active
+    - suspended
+    type: string
+    x-enum-varnames:
+    - OcservUserCertificateStatusActive
+    - OcservUserCertificateStatusSuspended
   models.OcservUserConfig:
     properties:
       dns:
@@ -691,17 +730,30 @@ definitions:
           type: string
         type: array
     type: object
+  models.OcservUserSessionEvent:
+    enum:
+    - user-agent
+    - handshake
+    - periodic-stats
+    - disconnect
+    type: string
+    x-enum-varnames:
+    - EventUseragent
+    - EventHandshake
+    - EventPeriodicStats
+    - EventDisconnect
   models.OcservUserSessionLog:
     properties:
       created_at:
         type: string
       event:
+        allOf:
+        - $ref: '#/definitions/models.OcservUserSessionEvent'
         enum:
         - user-agent
         - handshake
         - periodic-stats
         - disconnect
-        type: string
       ip:
         type: string
       message:
@@ -750,6 +802,24 @@ definitions:
       ocserv_version:
         type: string
     type: object
+  models.TrafficType:
+    enum:
+    - Free
+    - MonthlyTransmit
+    - MonthlyReceive
+    - MonthlyRxTx
+    - TotallyTransmit
+    - TotallyReceive
+    - TotallyRxTx
+    type: string
+    x-enum-varnames:
+    - Free
+    - MonthlyTransmit
+    - MonthlyReceive
+    - MonthlyRxTx
+    - TotallyTransmit
+    - TotallyReceive
+    - TotallyRxTx
   models.User:
     properties:
       created_at:
@@ -817,6 +887,26 @@ definitions:
     required:
     - config
     type: object
+  ocserv_user.ActivateUserData:
+    properties:
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: fixed
+      reset_first_connection:
+        example: false
+        type: boolean
+    type: object
   ocserv_user.BulkDeleteResponse:
     properties:
       count:
@@ -881,6 +971,118 @@ definitions:
           $ref: '#/definitions/models.OcservUser'
         type: array
     type: object
+  ocserv_user.CreateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: fixed
+      group:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - config
+    - group
+    - password
+    - traffic_type
+    - username
+    type: object
+  ocserv_user.UpdateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: first_connection
+      group:
+        example: default
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      reset_first_connection:
+        example: false
+        type: boolean
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+    type: object
   ocservuser.BulkUpdateItem:
     properties:
       changes:
@@ -902,6 +1104,17 @@ definitions:
       expire_at:
         example: "2025-12-31"
         type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: first_connection
       group:
         example: default
         type: string
@@ -909,12 +1122,17 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
+      reset_first_connection:
+        example: false
+        type: boolean
       traffic_size:
         description: 10 GiB
         example: 10737418240
         minimum: 0
         type: integer
       traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
         enum:
         - Free
         - MonthlyTransmit
@@ -923,7 +1141,6 @@ definitions:
         - TotallyTransmit
         - TotallyReceive
         - TotallyRxTx
-        type: string
       unlimited:
         default: false
         example: false
@@ -1694,7 +1911,35 @@ paths:
       tags:
       - Ocserv(Users)
     post:
-      responses: {}
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: OCServ user and expiry configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.CreateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}:
@@ -1719,24 +1964,82 @@ paths:
       tags:
       - Ocserv(Users)
     patch:
+      consumes:
+      - application/json
       parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Ocserv User ID
         in: path
         name: id
         required: true
         type: integer
-      responses: {}
+      - description: OCServ user and expiry changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.UpdateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/activate:
     post:
+      consumes:
+      - application/json
       parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Ocserv User ID
         in: path
         name: id
         required: true
         type: integer
-      responses: {}
+      - description: New expiry configuration; omitted values reset to unlimited
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.ActivateUserData'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/certificate:

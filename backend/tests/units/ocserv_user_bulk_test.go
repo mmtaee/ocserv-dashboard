@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
@@ -211,6 +212,74 @@ func TestBulkTransactionRollsBackEarlierUpdates(t *testing.T) {
 	require.Equal(t, 1, repo.rollbacks)
 	require.Equal(t, "defaults", repo.users[10].Group)
 	require.Equal(t, "defaults", accounts.accounts["alice"].group)
+}
+
+func TestBulkUpdateSupportsFixedAndFirstConnectionExpiry(t *testing.T) {
+	repo, _, usecase := newBulkFixture()
+	principal := authz.Principal{UserID: 1, Username: "admin", Superadmin: true}
+	fixedMode := models.ExpiryModeFixed
+	fixedDate := "2026-12-31"
+
+	_, err := usecase.Update(context.Background(), principal, ocservuser.BulkUpdateRequest{Users: []ocservuser.BulkUpdateItem{{
+		ID: 10, Changes: ocservuser.UpdateOcservUserData{ExpiryMode: &fixedMode, ExpireAt: &fixedDate},
+	}}})
+	require.NoError(t, err)
+	require.Equal(t, models.ExpiryModeFixed, repo.users[10].ExpiryMode)
+	require.Equal(t, fixedDate, repo.users[10].ExpireAt.Format("2006-01-02"))
+
+	firstMode := models.ExpiryModeFirstConnection
+	_, err = usecase.Update(context.Background(), principal, ocservuser.BulkUpdateRequest{Users: []ocservuser.BulkUpdateItem{{
+		ID: 10, Changes: ocservuser.UpdateOcservUserData{ExpiryMode: &firstMode, ExpireDaysAfterFirstConnection: intPointer(30)},
+	}}})
+	require.NoError(t, err)
+	require.Equal(t, models.ExpiryModeFirstConnection, repo.users[10].ExpiryMode)
+	require.Equal(t, 30, *repo.users[10].ExpireDaysAfterFirstConnection)
+	require.Nil(t, repo.users[10].FirstConnectedAt)
+	require.Nil(t, repo.users[10].ExpireAt)
+}
+
+func TestBulkUpdateRejectsInvalidExpiryCombination(t *testing.T) {
+	repo, _, usecase := newBulkFixture()
+	principal := authz.Principal{UserID: 1, Username: "admin", Superadmin: true}
+	fixedMode := models.ExpiryModeFixed
+	fixedDate := "2026-12-31"
+
+	_, err := usecase.Update(context.Background(), principal, ocservuser.BulkUpdateRequest{Users: []ocservuser.BulkUpdateItem{{
+		ID: 10, Changes: ocservuser.UpdateOcservUserData{
+			ExpiryMode: &fixedMode, ExpireAt: &fixedDate, ExpireDaysAfterFirstConnection: intPointer(30),
+		},
+	}}})
+	require.ErrorIs(t, err, ocservuser.ErrInvalidExpiryConfiguration)
+	require.Equal(t, 1, repo.rollbacks)
+	require.Empty(t, repo.users[10].ExpiryMode)
+}
+
+func TestBulkUpdateRequiresExplicitResetAfterFirstConnection(t *testing.T) {
+	repo, _, usecase := newBulkFixture()
+	principal := authz.Principal{UserID: 1, Username: "admin", Superadmin: true}
+	first := time.Date(2026, time.September, 1, 0, 0, 0, 0, time.UTC)
+	expires := first.AddDate(0, 0, 30)
+	user := repo.users[10]
+	user.ExpiryMode = models.ExpiryModeFirstConnection
+	user.ExpireDaysAfterFirstConnection = intPointer(30)
+	user.FirstConnectedAt = &first
+	user.ExpireAt = &expires
+	repo.users[10] = user
+	mode := models.ExpiryModeFirstConnection
+
+	_, err := usecase.Update(context.Background(), principal, ocservuser.BulkUpdateRequest{Users: []ocservuser.BulkUpdateItem{{
+		ID: 10, Changes: ocservuser.UpdateOcservUserData{ExpiryMode: &mode, ExpireDaysAfterFirstConnection: intPointer(60)},
+	}}})
+	require.ErrorIs(t, err, ocservuser.ErrInvalidExpiryConfiguration)
+	require.Equal(t, first, *repo.users[10].FirstConnectedAt)
+
+	_, err = usecase.Update(context.Background(), principal, ocservuser.BulkUpdateRequest{Users: []ocservuser.BulkUpdateItem{{
+		ID: 10, Changes: ocservuser.UpdateOcservUserData{ExpiryMode: &mode, ExpireDaysAfterFirstConnection: intPointer(60), ResetFirstConnection: true},
+	}}})
+	require.NoError(t, err)
+	require.Equal(t, 60, *repo.users[10].ExpireDaysAfterFirstConnection)
+	require.Nil(t, repo.users[10].FirstConnectedAt)
+	require.Nil(t, repo.users[10].ExpireAt)
 }
 
 func newBulkFixture() (*bulkUserRepository, *bulkAccountStore, *ocservuser.BulkUsecase) {

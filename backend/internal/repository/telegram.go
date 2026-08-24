@@ -28,7 +28,7 @@ type TelegramAccountRepo interface {
 	LinkAccount(ctx context.Context, account *models.TelegramAccount) error
 	DeleteAccount(ctx context.Context, id uint) error
 	// PreferredLanguageForChat returns the language from the oldest linked telegram_accounts row for this chat, or empty if none.
-	PreferredLanguageForChat(ctx context.Context, chatID int64) (string, error)
+	PreferredLanguageForChat(ctx context.Context, chatID int64) (models.TelegramLanguage, error)
 }
 
 func (r *TelegramRepository) OcservUserByID(ctx context.Context, id uint) (*models.OcservUser, error) {
@@ -54,9 +54,9 @@ type TelegramPackageRepo interface {
 }
 
 type TelegramRequestRepo interface {
-	Requests(ctx context.Context, pagination *request.Pagination, status, requestType string) ([]models.TelegramRequest, int64, error)
+	Requests(ctx context.Context, pagination *request.Pagination, status models.TelegramRequestStatus, requestType models.TelegramRequestType) ([]models.TelegramRequest, int64, error)
 	RequestByID(ctx context.Context, id uint) (*models.TelegramRequest, error)
-	UpdateRequestStatus(ctx context.Context, id uint, status string, adminNote *string) (*models.TelegramRequest, error)
+	UpdateRequestStatus(ctx context.Context, id uint, status models.TelegramRequestStatus, adminNote *string) (*models.TelegramRequest, error)
 	SetAwaitingPaymentMessageID(ctx context.Context, requestID uint, messageID int64) error
 	ClearAwaitingPaymentMessageID(ctx context.Context, requestID uint) error
 	DeleteRequest(ctx context.Context, id uint) error
@@ -132,7 +132,7 @@ func (r *TelegramRepository) DeleteAccount(ctx context.Context, id uint) error {
 		Delete(&models.TelegramAccount{}).Error
 }
 
-func (r *TelegramRepository) PreferredLanguageForChat(ctx context.Context, chatID int64) (string, error) {
+func (r *TelegramRepository) PreferredLanguageForChat(ctx context.Context, chatID int64) (models.TelegramLanguage, error) {
 	var acc models.TelegramAccount
 	err := r.db.WithContext(ctx).
 		Where("chat_id = ?", chatID).
@@ -200,8 +200,15 @@ func (r *TelegramRepository) DeletePackage(ctx context.Context, id uint) error {
 func (r *TelegramRepository) Requests(
 	ctx context.Context,
 	pagination *request.Pagination,
-	status, requestType string,
+	status models.TelegramRequestStatus,
+	requestType models.TelegramRequestType,
 ) ([]models.TelegramRequest, int64, error) {
+	if status != "" && !status.IsValid() {
+		return nil, 0, fmt.Errorf("invalid TelegramRequestStatus: %s", status)
+	}
+	if requestType != "" && !requestType.IsValid() {
+		return nil, 0, fmt.Errorf("invalid TelegramRequestType: %s", requestType)
+	}
 	applyFilters := func(q *gorm.DB) *gorm.DB {
 		if status != "" {
 			q = q.Where("status = ?", status)
@@ -242,7 +249,10 @@ func (r *TelegramRepository) RequestByID(ctx context.Context, id uint) (*models.
 	return &req, nil
 }
 
-func (r *TelegramRepository) UpdateRequestStatus(ctx context.Context, id uint, status string, adminNote *string) (*models.TelegramRequest, error) {
+func (r *TelegramRepository) UpdateRequestStatus(ctx context.Context, id uint, status models.TelegramRequestStatus, adminNote *string) (*models.TelegramRequest, error) {
+	if !status.IsValid() {
+		return nil, fmt.Errorf("invalid TelegramRequestStatus: %s", status)
+	}
 	updates := map[string]interface{}{"status": status}
 	if adminNote != nil {
 		updates["admin_note"] = *adminNote

@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	telegramusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
@@ -106,7 +107,12 @@ func (ctl *Controller) ListRequests(c *echo.Context) error {
 	if query.Get("sort") == "" {
 		pagination.Sort = "DESC"
 	}
-	result, total, err := ctl.telegram.ListRequests(c.Request().Context(), pagination, c.QueryParam("status"), c.QueryParam("type"))
+	result, total, err := ctl.telegram.ListRequests(
+		c.Request().Context(),
+		pagination,
+		models.TelegramRequestStatus(c.QueryParam("status")),
+		models.TelegramRequestType(c.QueryParam("type")),
+	)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

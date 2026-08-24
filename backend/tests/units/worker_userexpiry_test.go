@@ -21,8 +21,14 @@ type expiryRepository struct {
 	mu          sync.Mutex
 }
 
-func (r *expiryRepository) ExpiredUsers(context.Context, time.Time) ([]models.OcservUser, error) {
-	return r.expired, nil
+func (r *expiryRepository) ExpiredUsers(_ context.Context, at time.Time) ([]models.OcservUser, error) {
+	result := make([]models.OcservUser, 0, len(r.expired))
+	for _, user := range r.expired {
+		if user.ExpireAt != nil && user.DeactivatedAt == nil && !user.ExpireAt.After(at) {
+			result = append(result, user)
+		}
+	}
+	return result, nil
 }
 
 func (r *expiryRepository) Deactivate(_ context.Context, id uint, _ time.Time) error {
@@ -81,7 +87,8 @@ func (a *expiryAccess) Unlock(username string) error {
 }
 
 func TestWorkerUserExpiryCoordinatesPersistenceAndAccess(t *testing.T) {
-	repo := &expiryRepository{expired: []models.OcservUser{{ID: 7, Username: "alice"}}}
+	expiresAt := time.Now().Add(-time.Minute)
+	repo := &expiryRepository{expired: []models.OcservUser{{ID: 7, Username: "alice", ExpiryMode: models.ExpiryModeFixed, ExpireAt: &expiresAt}}}
 	access := &expiryAccess{}
 	usecase := userexpiry.New(repo, access)
 
@@ -89,6 +96,35 @@ func TestWorkerUserExpiryCoordinatesPersistenceAndAccess(t *testing.T) {
 	require.Equal(t, []uint{7}, repo.deactivated)
 	require.Equal(t, []string{"alice"}, access.disconnected)
 	require.Equal(t, []string{"alice"}, access.locked)
+}
+
+func TestWorkerDoesNotExpireFirstConnectionUserBeforeConnection(t *testing.T) {
+	repo := &expiryRepository{expired: []models.OcservUser{{
+		ID: 8, Username: "waiting", ExpiryMode: models.ExpiryModeFirstConnection,
+		ExpireDaysAfterFirstConnection: intPointer(30),
+	}}}
+	access := &expiryAccess{}
+
+	require.NoError(t, userexpiry.New(repo, access).Expire(context.Background(), time.Now().UTC()))
+	require.Empty(t, repo.deactivated)
+	require.Empty(t, access.locked)
+}
+
+func TestWorkerExpiresFirstConnectionUserAtEffectiveExpiry(t *testing.T) {
+	firstConnectedAt := time.Date(2026, time.September, 1, 10, 30, 0, 0, time.UTC)
+	expiresAt := firstConnectedAt.AddDate(0, 0, 30)
+	repo := &expiryRepository{expired: []models.OcservUser{{
+		ID: 9, Username: "connected", ExpiryMode: models.ExpiryModeFirstConnection,
+		ExpireDaysAfterFirstConnection: intPointer(30), FirstConnectedAt: &firstConnectedAt, ExpireAt: &expiresAt,
+	}}}
+	access := &expiryAccess{}
+	usecase := userexpiry.New(repo, access)
+
+	require.NoError(t, usecase.Expire(context.Background(), expiresAt.Add(-time.Nanosecond)))
+	require.Empty(t, repo.deactivated)
+	require.NoError(t, usecase.Expire(context.Background(), expiresAt))
+	require.Equal(t, []uint{9}, repo.deactivated)
+	require.Equal(t, []string{"connected"}, access.locked)
 }
 
 func TestWorkerUserExpiryHonorsDeleteSettings(t *testing.T) {
@@ -101,4 +137,8 @@ func TestWorkerUserExpiryHonorsDeleteSettings(t *testing.T) {
 	require.EqualValues(t, 2, deleted)
 	require.NotNil(t, repo.deletedAt)
 	require.Equal(t, now.AddDate(0, 0, -30), *repo.deletedAt)
+}
+
+func intPointer(value int) *int {
+	return &value
 }

@@ -62,6 +62,13 @@ func (ctl *Controller) User(c *echo.Context) error {
 
 // Create creates an OCServ user. @Summary Ocserv User creation
 // @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body CreateOcservUserData true "OCServ user and expiry configuration"
+// @Success 201 {object} models.OcservUser
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
 // @Router /ocserv/users [post]
 func (ctl *Controller) Create(c *echo.Context) error {
 	var input CreateOcservUserData
@@ -81,7 +88,15 @@ func (ctl *Controller) Create(c *echo.Context) error {
 
 // Update updates an OCServ user. @Summary Ocserv User update
 // @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Ocserv User ID"
+// @Param request body UpdateOcservUserData true "OCServ user and expiry changes"
+// @Success 200 {object} models.OcservUser
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
 // @Router /ocserv/users/{id} [patch]
 func (ctl *Controller) Update(c *echo.Context) error {
 	var input UpdateOcservUserData
@@ -329,7 +344,14 @@ func (ctl *Controller) SyncToDB(c *echo.Context) error {
 
 // ActivateExpired restores an expired account. @Summary Restore and activate expired Ocserv User accounts
 // @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Ocserv User ID"
+// @Param request body ActivateUserData true "New expiry configuration; omitted values reset to unlimited"
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
 // @Router /ocserv/users/{id}/activate [post]
 func (ctl *Controller) ActivateExpired(c *echo.Context) error {
 	var input ActivateUserData

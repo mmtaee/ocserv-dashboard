@@ -9,7 +9,7 @@ const TelegramLangCallbackPrefix = "lang:"
 
 // TelegramLanguageOption is one supported bot/dashboard Telegram language.
 type TelegramLanguageOption struct {
-	Code  string
+	Code  TelegramLanguage
 	Label string
 }
 
@@ -29,7 +29,7 @@ var telegramLanguageCodes map[string]struct{}
 func init() {
 	telegramLanguageCodes = make(map[string]struct{}, len(TelegramLanguages))
 	for _, l := range TelegramLanguages {
-		telegramLanguageCodes[strings.ToLower(l.Code)] = struct{}{}
+		telegramLanguageCodes[strings.ToLower(string(l.Code))] = struct{}{}
 	}
 }
 
@@ -42,7 +42,7 @@ func IsTelegramLanguage(code string) bool {
 // IsTelegramRTL reports whether bot/API HTML messages should use RTL formatting for this language.
 func IsTelegramRTL(code string) bool {
 	switch strings.ToLower(strings.TrimSpace(code)) {
-	case TelegramLanguageFA, TelegramLanguageAR:
+	case string(TelegramLanguageFA), string(TelegramLanguageAR):
 		return true
 	default:
 		return false
@@ -50,12 +50,12 @@ func IsTelegramRTL(code string) bool {
 }
 
 // TelegramLangCallback builds callback_data for a language button.
-func TelegramLangCallback(code string) string {
-	return TelegramLangCallbackPrefix + strings.ToLower(strings.TrimSpace(code))
+func TelegramLangCallback(code TelegramLanguage) string {
+	return TelegramLangCallbackPrefix + strings.ToLower(strings.TrimSpace(string(code)))
 }
 
 // TelegramLangFromCallback parses callback_data; second return is false if invalid.
-func TelegramLangFromCallback(data string) (string, bool) {
+func TelegramLangFromCallback(data string) (TelegramLanguage, bool) {
 	if !strings.HasPrefix(data, TelegramLangCallbackPrefix) {
 		return "", false
 	}
@@ -63,5 +63,5 @@ func TelegramLangFromCallback(data string) (string, bool) {
 	if !IsTelegramLanguage(code) {
 		return "", false
 	}
-	return code, true
+	return TelegramLanguage(code), true
 }

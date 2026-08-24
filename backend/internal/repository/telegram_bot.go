@@ -70,7 +70,10 @@ func (r *TelegramBotRepository) AccountByID(ctx context.Context, id uint) (*mode
 	return &account, nil
 }
 
-func (r *TelegramBotRepository) UpsertAccount(ctx context.Context, chatID int64, telegramUsername, language string, ocservUserID uint) (*models.TelegramAccount, error) {
+func (r *TelegramBotRepository) UpsertAccount(ctx context.Context, chatID int64, telegramUsername string, language models.TelegramLanguage, ocservUserID uint) (*models.TelegramAccount, error) {
+	if !language.IsValid() {
+		return nil, errors.New("invalid Telegram language")
+	}
 	account := &models.TelegramAccount{
 		ChatID:           chatID,
 		TelegramUsername: telegramUsername,
@@ -113,7 +116,10 @@ func (r *TelegramBotRepository) DeleteAccount(ctx context.Context, id uint) erro
 		Delete(&models.TelegramAccount{}).Error
 }
 
-func (r *TelegramBotRepository) UpdateLanguageForChat(ctx context.Context, chatID int64, language string) error {
+func (r *TelegramBotRepository) UpdateLanguageForChat(ctx context.Context, chatID int64, language models.TelegramLanguage) error {
+	if !language.IsValid() {
+		return errors.New("invalid Telegram language")
+	}
 	return r.db.WithContext(ctx).
 		Model(&models.TelegramAccount{}).
 		Where("chat_id = ?", chatID).
@@ -201,7 +207,7 @@ func (r *TelegramBotRepository) PendingByChat(ctx context.Context, chatID int64)
 	var req models.TelegramRequest
 	err := r.db.WithContext(ctx).
 		Where("chat_id = ?", chatID).
-		Where("status IN ?", []string{
+		Where("status IN ?", []models.TelegramRequestStatus{
 			models.TelegramRequestStatusPending,
 			models.TelegramRequestStatusAwaitingPayment,
 			models.TelegramRequestStatusPaymentUploaded,
@@ -246,7 +252,12 @@ func (r *TelegramBotRepository) RequestByID(ctx context.Context, id uint) (*mode
 // RequestsByStatuses returns recent requests in the given status set, newest
 // first. Capped by limit so the admin menu never sends a Telegram message
 // that exceeds the 4096-character body limit.
-func (r *TelegramBotRepository) RequestsByStatuses(ctx context.Context, statuses []string, limit int) ([]models.TelegramRequest, error) {
+func (r *TelegramBotRepository) RequestsByStatuses(ctx context.Context, statuses []models.TelegramRequestStatus, limit int) ([]models.TelegramRequest, error) {
+	for _, status := range statuses {
+		if !status.IsValid() {
+			return nil, errors.New("invalid Telegram request status")
+		}
+	}
 	if limit <= 0 {
 		limit = 10
 	}

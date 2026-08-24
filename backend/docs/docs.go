@@ -1006,10 +1006,53 @@ const docTemplate = `{
                 "responses": {}
             },
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "responses": {}
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OCServ user and expiry configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.CreateOcservUserData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
             }
         },
         "/ocserv/users/bulk": {
@@ -1290,36 +1333,124 @@ const docTemplate = `{
                 "responses": {}
             },
             "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Ocserv User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "OCServ user and expiry changes",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.UpdateOcservUserData"
+                        }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OcservUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
             }
         },
         "/ocserv/users/{id}/activate": {
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Ocserv(Users)"
                 ],
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Ocserv User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "New expiry configuration; omitted values reset to unlimited",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.ActivateUserData"
+                        }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
             }
         },
         "/ocserv/users/{id}/certificate": {
@@ -2899,6 +3030,19 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ExpiryMode": {
+            "type": "string",
+            "enum": [
+                "unlimited",
+                "fixed",
+                "first_connection"
+            ],
+            "x-enum-varnames": [
+                "ExpiryModeUnlimited",
+                "ExpiryModeFixed",
+                "ExpiryModeFirstConnection"
+            ]
+        },
         "models.IPBanPoints": {
             "type": "object",
             "properties": {
@@ -3073,6 +3217,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "created_at",
+                "expiry_mode",
                 "group",
                 "id",
                 "is_locked",
@@ -3109,6 +3254,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "expire_at": {
+                    "description": "ExpireAt is the effective expiry instant. It remains nil for a\nfirst-connection account until the worker observes its first session.",
+                    "type": "string"
+                },
+                "expire_days_after_first_connection": {
+                    "type": "integer"
+                },
+                "expiry_mode": {
+                    "enum": [
+                        "unlimited",
+                        "fixed",
+                        "first_connection"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ExpiryMode"
+                        }
+                    ]
+                },
+                "first_connected_at": {
                     "type": "string"
                 },
                 "group": {
@@ -3147,7 +3311,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "traffic_type": {
-                    "type": "string",
                     "enum": [
                         "Free",
                         "MonthlyTransmit",
@@ -3156,6 +3319,11 @@ const docTemplate = `{
                         "TotallyTransmit",
                         "TotallyReceive",
                         "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
                     ]
                 },
                 "tx": {
@@ -3172,6 +3340,9 @@ const docTemplate = `{
         },
         "models.OcservUserCertificateBackup": {
             "type": "object",
+            "required": [
+                "status"
+            ],
             "properties": {
                 "cert_pem": {
                     "type": "string"
@@ -3183,10 +3354,28 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "active or suspended",
-                    "type": "string"
+                    "enum": [
+                        "active",
+                        "suspended"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OcservUserCertificateStatus"
+                        }
+                    ]
                 }
             }
+        },
+        "models.OcservUserCertificateStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "suspended"
+            ],
+            "x-enum-varnames": [
+                "OcservUserCertificateStatusActive",
+                "OcservUserCertificateStatusSuspended"
+            ]
         },
         "models.OcservUserConfig": {
             "type": "object",
@@ -3261,6 +3450,21 @@ const docTemplate = `{
                 }
             }
         },
+        "models.OcservUserSessionEvent": {
+            "type": "string",
+            "enum": [
+                "user-agent",
+                "handshake",
+                "periodic-stats",
+                "disconnect"
+            ],
+            "x-enum-varnames": [
+                "EventUseragent",
+                "EventHandshake",
+                "EventPeriodicStats",
+                "EventDisconnect"
+            ]
+        },
         "models.OcservUserSessionLog": {
             "type": "object",
             "required": [
@@ -3274,12 +3478,16 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event": {
-                    "type": "string",
                     "enum": [
                         "user-agent",
                         "handshake",
                         "periodic-stats",
                         "disconnect"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OcservUserSessionEvent"
+                        }
                     ]
                 },
                 "ip": {
@@ -3345,6 +3553,27 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.TrafficType": {
+            "type": "string",
+            "enum": [
+                "Free",
+                "MonthlyTransmit",
+                "MonthlyReceive",
+                "MonthlyRxTx",
+                "TotallyTransmit",
+                "TotallyReceive",
+                "TotallyRxTx"
+            ],
+            "x-enum-varnames": [
+                "Free",
+                "MonthlyTransmit",
+                "MonthlyReceive",
+                "MonthlyRxTx",
+                "TotallyTransmit",
+                "TotallyReceive",
+                "TotallyRxTx"
+            ]
         },
         "models.User": {
             "type": "object",
@@ -3447,6 +3676,36 @@ const docTemplate = `{
                 }
             }
         },
+        "ocserv_user.ActivateUserData": {
+            "type": "object",
+            "properties": {
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "expire_days_after_first_connection": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "expiry_mode": {
+                    "enum": [
+                        "unlimited",
+                        "fixed",
+                        "first_connection"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ExpiryMode"
+                        }
+                    ],
+                    "example": "fixed"
+                },
+                "reset_first_connection": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
         "ocserv_user.BulkDeleteResponse": {
             "type": "object",
             "properties": {
@@ -3541,6 +3800,161 @@ const docTemplate = `{
                 }
             }
         },
+        "ocserv_user.CreateOcservUserData": {
+            "type": "object",
+            "required": [
+                "config",
+                "group",
+                "password",
+                "traffic_type",
+                "username"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "expire_days_after_first_connection": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "expiry_mode": {
+                    "enum": [
+                        "unlimited",
+                        "fixed",
+                        "first_connection"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ExpiryMode"
+                        }
+                    ],
+                    "example": "fixed"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
+                    ]
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                }
+            }
+        },
+        "ocserv_user.UpdateOcservUserData": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "expire_days_after_first_connection": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "expiry_mode": {
+                    "enum": [
+                        "unlimited",
+                        "fixed",
+                        "first_connection"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ExpiryMode"
+                        }
+                    ],
+                    "example": "first_connection"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "reset_first_connection": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
+                    ]
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                }
+            }
+        },
         "ocservuser.BulkUpdateItem": {
             "type": "object",
             "required": [
@@ -3571,6 +3985,23 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2025-12-31"
                 },
+                "expire_days_after_first_connection": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "expiry_mode": {
+                    "enum": [
+                        "unlimited",
+                        "fixed",
+                        "first_connection"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ExpiryMode"
+                        }
+                    ],
+                    "example": "first_connection"
+                },
                 "group": {
                     "type": "string",
                     "example": "default"
@@ -3580,6 +4011,10 @@ const docTemplate = `{
                     "maxLength": 32,
                     "minLength": 2
                 },
+                "reset_first_connection": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "traffic_size": {
                     "description": "10 GiB",
                     "type": "integer",
@@ -3587,7 +4022,6 @@ const docTemplate = `{
                     "example": 10737418240
                 },
                 "traffic_type": {
-                    "type": "string",
                     "enum": [
                         "Free",
                         "MonthlyTransmit",
@@ -3596,6 +4030,11 @@ const docTemplate = `{
                         "TotallyTransmit",
                         "TotallyReceive",
                         "TotallyRxTx"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrafficType"
+                        }
                     ]
                 },
                 "unlimited": {

@@ -26,6 +26,9 @@ func (u *Usecase) GetSettings(ctx context.Context) (*SettingsResponse, error) {
 }
 
 func (u *Usecase) PatchSettings(ctx context.Context, input PatchSettingsData) (*SettingsResponse, error) {
+	if input.DefaultLanguage != nil && !input.DefaultLanguage.IsValid() {
+		return nil, fmt.Errorf("unsupported default_language %q", *input.DefaultLanguage)
+	}
 	updates := map[string]interface{}{}
 	if input.Enabled != nil {
 		updates["enabled"] = *input.Enabled
@@ -95,10 +98,16 @@ func (u *Usecase) ListPackages(ctx context.Context, includeInactive bool) ([]mod
 }
 
 func (u *Usecase) CreatePackage(ctx context.Context, input CreatePackageData) (*models.TelegramPackage, error) {
+	if !input.TrafficType.IsValid() {
+		return nil, fmt.Errorf("unsupported traffic_type %q", input.TrafficType)
+	}
 	return u.Repository.CreatePackage(ctx, &models.TelegramPackage{Title: input.Title, Days: input.Days, TrafficSizeGB: input.TrafficSizeGB, TrafficType: input.TrafficType, PriceText: input.PriceText, IsActive: input.IsActive})
 }
 
 func (u *Usecase) PatchPackage(ctx context.Context, id uint, input PatchPackageData) (*models.TelegramPackage, error) {
+	if input.TrafficType != nil && !input.TrafficType.IsValid() {
+		return nil, fmt.Errorf("unsupported traffic_type %q", *input.TrafficType)
+	}
 	updates := map[string]interface{}{}
 	if input.Title != nil {
 		updates["title"] = *input.Title
@@ -124,7 +133,13 @@ func (u *Usecase) PatchPackage(ctx context.Context, id uint, input PatchPackageD
 	return u.Repository.UpdatePackage(ctx, id, updates)
 }
 
-func (u *Usecase) ListRequests(ctx context.Context, pagination *request.Pagination, status, requestType string) ([]models.TelegramRequest, int64, error) {
+func (u *Usecase) ListRequests(ctx context.Context, pagination *request.Pagination, status models.TelegramRequestStatus, requestType models.TelegramRequestType) ([]models.TelegramRequest, int64, error) {
+	if status != "" && !status.IsValid() {
+		return nil, 0, fmt.Errorf("unsupported request status %q", status)
+	}
+	if requestType != "" && !requestType.IsValid() {
+		return nil, 0, fmt.Errorf("unsupported request type %q", requestType)
+	}
 	if pagination.Order == "" {
 		pagination.Order = "created_at"
 	}
@@ -288,7 +303,9 @@ func (u *Usecase) deliverRenewal(ctx context.Context, req *models.TelegramReques
 		base = *user.ExpireAt
 	}
 	expiresAt := base.AddDate(0, 0, plan.Days)
-	user.ExpireAt, user.DeactivatedAt, user.IsLocked, user.Rx, user.Tx = &expiresAt, nil, false, 0, 0
+	user.ExpiryMode = models.ExpiryModeFixed
+	user.ExpireAt, user.ExpireDaysAfterFirstConnection, user.FirstConnectedAt = &expiresAt, nil, nil
+	user.DeactivatedAt, user.IsLocked, user.Rx, user.Tx = nil, false, 0, 0
 	user.TrafficType, user.TrafficSize = plan.TrafficType, int64(plan.TrafficSizeGB)<<30
 	if _, err := u.users.Update(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to renew ocserv user: %w", err)
@@ -308,7 +325,8 @@ func (u *Usecase) notifyAwaitingPayment(ctx context.Context, req *models.Telegra
 	if err != nil || settings.BotToken == "" || !settings.Enabled {
 		return
 	}
-	language, _ := u.Repository.PreferredLanguageForChat(ctx, req.ChatID)
+	preferredLanguage, _ := u.Repository.PreferredLanguageForChat(ctx, req.ChatID)
+	language := string(preferredLanguage)
 	if language == "" {
 		language = defaultLanguage(settings)
 	}
@@ -375,10 +393,10 @@ func randomValue(prefix string, size int) string {
 	return prefix + hex.EncodeToString(value)
 }
 func defaultLanguage(settings *models.TelegramSettings) string {
-	if settings != nil && strings.TrimSpace(settings.DefaultLanguage) != "" {
-		return settings.DefaultLanguage
+	if settings != nil && strings.TrimSpace(string(settings.DefaultLanguage)) != "" {
+		return string(settings.DefaultLanguage)
 	}
-	return models.TelegramLanguageEN
+	return string(models.TelegramLanguageEN)
 }
 func support(settings *models.TelegramSettings) string {
 	if settings == nil {

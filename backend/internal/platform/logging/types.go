@@ -11,6 +11,12 @@ type LogMessage struct {
 	Time    time.Time
 }
 
+// StreamEntry is a timestamped line received from a service log source.
+type StreamEntry struct {
+	Message   string
+	Timestamp time.Time
+}
+
 type Logger struct {
 	logChan chan LogMessage
 	done    chan struct{}
