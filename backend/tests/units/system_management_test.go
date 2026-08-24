@@ -16,7 +16,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/config"
 	platformsystemd "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/systemd"
-	systemservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/system"
+	systemservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
@@ -78,7 +78,7 @@ func (s *managementConfigStore) Write(_ context.Context, changes systemusecase.O
 func TestSystemEndpointsRequireSuperadminAndAllowActions(t *testing.T) {
 	config.Init(false, "", 0)
 	runtime := &managementRuntime{}
-	controller := systemservice.NewController(systemusecase.New(runtime, &managementConfigStore{}))
+	controller := systemservice.NewRuntimeController(systemusecase.New(runtime, &managementConfigStore{}))
 
 	normalToken := managementToken(t, false)
 	for _, test := range []struct {
@@ -181,7 +181,7 @@ func TestOcservConfigRejectsInvalidAndUnsupportedValues(t *testing.T) {
 	require.Zero(t, runtime.restarts)
 
 	config.Init(false, "", 0)
-	controller := systemservice.NewController(usecase)
+	controller := systemservice.NewRuntimeController(usecase)
 	body := bytes.NewBufferString(`{"tcp_port":444,"include":"/etc/passwd"}`)
 	recorder, handlerErr := runManagementHandler(
 		http.MethodPatch, "/system/ocserv-config", body, managementToken(t, true), controller.UpdateConfig,

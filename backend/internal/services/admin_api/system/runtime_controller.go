@@ -12,13 +12,13 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 )
 
-type Controller struct {
+type RuntimeController struct {
 	request request.CustomRequestInterface
 	system  *systemusecase.Usecase
 }
 
-func NewController(usecase *systemusecase.Usecase) *Controller {
-	return &Controller{request: request.NewCustomRequest(), system: usecase}
+func NewRuntimeController(usecase *systemusecase.Usecase) *RuntimeController {
+	return &RuntimeController{request: request.NewCustomRequest(), system: usecase}
 }
 
 // Status returns the managed OCServ runtime status.
@@ -30,7 +30,7 @@ func NewController(usecase *systemusecase.Usecase) *Controller {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} StatusResponse
 // @Router /systemd/status [get]
-func (ctl *Controller) Status(c *echo.Context) error {
+func (ctl *RuntimeController) Status(c *echo.Context) error {
 	result, err := ctl.system.Status(c.Request().Context())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -47,7 +47,7 @@ func (ctl *Controller) Status(c *echo.Context) error {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} ActionResponse
 // @Router /systemd/restart [post]
-func (ctl *Controller) Restart(c *echo.Context) error {
+func (ctl *RuntimeController) Restart(c *echo.Context) error {
 	return ctl.action(c, ctl.system.Restart)
 }
 
@@ -60,7 +60,7 @@ func (ctl *Controller) Restart(c *echo.Context) error {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} ActionResponse
 // @Router /systemd/enable [post]
-func (ctl *Controller) Enable(c *echo.Context) error {
+func (ctl *RuntimeController) Enable(c *echo.Context) error {
 	return ctl.action(c, ctl.system.Enable)
 }
 
@@ -73,7 +73,7 @@ func (ctl *Controller) Enable(c *echo.Context) error {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} ActionResponse
 // @Router /systemd/disable [post]
-func (ctl *Controller) Disable(c *echo.Context) error {
+func (ctl *RuntimeController) Disable(c *echo.Context) error {
 	return ctl.action(c, ctl.system.Disable)
 }
 
@@ -86,7 +86,7 @@ func (ctl *Controller) Disable(c *echo.Context) error {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} OcservConfig
 // @Router /system/ocserv-config [get]
-func (ctl *Controller) Config(c *echo.Context) error {
+func (ctl *RuntimeController) Config(c *echo.Context) error {
 	result, err := ctl.system.Config(c.Request().Context())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -106,7 +106,7 @@ func (ctl *Controller) Config(c *echo.Context) error {
 // @Failure 403 {object} request.ErrorResponse
 // @Success 200 {object} OcservConfig
 // @Router /system/ocserv-config [patch]
-func (ctl *Controller) UpdateConfig(c *echo.Context) error {
+func (ctl *RuntimeController) UpdateConfig(c *echo.Context) error {
 	var changes OcservConfig
 	if err := decodeStrictJSON(c, &changes); err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -118,7 +118,7 @@ func (ctl *Controller) UpdateConfig(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func (ctl *Controller) action(c *echo.Context, run func(context.Context) (*systemusecase.ActionResult, error)) error {
+func (ctl *RuntimeController) action(c *echo.Context, run func(context.Context) (*systemusecase.ActionResult, error)) error {
 	result, err := run(c.Request().Context())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)

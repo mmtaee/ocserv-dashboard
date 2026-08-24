@@ -2044,7 +2044,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
                         }
                     },
                     "400": {
@@ -2092,7 +2092,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
                         }
                     }
                 ],
@@ -2100,7 +2100,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
                         }
                     },
                     "400": {
@@ -2875,6 +2875,109 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig": {
+            "type": "object",
+            "properties": {
+                "auth_timeout": {
+                    "type": "integer"
+                },
+                "ban_reset_time": {
+                    "type": "integer"
+                },
+                "banner": {
+                    "type": "string"
+                },
+                "cisco_client_compat": {
+                    "type": "boolean"
+                },
+                "cookie_timeout": {
+                    "type": "integer"
+                },
+                "deny_roaming": {
+                    "type": "boolean"
+                },
+                "dns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "type": "integer"
+                },
+                "dtls_legacy": {
+                    "type": "boolean"
+                },
+                "ipv4_network": {
+                    "type": "string"
+                },
+                "keepalive": {
+                    "type": "integer"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_ban_score": {
+                    "type": "integer"
+                },
+                "max_clients": {
+                    "type": "integer"
+                },
+                "max_same_clients": {
+                    "type": "integer"
+                },
+                "min_reauth_time": {
+                    "type": "integer"
+                },
+                "mobile_dpd": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "ping_leases": {
+                    "type": "boolean"
+                },
+                "pre_login_banner": {
+                    "type": "string"
+                },
+                "predictable_ips": {
+                    "type": "boolean"
+                },
+                "rate_limit_ms": {
+                    "type": "integer"
+                },
+                "rekey_method": {
+                    "enum": [
+                        "ssl",
+                        "new-tunnel"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/system.RekeyMethod"
+                        }
+                    ]
+                },
+                "rekey_time": {
+                    "type": "integer"
+                },
+                "switch_to_tcp_timeout": {
+                    "type": "integer"
+                },
+                "tcp_port": {
+                    "type": "integer"
+                },
+                "try_mtu_discovery": {
+                    "type": "boolean"
+                },
+                "tunnel_all_dns": {
+                    "type": "boolean"
+                },
+                "udp_port": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData": {
             "type": "object",
             "required": [
@@ -2977,109 +3080,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
-                }
-            }
-        },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig": {
-            "type": "object",
-            "properties": {
-                "auth_timeout": {
-                    "type": "integer"
-                },
-                "ban_reset_time": {
-                    "type": "integer"
-                },
-                "banner": {
-                    "type": "string"
-                },
-                "cisco_client_compat": {
-                    "type": "boolean"
-                },
-                "cookie_timeout": {
-                    "type": "integer"
-                },
-                "deny_roaming": {
-                    "type": "boolean"
-                },
-                "dns": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "dpd": {
-                    "type": "integer"
-                },
-                "dtls_legacy": {
-                    "type": "boolean"
-                },
-                "ipv4_network": {
-                    "type": "string"
-                },
-                "keepalive": {
-                    "type": "integer"
-                },
-                "log_level": {
-                    "type": "integer"
-                },
-                "max_ban_score": {
-                    "type": "integer"
-                },
-                "max_clients": {
-                    "type": "integer"
-                },
-                "max_same_clients": {
-                    "type": "integer"
-                },
-                "min_reauth_time": {
-                    "type": "integer"
-                },
-                "mobile_dpd": {
-                    "type": "integer"
-                },
-                "mtu": {
-                    "type": "integer"
-                },
-                "ping_leases": {
-                    "type": "boolean"
-                },
-                "pre_login_banner": {
-                    "type": "string"
-                },
-                "predictable_ips": {
-                    "type": "boolean"
-                },
-                "rate_limit_ms": {
-                    "type": "integer"
-                },
-                "rekey_method": {
-                    "enum": [
-                        "ssl",
-                        "new-tunnel"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/system.RekeyMethod"
-                        }
-                    ]
-                },
-                "rekey_time": {
-                    "type": "integer"
-                },
-                "switch_to_tcp_timeout": {
-                    "type": "integer"
-                },
-                "tcp_port": {
-                    "type": "integer"
-                },
-                "try_mtu_discovery": {
-                    "type": "boolean"
-                },
-                "tunnel_all_dns": {
-                    "type": "boolean"
-                },
-                "udp_port": {
-                    "type": "integer"
                 }
             }
         },
