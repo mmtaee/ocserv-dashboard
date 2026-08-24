@@ -18,6 +18,7 @@ import (
 	groupcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/ocserv_group"
 	usercontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/ocserv_user"
 	reportcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/reports"
+	runtimecontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/runtime"
 	systemcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
 	telegramcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/telegram"
 	backupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/backup"
@@ -28,7 +29,7 @@ import (
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/system"
 	telegramusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram"
 	userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
-	runtimesystemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
+	runtimeusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/captcha"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 )
@@ -41,7 +42,7 @@ type Service struct {
 	users          *usercontroller.Controller
 	reports        *reportcontroller.Controller
 	system         *systemcontroller.Controller
-	runtimeSystem  *systemcontroller.RuntimeController
+	runtime        *runtimecontroller.Controller
 	telegram       *telegramcontroller.Controller
 	telegramRoutes bool
 }
@@ -56,14 +57,14 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	ocservGroupUC := groupusecase.New(repository.NewOcservGroupRepository(), ocservUserUC, ocservgroupconfig.NewOcservGroup(), occtlUC)
 	telegramUC := telegramusecase.New(repository.NewTelegramRepository(), ocservUserUC, telegramclient.NewClient(&http.Client{Timeout: 8 * time.Second}))
 	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRuntimeEnabled)
-	runtime, err := systemcontroller.NewRuntime(
+	runtimeService, err := runtimecontroller.NewRuntime(
 		dockerMode,
 		strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
 	)
 	if err != nil {
 		return nil, err
 	}
-	runtimeSystemUC := runtimesystemusecase.New(runtime, systemcontroller.NewConfigFile(systemcontroller.DefaultOcservConfigPath))
+	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath))
 
 	return &Service{
 		backup:    backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
@@ -79,7 +80,7 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 				ReleaseTimeout: 5 * time.Second,
 			},
 		)),
-		runtimeSystem:  systemcontroller.NewRuntimeController(runtimeSystemUC),
+		runtime:        runtimecontroller.New(runtimeUC),
 		telegram:       telegramcontroller.New(telegramUC),
 		telegramRoutes: telegramRoutes,
 	}, nil

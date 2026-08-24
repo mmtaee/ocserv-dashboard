@@ -2044,7 +2044,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
+                            "$ref": "#/definitions/runtime.OcservConfig"
                         }
                     },
                     "400": {
@@ -2092,7 +2092,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
+                            "$ref": "#/definitions/runtime.OcservConfig"
                         }
                     }
                 ],
@@ -2100,7 +2100,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig"
+                            "$ref": "#/definitions/runtime.OcservConfig"
                         }
                     },
                     "400": {
@@ -2490,7 +2490,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.ActionResponse"
+                            "$ref": "#/definitions/runtime.ActionResponse"
                         }
                     },
                     "400": {
@@ -2533,7 +2533,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.ActionResponse"
+                            "$ref": "#/definitions/runtime.ActionResponse"
                         }
                     },
                     "400": {
@@ -2576,7 +2576,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.ActionResponse"
+                            "$ref": "#/definitions/runtime.ActionResponse"
                         }
                     },
                     "400": {
@@ -2619,7 +2619,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/system.StatusResponse"
+                            "$ref": "#/definitions/runtime.StatusResponse"
                         }
                     },
                     "400": {
@@ -2872,109 +2872,6 @@ const docTemplate = `{
                     "maxLength": 16,
                     "minLength": 2,
                     "example": "john_doe"
-                }
-            }
-        },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.OcservConfig": {
-            "type": "object",
-            "properties": {
-                "auth_timeout": {
-                    "type": "integer"
-                },
-                "ban_reset_time": {
-                    "type": "integer"
-                },
-                "banner": {
-                    "type": "string"
-                },
-                "cisco_client_compat": {
-                    "type": "boolean"
-                },
-                "cookie_timeout": {
-                    "type": "integer"
-                },
-                "deny_roaming": {
-                    "type": "boolean"
-                },
-                "dns": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "dpd": {
-                    "type": "integer"
-                },
-                "dtls_legacy": {
-                    "type": "boolean"
-                },
-                "ipv4_network": {
-                    "type": "string"
-                },
-                "keepalive": {
-                    "type": "integer"
-                },
-                "log_level": {
-                    "type": "integer"
-                },
-                "max_ban_score": {
-                    "type": "integer"
-                },
-                "max_clients": {
-                    "type": "integer"
-                },
-                "max_same_clients": {
-                    "type": "integer"
-                },
-                "min_reauth_time": {
-                    "type": "integer"
-                },
-                "mobile_dpd": {
-                    "type": "integer"
-                },
-                "mtu": {
-                    "type": "integer"
-                },
-                "ping_leases": {
-                    "type": "boolean"
-                },
-                "pre_login_banner": {
-                    "type": "string"
-                },
-                "predictable_ips": {
-                    "type": "boolean"
-                },
-                "rate_limit_ms": {
-                    "type": "integer"
-                },
-                "rekey_method": {
-                    "enum": [
-                        "ssl",
-                        "new-tunnel"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/system.RekeyMethod"
-                        }
-                    ]
-                },
-                "rekey_time": {
-                    "type": "integer"
-                },
-                "switch_to_tcp_timeout": {
-                    "type": "integer"
-                },
-                "tcp_port": {
-                    "type": "integer"
-                },
-                "try_mtu_discovery": {
-                    "type": "boolean"
-                },
-                "tunnel_all_dns": {
-                    "type": "boolean"
-                },
-                "udp_port": {
-                    "type": "integer"
                 }
             }
         },
@@ -4492,7 +4389,7 @@ const docTemplate = `{
                 }
             }
         },
-        "system.ActionResponse": {
+        "runtime.ActionResponse": {
             "type": "object",
             "required": [
                 "message"
@@ -4503,18 +4400,110 @@ const docTemplate = `{
                 }
             }
         },
-        "system.RekeyMethod": {
-            "type": "string",
-            "enum": [
-                "ssl",
-                "new-tunnel"
-            ],
-            "x-enum-varnames": [
-                "RekeyMethodSSL",
-                "RekeyMethodNewTunnel"
-            ]
+        "runtime.OcservConfig": {
+            "type": "object",
+            "properties": {
+                "auth_timeout": {
+                    "type": "integer"
+                },
+                "ban_reset_time": {
+                    "type": "integer"
+                },
+                "banner": {
+                    "type": "string"
+                },
+                "cisco_client_compat": {
+                    "type": "boolean"
+                },
+                "cookie_timeout": {
+                    "type": "integer"
+                },
+                "deny_roaming": {
+                    "type": "boolean"
+                },
+                "dns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "type": "integer"
+                },
+                "dtls_legacy": {
+                    "type": "boolean"
+                },
+                "ipv4_network": {
+                    "type": "string"
+                },
+                "keepalive": {
+                    "type": "integer"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_ban_score": {
+                    "type": "integer"
+                },
+                "max_clients": {
+                    "type": "integer"
+                },
+                "max_same_clients": {
+                    "type": "integer"
+                },
+                "min_reauth_time": {
+                    "type": "integer"
+                },
+                "mobile_dpd": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "ping_leases": {
+                    "type": "boolean"
+                },
+                "pre_login_banner": {
+                    "type": "string"
+                },
+                "predictable_ips": {
+                    "type": "boolean"
+                },
+                "rate_limit_ms": {
+                    "type": "integer"
+                },
+                "rekey_method": {
+                    "enum": [
+                        "ssl",
+                        "new-tunnel"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/system.RekeyMethod"
+                        }
+                    ]
+                },
+                "rekey_time": {
+                    "type": "integer"
+                },
+                "switch_to_tcp_timeout": {
+                    "type": "integer"
+                },
+                "tcp_port": {
+                    "type": "integer"
+                },
+                "try_mtu_discovery": {
+                    "type": "boolean"
+                },
+                "tunnel_all_dns": {
+                    "type": "boolean"
+                },
+                "udp_port": {
+                    "type": "integer"
+                }
+            }
         },
-        "system.StatusResponse": {
+        "runtime.StatusResponse": {
             "type": "object",
             "properties": {
                 "active_state": {
@@ -4548,6 +4537,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "system.RekeyMethod": {
+            "type": "string",
+            "enum": [
+                "ssl",
+                "new-tunnel"
+            ],
+            "x-enum-varnames": [
+                "RekeyMethodSSL",
+                "RekeyMethodNewTunnel"
+            ]
         }
     }
 }`

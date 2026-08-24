@@ -16,7 +16,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/config"
 	platformsystemd "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/systemd"
-	systemservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
+	runtimeservice "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/runtime"
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
@@ -78,7 +78,7 @@ func (s *managementConfigStore) Write(_ context.Context, changes systemusecase.O
 func TestSystemEndpointsRequireSuperadminAndAllowActions(t *testing.T) {
 	config.Init(false, "", 0)
 	runtime := &managementRuntime{}
-	controller := systemservice.NewRuntimeController(systemusecase.New(runtime, &managementConfigStore{}))
+	controller := runtimeservice.New(systemusecase.New(runtime, &managementConfigStore{}))
 
 	normalToken := managementToken(t, false)
 	for _, test := range []struct {
@@ -136,14 +136,14 @@ func TestOcservConfigParsingAndAtomicUpdate(t *testing.T) {
 	}, "\n") + "\n"
 	require.NoError(t, os.WriteFile(path, []byte(original), 0o640))
 
-	parsed, err := systemservice.ParseConfig([]byte(original))
+	parsed, err := runtimeservice.ParseConfig([]byte(original))
 	require.NoError(t, err)
 	require.Equal(t, 443, *parsed.TCPPort)
 	require.Equal(t, []string{"1.1.1.1", "8.8.8.8"}, *parsed.DNS)
 	require.Equal(t, systemusecase.RekeyMethodSSL, *parsed.RekeyMethod)
 
 	runtime := &managementRuntime{}
-	usecase := systemusecase.New(runtime, systemservice.NewConfigFile(path))
+	usecase := systemusecase.New(runtime, runtimeservice.NewConfigFile(path))
 	port := 444
 	dns := []string{"9.9.9.9"}
 	banner := "New banner"
@@ -181,7 +181,7 @@ func TestOcservConfigRejectsInvalidAndUnsupportedValues(t *testing.T) {
 	require.Zero(t, runtime.restarts)
 
 	config.Init(false, "", 0)
-	controller := systemservice.NewRuntimeController(usecase)
+	controller := runtimeservice.New(usecase)
 	body := bytes.NewBufferString(`{"tcp_port":444,"include":"/etc/passwd"}`)
 	recorder, handlerErr := runManagementHandler(
 		http.MethodPatch, "/system/ocserv-config", body, managementToken(t, true), controller.UpdateConfig,
@@ -241,7 +241,7 @@ func (*dockerManagementClient) ContainerStop(context.Context, string, container.
 
 func TestDockerModeRestartsOcservContainer(t *testing.T) {
 	dockerClient := &dockerManagementClient{}
-	runtime := systemservice.NewDockerRuntime(dockerClient, systemservice.OcservDockerContainer)
+	runtime := runtimeservice.NewDockerRuntime(dockerClient, runtimeservice.OcservDockerContainer)
 	require.NoError(t, runtime.Restart(context.Background()))
 	require.Equal(t, "ocserv", dockerClient.restarted)
 
@@ -266,7 +266,7 @@ func (c *systemdManagementClient) Restart(context.Context) error {
 
 func TestSystemdModeUsesExistingRestartClient(t *testing.T) {
 	client := &systemdManagementClient{}
-	runtime := systemservice.NewSystemdRuntime(client, true)
+	runtime := runtimeservice.NewSystemdRuntime(client, true)
 	status, err := runtime.Status(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "ocserv.service", status.ID)

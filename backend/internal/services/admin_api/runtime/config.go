@@ -1,4 +1,4 @@
-package system
+package runtime
 
 import (
 	"bufio"
