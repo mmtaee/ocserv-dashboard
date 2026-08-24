@@ -24,20 +24,42 @@ func New(usecase *userusecase.Usecase) *Controller {
 // Users lists OCServ users. @Summary List of Ocserv Users
 // @Tags Ocserv(Users)
 // @Produce json
+// @Param expire_in_days query int false "Return users expiring within the next N days" minimum(1)
+// @Success 200 {object} OcservUsersResponse
+// @Failure 400 {object} request.ErrorResponse
 // @Router /ocserv/users [get]
 func (ctl *Controller) Users(c *echo.Context) error {
+	expireInDays, err := parseExpireInDays(c)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
 	principal, err := middlewares.Principal(c)
 	if err != nil {
 		return ctl.respondError(c, err)
 	}
 	pagination := ctl.request.Pagination(c)
 	result, err := ctl.users.List(c.Request().Context(), userusecase.ListOptions{
-		Pagination: pagination, Principal: principal, Query: c.QueryParam("q"), Filter: c.QueryParam("filter"), Group: c.QueryParam("group"),
+		Pagination: pagination, Principal: principal, Query: c.QueryParam("q"), Filter: c.QueryParam("filter"), Group: c.QueryParam("group"), ExpireInDays: expireInDays,
 	})
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, OcservUsersResponse{Meta: request.Meta{Page: pagination.Page, TotalRecords: result.Total, PageSize: pagination.PageSize}, Result: result.Users})
+}
+
+func parseExpireInDays(c *echo.Context) (*int, error) {
+	values, exists := c.QueryParams()["expire_in_days"]
+	if !exists {
+		return nil, nil
+	}
+	if len(values) != 1 || values[0] == "" {
+		return nil, userusecase.ErrInvalidExpireInDays
+	}
+	days, err := strconv.Atoi(values[0])
+	if err != nil || days < 1 {
+		return nil, userusecase.ErrInvalidExpireInDays
+	}
+	return &days, nil
 }
 
 // User returns an OCServ user. @Summary Ocserv user detail

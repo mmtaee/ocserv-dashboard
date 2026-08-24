@@ -26,9 +26,15 @@ type OcservUserRepository struct {
 	db *gorm.DB
 }
 
+// OcservUserExpiryWindow limits users by their calculated effective expiry.
+type OcservUserExpiryWindow struct {
+	StartsAt time.Time
+	EndsAt   time.Time
+}
+
 type OcservUserCRUD interface {
-	Users(ctx context.Context, pagination *request.Pagination, ownerID uint, q string, filters string, group string) ([]models.OcservUser, int64, error)
-	UsersByUsername(ctx context.Context, pagination *request.Pagination, ownerID uint, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, ownerID uint, q string, filters string, group string, expiryWindow *OcservUserExpiryWindow) ([]models.OcservUser, int64, error)
+	UsersByUsername(ctx context.Context, pagination *request.Pagination, ownerID uint, usernames []string, q string, group string, expiryWindow *OcservUserExpiryWindow) ([]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByID(ctx context.Context, id uint) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
@@ -97,6 +103,7 @@ func (o *OcservUserRepository) Users(
 	q string,
 	filter string,
 	group string,
+	expiryWindow *OcservUserExpiryWindow,
 ) (
 	[]models.OcservUser, int64, error,
 ) {
@@ -111,6 +118,9 @@ func (o *OcservUserRepository) Users(
 		}
 		if group != "" {
 			db = db.Where(`"group" = ?`, group)
+		}
+		if expiryWindow != nil {
+			db = db.Where("expire_at >= ? AND expire_at <= ?", expiryWindow.StartsAt, expiryWindow.EndsAt)
 		}
 
 		switch filter {
@@ -149,6 +159,7 @@ func (o *OcservUserRepository) UsersByUsername(
 	usernames []string,
 	q string,
 	group string,
+	expiryWindow *OcservUserExpiryWindow,
 ) ([]models.OcservUser, int64, error) {
 	applyFilters := func(db *gorm.DB) *gorm.DB {
 		if ownerID != 0 {
@@ -161,6 +172,9 @@ func (o *OcservUserRepository) UsersByUsername(
 
 		if group != "" {
 			db = db.Where(`"group" = ?`, group)
+		}
+		if expiryWindow != nil {
+			db = db.Where("expire_at >= ? AND expire_at <= ?", expiryWindow.StartsAt, expiryWindow.EndsAt)
 		}
 
 		return db

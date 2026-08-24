@@ -1030,6 +1030,17 @@ definitions:
     - traffic_type
     - username
     type: object
+  ocserv_user.OcservUsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    required:
+    - meta
+    type: object
   ocserv_user.UpdateOcservUserData:
     properties:
       config:
@@ -1905,9 +1916,23 @@ paths:
       - Ocserv(UnsyncedGroup)
   /ocserv/users:
     get:
+      parameters:
+      - description: Return users expiring within the next N days
+        in: query
+        minimum: 1
+        name: expire_in_days
+        type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.OcservUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
       tags:
       - Ocserv(Users)
     post:

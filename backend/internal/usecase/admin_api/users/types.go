@@ -9,11 +9,12 @@ import (
 )
 
 type ListOptions struct {
-	Pagination *request.Pagination
-	Principal  authz.Principal
-	Query      string
-	Filter     string
-	Group      string
+	Pagination   *request.Pagination
+	Principal    authz.Principal
+	Query        string
+	Filter       string
+	Group        string
+	ExpireInDays *int
 }
 
 type ListResult struct {

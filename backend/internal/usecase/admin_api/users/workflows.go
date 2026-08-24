@@ -12,12 +12,15 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
 var ErrUserNotFound = errors.New("ocserv user not found")
+
+var ErrInvalidExpireInDays = errors.New("expire_in_days must be a positive integer")
 
 func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, error) {
 	if options.Principal.UserID == 0 {
@@ -26,6 +29,10 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 	filter := options.Filter
 	if !slices.Contains([]string{"online", "active", "deactivated", "locked"}, filter) {
 		filter = ""
+	}
+	expiryWindow, err := expiryWindow(options.ExpireInDays)
+	if err != nil {
+		return nil, err
 	}
 	sessions, sessionErr := u.occtl.OnlineSessions()
 	byUsername := make(map[string][]models.OnlineUserSession)
@@ -40,17 +47,17 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 	}
 	var users []models.OcservUser
 	var total int64
-	var err error
+	var listErr error
 	if filter == "online" {
 		if sessionErr != nil {
 			return nil, sessionErr
 		}
-		users, total, err = u.Repository.UsersByUsername(ctx, options.Pagination, ownerFilter(options.Principal), usernames, options.Query, options.Group)
+		users, total, listErr = u.Repository.UsersByUsername(ctx, options.Pagination, ownerFilter(options.Principal), usernames, options.Query, options.Group, expiryWindow)
 	} else {
-		users, total, err = u.Repository.Users(ctx, options.Pagination, ownerFilter(options.Principal), options.Query, filter, options.Group)
+		users, total, listErr = u.Repository.Users(ctx, options.Pagination, ownerFilter(options.Principal), options.Query, filter, options.Group, expiryWindow)
 	}
-	if err != nil {
-		return nil, err
+	if listErr != nil {
+		return nil, listErr
 	}
 	for i := range users {
 		u.applyCertificateStatus(&users[i])
@@ -60,6 +67,20 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 		}
 	}
 	return &ListResult{Users: users, Total: total}, nil
+}
+
+func expiryWindow(expireInDays *int) (*repository.OcservUserExpiryWindow, error) {
+	if expireInDays == nil {
+		return nil, nil
+	}
+	if *expireInDays < 1 {
+		return nil, ErrInvalidExpireInDays
+	}
+	startsAt := time.Now().UTC()
+	return &repository.OcservUserExpiryWindow{
+		StartsAt: startsAt,
+		EndsAt:   startsAt.AddDate(0, 0, *expireInDays),
+	}, nil
 }
 
 func (u *Usecase) User(ctx context.Context, principal authz.Principal, id uint) (*models.OcservUser, error) {

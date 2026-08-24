@@ -1003,7 +1003,29 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "responses": {}
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Return users expiring within the next N days",
+                        "name": "expire_in_days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ocserv_user.OcservUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
             },
             "post": {
                 "consumes": [
@@ -3931,6 +3953,23 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                }
+            }
+        },
+        "ocserv_user.OcservUsersResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservUser"
+                    }
                 }
             }
         },
