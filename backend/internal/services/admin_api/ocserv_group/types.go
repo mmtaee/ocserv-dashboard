@@ -1,4 +1,4 @@
-package groups
+package ocserv_group
 
 import (
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"

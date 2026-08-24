@@ -385,43 +385,6 @@ definitions:
     - config
     - name
     type: object
-  groups.CreateOcservGroupData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservGroupConfig'
-      name:
-        type: string
-    required:
-    - config
-    - name
-    type: object
-  groups.OcservGroupsResponse:
-    properties:
-      meta:
-        $ref: '#/definitions/request.Meta'
-      result:
-        items:
-          $ref: '#/definitions/models.OcservGroup'
-        type: array
-    required:
-    - meta
-    type: object
-  groups.SyncGroupRequest:
-    properties:
-      groups:
-        items:
-          $ref: '#/definitions/group.UnsyncedGroup'
-        type: array
-    required:
-    - groups
-    type: object
-  groups.UpdateOcservGroupData:
-    properties:
-      config:
-        $ref: '#/definitions/models.OcservGroupConfig'
-    required:
-    - config
-    type: object
   middlewares.PermissionDenied:
     properties:
       error:
@@ -817,6 +780,107 @@ definitions:
     - id
     - username
     type: object
+  ocserv_group.CreateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+    required:
+    - config
+    - name
+    type: object
+  ocserv_group.OcservGroupsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservGroup'
+        type: array
+    required:
+    - meta
+    type: object
+  ocserv_group.SyncGroupRequest:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/group.UnsyncedGroup'
+        type: array
+    required:
+    - groups
+    type: object
+  ocserv_group.UpdateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+    required:
+    - config
+    type: object
+  ocserv_user.BulkDeleteResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  ocserv_user.BulkGroupRequest:
+    properties:
+      group:
+        maxLength: 16
+        type: string
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  ocserv_user.BulkIDsRequest:
+    properties:
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  ocserv_user.BulkStatusRequest:
+    properties:
+      enabled:
+        type: boolean
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - enabled
+    - ids
+    type: object
+  ocserv_user.BulkUpdateRequest:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/ocservuser.BulkUpdateItem'
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - users
+    type: object
+  ocserv_user.BulkUsersResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    type: object
   ocservuser.BulkUpdateItem:
     properties:
       changes:
@@ -964,70 +1028,6 @@ definitions:
         type: integer
       unit_file_state:
         type: string
-    type: object
-  users.BulkDeleteResponse:
-    properties:
-      count:
-        type: integer
-    type: object
-  users.BulkGroupRequest:
-    properties:
-      group:
-        maxLength: 16
-        type: string
-      ids:
-        items:
-          type: integer
-        maxItems: 100
-        minItems: 1
-        type: array
-    required:
-    - ids
-    type: object
-  users.BulkIDsRequest:
-    properties:
-      ids:
-        items:
-          type: integer
-        maxItems: 100
-        minItems: 1
-        type: array
-    required:
-    - ids
-    type: object
-  users.BulkStatusRequest:
-    properties:
-      enabled:
-        type: boolean
-      ids:
-        items:
-          type: integer
-        maxItems: 100
-        minItems: 1
-        type: array
-    required:
-    - enabled
-    - ids
-    type: object
-  users.BulkUpdateRequest:
-    properties:
-      users:
-        items:
-          $ref: '#/definitions/ocservuser.BulkUpdateItem'
-        maxItems: 100
-        minItems: 1
-        type: array
-    required:
-    - users
-    type: object
-  users.BulkUsersResponse:
-    properties:
-      count:
-        type: integer
-      users:
-        items:
-          $ref: '#/definitions/models.OcservUser'
-        type: array
     type: object
 info:
   contact: {}
@@ -1375,7 +1375,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/groups.OcservGroupsResponse'
+            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
         "400":
           description: Bad Request
           schema:
@@ -1402,7 +1402,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/groups.CreateOcservGroupData'
+          $ref: '#/definitions/ocserv_group.CreateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -1506,7 +1506,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/groups.UpdateOcservGroupData'
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -1570,7 +1570,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/groups.UpdateOcservGroupData'
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
       produces:
       - application/json
       responses:
@@ -1634,7 +1634,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/groups.SyncGroupRequest'
+          $ref: '#/definitions/ocserv_group.SyncGroupRequest'
       produces:
       - application/json
       responses:
@@ -1839,14 +1839,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/users.BulkIDsRequest'
+          $ref: '#/definitions/ocserv_user.BulkIDsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.BulkDeleteResponse'
+            $ref: '#/definitions/ocserv_user.BulkDeleteResponse'
         "400":
           description: Bad Request
           schema:
@@ -1876,14 +1876,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/users.BulkUpdateRequest'
+          $ref: '#/definitions/ocserv_user.BulkUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.BulkUsersResponse'
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
         "400":
           description: Bad Request
           schema:
@@ -1914,14 +1914,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/users.BulkGroupRequest'
+          $ref: '#/definitions/ocserv_user.BulkGroupRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.BulkUsersResponse'
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
         "400":
           description: Bad Request
           schema:
@@ -1952,14 +1952,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/users.BulkStatusRequest'
+          $ref: '#/definitions/ocserv_user.BulkStatusRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.BulkUsersResponse'
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
         "400":
           description: Bad Request
           schema:

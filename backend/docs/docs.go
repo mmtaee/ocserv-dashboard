@@ -528,7 +528,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/groups.OcservGroupsResponse"
+                            "$ref": "#/definitions/ocserv_group.OcservGroupsResponse"
                         }
                     },
                     "400": {
@@ -571,7 +571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/groups.CreateOcservGroupData"
+                            "$ref": "#/definitions/ocserv_group.CreateOcservGroupData"
                         }
                     }
                 ],
@@ -667,7 +667,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/groups.UpdateOcservGroupData"
+                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
                         }
                     }
                 ],
@@ -764,7 +764,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/groups.SyncGroupRequest"
+                            "$ref": "#/definitions/ocserv_group.SyncGroupRequest"
                         }
                     }
                 ],
@@ -969,7 +969,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/groups.UpdateOcservGroupData"
+                            "$ref": "#/definitions/ocserv_group.UpdateOcservGroupData"
                         }
                     }
                 ],
@@ -1038,7 +1038,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/users.BulkIDsRequest"
+                            "$ref": "#/definitions/ocserv_user.BulkIDsRequest"
                         }
                     }
                 ],
@@ -1046,7 +1046,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.BulkDeleteResponse"
+                            "$ref": "#/definitions/ocserv_user.BulkDeleteResponse"
                         }
                     },
                     "400": {
@@ -1094,7 +1094,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/users.BulkUpdateRequest"
+                            "$ref": "#/definitions/ocserv_user.BulkUpdateRequest"
                         }
                     }
                 ],
@@ -1102,7 +1102,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.BulkUsersResponse"
+                            "$ref": "#/definitions/ocserv_user.BulkUsersResponse"
                         }
                     },
                     "400": {
@@ -1152,7 +1152,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/users.BulkGroupRequest"
+                            "$ref": "#/definitions/ocserv_user.BulkGroupRequest"
                         }
                     }
                 ],
@@ -1160,7 +1160,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.BulkUsersResponse"
+                            "$ref": "#/definitions/ocserv_user.BulkUsersResponse"
                         }
                     },
                     "400": {
@@ -1210,7 +1210,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/users.BulkStatusRequest"
+                            "$ref": "#/definitions/ocserv_user.BulkStatusRequest"
                         }
                     }
                 ],
@@ -1218,7 +1218,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.BulkUsersResponse"
+                            "$ref": "#/definitions/ocserv_user.BulkUsersResponse"
                         }
                     },
                     "400": {
@@ -2866,63 +2866,6 @@ const docTemplate = `{
                 }
             }
         },
-        "groups.CreateOcservGroupData": {
-            "type": "object",
-            "required": [
-                "config",
-                "name"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservGroupConfig"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "groups.OcservGroupsResponse": {
-            "type": "object",
-            "required": [
-                "meta"
-            ],
-            "properties": {
-                "meta": {
-                    "$ref": "#/definitions/request.Meta"
-                },
-                "result": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OcservGroup"
-                    }
-                }
-            }
-        },
-        "groups.SyncGroupRequest": {
-            "type": "object",
-            "required": [
-                "groups"
-            ],
-            "properties": {
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/group.UnsyncedGroup"
-                    }
-                }
-            }
-        },
-        "groups.UpdateOcservGroupData": {
-            "type": "object",
-            "required": [
-                "config"
-            ],
-            "properties": {
-                "config": {
-                    "$ref": "#/definitions/models.OcservGroupConfig"
-                }
-            }
-        },
         "middlewares.PermissionDenied": {
             "type": "object",
             "properties": {
@@ -3447,6 +3390,157 @@ const docTemplate = `{
                 }
             }
         },
+        "ocserv_group.CreateOcservGroupData": {
+            "type": "object",
+            "required": [
+                "config",
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ocserv_group.OcservGroupsResponse": {
+            "type": "object",
+            "required": [
+                "meta"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/request.Meta"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservGroup"
+                    }
+                }
+            }
+        },
+        "ocserv_group.SyncGroupRequest": {
+            "type": "object",
+            "required": [
+                "groups"
+            ],
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/group.UnsyncedGroup"
+                    }
+                }
+            }
+        },
+        "ocserv_group.UpdateOcservGroupData": {
+            "type": "object",
+            "required": [
+                "config"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                }
+            }
+        },
+        "ocserv_user.BulkDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ocserv_user.BulkGroupRequest": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "group": {
+                    "type": "string",
+                    "maxLength": 16
+                },
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "ocserv_user.BulkIDsRequest": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "ocserv_user.BulkStatusRequest": {
+            "type": "object",
+            "required": [
+                "enabled",
+                "ids"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "ocserv_user.BulkUpdateRequest": {
+            "type": "object",
+            "required": [
+                "users"
+            ],
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/ocservuser.BulkUpdateItem"
+                    }
+                }
+            }
+        },
+        "ocserv_user.BulkUsersResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservUser"
+                    }
+                }
+            }
+        },
         "ocservuser.BulkUpdateItem": {
             "type": "object",
             "required": [
@@ -3660,100 +3754,6 @@ const docTemplate = `{
                 },
                 "unit_file_state": {
                     "type": "string"
-                }
-            }
-        },
-        "users.BulkDeleteResponse": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "users.BulkGroupRequest": {
-            "type": "object",
-            "required": [
-                "ids"
-            ],
-            "properties": {
-                "group": {
-                    "type": "string",
-                    "maxLength": 16
-                },
-                "ids": {
-                    "type": "array",
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "users.BulkIDsRequest": {
-            "type": "object",
-            "required": [
-                "ids"
-            ],
-            "properties": {
-                "ids": {
-                    "type": "array",
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "users.BulkStatusRequest": {
-            "type": "object",
-            "required": [
-                "enabled",
-                "ids"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "ids": {
-                    "type": "array",
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "users.BulkUpdateRequest": {
-            "type": "object",
-            "required": [
-                "users"
-            ],
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/ocservuser.BulkUpdateItem"
-                    }
-                }
-            }
-        },
-        "users.BulkUsersResponse": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OcservUser"
-                    }
                 }
             }
         }

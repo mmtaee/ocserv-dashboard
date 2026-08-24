@@ -1,4 +1,4 @@
-package groups
+package ocserv_group
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package users
+package ocserv_user
 
 import userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
 
