@@ -61,7 +61,10 @@ func serve() error {
 	defer database.Close()
 
 	telegramEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("TELEGRAM_BOT_ENABLED")), "true")
-	admin := adminapi.New(telegramEnabled || cfg.Debug)
+	admin, err := adminapi.New(telegramEnabled || cfg.Debug, dockerMode)
+	if err != nil {
+		return err
+	}
 	customer := customerapi.New(cfg)
 	apiServer := httpserver.New(cfg, admin, customer)
 	backgroundWorker := workerservice.New(dockerMode)

@@ -10,7 +10,6 @@ import (
 	ocservgroupconfig "github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/group"
 	ocservaccount "github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	platformocserv "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/ocserv"
-	platformsystemd "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/systemd"
 	telegramclient "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/telegram"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
 	backupcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/backup"
@@ -20,17 +19,17 @@ import (
 	usercontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/ocserv_user"
 	reportcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/reports"
 	systemcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
-	systemdcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/systemd"
 	telegramcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/telegram"
+	runtimesystem "github.com/mmtaee/ocserv-dashboard/backend/internal/services/system"
 	backupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/backup"
 	dashboardusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/dashboard"
 	groupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/groups"
 	occtlusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/occtl"
 	reportusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/reports"
 	systemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/system"
-	systemdusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/systemd"
 	telegramusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram"
 	userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
+	runtimesystemusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/system"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/captcha"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 )
@@ -43,13 +42,13 @@ type Service struct {
 	users          *usercontroller.Controller
 	reports        *reportcontroller.Controller
 	system         *systemcontroller.Controller
-	systemd        *systemdcontroller.Controller
+	runtimeSystem  *runtimesystem.Controller
 	telegram       *telegramcontroller.Controller
 	telegramRoutes bool
 }
 
 // New constructs the Admin API dependency graph.
-func New(telegramRoutes bool) *Service {
+func New(telegramRoutes, dockerMode bool) (*Service, error) {
 	telegramRuntimeEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("TELEGRAM_BOT_ENABLED")), "true")
 	accountStore := ocservaccount.NewOcservUser()
 	occtlUC := occtlusecase.New(platformocserv.NewClient())
@@ -58,6 +57,14 @@ func New(telegramRoutes bool) *Service {
 	ocservGroupUC := groupusecase.New(repository.NewOcservGroupRepository(), ocservUserUC, ocservgroupconfig.NewOcservGroup(), occtlUC)
 	telegramUC := telegramusecase.New(repository.NewTelegramRepository(), ocservUserUC, telegramclient.NewClient(&http.Client{Timeout: 8 * time.Second}))
 	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRuntimeEnabled)
+	runtime, err := runtimesystem.NewRuntime(
+		dockerMode,
+		strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	runtimeSystemUC := runtimesystemusecase.New(runtime, runtimesystem.NewConfigFile(runtimesystem.DefaultOcservConfigPath))
 
 	return &Service{
 		backup:    backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
@@ -73,11 +80,8 @@ func New(telegramRoutes bool) *Service {
 				ReleaseTimeout: 5 * time.Second,
 			},
 		)),
-		systemd: systemdcontroller.New(systemdusecase.New(
-			platformsystemd.NewClient("ocserv"),
-			strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
-		)),
+		runtimeSystem:  runtimesystem.NewController(runtimeSystemUC),
 		telegram:       telegramcontroller.New(telegramUC),
 		telegramRoutes: telegramRoutes,
-	}
+	}, nil
 }

@@ -38,6 +38,8 @@ func (s *Service) registerSystemRoutes(e *echo.Group) {
 	admin.GET("/users/lookup", s.system.UsersLookup)
 	admin.POST("/users/:id/password", s.system.ChangeUserPasswordByAdmin)
 	admin.DELETE("/users/:id", s.system.DeleteUser)
+	admin.GET("/ocserv-config", s.runtimeSystem.Config)
+	admin.PATCH("/ocserv-config", s.runtimeSystem.UpdateConfig, middlewares.RateLimitMiddleware(1, "m", 1))
 }
 
 func (s *Service) registerGroupRoutes(e *echo.Group) {
@@ -113,10 +115,10 @@ func (s *Service) registerReportRoutes(e *echo.Group) {
 
 func (s *Service) registerSystemdRoutes(e *echo.Group) {
 	g := e.Group("/systemd", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
-	g.GET("/status", s.systemd.Status)
-	g.POST("/restart", s.systemd.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
-	g.POST("/disable", s.systemd.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
-	g.POST("/enable", s.systemd.Enable, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.GET("/status", s.runtimeSystem.Status)
+	g.POST("/restart", s.runtimeSystem.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.POST("/disable", s.runtimeSystem.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
+	g.POST("/enable", s.runtimeSystem.Enable, middlewares.RateLimitMiddleware(1, "m", 1))
 }
 
 func (s *Service) registerTelegramRoutes(e *echo.Group) {

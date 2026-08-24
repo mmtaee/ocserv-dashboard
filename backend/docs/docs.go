@@ -2025,6 +2025,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/ocserv-config": {
+            "get": {
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get structured OCServ configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Update structured OCServ configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Supported OCServ configuration changes",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/system/release": {
             "get": {
                 "produces": [
@@ -2375,9 +2474,9 @@ const docTemplate = `{
         "/systemd/disable": {
             "post": {
                 "tags": [
-                    "Systemd"
+                    "System"
                 ],
-                "summary": "Disable ocserv service",
+                "summary": "Disable OCServ runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2391,11 +2490,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/systemd.ActionResponse"
+                            "$ref": "#/definitions/system.ActionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
@@ -2406,9 +2517,9 @@ const docTemplate = `{
         "/systemd/enable": {
             "post": {
                 "tags": [
-                    "Systemd"
+                    "System"
                 ],
-                "summary": "Enable ocserv service",
+                "summary": "Enable OCServ runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2422,11 +2533,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/systemd.ActionResponse"
+                            "$ref": "#/definitions/system.ActionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
@@ -2437,9 +2560,9 @@ const docTemplate = `{
         "/systemd/restart": {
             "post": {
                 "tags": [
-                    "Systemd"
+                    "System"
                 ],
-                "summary": "Restart ocserv service",
+                "summary": "Restart OCServ runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2453,11 +2576,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/systemd.ActionResponse"
+                            "$ref": "#/definitions/system.ActionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
@@ -2468,9 +2603,9 @@ const docTemplate = `{
         "/systemd/status": {
             "get": {
                 "tags": [
-                    "Systemd"
+                    "System"
                 ],
-                "summary": "Ocserv systemctl status",
+                "summary": "OCServ runtime status",
                 "parameters": [
                     {
                         "type": "string",
@@ -2484,11 +2619,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/systemd.OcservSystemdStatus"
+                            "$ref": "#/definitions/system.StatusResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/request.ErrorResponse"
                         }
@@ -2830,6 +2977,109 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_system.OcservConfig": {
+            "type": "object",
+            "properties": {
+                "auth_timeout": {
+                    "type": "integer"
+                },
+                "ban_reset_time": {
+                    "type": "integer"
+                },
+                "banner": {
+                    "type": "string"
+                },
+                "cisco_client_compat": {
+                    "type": "boolean"
+                },
+                "cookie_timeout": {
+                    "type": "integer"
+                },
+                "deny_roaming": {
+                    "type": "boolean"
+                },
+                "dns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dpd": {
+                    "type": "integer"
+                },
+                "dtls_legacy": {
+                    "type": "boolean"
+                },
+                "ipv4_network": {
+                    "type": "string"
+                },
+                "keepalive": {
+                    "type": "integer"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_ban_score": {
+                    "type": "integer"
+                },
+                "max_clients": {
+                    "type": "integer"
+                },
+                "max_same_clients": {
+                    "type": "integer"
+                },
+                "min_reauth_time": {
+                    "type": "integer"
+                },
+                "mobile_dpd": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "ping_leases": {
+                    "type": "boolean"
+                },
+                "pre_login_banner": {
+                    "type": "string"
+                },
+                "predictable_ips": {
+                    "type": "boolean"
+                },
+                "rate_limit_ms": {
+                    "type": "integer"
+                },
+                "rekey_method": {
+                    "enum": [
+                        "ssl",
+                        "new-tunnel"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/system.RekeyMethod"
+                        }
+                    ]
+                },
+                "rekey_time": {
+                    "type": "integer"
+                },
+                "switch_to_tcp_timeout": {
+                    "type": "integer"
+                },
+                "tcp_port": {
+                    "type": "integer"
+                },
+                "try_mtu_discovery": {
+                    "type": "boolean"
+                },
+                "tunnel_all_dns": {
+                    "type": "boolean"
+                },
+                "udp_port": {
+                    "type": "integer"
                 }
             }
         },
@@ -4242,7 +4492,7 @@ const docTemplate = `{
                 }
             }
         },
-        "systemd.ActionResponse": {
+        "system.ActionResponse": {
             "type": "object",
             "required": [
                 "message"
@@ -4253,7 +4503,18 @@ const docTemplate = `{
                 }
             }
         },
-        "systemd.OcservSystemdStatus": {
+        "system.RekeyMethod": {
+            "type": "string",
+            "enum": [
+                "ssl",
+                "new-tunnel"
+            ],
+            "x-enum-varnames": [
+                "RekeyMethodSSL",
+                "RekeyMethodNewTunnel"
+            ]
+        },
+        "system.StatusResponse": {
             "type": "object",
             "properties": {
                 "active_state": {
