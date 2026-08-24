@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
@@ -19,6 +20,31 @@ type UserCRUD interface {
 	GetByID(ctx context.Context, id uint) (*models.User, error)
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 	DeleteUser(ctx context.Context, id uint) error
+	EnsureSuperadmin(ctx context.Context, user *models.User) (*models.User, error)
+}
+
+func (r *UserRepository) EnsureSuperadmin(ctx context.Context, user *models.User) (*models.User, error) {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var existing models.User
+		err := tx.Where("username = ?", user.Username).First(&existing).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return tx.Create(user).Error
+		}
+		if err != nil {
+			return err
+		}
+		if err := tx.Model(&existing).Updates(map[string]interface{}{
+			"password": user.Password, "salt": user.Salt, "superadmin": true,
+		}).Error; err != nil {
+			return err
+		}
+		*user = existing
+		user.Password = ""
+		user.Salt = ""
+		user.Superadmin = true
+		return nil
+	})
+	return user, err
 }
 
 type UserAuth interface {
@@ -59,7 +85,7 @@ func (r *UserRepository) CreateToken(ctx context.Context, user *models.User, rem
 		expire = expire.AddDate(0, 1, 0)
 	}
 
-	access, err := crypto.GenerateAccessToken(user.ID, user.Username, expire.Unix(), user.IsAdmin)
+	access, err := crypto.GenerateAccessToken(user.ID, user.Username, expire.Unix(), user.Superadmin)
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +114,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*mo
 func (r *UserRepository) Users(ctx context.Context, pagination *request.Pagination) ([]models.User, int64, error) {
 	var totalRecords int64
 
-	whereFilters := "is_admin = false"
+	whereFilters := "superadmin = false"
 
 	if err := r.db.WithContext(ctx).Model(&models.User{}).Where(whereFilters).Count(&totalRecords).Error; err != nil {
 		return nil, 0, err
@@ -121,7 +147,7 @@ func (r *UserRepository) ChangePassword(ctx context.Context, id uint, password, 
 
 func (r *UserRepository) DeleteUser(ctx context.Context, id uint) error {
 	var user models.User
-	err := r.db.WithContext(ctx).Where("id = ? AND is_admin = ?", id, false).First(&user).Error
+	err := r.db.WithContext(ctx).Where("id = ? AND superadmin = ?", id, false).First(&user).Error
 	if err != nil {
 		return err
 	}

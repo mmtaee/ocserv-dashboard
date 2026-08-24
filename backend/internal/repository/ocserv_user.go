@@ -25,8 +25,8 @@ type OcservUserRepository struct {
 }
 
 type OcservUserCRUD interface {
-	Users(ctx context.Context, pagination *request.Pagination, owner string, q string, filters string, group string) ([]models.OcservUser, int64, error)
-	UsersByUsername(ctx context.Context, pagination *request.Pagination, owner string, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
+	Users(ctx context.Context, pagination *request.Pagination, ownerID uint, q string, filters string, group string) ([]models.OcservUser, int64, error)
+	UsersByUsername(ctx context.Context, pagination *request.Pagination, ownerID uint, usernames []string, q string, group string) ([]models.OcservUser, int64, error)
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByID(ctx context.Context, id uint) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
@@ -71,7 +71,7 @@ func NewtOcservUserRepository() *OcservUserRepository {
 func (o *OcservUserRepository) Users(
 	ctx context.Context,
 	pagination *request.Pagination,
-	owner string,
+	ownerID uint,
 	q string,
 	filter string,
 	group string,
@@ -81,8 +81,8 @@ func (o *OcservUserRepository) Users(
 	var totalRecords int64
 
 	applyFilters := func(db *gorm.DB) *gorm.DB {
-		if owner != "" {
-			db = db.Where("owner = ?", owner)
+		if ownerID != 0 {
+			db = db.Where("owner_id = ?", ownerID)
 		}
 		if len(q) >= 2 {
 			db = db.Where("LOWER(username) LIKE ?", "%"+strings.ToLower(q)+"%")
@@ -112,7 +112,7 @@ func (o *OcservUserRepository) Users(
 	var ocservUser []models.OcservUser
 	txPaginator := request.Paginator(ctx, o.db, pagination)
 
-	query := applyFilters(txPaginator.Model(&ocservUser))
+	query := applyFilters(txPaginator.Model(&ocservUser)).Preload("Owner")
 	if err := query.Find(&ocservUser).Error; err != nil {
 		return nil, 0, err
 	}
@@ -123,14 +123,14 @@ func (o *OcservUserRepository) Users(
 func (o *OcservUserRepository) UsersByUsername(
 	ctx context.Context,
 	pagination *request.Pagination,
-	owner string,
+	ownerID uint,
 	usernames []string,
 	q string,
 	group string,
 ) ([]models.OcservUser, int64, error) {
 	applyFilters := func(db *gorm.DB) *gorm.DB {
-		if owner != "" {
-			db = db.Where("owner = ?", owner)
+		if ownerID != 0 {
+			db = db.Where("owner_id = ?", ownerID)
 		}
 
 		if len(q) >= 2 {
@@ -165,7 +165,7 @@ func (o *OcservUserRepository) UsersByUsername(
 
 	queryDB = request.Paginator(ctx, queryDB, pagination)
 
-	if err := queryDB.Find(&ocservUser).Error; err != nil {
+	if err := queryDB.Preload("Owner").Find(&ocservUser).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -173,12 +173,12 @@ func (o *OcservUserRepository) UsersByUsername(
 }
 
 func (o *OcservUserRepository) Create(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
-	return ocservUser, o.db.WithContext(ctx).Create(ocservUser).Error
+	return ocservUser, o.db.WithContext(ctx).Omit("Owner").Create(ocservUser).Error
 }
 
 func (o *OcservUserRepository) GetByID(ctx context.Context, id uint) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
-	err := o.db.WithContext(ctx).Where("id = ?", id).First(&ocservUser).Error
+	err := o.db.WithContext(ctx).Preload("Owner").Where("id = ?", id).First(&ocservUser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (o *OcservUserRepository) GetByID(ctx context.Context, id uint) (*models.Oc
 
 func (o *OcservUserRepository) GetByUsername(ctx context.Context, username string) (*models.OcservUser, error) {
 	var ocservUser models.OcservUser
-	err := o.db.WithContext(ctx).Where("username = ?", username).First(&ocservUser).Error
+	err := o.db.WithContext(ctx).Preload("Owner").Where("username = ?", username).First(&ocservUser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (o *OcservUserRepository) GetByUsername(ctx context.Context, username strin
 }
 
 func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {
-	return ocservUser, o.db.WithContext(ctx).Save(ocservUser).Error
+	return ocservUser, o.db.WithContext(ctx).Omit("Owner").Save(ocservUser).Error
 }
 
 func (o *OcservUserRepository) Lock(ctx context.Context, id uint) error {
@@ -334,7 +334,7 @@ func (o *OcservUserRepository) ExistingUsernames(ctx context.Context, usernames 
 }
 
 func (o *OcservUserRepository) OcpasswdSyncToDB(ctx context.Context, users []models.OcservUser) ([]models.OcservUser, error) {
-	return users, o.db.WithContext(ctx).Create(&users).Error
+	return users, o.db.WithContext(ctx).Omit("Owner").Create(&users).Error
 }
 
 func (o *OcservUserRepository) RestoreExpired(ctx context.Context, id uint, expireAt *time.Time) error {

@@ -110,10 +110,11 @@ func (r *ReportRepository) TopBandwidthUser(ctx context.Context) (TopBandwidthUs
 	// Top RX
 	if err := r.db.WithContext(ctx).
 		Model(&models.OcservUser{}).
-		Select("id, rx, tx, username, created_at").
+		Select("id, owner_id, rx, tx, username, created_at").
 		Where("rx > 0").
 		Order("rx DESC, id DESC").
 		Limit(4).
+		Preload("Owner").
 		Find(&topRx).Error; err != nil {
 		return result, err
 	}
@@ -122,10 +123,11 @@ func (r *ReportRepository) TopBandwidthUser(ctx context.Context) (TopBandwidthUs
 	// Top TX
 	if err := r.db.WithContext(ctx).
 		Model(&models.OcservUser{}).
-		Select("id, rx, tx, username, created_at").
+		Select("id, owner_id, rx, tx, username, created_at").
 		Where("tx > 0").
 		Order("tx DESC, id DESC").
 		Limit(4).
+		Preload("Owner").
 		Find(&topTx).Error; err != nil {
 		return result, err
 	}

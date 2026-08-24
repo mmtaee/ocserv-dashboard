@@ -3,9 +3,11 @@ package request
 import (
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v5"
-	"net/http"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 )
 
 type ErrorResponse struct {
@@ -15,6 +17,9 @@ type ErrorResponse struct {
 
 func (r *Request) BadRequest(c *echo.Context, err interface{}, msg ...string) error {
 	var response ErrorResponse
+	if value, ok := err.(error); ok && errors.Is(value, authz.ErrForbidden) {
+		return echo.NewHTTPError(http.StatusForbidden, value.Error())
+	}
 
 	switch err.(type) {
 	case error:

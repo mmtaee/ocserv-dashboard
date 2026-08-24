@@ -207,47 +207,6 @@ definitions:
     - token
     - user
     type: object
-  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem:
-    properties:
-      auto_delete_inactive_users:
-        type: boolean
-      client_profile_connection_name:
-        type: string
-      client_profile_server_address:
-        type: string
-      client_profile_server_port:
-        type: integer
-      google_captcha_secret_key:
-        type: string
-      google_captcha_site_key:
-        type: string
-      keep_inactive_user_days:
-        type: integer
-      password:
-        maxLength: 16
-        minLength: 4
-        type: string
-      username:
-        maxLength: 16
-        minLength: 2
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse:
-    properties:
-      system:
-        $ref: '#/definitions/models.System'
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-    required:
-    - system
-    - token
-    - user
-    type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse:
     properties:
       token:
@@ -504,11 +463,8 @@ definitions:
         type: integer
       name:
         type: string
-      owner:
-        type: string
     required:
     - name
-    - owner
     type: object
   models.OcservGroupConfig:
     properties:
@@ -655,7 +611,9 @@ definitions:
           $ref: '#/definitions/models.OnlineUserSession'
         type: array
       owner:
-        type: string
+        $ref: '#/definitions/models.User'
+      owner_id:
+        type: integer
       password:
         type: string
       rx:
@@ -688,7 +646,7 @@ definitions:
     - is_locked
     - is_online
     - online_sessions
-    - owner
+    - owner_id
     - password
     - rx
     - traffic_size
@@ -829,43 +787,24 @@ definitions:
       ocserv_version:
         type: string
     type: object
-  models.System:
-    properties:
-      _:
-        type: integer
-      auto_delete_inactive_users:
-        type: boolean
-      client_profile_connection_name:
-        type: string
-      client_profile_server_address:
-        type: string
-      client_profile_server_port:
-        type: integer
-      google_captcha_secret:
-        type: string
-      google_captcha_site_key:
-        type: string
-      keep_inactive_user_days:
-        type: integer
-    type: object
   models.User:
     properties:
       created_at:
         type: string
       id:
         type: integer
-      is_admin:
-        type: boolean
       last_login:
         type: string
+      superadmin:
+        type: boolean
       updated_at:
         type: string
       username:
         type: string
     required:
     - id
-    - is_admin
     - last_login
+    - superadmin
     - username
     type: object
   models.UsersLookup:
@@ -2040,31 +1979,6 @@ paths:
           schema:
             $ref: '#/definitions/request.ErrorResponse'
       summary: Get Dashboard the current and latest release
-      tags:
-      - System
-  /system/setup:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: system setup data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Setup user and system config
       tags:
       - System
   /system/user/reset-password:

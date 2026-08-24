@@ -52,6 +52,8 @@ Replace at least these values:
 SECRET_KEY="generate-a-random-value"
 JWT_SECRET="generate-a-different-random-value"
 POSTGRES_PASSWORD="set-a-strong-database-password"
+SUPERADMIN_USERNAME="admin"
+SUPERADMIN_PASSWORD="set-a-strong-superadmin-password"
 ```
 
 Random secrets can be generated with:
@@ -334,10 +336,10 @@ For a native Debian or Ubuntu deployment:
 
 ```bash
 cp .env.sample .env
-sudo ./scripts/systemd/install.sh
+sudo ./scripts/install.sh
 ```
 
-The installer can provision local PostgreSQL when `INSTALL_POSTGRES=true`. Set it to `false` and configure the PostgreSQL connection variables when using an existing server.
+The installer can provision local PostgreSQL when `INSTALL_POSTGRES=true`. It runs migrations and the idempotent `backend create-superadmin` command before startup using `SUPERADMIN_USERNAME` and `SUPERADMIN_PASSWORD`. Set `INSTALL_POSTGRES=false` and configure the PostgreSQL connection variables when using an existing server.
 
 Check native service status:
 

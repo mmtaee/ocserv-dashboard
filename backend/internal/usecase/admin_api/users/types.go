@@ -1,6 +1,7 @@
 package ocservuser
 
 import (
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
@@ -9,7 +10,7 @@ import (
 
 type ListOptions struct {
 	Pagination *request.Pagination
-	Owner      string
+	Principal  authz.Principal
 	Query      string
 	Filter     string
 	Group      string

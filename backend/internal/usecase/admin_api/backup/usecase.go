@@ -3,10 +3,10 @@ package backup
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	groupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/groups"
 )
@@ -34,10 +34,7 @@ func (u *Usecase) GroupBackup(ctx context.Context, writer io.Writer) error {
 	return json.NewEncoder(writer).Encode(GroupFile{DefaultGroup: defaults, Groups: groups})
 }
 
-func (u *Usecase) RestoreGroups(ctx context.Context, owner string, file GroupFile) (*RestoreResult, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
-	}
+func (u *Usecase) RestoreGroups(ctx context.Context, file GroupFile) (*RestoreResult, error) {
 	if err := u.groups.UpdateDefaultGroup(file.DefaultGroup); err != nil {
 		return nil, err
 	}
@@ -59,10 +56,7 @@ func (u *Usecase) RestoreGroups(ctx context.Context, owner string, file GroupFil
 		if _, found := existingSet[item.Name]; found {
 			continue
 		}
-		if item.Owner == "" {
-			item.Owner = owner
-		}
-		if _, err := u.groups.Create(ctx, item.Owner, groupusecase.CreateInput{Name: item.Name, Config: item.Config}); err != nil {
+		if _, err := u.groups.Create(ctx, groupusecase.CreateInput{Name: item.Name, Config: item.Config}); err != nil {
 			return nil, fmt.Errorf("group %s: %w", item.Name, err)
 		}
 		inserted = append(inserted, item.Name)
@@ -86,10 +80,7 @@ func (u *Usecase) UserBackup(ctx context.Context, writer io.Writer) error {
 	return json.NewEncoder(writer).Encode(users)
 }
 
-func (u *Usecase) RestoreUsers(ctx context.Context, owner string, users []models.OcservUser) (*RestoreResult, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
-	}
+func (u *Usecase) RestoreUsers(ctx context.Context, principal authz.Principal, users []models.OcservUser) (*RestoreResult, error) {
 	if len(users) == 0 {
 		return &RestoreResult{}, nil
 	}
@@ -107,15 +98,15 @@ func (u *Usecase) RestoreUsers(ctx context.Context, owner string, users []models
 		if _, found := existingSet[account.Username]; found {
 			continue
 		}
-		if account.Owner == "" {
-			account.Owner = owner
+		if account.OwnerID == 0 {
+			account.OwnerID = principal.UserID
 		}
 		if _, err := u.users.Create(ctx, &account); err != nil {
 			return nil, fmt.Errorf("user %s: %w", account.Username, err)
 		}
 		if account.Certificate != nil {
 			if err := u.certificates.RestoreCertificateBackup(account.Username, account.Certificate); err != nil {
-				_ = u.users.DeleteUser(ctx, account.ID)
+				_ = u.users.DeleteUser(ctx, principal, account.ID)
 				return nil, fmt.Errorf("user %s certificate: %w", account.Username, err)
 			}
 		}

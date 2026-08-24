@@ -19,6 +19,7 @@ type AccountStore interface {
 
 type OCCTL interface {
 	OnlineSessions() ([]models.OnlineUserSession, error)
+	ShowUserByID(id string) (models.OnlineUserSession, error)
 	Terminate(username string) (string, error)
 	Disconnect(username string) (string, error)
 	DisconnectSession(id string) (string, error)

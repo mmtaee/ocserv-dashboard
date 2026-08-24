@@ -34,5 +34,6 @@ func TestGenerateAccessToken(t *testing.T) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
 	assert.Equal(t, "12345", claims["sub"])
-	assert.Equal(t, true, claims["isAdmin"])
+	assert.Equal(t, true, claims["superadmin"])
+	assert.Equal(t, float64(12345), claims["user_id"])
 }

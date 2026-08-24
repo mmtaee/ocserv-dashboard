@@ -62,7 +62,8 @@ type OcservUserCertificateBackup struct {
 
 type OcservUser struct {
 	ID                   uint                         `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
-	Owner                string                       `json:"owner" gorm:"type:varchar(16);default:''" validate:"required"`
+	OwnerID              uint                         `json:"owner_id" gorm:"not null;index" validate:"required"`
+	Owner                User                         `json:"owner" gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Group                string                       `json:"group" gorm:"type:varchar(16);default:'defaults'" validate:"required"`
 	Username             string                       `json:"username" gorm:"type:varchar(255);not null;uniqueIndex" validate:"required"`
 	Password             string                       `json:"password" gorm:"type:varchar(255);not null" validate:"required"`

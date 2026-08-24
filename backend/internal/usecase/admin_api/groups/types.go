@@ -52,5 +52,4 @@ type ListResult struct {
 
 type ListOptions struct {
 	Pagination *request.Pagination
-	Owner      string
 }

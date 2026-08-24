@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/token"
-	"strconv"
 	"strings"
 )
 
@@ -22,19 +22,29 @@ func AuthMiddleware() echo.MiddlewareFunc {
 				return UnauthorizedError(c, "invalid token")
 			}
 
-			subject, ok := claims["sub"].(string)
-			if !ok {
-				return UnauthorizedError(c, "invalid user id")
-			}
-			userID, err := strconv.ParseUint(subject, 10, 64)
-			if err != nil || userID == 0 {
+			userID, ok := claims["user_id"].(float64)
+			if !ok || userID <= 0 || userID != float64(uint(userID)) {
 				return UnauthorizedError(c, "invalid user id")
 			}
 
-			c.Set("userID", uint(userID))
-			c.Set("isAdmin", claims["isAdmin"])
-			c.Set("username", claims["username"])
+			username, usernameOK := claims["username"].(string)
+			superadmin, superadminOK := claims["superadmin"].(bool)
+			if !usernameOK || username == "" || !superadminOK {
+				return UnauthorizedError(c, "invalid token claims")
+			}
+
+			c.Set(principalContextKey, authz.Principal{UserID: uint(userID), Username: username, Superadmin: superadmin})
 			return next(c)
 		}
 	}
+}
+
+const principalContextKey = "principal"
+
+func Principal(c *echo.Context) (authz.Principal, error) {
+	principal, ok := c.Get(principalContextKey).(authz.Principal)
+	if !ok || principal.UserID == 0 || principal.Username == "" {
+		return authz.Principal{}, authz.ErrForbidden
+	}
+	return principal, nil
 }

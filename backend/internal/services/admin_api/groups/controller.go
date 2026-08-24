@@ -34,16 +34,7 @@ func New(groupUsecase *groupusecase.Usecase) *Controller {
 // @Success      200 {array}  string
 // @Router       /ocserv/groups/lookup [get]
 func (ctl *Controller) OcservGroupsLookup(c *echo.Context) error {
-	owner := ""
-	val, ok := c.Get("isAdmin").(bool)
-	if !ok || !val { // not admin or missing
-		usernameVal, ok := c.Get("username").(string)
-		if !ok || usernameVal == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid user id"))
-		}
-		owner = usernameVal
-	}
-	groups, err := ctl.groups.Lookup(c.Request().Context(), owner)
+	groups, err := ctl.groups.Lookup(c.Request().Context())
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -69,16 +60,7 @@ func (ctl *Controller) OcservGroupsLookup(c *echo.Context) error {
 func (ctl *Controller) OcservGroups(c *echo.Context) error {
 	pagination := ctl.request.Pagination(c)
 
-	owner := ""
-	if isAdmin := c.Get("isAdmin").(bool); !isAdmin {
-		username := c.Get("username").(string)
-		if username == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid username context"))
-		}
-		owner = username
-	}
-
-	result, err := ctl.groups.List(c.Request().Context(), groupusecase.ListOptions{Pagination: pagination, Owner: owner})
+	result, err := ctl.groups.List(c.Request().Context(), groupusecase.ListOptions{Pagination: pagination})
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -138,12 +120,7 @@ func (ctl *Controller) CreateOcservGroup(c *echo.Context) error {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	owner := c.Get("username").(string)
-	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
-	}
-
-	newOcservGroup, err := ctl.groups.Create(c.Request().Context(), owner, data)
+	newOcservGroup, err := ctl.groups.Create(c.Request().Context(), data)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -288,17 +265,12 @@ func (ctl *Controller) ListUnsyncedGroups(c *echo.Context) error {
 // @Success      200 {object} []string
 // @Router       /ocserv/groups/sync [post]
 func (ctl *Controller) SyncGroup(c *echo.Context) error {
-	owner := c.Get("username").(string)
-	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
-	}
-
 	var data SyncGroupRequest
 	if err := ctl.request.DoValidate(c, &data); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 
-	syncGroupNames, err := ctl.groups.Sync(c.Request().Context(), owner, data)
+	syncGroupNames, err := ctl.groups.Sync(c.Request().Context(), data)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

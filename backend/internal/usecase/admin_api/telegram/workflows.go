@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	tg18n "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram/i18n"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
@@ -195,7 +196,7 @@ func (u *Usecase) Reject(ctx context.Context, id uint, input RejectData) (*model
 	return updated, nil
 }
 
-func (u *Usecase) ConfirmPayment(ctx context.Context, id uint, input ConfirmPaymentData) (map[string]interface{}, error) {
+func (u *Usecase) ConfirmPayment(ctx context.Context, principal authz.Principal, id uint, input ConfirmPaymentData) (map[string]interface{}, error) {
 	paymentRequest, err := u.Repository.RequestByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -216,7 +217,7 @@ func (u *Usecase) ConfirmPayment(ctx context.Context, id uint, input ConfirmPaym
 	}
 	switch paymentRequest.Type {
 	case models.TelegramRequestTypeNew:
-		return u.deliverNew(ctx, paymentRequest, plan, settings, input)
+		return u.deliverNew(ctx, principal.UserID, paymentRequest, plan, settings, input)
 	case models.TelegramRequestTypeRenew:
 		return u.deliverRenewal(ctx, paymentRequest, plan, settings, input)
 	default:
@@ -224,7 +225,7 @@ func (u *Usecase) ConfirmPayment(ctx context.Context, id uint, input ConfirmPaym
 	}
 }
 
-func (u *Usecase) Accounts(ctx context.Context, id uint) ([]models.TelegramAccount, error) {
+func (u *Usecase) Accounts(ctx context.Context, principal authz.Principal, id uint) ([]models.TelegramAccount, error) {
 	if id == 0 {
 		return nil, errors.New("ocserv_user_id query parameter is required")
 	}
@@ -232,10 +233,13 @@ func (u *Usecase) Accounts(ctx context.Context, id uint) ([]models.TelegramAccou
 	if err != nil {
 		return nil, err
 	}
+	if err := principal.RequireOwner(user.OwnerID); err != nil {
+		return nil, err
+	}
 	return u.Repository.AccountsForOcservUser(ctx, user.ID)
 }
 
-func (u *Usecase) deliverNew(ctx context.Context, req *models.TelegramRequest, plan *models.TelegramPackage, settings *models.TelegramSettings, input ConfirmPaymentData) (map[string]interface{}, error) {
+func (u *Usecase) deliverNew(ctx context.Context, ownerID uint, req *models.TelegramRequest, plan *models.TelegramPackage, settings *models.TelegramSettings, input ConfirmPaymentData) (map[string]interface{}, error) {
 	username := input.OverrideUsername
 	if username == "" {
 		username = req.DesiredUsername
@@ -247,16 +251,12 @@ func (u *Usecase) deliverNew(ctx context.Context, req *models.TelegramRequest, p
 	if password == "" {
 		password = randomValue("", 6)
 	}
-	owner := input.Owner
-	if owner == "" {
-		owner = "telegram"
-	}
 	group := input.Group
 	if group == "" {
 		group = "defaults"
 	}
 	expiresAt := time.Now().AddDate(0, 0, plan.Days)
-	user, err := u.users.Create(ctx, &models.OcservUser{Owner: owner, Group: group, Username: username, Password: password, ExpireAt: &expiresAt, TrafficType: plan.TrafficType, TrafficSize: int64(plan.TrafficSizeGB) << 30, Description: fmt.Sprintf("created via telegram bot (request #%d)", req.ID)})
+	user, err := u.users.Create(ctx, &models.OcservUser{OwnerID: ownerID, Group: group, Username: username, Password: password, ExpireAt: &expiresAt, TrafficType: plan.TrafficType, TrafficSize: int64(plan.TrafficSizeGB) << 30, Description: fmt.Sprintf("created via telegram bot (request #%d)", req.ID)})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ocserv user: %w", err)
 	}

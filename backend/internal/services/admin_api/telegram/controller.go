@@ -1,11 +1,14 @@
 package telegram
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	telegramusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/telegram"
+	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 )
 
@@ -182,7 +185,11 @@ func (ctl *Controller) ConfirmPayment(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.telegram.ConfirmPayment(c.Request().Context(), id, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	result, err := ctl.telegram.ConfirmPayment(c.Request().Context(), principal, id, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -194,8 +201,15 @@ func (ctl *Controller) AccountsForOcservUser(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.telegram.Accounts(c.Request().Context(), id)
+	principal, err := middlewares.Principal(c)
 	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	result, err := ctl.telegram.Accounts(c.Request().Context(), principal, id)
+	if err != nil {
+		if errors.Is(err, authz.ErrForbidden) {
+			return echo.NewHTTPError(http.StatusForbidden, err.Error())
+		}
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, result)

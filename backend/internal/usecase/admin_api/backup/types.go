@@ -3,6 +3,7 @@ package backup
 import (
 	"context"
 
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
 	groupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/groups"
@@ -16,12 +17,12 @@ type Repository interface {
 type GroupManager interface {
 	DefaultGroup() (*models.OcservGroupConfig, error)
 	UpdateDefaultGroup(config *models.OcservGroupConfig) error
-	Create(ctx context.Context, owner string, input groupusecase.CreateInput) (*models.OcservGroup, error)
+	Create(ctx context.Context, input groupusecase.CreateInput) (*models.OcservGroup, error)
 }
 
 type UserManager interface {
 	Create(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error)
-	DeleteUser(ctx context.Context, id uint) error
+	DeleteUser(ctx context.Context, principal authz.Principal, id uint) error
 }
 
 type CertificateStore interface {

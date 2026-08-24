@@ -22,8 +22,8 @@ func New(repo Repository, users UserUpdater, configs ConfigStore, reloader Reloa
 	return &Usecase{repository: repo, users: users, configs: configs, reloader: reloader}
 }
 
-func (u *Usecase) Lookup(ctx context.Context, owner string) ([]string, error) {
-	groups, err := u.repository.GroupsLookup(ctx, owner)
+func (u *Usecase) Lookup(ctx context.Context) ([]string, error) {
+	groups, err := u.repository.GroupsLookup(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (u *Usecase) Lookup(ctx context.Context, owner string) ([]string, error) {
 }
 
 func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, error) {
-	groups, total, err := u.repository.Groups(ctx, options.Pagination, options.Owner)
+	groups, total, err := u.repository.Groups(ctx, options.Pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -45,11 +45,8 @@ func (u *Usecase) Get(ctx context.Context, id string) (*models.OcservGroup, erro
 	return u.repository.GetByID(ctx, id)
 }
 
-func (u *Usecase) Create(ctx context.Context, owner string, input CreateInput) (*models.OcservGroup, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
-	}
-	created, err := u.repository.Create(ctx, &models.OcservGroup{Name: input.Name, Owner: owner, Config: input.Config})
+func (u *Usecase) Create(ctx context.Context, input CreateInput) (*models.OcservGroup, error) {
+	created, err := u.repository.Create(ctx, &models.OcservGroup{Name: input.Name, Config: input.Config})
 	if err != nil {
 		return nil, err
 	}
@@ -162,16 +159,13 @@ func (u *Usecase) Unsynced(ctx context.Context) ([]group.UnsyncedGroup, error) {
 	return unsynced, nil
 }
 
-func (u *Usecase) Sync(ctx context.Context, owner string, input SyncInput) ([]string, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
-	}
+func (u *Usecase) Sync(ctx context.Context, input SyncInput) ([]string, error) {
 	if len(input.Groups) == 0 {
 		return nil, errors.New("no groups found")
 	}
 	groups := make([]models.OcservGroup, 0, len(input.Groups))
 	for _, item := range input.Groups {
-		groups = append(groups, models.OcservGroup{Name: item.Name, Config: item.Config, Owner: owner})
+		groups = append(groups, models.OcservGroup{Name: item.Name, Config: item.Config})
 	}
 	synced, err := u.repository.CreateMany(ctx, groups)
 	if err != nil {

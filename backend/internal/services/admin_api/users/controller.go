@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v5"
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/users"
+	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 )
 
@@ -24,17 +26,13 @@ func New(usecase *userusecase.Usecase) *Controller {
 // @Produce json
 // @Router /ocserv/users [get]
 func (ctl *Controller) Users(c *echo.Context) error {
-	owner := ""
-	if isAdmin, ok := c.Get("isAdmin").(bool); !ok || !isAdmin {
-		username, ok := c.Get("username").(string)
-		if !ok || username == "" {
-			return ctl.request.BadRequest(c, errors.New("invalid user id"))
-		}
-		owner = username
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
 	}
 	pagination := ctl.request.Pagination(c)
 	result, err := ctl.users.List(c.Request().Context(), userusecase.ListOptions{
-		Pagination: pagination, Owner: owner, Query: c.QueryParam("q"), Filter: c.QueryParam("filter"), Group: c.QueryParam("group"),
+		Pagination: pagination, Principal: principal, Query: c.QueryParam("q"), Filter: c.QueryParam("filter"), Group: c.QueryParam("group"),
 	})
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -47,11 +45,15 @@ func (ctl *Controller) Users(c *echo.Context) error {
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id} [get]
 func (ctl *Controller) User(c *echo.Context) error {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
 	id, err := parseID(c.Param("id"))
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.users.User(c.Request().Context(), id)
+	result, err := ctl.users.User(c.Request().Context(), principal, id)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -66,8 +68,11 @@ func (ctl *Controller) Create(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	owner, _ := c.Get("username").(string)
-	result, err := ctl.users.CreateUser(c.Request().Context(), owner, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.CreateUser(c.Request().Context(), principal, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -87,7 +92,11 @@ func (ctl *Controller) Update(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.users.UpdateUser(c.Request().Context(), id, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.UpdateUser(c.Request().Context(), principal, id, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -99,11 +108,15 @@ func (ctl *Controller) Update(c *echo.Context) error {
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id} [delete]
 func (ctl *Controller) Delete(c *echo.Context) error {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
 	id, err := parseID(c.Param("id"))
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.users.DeleteUser(c.Request().Context(), id); err != nil {
+	if err := ctl.users.DeleteUser(c.Request().Context(), principal, id); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusNoContent, nil)
@@ -114,11 +127,15 @@ func (ctl *Controller) Delete(c *echo.Context) error {
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/lock [post]
 func (ctl *Controller) Lock(c *echo.Context) error {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
 	id, err := parseID(c.Param("id"))
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.users.LockUser(c.Request().Context(), id); err != nil {
+	if err := ctl.users.LockUser(c.Request().Context(), principal, id); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -129,11 +146,15 @@ func (ctl *Controller) Lock(c *echo.Context) error {
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/unlock [post]
 func (ctl *Controller) UnLock(c *echo.Context) error {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
 	id, err := parseID(c.Param("id"))
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.users.UnlockUser(c.Request().Context(), id); err != nil {
+	if err := ctl.users.UnlockUser(c.Request().Context(), principal, id); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -152,7 +173,11 @@ func (ctl *Controller) Statistics(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.users.Statistics(c.Request().Context(), id, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.Statistics(c.Request().Context(), principal, id, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -179,8 +204,11 @@ func (ctl *Controller) SyncToDB(c *echo.Context) error {
 	if err := ctl.request.DoValidate(c, &input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	owner, _ := c.Get("username").(string)
-	result, err := ctl.users.SyncOcpasswd(c.Request().Context(), owner, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.SyncOcpasswd(c.Request().Context(), principal, input)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -200,7 +228,11 @@ func (ctl *Controller) ActivateExpired(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.users.Activate(c.Request().Context(), id, input); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.Activate(c.Request().Context(), principal, id, input); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -215,7 +247,11 @@ func (ctl *Controller) CreateCertificate(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	if err := ctl.users.CreateUserCertificate(c.Request().Context(), id); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.CreateUserCertificate(c.Request().Context(), principal, id); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -230,7 +266,11 @@ func (ctl *Controller) DownloadCertificate(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	username, path, err := ctl.users.UserCertificate(c.Request().Context(), id)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	username, path, err := ctl.users.UserCertificate(c.Request().Context(), principal, id)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -252,7 +292,11 @@ func (ctl *Controller) SessionLogs(c *echo.Context) error {
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
-	result, err := ctl.users.SessionLogs(c.Request().Context(), id, pagination, input)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.SessionLogs(c.Request().Context(), principal, id, pagination, input)
 	if errors.Is(err, userusecase.ErrUserNotFound) {
 		return c.JSON(http.StatusNotFound, nil)
 	}
@@ -266,7 +310,11 @@ func (ctl *Controller) SessionLogs(c *echo.Context) error {
 // @Tags Ocserv(Users)
 // @Router /ocserv/users/{username}/disconnect [post]
 func (ctl *Controller) Disconnect(c *echo.Context) error {
-	if err := ctl.users.DisconnectUser(c.Param("username")); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.DisconnectUser(c.Request().Context(), principal, c.Param("username")); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -276,7 +324,11 @@ func (ctl *Controller) Disconnect(c *echo.Context) error {
 // @Tags Ocserv(Users)
 // @Router /ocserv/users/{id}/disconnect_by_id [post]
 func (ctl *Controller) DisconnectSessionById(c *echo.Context) error {
-	if err := ctl.users.DisconnectSession(c.Param("id")); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.DisconnectSession(c.Request().Context(), principal, c.Param("id")); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -286,7 +338,11 @@ func (ctl *Controller) DisconnectSessionById(c *echo.Context) error {
 // @Tags Ocserv(Users)
 // @Router /ocserv/users/{username}/terminate [post]
 func (ctl *Controller) Terminate(c *echo.Context) error {
-	if err := ctl.users.TerminateUser(c.Param("username")); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.TerminateUser(c.Request().Context(), principal, c.Param("username")); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
@@ -296,10 +352,21 @@ func (ctl *Controller) Terminate(c *echo.Context) error {
 // @Tags Ocserv(Users)
 // @Router /ocserv/users/{id}/terminate_by_id [post]
 func (ctl *Controller) TerminateSessionById(c *echo.Context) error {
-	if err := ctl.users.TerminateSession(c.Param("id")); err != nil {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	if err := ctl.users.TerminateSession(c.Request().Context(), principal, c.Param("id")); err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+func (ctl *Controller) respondError(c *echo.Context, err error) error {
+	if errors.Is(err, authz.ErrForbidden) {
+		return echo.NewHTTPError(http.StatusForbidden, err.Error())
+	}
+	return ctl.request.BadRequest(c, err)
 }
 
 func parseID(value string) (uint, error) {

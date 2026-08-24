@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	backupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/backup"
+	"github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 )
 
@@ -88,11 +89,6 @@ func (ctl *Controller) OcservGroupBackup(c *echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Router       /backup/ocserv_groups [post]
 func (ctl *Controller) OcservGroupRestore(c *echo.Context) error {
-	owner := c.Get("username").(string)
-	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
-	}
-
 	reader, err := ctl.fileUploadValidator(c)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -115,7 +111,7 @@ func (ctl *Controller) OcservGroupRestore(c *echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
 	}
 
-	result, err := ctl.backup.RestoreGroups(c.Request().Context(), owner, groupData)
+	result, err := ctl.backup.RestoreGroups(c.Request().Context(), groupData)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}
@@ -175,11 +171,6 @@ func (ctl *Controller) OcservUserBackup(c *echo.Context) error {
 // @Failure      403 {object} middlewares.PermissionDenied
 // @Router       /backup/ocserv_users [post]
 func (ctl *Controller) OcservUserRestore(c *echo.Context) error {
-	owner := c.Get("username").(string)
-	if owner == "" {
-		return ctl.request.BadRequest(c, errors.New("admin or staff username not found"))
-	}
-
 	reader, err := ctl.fileUploadValidator(c)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
@@ -201,7 +192,11 @@ func (ctl *Controller) OcservUserRestore(c *echo.Context) error {
 		return ctl.request.BadRequest(c, errors.New("invalid json EOF file"))
 	}
 
-	result, err := ctl.backup.RestoreUsers(c.Request().Context(), owner, users)
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	result, err := ctl.backup.RestoreUsers(c.Request().Context(), principal, users)
 	if err != nil {
 		return ctl.request.BadRequest(c, err)
 	}

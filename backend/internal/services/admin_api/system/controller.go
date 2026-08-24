@@ -35,27 +35,6 @@ func (ctl *Controller) DashboardRelease(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// SetupSystem initializes the first admin and settings.
-// @Summary Setup user and system config
-// @Tags System
-// @Accept json
-// @Produce json
-// @Param request body SetupSystem true "system setup data"
-// @Failure 400 {object} request.ErrorResponse
-// @Success 201 {object} SetupSystemResponse
-// @Router /system/setup [post]
-func (ctl *Controller) SetupSystem(c *echo.Context) error {
-	var input SetupSystem
-	if err := ctl.request.DoValidate(c, &input); err != nil {
-		return ctl.request.BadRequest(c, err)
-	}
-	result, err := ctl.system.Setup(c.Request().Context(), input)
-	if err != nil {
-		return ctl.request.BadRequest(c, err)
-	}
-	return c.JSON(http.StatusCreated, result)
-}
-
 // ResetAdminPassword resets an admin password using the application secret.
 // @Summary Reset admin password by secret key
 // @Tags System(User)
@@ -287,11 +266,11 @@ func (ctl *Controller) Profile(c *echo.Context) error {
 }
 
 func currentUserID(c *echo.Context) (uint, error) {
-	id, ok := c.Get("userID").(uint)
-	if !ok || id == 0 {
+	principal, err := middlewares.Principal(c)
+	if err != nil {
 		return 0, errors.New("invalid user id")
 	}
-	return id, nil
+	return principal.UserID, nil
 }
 
 func parseID(value string) (uint, error) {

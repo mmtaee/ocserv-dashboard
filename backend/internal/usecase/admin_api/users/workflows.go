@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mmtaee/ocserv-dashboard/backend/internal/authz"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/ocserv/user"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/logging"
@@ -19,6 +20,9 @@ import (
 var ErrUserNotFound = errors.New("ocserv user not found")
 
 func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, error) {
+	if options.Principal.UserID == 0 {
+		return nil, authz.ErrForbidden
+	}
 	filter := options.Filter
 	if !slices.Contains([]string{"online", "active", "deactivated", "locked"}, filter) {
 		filter = ""
@@ -41,9 +45,9 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 		if sessionErr != nil {
 			return nil, sessionErr
 		}
-		users, total, err = u.Repository.UsersByUsername(ctx, options.Pagination, options.Owner, usernames, options.Query, options.Group)
+		users, total, err = u.Repository.UsersByUsername(ctx, options.Pagination, ownerFilter(options.Principal), usernames, options.Query, options.Group)
 	} else {
-		users, total, err = u.Repository.Users(ctx, options.Pagination, options.Owner, options.Query, filter, options.Group)
+		users, total, err = u.Repository.Users(ctx, options.Pagination, ownerFilter(options.Principal), options.Query, filter, options.Group)
 	}
 	if err != nil {
 		return nil, err
@@ -58,11 +62,11 @@ func (u *Usecase) List(ctx context.Context, options ListOptions) (*ListResult, e
 	return &ListResult{Users: users, Total: total}, nil
 }
 
-func (u *Usecase) User(ctx context.Context, id uint) (*models.OcservUser, error) {
+func (u *Usecase) User(ctx context.Context, principal authz.Principal, id uint) (*models.OcservUser, error) {
 	if id == 0 {
 		return nil, errors.New("invalid user id")
 	}
-	return u.GetByID(ctx, id)
+	return u.authorizedUser(ctx, principal, id)
 }
 
 func (u *Usecase) GetByID(ctx context.Context, id uint) (*models.OcservUser, error) {
@@ -81,9 +85,9 @@ func (u *Usecase) GetByUsername(ctx context.Context, username string) (*models.O
 	return user, err
 }
 
-func (u *Usecase) CreateUser(ctx context.Context, owner string, input CreateOcservUserData) (*models.OcservUser, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
+func (u *Usecase) CreateUser(ctx context.Context, principal authz.Principal, input CreateOcservUserData) (*models.OcservUser, error) {
+	if principal.UserID == 0 {
+		return nil, authz.ErrForbidden
 	}
 	var expiresAt *time.Time
 	if !input.Unlimited {
@@ -97,7 +101,7 @@ func (u *Usecase) CreateUser(ctx context.Context, owner string, input CreateOcse
 		input.TrafficSize = 0
 	}
 	return u.Create(ctx, &models.OcservUser{
-		Owner: owner, Username: input.Username, Password: input.Password, Group: input.Group, ExpireAt: expiresAt,
+		OwnerID: principal.UserID, Username: input.Username, Password: input.Password, Group: input.Group, ExpireAt: expiresAt,
 		TrafficSize: input.TrafficSize, TrafficType: input.TrafficType, Description: input.Description, Config: input.Config,
 	})
 }
@@ -121,11 +125,11 @@ func (u *Usecase) Create(ctx context.Context, account *models.OcservUser) (*mode
 	return created, nil
 }
 
-func (u *Usecase) UpdateUser(ctx context.Context, id uint, input UpdateOcservUserData) (*models.OcservUser, error) {
+func (u *Usecase) UpdateUser(ctx context.Context, principal authz.Principal, id uint, input UpdateOcservUserData) (*models.OcservUser, error) {
 	if id == 0 {
 		return nil, errors.New("user id is required")
 	}
-	user, err := u.GetByID(ctx, id)
+	user, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return nil, err
 	}
@@ -175,9 +179,12 @@ func (u *Usecase) Update(ctx context.Context, account *models.OcservUser) (*mode
 	return updated, nil
 }
 
-func (u *Usecase) DeleteUser(ctx context.Context, id uint) error {
+func (u *Usecase) DeleteUser(ctx context.Context, principal authz.Principal, id uint) error {
 	if id == 0 {
 		return errors.New("user id is required")
+	}
+	if _, err := u.authorizedUser(ctx, principal, id); err != nil {
+		return err
 	}
 	account, err := u.Repository.Delete(ctx, id)
 	if err != nil {
@@ -192,11 +199,11 @@ func (u *Usecase) DeleteUser(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (u *Usecase) LockUser(ctx context.Context, id uint) error {
+func (u *Usecase) LockUser(ctx context.Context, principal authz.Principal, id uint) error {
 	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByID(ctx, id)
+	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return err
 	}
@@ -213,11 +220,11 @@ func (u *Usecase) LockUser(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (u *Usecase) UnlockUser(ctx context.Context, id uint) error {
+func (u *Usecase) UnlockUser(ctx context.Context, principal authz.Principal, id uint) error {
 	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByID(ctx, id)
+	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return err
 	}
@@ -231,9 +238,12 @@ func (u *Usecase) UnlockUser(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (u *Usecase) Statistics(ctx context.Context, id uint, input StatisticsData) (*StatisticsResponse, error) {
+func (u *Usecase) Statistics(ctx context.Context, principal authz.Principal, id uint, input StatisticsData) (*StatisticsResponse, error) {
 	if id == 0 {
 		return nil, errors.New("user id is required")
+	}
+	if _, err := u.authorizedUser(ctx, principal, id); err != nil {
+		return nil, err
 	}
 	start, end, err := parseDateRange(input.DateStart, input.DateEnd)
 	if err != nil {
@@ -292,9 +302,9 @@ func (u *Usecase) ListOcpasswd(ctx context.Context, pagination *request.Paginati
 	return &OcpasswdResult{Users: unsynced[start:end], Total: total}, nil
 }
 
-func (u *Usecase) SyncOcpasswd(ctx context.Context, owner string, input SyncOcpasswdRequest) ([]string, error) {
-	if owner == "" {
-		return nil, errors.New("admin or staff username not found")
+func (u *Usecase) SyncOcpasswd(ctx context.Context, principal authz.Principal, input SyncOcpasswdRequest) ([]string, error) {
+	if principal.UserID == 0 {
+		return nil, authz.ErrForbidden
 	}
 	expiresAt := time.Now().AddDate(0, 0, 30)
 	if input.ExpireAt != nil && *input.ExpireAt != "" {
@@ -314,7 +324,7 @@ func (u *Usecase) SyncOcpasswd(ctx context.Context, owner string, input SyncOcpa
 	}
 	users := make([]models.OcservUser, 0, len(input.Users))
 	for _, item := range input.Users {
-		users = append(users, models.OcservUser{Username: item.Username, Password: "Secret-Ocpasswd", Group: item.Group, Owner: owner, ExpireAt: &expiresAt, TrafficSize: size, TrafficType: *input.TrafficType, Config: input.Config})
+		users = append(users, models.OcservUser{Username: item.Username, Password: "Secret-Ocpasswd", Group: item.Group, OwnerID: principal.UserID, ExpireAt: &expiresAt, TrafficSize: size, TrafficType: *input.TrafficType, Config: input.Config})
 	}
 	if len(users) == 0 {
 		return nil, errors.New("no users found")
@@ -337,7 +347,7 @@ func (u *Usecase) SyncOcpasswd(ctx context.Context, owner string, input SyncOcpa
 	return names, nil
 }
 
-func (u *Usecase) Activate(ctx context.Context, id uint, input ActivateUserData) error {
+func (u *Usecase) Activate(ctx context.Context, principal authz.Principal, id uint, input ActivateUserData) error {
 	if id == 0 {
 		return errors.New("user id is required")
 	}
@@ -347,7 +357,7 @@ func (u *Usecase) Activate(ctx context.Context, id uint, input ActivateUserData)
 			expiresAt = &parsed
 		}
 	}
-	account, err := u.Repository.GetByID(ctx, id)
+	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return err
 	}
@@ -362,22 +372,22 @@ func (u *Usecase) Activate(ctx context.Context, id uint, input ActivateUserData)
 	return u.Repository.RestoreExpired(ctx, id, expiresAt)
 }
 
-func (u *Usecase) CreateUserCertificate(ctx context.Context, id uint) error {
+func (u *Usecase) CreateUserCertificate(ctx context.Context, principal authz.Principal, id uint) error {
 	if id == 0 {
 		return errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByID(ctx, id)
+	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return err
 	}
 	return u.accounts.CreateCertificate(account.Username, account.Password)
 }
 
-func (u *Usecase) UserCertificate(ctx context.Context, id uint) (string, string, error) {
+func (u *Usecase) UserCertificate(ctx context.Context, principal authz.Principal, id uint) (string, string, error) {
 	if id == 0 {
 		return "", "", errors.New("user id is required")
 	}
-	account, err := u.Repository.GetByID(ctx, id)
+	account, err := u.authorizedUser(ctx, principal, id)
 	if err != nil {
 		return "", "", err
 	}
@@ -385,7 +395,7 @@ func (u *Usecase) UserCertificate(ctx context.Context, id uint) (string, string,
 	return account.Username, path, err
 }
 
-func (u *Usecase) SessionLogs(ctx context.Context, id uint, pagination *request.Pagination, input SessionLogsData) (*SessionLogsResult, error) {
+func (u *Usecase) SessionLogs(ctx context.Context, principal authz.Principal, id uint, pagination *request.Pagination, input SessionLogsData) (*SessionLogsResult, error) {
 	if id == 0 {
 		return nil, errors.New("user id is required")
 	}
@@ -393,7 +403,7 @@ func (u *Usecase) SessionLogs(ctx context.Context, id uint, pagination *request.
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.GetByID(ctx, id)
+	user, err := u.authorizedUser(ctx, principal, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
 	}
@@ -407,17 +417,63 @@ func (u *Usecase) SessionLogs(ctx context.Context, id uint, pagination *request.
 	return &SessionLogsResult{Logs: logs, Total: total}, nil
 }
 
-func (u *Usecase) DisconnectUser(username string) error {
+func (u *Usecase) DisconnectUser(ctx context.Context, principal authz.Principal, username string) error {
+	if err := u.authorizeUsername(ctx, principal, username); err != nil {
+		return err
+	}
 	return u.sessionAction(username, "disconnect", u.occtl.Disconnect)
 }
-func (u *Usecase) DisconnectSession(id string) error {
+func (u *Usecase) DisconnectSession(ctx context.Context, principal authz.Principal, id string) error {
+	if err := u.authorizeSession(ctx, principal, id); err != nil {
+		return err
+	}
 	return u.sessionAction(id, "disconnect", u.occtl.DisconnectSession)
 }
-func (u *Usecase) TerminateUser(username string) error {
+func (u *Usecase) TerminateUser(ctx context.Context, principal authz.Principal, username string) error {
+	if err := u.authorizeUsername(ctx, principal, username); err != nil {
+		return err
+	}
 	return u.sessionAction(username, "terminate", u.occtl.Terminate)
 }
-func (u *Usecase) TerminateSession(id string) error {
+func (u *Usecase) TerminateSession(ctx context.Context, principal authz.Principal, id string) error {
+	if err := u.authorizeSession(ctx, principal, id); err != nil {
+		return err
+	}
 	return u.sessionAction(id, "terminate", u.occtl.TerminateSession)
+}
+
+func ownerFilter(principal authz.Principal) uint {
+	if principal.Superadmin {
+		return 0
+	}
+	return principal.UserID
+}
+
+func (u *Usecase) authorizedUser(ctx context.Context, principal authz.Principal, id uint) (*models.OcservUser, error) {
+	account, err := u.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := principal.RequireOwner(account.OwnerID); err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+
+func (u *Usecase) authorizeUsername(ctx context.Context, principal authz.Principal, username string) error {
+	account, err := u.GetByUsername(ctx, username)
+	if err != nil {
+		return err
+	}
+	return principal.RequireOwner(account.OwnerID)
+}
+
+func (u *Usecase) authorizeSession(ctx context.Context, principal authz.Principal, id string) error {
+	session, err := u.occtl.ShowUserByID(id)
+	if err != nil {
+		return err
+	}
+	return u.authorizeUsername(ctx, principal, session.Username)
 }
 
 func (u *Usecase) sessionAction(value, action string, invoke func(string) (string, error)) error {

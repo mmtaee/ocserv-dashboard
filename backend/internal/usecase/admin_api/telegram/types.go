@@ -77,7 +77,6 @@ type RejectData struct {
 type ConfirmPaymentData struct {
 	OverrideUsername string `json:"override_username" validate:"omitempty,min=3,max=64"`
 	OverridePassword string `json:"override_password" validate:"omitempty,min=4,max=64"`
-	Owner            string `json:"owner" validate:"omitempty,max=16"`
 	Group            string `json:"group" validate:"omitempty,max=16"`
 	AdminNote        string `json:"admin_note" validate:"omitempty,max=1024"`
 }

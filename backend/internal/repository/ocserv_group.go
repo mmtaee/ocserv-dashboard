@@ -14,8 +14,8 @@ type OcservGroupRepository struct {
 }
 
 type OcservGroupRepositoryInterface interface {
-	Groups(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservGroup, int64, error)
-	GroupsLookup(ctx context.Context, owner string) ([]string, error)
+	Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroup, int64, error)
+	GroupsLookup(ctx context.Context) ([]string, error)
 	GetByID(ctx context.Context, id string) (*models.OcservGroup, error)
 	Create(ctx context.Context, group *models.OcservGroup) (*models.OcservGroup, error)
 	Update(ctx context.Context, group *models.OcservGroup) (*models.OcservGroup, error)
@@ -28,31 +28,22 @@ func NewOcservGroupRepository() *OcservGroupRepository {
 	return &OcservGroupRepository{db: database.GetConnection()}
 }
 
-func (r *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination, owner string) ([]models.OcservGroup, int64, error) {
+func (r *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroup, int64, error) {
 	query := r.db.WithContext(ctx).Model(&models.OcservGroup{})
-	if owner != "" {
-		query = query.Where("owner = ?", owner)
-	}
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	var groups []models.OcservGroup
 	query = request.Paginator(ctx, r.db, pagination).Model(&models.OcservGroup{})
-	if owner != "" {
-		query = query.Where("owner = ?", owner)
-	}
 	if err := query.Find(&groups).Error; err != nil {
 		return nil, 0, err
 	}
 	return groups, total, nil
 }
 
-func (r *OcservGroupRepository) GroupsLookup(ctx context.Context, owner string) ([]string, error) {
+func (r *OcservGroupRepository) GroupsLookup(ctx context.Context) ([]string, error) {
 	query := r.db.WithContext(ctx).Model(&models.OcservGroup{})
-	if owner != "" {
-		query = query.Where("owner = ?", owner)
-	}
 	var names []string
 	return names, query.Pluck("name", &names).Error
 }

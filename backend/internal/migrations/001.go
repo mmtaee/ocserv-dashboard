@@ -13,7 +13,7 @@ var Migration001 = &gormigrate.Migration{
 				id BIGSERIAL PRIMARY KEY,
 				username VARCHAR(16) NOT NULL UNIQUE,
 				password VARCHAR(64) NOT NULL,
-				is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+				superadmin BOOLEAN NOT NULL DEFAULT FALSE,
 				salt VARCHAR(8) NOT NULL,
 				last_login TIMESTAMPTZ NULL,
 				created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -21,7 +21,7 @@ var Migration001 = &gormigrate.Migration{
 			);
 
 			CREATE INDEX idx_users_last_login ON users(last_login);
-			CREATE INDEX idx_users_is_admin ON users(is_admin);
+			CREATE INDEX idx_users_superadmin ON users(superadmin);
 			CREATE INDEX idx_users_created_at ON users(created_at);
 
 			CREATE TABLE user_tokens (
@@ -47,6 +47,7 @@ var Migration001 = &gormigrate.Migration{
 				client_profile_server_port INTEGER NOT NULL DEFAULT 443,
 				client_profile_connection_name VARCHAR(64) NOT NULL DEFAULT ''
 			);
+			INSERT INTO systems (id) VALUES (1);
 		`).Error
 	},
 	Rollback: func(tx *gorm.DB) error {

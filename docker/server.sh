@@ -78,6 +78,19 @@ run_migrations() {
     done
 }
 
+ensure_superadmin() {
+    if [[ -z "${SUPERADMIN_USERNAME:-}" || -z "${SUPERADMIN_PASSWORD:-}" ]]; then
+        log "SUPERADMIN_USERNAME and SUPERADMIN_PASSWORD are required"
+        return 1
+    fi
+    if [[ "${SUPERADMIN_PASSWORD}" == "replace-with-a-strong-superadmin-password" ]]; then
+        log "replace the sample SUPERADMIN_PASSWORD before starting the container"
+        return 1
+    fi
+    log "ensuring initial superadmin ${SUPERADMIN_USERNAME}"
+    /usr/local/bin/backend create-superadmin
+}
+
 start_postgres() {
     local attempt=1
 
@@ -153,6 +166,10 @@ main() {
         return 1
     fi
     if ! run_migrations; then
+        stop_services
+        return 1
+    fi
+    if ! ensure_superadmin; then
         stop_services
         return 1
     fi

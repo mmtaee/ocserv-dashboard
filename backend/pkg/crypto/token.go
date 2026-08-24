@@ -9,16 +9,17 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func GenerateAccessToken(userID uint, username string, expire int64, isAdmin bool) (string, error) {
+func GenerateAccessToken(userID uint, username string, expire int64, superadmin bool) (string, error) {
 	cfg := config.Get()
 
 	claims := jwt.MapClaims{
-		"sub":      strconv.FormatUint(uint64(userID), 10),
-		"jti":      ulid.Make().String(),
-		"exp":      expire,
-		"iat":      time.Now().Unix(),
-		"isAdmin":  isAdmin,
-		"username": username,
+		"sub":        strconv.FormatUint(uint64(userID), 10),
+		"jti":        ulid.Make().String(),
+		"exp":        expire,
+		"iat":        time.Now().Unix(),
+		"user_id":    userID,
+		"superadmin": superadmin,
+		"username":   username,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

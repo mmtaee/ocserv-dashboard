@@ -1614,45 +1614,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/system/setup": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "System"
-                ],
-                "summary": "Setup user and system config",
-                "parameters": [
-                    {
-                        "description": "system setup data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/request.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/system/user/reset-password": {
             "post": {
                 "consumes": [
@@ -2404,65 +2365,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystem": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "auto_delete_inactive_users": {
-                    "type": "boolean"
-                },
-                "client_profile_connection_name": {
-                    "type": "string"
-                },
-                "client_profile_server_address": {
-                    "type": "string"
-                },
-                "client_profile_server_port": {
-                    "type": "integer"
-                },
-                "google_captcha_secret_key": {
-                    "type": "string"
-                },
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "keep_inactive_user_days": {
-                    "type": "integer"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 4
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 2
-                }
-            }
-        },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.SetupSystemResponse": {
-            "type": "object",
-            "required": [
-                "system",
-                "token",
-                "user"
-            ],
-            "properties": {
-                "system": {
-                    "$ref": "#/definitions/models.System"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                }
-            }
-        },
         "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse": {
             "type": "object",
             "required": [
@@ -2844,8 +2746,7 @@ const docTemplate = `{
         "models.OcservGroup": {
             "type": "object",
             "required": [
-                "name",
-                "owner"
+                "name"
             ],
             "properties": {
                 "config": {
@@ -2855,9 +2756,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "owner": {
                     "type": "string"
                 }
             }
@@ -3007,7 +2905,7 @@ const docTemplate = `{
                 "is_locked",
                 "is_online",
                 "online_sessions",
-                "owner",
+                "owner_id",
                 "password",
                 "rx",
                 "traffic_size",
@@ -3059,7 +2957,10 @@ const docTemplate = `{
                     }
                 },
                 "owner": {
-                    "type": "string"
+                    "$ref": "#/definitions/models.User"
+                },
+                "owner_id": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string"
@@ -3272,41 +3173,12 @@ const docTemplate = `{
                 }
             }
         },
-        "models.System": {
-            "type": "object",
-            "properties": {
-                "_": {
-                    "type": "integer"
-                },
-                "auto_delete_inactive_users": {
-                    "type": "boolean"
-                },
-                "client_profile_connection_name": {
-                    "type": "string"
-                },
-                "client_profile_server_address": {
-                    "type": "string"
-                },
-                "client_profile_server_port": {
-                    "type": "integer"
-                },
-                "google_captcha_secret": {
-                    "type": "string"
-                },
-                "google_captcha_site_key": {
-                    "type": "string"
-                },
-                "keep_inactive_user_days": {
-                    "type": "integer"
-                }
-            }
-        },
         "models.User": {
             "type": "object",
             "required": [
                 "id",
-                "is_admin",
                 "last_login",
+                "superadmin",
                 "username"
             ],
             "properties": {
@@ -3316,11 +3188,11 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "is_admin": {
-                    "type": "boolean"
-                },
                 "last_login": {
                     "type": "string"
+                },
+                "superadmin": {
+                    "type": "boolean"
                 },
                 "updated_at": {
                     "type": "string"

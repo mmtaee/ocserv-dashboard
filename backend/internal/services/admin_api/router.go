@@ -23,16 +23,15 @@ func (s *Service) registerSystemRoutes(e *echo.Group) {
 	public := e.Group("/system")
 	public.GET("/release", s.system.DashboardRelease)
 	public.GET("/init", s.system.SystemInit)
-	public.POST("/setup", s.system.SetupSystem)
-	public.POST("/user/reset-password", s.system.ResetAdminPassword, middlewares.RateLimitMiddleware(1, "m", 2))
 	public.POST("/users/login", s.system.Login, middlewares.RateLimitMiddleware(2, "m", 3))
 
 	protected := e.Group("/system", middlewares.AuthMiddleware())
 	protected.GET("", s.system.System)
 	protected.GET("/users/profile", s.system.Profile)
 	protected.POST("/users/password", s.system.ChangePasswordBySelf)
+	protected.POST("/user/reset-password", s.system.ResetAdminPassword, middlewares.SuperadminPermission(), middlewares.RateLimitMiddleware(1, "m", 2))
 
-	admin := e.Group("/system", middlewares.AuthMiddleware(), middlewares.AdminPermission())
+	admin := e.Group("/system", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 	admin.PATCH("", s.system.SystemUpdate)
 	admin.POST("/users", s.system.CreateUser)
 	admin.GET("/users", s.system.Users)
@@ -46,13 +45,13 @@ func (s *Service) registerGroupRoutes(e *echo.Group) {
 	g.GET("", s.groups.OcservGroups)
 	g.GET("/lookup", s.groups.OcservGroupsLookup)
 	g.GET("/:id", s.groups.OcservGroup)
-	g.POST("", s.groups.CreateOcservGroup)
-	g.PATCH("/:id", s.groups.UpdateOcservGroup)
-	g.DELETE("/:id", s.groups.DeleteOcservGroup)
-	g.GET("/defaults", s.groups.GetDefaultsGroup, middlewares.AdminPermission())
-	g.PATCH("/defaults", s.groups.UpdateDefaultsGroup, middlewares.AdminPermission())
-	g.GET("/unsynced", s.groups.ListUnsyncedGroups, middlewares.AdminPermission())
-	g.POST("/sync", s.groups.SyncGroup, middlewares.AdminPermission())
+	g.POST("", s.groups.CreateOcservGroup, middlewares.SuperadminPermission())
+	g.PATCH("/:id", s.groups.UpdateOcservGroup, middlewares.SuperadminPermission())
+	g.DELETE("/:id", s.groups.DeleteOcservGroup, middlewares.SuperadminPermission())
+	g.GET("/defaults", s.groups.GetDefaultsGroup)
+	g.PATCH("/defaults", s.groups.UpdateDefaultsGroup, middlewares.SuperadminPermission())
+	g.GET("/unsynced", s.groups.ListUnsyncedGroups, middlewares.SuperadminPermission())
+	g.POST("/sync", s.groups.SyncGroup, middlewares.SuperadminPermission())
 }
 
 func (s *Service) registerUserRoutes(e *echo.Group) {
@@ -73,18 +72,18 @@ func (s *Service) registerUserRoutes(e *echo.Group) {
 	g.GET("/:id/certificate", s.users.DownloadCertificate)
 	g.GET("/:id/session_logs", s.users.SessionLogs)
 	g.GET("/:id/statistics", s.users.Statistics)
-	g.GET("/ocpasswd", s.users.OcpasswdUsers, middlewares.AdminPermission())
-	g.POST("/ocpasswd/sync", s.users.SyncToDB, middlewares.AdminPermission())
+	g.GET("/ocpasswd", s.users.OcpasswdUsers, middlewares.SuperadminPermission())
+	g.POST("/ocpasswd/sync", s.users.SyncToDB, middlewares.SuperadminPermission())
 }
 
 func (s *Service) registerOCCTLRoutes(e *echo.Group) {
 	g := e.Group("/occtl")
 	g.GET("/server_info", s.occtl.ServerInfo)
-	g.GET("/commands", s.occtl.Commands, middlewares.AuthMiddleware())
+	g.GET("/commands", s.occtl.Commands, middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 }
 
 func (s *Service) registerDashboardRoutes(e *echo.Group) {
-	g := e.Group("/home", middlewares.AuthMiddleware())
+	g := e.Group("/home", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 	g.GET("", s.dashboard.Home)
 	g.GET("/ocserv-stats", s.dashboard.OcservStats)
 	g.GET("/system-stats", s.dashboard.SystemUsageStats)
@@ -92,7 +91,7 @@ func (s *Service) registerDashboardRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerBackupRoutes(e *echo.Group) {
-	g := e.Group("/backup", middlewares.AuthMiddleware(), middlewares.AdminPermission())
+	g := e.Group("/backup", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 	g.GET("/ocserv_groups", s.backup.OcservGroupBackup)
 	g.POST("/ocserv_groups", s.backup.OcservGroupRestore)
 	g.GET("/ocserv_users", s.backup.OcservUserBackup)
@@ -100,7 +99,7 @@ func (s *Service) registerBackupRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerReportRoutes(e *echo.Group) {
-	g := e.Group("/reports", middlewares.AuthMiddleware(), middlewares.AdminPermission())
+	g := e.Group("/reports", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 	g.GET("/session_logs", s.reports.SessionLogs)
 	g.GET("/statistics", s.reports.Statistics)
 	g.GET("/users", s.reports.OcservUserReport)
@@ -108,7 +107,7 @@ func (s *Service) registerReportRoutes(e *echo.Group) {
 }
 
 func (s *Service) registerSystemdRoutes(e *echo.Group) {
-	g := e.Group("/systemd", middlewares.AuthMiddleware(), middlewares.AdminPermission())
+	g := e.Group("/systemd", middlewares.AuthMiddleware(), middlewares.SuperadminPermission())
 	g.GET("/status", s.systemd.Status)
 	g.POST("/restart", s.systemd.Restart, middlewares.RateLimitMiddleware(1, "m", 1))
 	g.POST("/disable", s.systemd.Disable, middlewares.RateLimitMiddleware(1, "m", 1))
@@ -117,20 +116,20 @@ func (s *Service) registerSystemdRoutes(e *echo.Group) {
 
 func (s *Service) registerTelegramRoutes(e *echo.Group) {
 	g := e.Group("/telegram", middlewares.AuthMiddleware())
-	g.GET("/settings", s.telegram.GetSettings, middlewares.AdminPermission())
-	g.PATCH("/settings", s.telegram.UpdateSettings, middlewares.AdminPermission())
-	g.POST("/test", s.telegram.Test, middlewares.AdminPermission())
+	g.GET("/settings", s.telegram.GetSettings)
+	g.PATCH("/settings", s.telegram.UpdateSettings, middlewares.SuperadminPermission())
+	g.POST("/test", s.telegram.Test, middlewares.SuperadminPermission())
 	g.GET("/packages", s.telegram.ListPackages)
-	g.POST("/packages", s.telegram.CreatePackage, middlewares.AdminPermission())
-	g.PATCH("/packages/:id", s.telegram.UpdatePackage, middlewares.AdminPermission())
-	g.DELETE("/packages/:id", s.telegram.DeletePackage, middlewares.AdminPermission())
-	g.GET("/requests", s.telegram.ListRequests, middlewares.AdminPermission())
-	g.GET("/requests/:id", s.telegram.GetRequest, middlewares.AdminPermission())
-	g.GET("/requests/:id/receipt", s.telegram.GetReceipt, middlewares.AdminPermission())
-	g.POST("/requests/:id/approve", s.telegram.Approve, middlewares.AdminPermission())
-	g.POST("/requests/:id/reject", s.telegram.Reject, middlewares.AdminPermission())
-	g.POST("/requests/:id/confirm-payment", s.telegram.ConfirmPayment, middlewares.AdminPermission())
-	g.DELETE("/requests/:id", s.telegram.DeleteRequest, middlewares.AdminPermission())
+	g.POST("/packages", s.telegram.CreatePackage, middlewares.SuperadminPermission())
+	g.PATCH("/packages/:id", s.telegram.UpdatePackage, middlewares.SuperadminPermission())
+	g.DELETE("/packages/:id", s.telegram.DeletePackage, middlewares.SuperadminPermission())
+	g.GET("/requests", s.telegram.ListRequests, middlewares.SuperadminPermission())
+	g.GET("/requests/:id", s.telegram.GetRequest, middlewares.SuperadminPermission())
+	g.GET("/requests/:id/receipt", s.telegram.GetReceipt, middlewares.SuperadminPermission())
+	g.POST("/requests/:id/approve", s.telegram.Approve, middlewares.SuperadminPermission())
+	g.POST("/requests/:id/reject", s.telegram.Reject, middlewares.SuperadminPermission())
+	g.POST("/requests/:id/confirm-payment", s.telegram.ConfirmPayment, middlewares.SuperadminPermission())
+	g.DELETE("/requests/:id", s.telegram.DeleteRequest, middlewares.SuperadminPermission())
 	g.GET("/accounts", s.telegram.AccountsForOcservUser)
-	g.DELETE("/accounts/:id", s.telegram.DeleteAccount, middlewares.AdminPermission())
+	g.DELETE("/accounts/:id", s.telegram.DeleteAccount, middlewares.SuperadminPermission())
 }

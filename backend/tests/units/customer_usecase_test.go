@@ -53,7 +53,7 @@ func TestCustomerSummaryRejectsInvalidPassword(t *testing.T) {
 }
 
 func TestCustomerSummaryMapsUsage(t *testing.T) {
-	users := customerUserRepository{user: &models.OcservUser{Username: "alice", Password: "correct", Owner: "admin"}}
+	users := customerUserRepository{user: &models.OcservUser{Username: "alice", Password: "correct", OwnerID: 1, Owner: models.User{ID: 1, Username: "admin"}}}
 	usecase := customerusecase.New(customerSystemRepository{}, users, customerOcctlRepository{}, "secret")
 
 	result, err := usecase.Summary(context.Background(), customerusecase.Credentials{Username: "alice", Password: "correct"})

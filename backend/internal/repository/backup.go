@@ -30,7 +30,7 @@ func (r *BackupRepository) Groups(ctx context.Context) ([]models.OcservGroup, er
 
 func (r *BackupRepository) Users(ctx context.Context) ([]models.OcservUser, error) {
 	var users []models.OcservUser
-	return users, r.db.WithContext(ctx).Find(&users).Error
+	return users, r.db.WithContext(ctx).Preload("Owner").Find(&users).Error
 }
 
 func (r *BackupRepository) ExistingGroupNames(ctx context.Context, names []string) ([]string, error) {

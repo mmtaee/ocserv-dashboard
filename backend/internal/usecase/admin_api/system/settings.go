@@ -10,27 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func (u *Usecase) Setup(ctx context.Context, input SetupSystem) (*SetupSystemResponse, error) {
-	if _, err := u.systems.System(ctx); err == nil {
-		return nil, errors.New("the system is already configured")
-	}
-	password := u.passwords.CreatePassword(input.Password)
-	user := &models.User{Username: strings.ToLower(input.Username), Password: password.Hash, Salt: password.Salt, IsAdmin: true}
-	settings, err := normalizeSetup(input)
-	if err != nil {
-		return nil, err
-	}
-	createdUser, createdSettings, err := u.systems.SystemSetup(ctx, user, settings)
-	if err != nil {
-		return nil, err
-	}
-	token, err := u.users.CreateToken(ctx, createdUser, true)
-	if err != nil {
-		return nil, err
-	}
-	return &SetupSystemResponse{User: *createdUser, System: *createdSettings, Token: token}, nil
-}
-
 func (u *Usecase) Init(ctx context.Context) (*GetSystemInitResponse, error) {
 	settings, err := u.systems.System(ctx)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -96,37 +75,6 @@ func (u *Usecase) Update(ctx context.Context, userID uint, input PatchSystemUpda
 		return nil, err
 	}
 	return systemResponse(updated), nil
-}
-
-func normalizeSetup(input SetupSystem) (*models.System, error) {
-	inactiveDays := input.KeepInactiveUserDays
-	if inactiveDays < 1 {
-		inactiveDays = 1
-	}
-	address := strings.TrimSpace(input.ClientProfileServerAddress)
-	if address != "" {
-		if _, err := ocservuser.NormalizeProfileServerAddress(address); err != nil {
-			return nil, err
-		}
-	}
-	name := strings.TrimSpace(input.ClientProfileConnectionName)
-	if name != "" {
-		if _, err := ocservuser.NormalizeProfileConnectionName(name); err != nil {
-			return nil, err
-		}
-	}
-	port := input.ClientProfileServerPort
-	if port == 0 {
-		port = 443
-	}
-	if _, err := ocservuser.NormalizeProfileServerPort(port); err != nil {
-		return nil, err
-	}
-	return &models.System{
-		GoogleCaptchaSiteKey: input.GoogleCaptchaSiteKey, GoogleCaptchaSecretKey: input.GoogleCaptchaSecretKey,
-		AutoDeleteInactiveUsers: input.AutoDeleteInactiveUsers, KeepInactiveUserDays: inactiveDays,
-		ClientProfileServerAddress: address, ClientProfileServerPort: port, ClientProfileConnectionName: name,
-	}, nil
 }
 
 func systemResponse(settings *models.System) *GetSystemResponse {

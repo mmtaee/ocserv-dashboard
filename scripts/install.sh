@@ -5,7 +5,7 @@ set -Eeuo pipefail
 # shellcheck disable=SC2155
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC2155
-readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 readonly SOURCE_ENV_FILE="${ENV_FILE:-${PROJECT_ROOT}/.env}"
 readonly BACKEND_UNIT=/etc/systemd/system/ocserv-dashboard.service
 readonly OCSERV_OVERRIDE_DIR=/etc/systemd/system/ocserv.service.d
@@ -64,10 +64,13 @@ load_environment() {
     : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
     : "${SECRET_KEY:?SECRET_KEY is required}"
     : "${JWT_SECRET:?JWT_SECRET is required}"
+    : "${SUPERADMIN_USERNAME:?SUPERADMIN_USERNAME is required}"
+    : "${SUPERADMIN_PASSWORD:?SUPERADMIN_PASSWORD is required}"
 
     [[ "${SECRET_KEY}" != "replace-with-a-random-secret" ]] || die "replace the sample SECRET_KEY before installation"
     [[ "${JWT_SECRET}" != "replace-with-a-random-jwt-secret" ]] || die "replace the sample JWT_SECRET before installation"
     [[ "${POSTGRES_PASSWORD}" != "replace-with-a-strong-database-password" ]] || die "replace the sample POSTGRES_PASSWORD before installation"
+    [[ "${SUPERADMIN_PASSWORD}" != "replace-with-a-strong-superadmin-password" ]] || die "replace the sample SUPERADMIN_PASSWORD before installation"
 
     [[ "${POSTGRES_PORT}" =~ ^[0-9]+$ ]] || die "POSTGRES_PORT must be numeric"
     [[ "${POSTGRES_DB}" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] || die "POSTGRES_DB must be a PostgreSQL identifier"
@@ -264,6 +267,7 @@ WorkingDirectory=${INSTALL_DIR}
 EnvironmentFile=${INSTALLED_ENV_FILE}
 Environment=SYSTEMD=true
 ExecStartPre=${INSTALL_DIR}/backend migrate
+ExecStartPre=${INSTALL_DIR}/backend create-superadmin
 ExecStart=${INSTALL_DIR}/backend serve --host ${BACKEND_HOST} --port ${BACKEND_PORT}
 Restart=on-failure
 RestartSec=5s

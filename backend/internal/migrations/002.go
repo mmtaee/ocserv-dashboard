@@ -12,13 +12,12 @@ var Migration002 = &gormigrate.Migration{
 			CREATE TABLE ocserv_groups (
 				id BIGSERIAL PRIMARY KEY,
 				name VARCHAR(255) NOT NULL UNIQUE,
-				owner VARCHAR(32) NOT NULL DEFAULT '',
 				config JSON
 			);
 
 			CREATE TABLE ocserv_users (
 				id BIGSERIAL PRIMARY KEY,
-				owner VARCHAR(16) NOT NULL DEFAULT '',
+				owner_id BIGINT NOT NULL REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
 				"group" VARCHAR(16) NOT NULL DEFAULT 'defaults',
 				username VARCHAR(255) NOT NULL UNIQUE,
 				password VARCHAR(255) NOT NULL,
@@ -36,7 +35,7 @@ var Migration002 = &gormigrate.Migration{
 				config TEXT
 			);
 
-			CREATE INDEX idx_ocserv_users_owner ON ocserv_users(owner);
+			CREATE INDEX idx_ocserv_users_owner_id ON ocserv_users(owner_id);
 			CREATE INDEX idx_ocserv_users_group ON ocserv_users("group");
 			CREATE INDEX idx_ocserv_users_expire_at ON ocserv_users(expire_at);
 			CREATE INDEX idx_ocserv_users_deactivated_at ON ocserv_users(deactivated_at);
