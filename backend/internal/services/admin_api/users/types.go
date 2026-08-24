@@ -4,6 +4,12 @@ import userusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/
 
 type CreateOcservUserData = userusecase.CreateOcservUserData
 type UpdateOcservUserData = userusecase.UpdateOcservUserData
+type BulkUpdateRequest = userusecase.BulkUpdateRequest
+type BulkIDsRequest = userusecase.BulkIDsRequest
+type BulkStatusRequest = userusecase.BulkStatusRequest
+type BulkGroupRequest = userusecase.BulkGroupRequest
+type BulkUsersResponse = userusecase.BulkUsersResponse
+type BulkDeleteResponse = userusecase.BulkDeleteResponse
 type OcservUsersResponse = userusecase.OcservUsersResponse
 type SyncOcpasswdRequest = userusecase.SyncOcpasswdRequest
 type OcservUsersSyncResponse = userusecase.OcservUsersSyncResponse

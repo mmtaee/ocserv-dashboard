@@ -1012,6 +1012,236 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/ocserv/users/bulk": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Bulk delete OCServ users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OCServ user IDs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkIDsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Bulk update OCServ users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bulk user updates",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/bulk/group": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Bulk assign or remove an OCServ group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OCServ user IDs and group; empty group removes assignment",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocserv/users/bulk/status": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ocserv(Users)"
+                ],
+                "summary": "Bulk enable or disable OCServ users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OCServ user IDs and enabled state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/users.BulkUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.PermissionDenied"
+                        }
+                    }
+                }
+            }
+        },
         "/ocserv/users/ocpasswd": {
             "get": {
                 "tags": [
@@ -3217,6 +3447,70 @@ const docTemplate = `{
                 }
             }
         },
+        "ocservuser.BulkUpdateItem": {
+            "type": "object",
+            "required": [
+                "changes",
+                "id"
+            ],
+            "properties": {
+                "changes": {
+                    "$ref": "#/definitions/ocservuser.UpdateOcservUserData"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ocservuser.UpdateOcservUserData": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservUserConfig"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "example": "User for testing VPN access"
+                },
+                "expire_at": {
+                    "type": "string",
+                    "example": "2025-12-31"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "traffic_size": {
+                    "description": "10 GiB",
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 10737418240
+                },
+                "traffic_type": {
+                    "type": "string",
+                    "enum": [
+                        "Free",
+                        "MonthlyTransmit",
+                        "MonthlyReceive",
+                        "MonthlyRxTx",
+                        "TotallyTransmit",
+                        "TotallyReceive",
+                        "TotallyRxTx"
+                    ]
+                },
+                "unlimited": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                }
+            }
+        },
         "reports.OcservUserReportResponse": {
             "type": "object",
             "properties": {
@@ -3366,6 +3660,100 @@ const docTemplate = `{
                 },
                 "unit_file_state": {
                     "type": "string"
+                }
+            }
+        },
+        "users.BulkDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.BulkGroupRequest": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "group": {
+                    "type": "string",
+                    "maxLength": 16
+                },
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "users.BulkIDsRequest": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "users.BulkStatusRequest": {
+            "type": "object",
+            "required": [
+                "enabled",
+                "ids"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "users.BulkUpdateRequest": {
+            "type": "object",
+            "required": [
+                "users"
+            ],
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/ocservuser.BulkUpdateItem"
+                    }
+                }
+            }
+        },
+        "users.BulkUsersResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OcservUser"
+                    }
                 }
             }
         }

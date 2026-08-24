@@ -11,6 +11,7 @@ import (
 // Repository is the persistence boundary required by this usecase.
 type Repository interface {
 	repository.OcservUserRepositoryInterface
+	repository.OcservUserBulkRepository
 }
 
 type AccountStore interface {

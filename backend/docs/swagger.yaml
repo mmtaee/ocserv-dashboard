@@ -817,6 +817,54 @@ definitions:
     - id
     - username
     type: object
+  ocservuser.BulkUpdateItem:
+    properties:
+      changes:
+        $ref: '#/definitions/ocservuser.UpdateOcservUserData'
+      id:
+        type: integer
+    required:
+    - changes
+    - id
+    type: object
+  ocservuser.UpdateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      group:
+        example: default
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+        type: string
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+    type: object
   reports.OcservUserReportResponse:
     properties:
       active:
@@ -916,6 +964,70 @@ definitions:
         type: integer
       unit_file_state:
         type: string
+    type: object
+  users.BulkDeleteResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  users.BulkGroupRequest:
+    properties:
+      group:
+        maxLength: 16
+        type: string
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  users.BulkIDsRequest:
+    properties:
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  users.BulkStatusRequest:
+    properties:
+      enabled:
+        type: boolean
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - enabled
+    - ids
+    type: object
+  users.BulkUpdateRequest:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/ocservuser.BulkUpdateItem'
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - users
+    type: object
+  users.BulkUsersResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
     type: object
 info:
   contact: {}
@@ -1710,6 +1822,157 @@ paths:
   /ocserv/users/{username}/terminate:
     post:
       responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: OCServ user IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.BulkIDsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.BulkDeleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk delete OCServ users
+      tags:
+      - Ocserv(Users)
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Bulk user updates
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.BulkUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk update OCServ users
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk/group:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: OCServ user IDs and group; empty group removes assignment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.BulkGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk assign or remove an OCServ group
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: OCServ user IDs and enabled state
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.BulkStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk enable or disable OCServ users
       tags:
       - Ocserv(Users)
   /ocserv/users/ocpasswd:

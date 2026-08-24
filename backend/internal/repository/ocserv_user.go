@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/models"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/platform/database"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"gorm.io/gorm"
-	"strings"
-	"time"
+	"gorm.io/gorm/clause"
 )
 
 type TopBandwidthUsers struct {
@@ -30,8 +32,21 @@ type OcservUserCRUD interface {
 	Create(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
 	GetByID(ctx context.Context, id uint) (*models.OcservUser, error)
 	GetByUsername(ctx context.Context, username string) (*models.OcservUser, error)
+	GetByIDsForUpdate(ctx context.Context, ids []uint) ([]models.OcservUser, error)
 	Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error)
 	Delete(ctx context.Context, id uint) (*models.OcservUser, error)
+}
+
+type OcservUserBulkTx interface {
+	GetByIDsForUpdate(ctx context.Context, ids []uint) ([]models.OcservUser, error)
+	Update(ctx context.Context, user *models.OcservUser) (*models.OcservUser, error)
+	Delete(ctx context.Context, id uint) (*models.OcservUser, error)
+	Lock(ctx context.Context, id uint) error
+	UnLock(ctx context.Context, id uint) error
+}
+
+type OcservUserBulkRepository interface {
+	WithTransaction(ctx context.Context, operation func(OcservUserBulkTx) error) error
 }
 
 type OcservUserStats interface {
@@ -66,6 +81,12 @@ type OcservUserRepositoryInterface interface {
 
 func NewtOcservUserRepository() *OcservUserRepository {
 	return &OcservUserRepository{db: database.GetConnection()}
+}
+
+func (o *OcservUserRepository) WithTransaction(ctx context.Context, operation func(OcservUserBulkTx) error) error {
+	return o.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return operation(&OcservUserRepository{db: tx})
+	})
 }
 
 func (o *OcservUserRepository) Users(
@@ -193,6 +214,17 @@ func (o *OcservUserRepository) GetByUsername(ctx context.Context, username strin
 	}
 
 	return &ocservUser, nil
+}
+
+func (o *OcservUserRepository) GetByIDsForUpdate(ctx context.Context, ids []uint) ([]models.OcservUser, error) {
+	var users []models.OcservUser
+	err := o.db.WithContext(ctx).
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Preload("Owner").
+		Where("id IN ?", ids).
+		Order("id ASC").
+		Find(&users).Error
+	return users, err
 }
 
 func (o *OcservUserRepository) Update(ctx context.Context, ocservUser *models.OcservUser) (*models.OcservUser, error) {

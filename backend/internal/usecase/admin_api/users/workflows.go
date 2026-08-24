@@ -133,6 +133,11 @@ func (u *Usecase) UpdateUser(ctx context.Context, principal authz.Principal, id 
 	if err != nil {
 		return nil, err
 	}
+	applyUserUpdate(user, input)
+	return u.Update(ctx, user)
+}
+
+func applyUserUpdate(user *models.OcservUser, input UpdateOcservUserData) {
 	if input.Group != nil {
 		user.Group = *input.Group
 	}
@@ -158,7 +163,6 @@ func (u *Usecase) UpdateUser(ctx context.Context, principal authz.Principal, id 
 			user.ExpireAt = &parsed
 		}
 	}
-	return u.Update(ctx, user)
 }
 
 func (u *Usecase) Update(ctx context.Context, account *models.OcservUser) (*models.OcservUser, error) {

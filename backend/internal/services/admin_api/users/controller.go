@@ -103,6 +103,118 @@ func (ctl *Controller) Update(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+// BulkUpdate updates multiple OCServ users atomically.
+// @Summary Bulk update OCServ users
+// @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body BulkUpdateRequest true "Bulk user updates"
+// @Success 200 {object} BulkUsersResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
+// @Router /ocserv/users/bulk [patch]
+func (ctl *Controller) BulkUpdate(c *echo.Context) error {
+	var input BulkUpdateRequest
+	if err := ctl.request.DoValidate(c, &input); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.BulkUpdate(c.Request().Context(), principal, input)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+// BulkDelete deletes multiple OCServ users atomically.
+// @Summary Bulk delete OCServ users
+// @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body BulkIDsRequest true "OCServ user IDs"
+// @Success 200 {object} BulkDeleteResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
+// @Router /ocserv/users/bulk [delete]
+func (ctl *Controller) BulkDelete(c *echo.Context) error {
+	var input BulkIDsRequest
+	if err := ctl.request.DoValidate(c, &input); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.BulkDelete(c.Request().Context(), principal, input)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+// BulkSetEnabled enables or disables multiple OCServ users atomically.
+// @Summary Bulk enable or disable OCServ users
+// @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body BulkStatusRequest true "OCServ user IDs and enabled state"
+// @Success 200 {object} BulkUsersResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
+// @Router /ocserv/users/bulk/status [patch]
+func (ctl *Controller) BulkSetEnabled(c *echo.Context) error {
+	var input BulkStatusRequest
+	if err := ctl.request.DoValidate(c, &input); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.BulkSetEnabled(c.Request().Context(), principal, input)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+// BulkSetGroup assigns a group, or removes assignment when group is empty.
+// @Summary Bulk assign or remove an OCServ group
+// @Tags Ocserv(Users)
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Param request body BulkGroupRequest true "OCServ user IDs and group; empty group removes assignment"
+// @Success 200 {object} BulkUsersResponse
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 403 {object} middlewares.PermissionDenied
+// @Router /ocserv/users/bulk/group [patch]
+func (ctl *Controller) BulkSetGroup(c *echo.Context) error {
+	var input BulkGroupRequest
+	if err := ctl.request.DoValidate(c, &input); err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	principal, err := middlewares.Principal(c)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	result, err := ctl.users.BulkSetGroup(c.Request().Context(), principal, input)
+	if err != nil {
+		return ctl.respondError(c, err)
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
 // Delete deletes an OCServ user. @Summary Ocserv User delete
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"

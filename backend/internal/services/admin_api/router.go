@@ -57,6 +57,10 @@ func (s *Service) registerGroupRoutes(e *echo.Group) {
 func (s *Service) registerUserRoutes(e *echo.Group) {
 	g := e.Group("/ocserv/users", middlewares.AuthMiddleware())
 	g.GET("", s.users.Users)
+	g.PATCH("/bulk", s.users.BulkUpdate)
+	g.DELETE("/bulk", s.users.BulkDelete)
+	g.PATCH("/bulk/status", s.users.BulkSetEnabled)
+	g.PATCH("/bulk/group", s.users.BulkSetGroup)
 	g.GET("/:id", s.users.User)
 	g.POST("", s.users.Create)
 	g.PATCH("/:id", s.users.Update)

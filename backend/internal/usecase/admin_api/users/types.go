@@ -54,6 +54,38 @@ type UpdateOcservUserData struct {
 	Config      *models.OcservUserConfig `json:"config" validate:"omitempty"`
 }
 
+type BulkUpdateItem struct {
+	ID      uint                 `json:"id" validate:"required"`
+	Changes UpdateOcservUserData `json:"changes" validate:"required"`
+}
+
+type BulkUpdateRequest struct {
+	Users []BulkUpdateItem `json:"users" validate:"required,min=1,max=100,dive"`
+}
+
+type BulkIDsRequest struct {
+	IDs []uint `json:"ids" validate:"required,min=1,max=100,dive,gt=0"`
+}
+
+type BulkStatusRequest struct {
+	IDs     []uint `json:"ids" validate:"required,min=1,max=100,dive,gt=0"`
+	Enabled *bool  `json:"enabled" validate:"required"`
+}
+
+type BulkGroupRequest struct {
+	IDs   []uint `json:"ids" validate:"required,min=1,max=100,dive,gt=0"`
+	Group string `json:"group" validate:"omitempty,max=16"`
+}
+
+type BulkUsersResponse struct {
+	Count int                 `json:"count"`
+	Users []models.OcservUser `json:"users"`
+}
+
+type BulkDeleteResponse struct {
+	Count int `json:"count"`
+}
+
 type OcservUsersResponse struct {
 	Meta   request.Meta        `json:"meta" validate:"required"`
 	Result []models.OcservUser `json:"result" validate:"omitempty"`
