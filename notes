@@ -1,0 +1,24 @@
+docker build -t ocserv-dashboard .
+
+docker run --name ocserv \
+  --privileged \
+  --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v ocserv-postgres:/var/lib/postgresql \
+  -v ocserv-config:/etc/ocserv \
+  -p 443:443/tcp \
+  -p 443:443/udp \
+  -p 8080:8080 \
+  ocserv-dashboard
+
+
+
+docker run --name ocserv \
+  --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v ocserv-dev-postgres:/var/lib/postgresql \
+  -v ocserv-dev-config:/etc/ocserv \
+  -p 443:443/tcp \
+  -p 443:443/udp \
+  -p 8080:8080 \
+  ocserv-dashboard-dev
