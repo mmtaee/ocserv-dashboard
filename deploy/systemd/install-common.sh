@@ -5,7 +5,7 @@ set -Eeuo pipefail
 # shellcheck disable=SC2155
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC2155
-readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 readonly SOURCE_ENV_FILE="${ENV_FILE:-${PROJECT_ROOT}/.env}"
 readonly BACKEND_UNIT=/etc/systemd/system/ocserv-dashboard.service
 readonly OCSERV_OVERRIDE_DIR=/etc/systemd/system/ocserv.service.d
@@ -13,6 +13,8 @@ readonly OCSERV_OVERRIDE_DIR=/etc/systemd/system/ocserv.service.d
 temporary_binary=''
 INSTALL_DIR=''
 INSTALLED_ENV_FILE=''
+
+: "${DEPLOYMENT_AGENT_NODE:?DEPLOYMENT_AGENT_NODE must be set by a master or agent installer}"
 
 log() {
     printf '[systemd-install] %s\n' "$*"
@@ -37,7 +39,7 @@ cleanup() {
 }
 
 require_root() {
-    [[ "${EUID}" -eq 0 ]] || die "run this installer as root: sudo ./scripts/systemd/install.sh"
+    [[ "${EUID}" -eq 0 ]] || die "run the selected installer as root through ./install.sh"
     [[ -d /run/systemd/system ]] || die "systemd is not running on this host"
     command -v apt-get >/dev/null 2>&1 || die "only Debian/Ubuntu apt-based hosts are supported"
 }
@@ -56,6 +58,8 @@ load_environment() {
     # shellcheck source=/dev/null
     source "${SOURCE_ENV_FILE}"
     set +a
+    AGENT_NODE="${DEPLOYMENT_AGENT_NODE}"
+    export AGENT_NODE
 
     : "${POSTGRES_HOST:?POSTGRES_HOST is required}"
     : "${POSTGRES_PORT:?POSTGRES_PORT is required}"
@@ -78,7 +82,8 @@ load_environment() {
     BACKEND_PORT="${BACKEND_PORT:-8080}"
     INSTALL_POSTGRES="${INSTALL_POSTGRES:-true}"
     INSTALL_DIR="${SYSTEMD_INSTALL_DIR:-/opt/ocserv-dashboard}"
-    INSTALLED_ENV_FILE="${INSTALL_DIR}/ocserv-dashboard.env"
+    # Cobra maintenance commands load this file with godotenv when run from INSTALL_DIR.
+    INSTALLED_ENV_FILE="${INSTALL_DIR}/.env"
 
     [[ "${BACKEND_HOST}" =~ ^[a-zA-Z0-9.:%_-]+$ ]] || die "BACKEND_HOST contains unsupported characters"
     [[ "${BACKEND_PORT}" =~ ^[0-9]+$ ]] || die "BACKEND_PORT must be numeric"
@@ -171,7 +176,7 @@ setup_ocserv_host() {
     # The shared setup keeps Docker and systemd OCServ layouts identical.
     # shellcheck source=/dev/null
     (
-        source "${PROJECT_ROOT}/docker/entrypoint.sh"
+        source "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh"
         setup_ocserv
     )
 
@@ -264,6 +269,7 @@ User=root
 WorkingDirectory=${INSTALL_DIR}
 EnvironmentFile=${INSTALLED_ENV_FILE}
 Environment=SYSTEMD=true
+Environment=AGENT_NODE=${DEPLOYMENT_AGENT_NODE}
 ExecStartPre=${INSTALL_DIR}/backend migrate
 ExecStartPre=${INSTALL_DIR}/backend create-superadmin
 ExecStart=${INSTALL_DIR}/backend serve --host ${BACKEND_HOST} --port ${BACKEND_PORT}

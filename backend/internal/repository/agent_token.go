@@ -17,17 +17,22 @@ func NewAgentTokenRepository() *AgentTokenRepository {
 	return &AgentTokenRepository{db: database.GetConnection()}
 }
 
-func (r *AgentTokenRepository) GetOrCreate(ctx context.Context, token string) (*models.AgentToken, error) {
+func (r *AgentTokenRepository) Get(ctx context.Context) (*models.AgentToken, error) {
+	var result models.AgentToken
+	err := r.db.WithContext(ctx).First(&result).Error
+	return &result, err
+}
+
+func (r *AgentTokenRepository) Create(ctx context.Context, token string) (*models.AgentToken, error) {
 	var result models.AgentToken
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("LOCK TABLE agent_tokens IN EXCLUSIVE MODE").Error; err != nil {
 			return err
 		}
-		err := tx.First(&result).Error
-		if err == nil {
-			return nil
-		}
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if err := tx.First(&result).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
+			if err == nil {
+				return gorm.ErrDuplicatedKey
+			}
 			return err
 		}
 		result.Token = token

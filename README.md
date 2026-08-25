@@ -26,6 +26,25 @@ If PostgreSQL, OCServ, or the backend exits unexpectedly, the remaining processe
 - Permission to read `/var/run/docker.sock`
 - Ports `443/tcp`, `443/udp`, and `8080/tcp` available
 
+## Guided installation
+
+Run the root installer and choose Docker or systemd first, then Master or Agent:
+
+```bash
+./install.sh
+```
+
+The installer creates `.env` from `.env.sample` only when it is missing, generates initial secrets, and asks before changing an existing `AGENT_NODE` value. Non-interactive selection is also supported:
+
+```bash
+./install.sh --deployment docker --node master
+./install.sh --deployment docker --node agent
+./install.sh --deployment systemd --node master
+./install.sh --deployment systemd --node agent
+```
+
+Master selects `AGENT_NODE=false`; Agent selects `AGENT_NODE=true`.
+
 For production, create persistent host directories:
 
 ```bash
@@ -63,11 +82,35 @@ openssl rand -hex 32
 ```
 
 `AGENT_NODE=false` runs the master-node agent-management APIs. Set
-`AGENT_NODE=true` on an agent deployment to enable only the local agent-token
-settings APIs and the agent-token migration. Master and agent databases receive
-different node-specific tables.
+`AGENT_NODE=true` on an agent deployment to enable the agent-token migration and
+local token CLI. Master and agent databases receive different node-specific
+tables.
 
-Use the following Compose configuration with the production `Dockerfile`:
+On an agent node, manage the local token from the backend directory (or use the
+installed `/opt/ocserv-dashboard/backend` binary):
+
+```bash
+go run main.go agent-token create
+go run main.go agent-token get
+go run main.go agent-token renew
+go run main.go agent-token remove
+```
+
+For installed deployments:
+
+```bash
+# Docker agent
+docker exec ocserv backend agent-token get
+
+# systemd agent
+cd /opt/ocserv-dashboard
+sudo ./backend agent-token get
+```
+
+These commands reject master mode. Agent-token management is not exposed over HTTP.
+
+Use the following Compose configuration with the backend-only master image. For
+an agent deployment, change `Dockerfile.master` and the image tag to `agent`:
 
 ```yaml
 services:
@@ -76,7 +119,7 @@ services:
     image: ocserv-dashboard:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deploy/docker/Dockerfile.master
       args:
         GO_VERSION: ${GO_VERSION:-1.26.0}
     env_file:
@@ -132,8 +175,8 @@ Build the image without Compose:
 ```bash
 sudo docker build \
   --build-arg GO_VERSION=1.26.0 \
-  -f Dockerfile \
-  -t ocserv-dashboard:latest \
+  -f deploy/docker/Dockerfile.master \
+  -t ocserv-dashboard:master \
   .
 ```
 
@@ -161,7 +204,7 @@ sudo docker run -d \
   --publish 443:443/tcp \
   --publish 443:443/udp \
   --publish 8080:8080 \
-  ocserv-dashboard:latest
+  ocserv-dashboard:master
 ```
 
 Follow its logs with:
@@ -172,7 +215,7 @@ sudo docker logs -f ocserv
 
 ## UI development Docker deployment
 
-`Dockerfile-Dev` contains backend services only. It enables backend debug mode, permits local UI origins on ports `3000` and `5173`, disables Telegram by default, and supplies development-only database credentials.
+`deploy/docker/Dockerfile.dev` contains backend services only. It enables backend debug mode, permits local UI origins on ports `3000` and `5173`, disables Telegram by default, and supplies development-only database credentials.
 
 Development state is stored in the repository-local `.volume/` directory:
 
@@ -226,7 +269,7 @@ services:
     image: ocserv-dashboard-dev:latest
     build:
       context: .
-      dockerfile: Dockerfile-Dev
+      dockerfile: deploy/docker/Dockerfile.dev
       args:
         GO_VERSION: ${GO_VERSION:-1.26.0}
     environment:
@@ -283,7 +326,7 @@ Build the UI-development backend image without Compose:
 ```bash
 sudo docker build \
   --build-arg GO_VERSION=1.26.0 \
-  -f Dockerfile-Dev \
+  -f deploy/docker/Dockerfile.dev \
   -t ocserv-dashboard-dev:latest \
   .
 ```
@@ -337,11 +380,10 @@ No separate Telegram executable or container is required.
 
 ## Native systemd installation
 
-For a native Debian or Ubuntu deployment:
+For a native Debian or Ubuntu deployment, use the guided installer:
 
 ```bash
-cp .env.sample .env
-sudo ./scripts/install.sh
+./install.sh
 ```
 
 The installer can provision local PostgreSQL when `INSTALL_POSTGRES=true`. It runs migrations and the idempotent `backend create-superadmin` command before startup using `SUPERADMIN_USERNAME` and `SUPERADMIN_PASSWORD`. Set `INSTALL_POSTGRES=false` and configure the PostgreSQL connection variables when using an existing server.

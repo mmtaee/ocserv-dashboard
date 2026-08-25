@@ -427,17 +427,6 @@ definitions:
     x-enum-varnames:
     - AgentAddressTypeIP
     - AgentAddressTypeDomain
-  models.AgentToken:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      token:
-        type: string
-      updated_at:
-        type: string
-    type: object
   models.DailyTraffic:
     properties:
       date:
@@ -1453,87 +1442,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /agent/settings/token:
-    delete:
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Remove local agent token
-      tags:
-      - Agent Settings
-    get:
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AgentToken'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Get or create local agent token
-      tags:
-      - Agent Settings
-  /agent/settings/token/renew:
-    post:
-      parameters:
-      - description: Bearer TOKEN
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AgentToken'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/request.ErrorResponse'
-      summary: Renew local agent token
-      tags:
-      - Agent Settings
   /auth/logout:
     post:
       parameters:

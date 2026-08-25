@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Shared OCServ setup used by master, agent, and systemd deployments.
+
 set -Eeuo pipefail
 
 : "${OCSERV_PORT:=443}"

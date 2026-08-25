@@ -13,7 +13,6 @@ import (
 	platformocserv "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/ocserv"
 	telegramclient "github.com/mmtaee/ocserv-dashboard/backend/internal/platform/telegram"
 	"github.com/mmtaee/ocserv-dashboard/backend/internal/repository"
-	agentsettingscontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/agent_settings"
 	authcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/auth"
 	backupcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/backup"
 	dashboardcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/dashboard"
@@ -25,7 +24,6 @@ import (
 	runtimecontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/runtime"
 	systemcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/system"
 	telegramcontroller "github.com/mmtaee/ocserv-dashboard/backend/internal/services/admin_api/telegram"
-	agentsettingsusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/agent_settings"
 	agentusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/agents"
 	authusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/auth"
 	backupusecase "github.com/mmtaee/ocserv-dashboard/backend/internal/usecase/admin_api/backup"
@@ -44,7 +42,6 @@ import (
 
 type Service struct {
 	agentNode      bool
-	agentSettings  *agentsettingscontroller.Controller
 	agents         *agentcontroller.Controller
 	auth           *authcontroller.Controller
 	authenticate   echo.MiddlewareFunc
@@ -81,26 +78,22 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 		return nil, err
 	}
 	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath))
-	var agentSettings *agentsettingscontroller.Controller
 	var agents *agentcontroller.Controller
-	if cfg.AgentNode {
-		agentSettings = agentsettingscontroller.New(agentsettingsusecase.New(repository.NewAgentTokenRepository()))
-	} else {
+	if !cfg.AgentNode {
 		agents = agentcontroller.New(agentusecase.New(repository.NewOcservAgentRepository()))
 	}
 
 	return &Service{
-		agentNode:     cfg.AgentNode,
-		agentSettings: agentSettings,
-		agents:        agents,
-		auth:          authcontroller.New(authusecase.New(sessionRepository)),
-		authenticate:  middlewares.AuthMiddleware(sessionRepository),
-		backup:        backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
-		dashboard:     dashboardcontroller.New(dashboardUC),
-		occtl:         occtlcontroller.New(occtlUC),
-		groups:        groupcontroller.New(ocservGroupUC),
-		users:         usercontroller.New(ocservUserUC),
-		reports:       reportcontroller.New(reportUC),
+		agentNode:    cfg.AgentNode,
+		agents:       agents,
+		auth:         authcontroller.New(authusecase.New(sessionRepository)),
+		authenticate: middlewares.AuthMiddleware(sessionRepository),
+		backup:       backupcontroller.New(backupusecase.New(repository.NewBackupRepository(), ocservGroupUC, ocservUserUC, accountStore)),
+		dashboard:    dashboardcontroller.New(dashboardUC),
+		occtl:        occtlcontroller.New(occtlUC),
+		groups:       groupcontroller.New(ocservGroupUC),
+		users:        usercontroller.New(ocservUserUC),
+		reports:      reportcontroller.New(reportUC),
 		system: systemcontroller.New(systemusecase.New(
 			repository.NewSystemRepository(), userRepository, sessionRepository, captcha.NewGoogleVerifier(), crypto.NewCustomPassword(),
 			systemusecase.Options{

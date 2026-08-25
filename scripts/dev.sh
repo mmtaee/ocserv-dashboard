@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-readonly DOCKERFILE="${PROJECT_ROOT}/Dockerfile-Dev"
+readonly DOCKERFILE="${PROJECT_ROOT}/deploy/docker/Dockerfile.dev"
 readonly IMAGE_NAME="${DEV_IMAGE_NAME:-ocserv-dashboard-dev:latest}"
 readonly CONTAINER_NAME=ocserv
 readonly DATA_ROOT="${DEV_DATA_ROOT:-${PROJECT_ROOT}/.volume}"
@@ -65,8 +65,8 @@ configure_commands() {
 
 validate_host() {
     [[ -f "${DOCKERFILE}" ]] || die "development Dockerfile not found: ${DOCKERFILE}"
-    [[ -f "${PROJECT_ROOT}/docker/entrypoint.sh" ]] || die "docker/entrypoint.sh not found"
-    [[ -f "${PROJECT_ROOT}/docker/server.sh" ]] || die "docker/server.sh not found"
+    [[ -f "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh" ]] || die "shared Docker entrypoint not found"
+    [[ -f "${PROJECT_ROOT}/deploy/docker/common/server.sh" ]] || die "shared Docker server script not found"
     [[ -S /var/run/docker.sock ]] || die "/var/run/docker.sock is unavailable"
     [[ -c /dev/net/tun ]] || die "/dev/net/tun is unavailable; load the tun module before running this script"
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Shared all-in-one process supervisor for master and agent images.
+
 set -Eeuo pipefail
 
 : "${RUN_MIGRATIONS:=true}"

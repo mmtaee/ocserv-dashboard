@@ -18,9 +18,7 @@ func (s *Service) Register(e *echo.Group) {
 	if s.telegramRoutes {
 		s.registerTelegramRoutes(e)
 	}
-	if s.agentNode {
-		s.registerAgentSettingsRoutes(e)
-	} else {
+	if !s.agentNode {
 		s.registerAgentRoutes(e)
 	}
 }
@@ -161,11 +159,4 @@ func (s *Service) registerAgentRoutes(e *echo.Group) {
 	g.POST("", s.agents.Create)
 	g.PATCH("/:id", s.agents.Update)
 	g.DELETE("/:id", s.agents.Delete)
-}
-
-func (s *Service) registerAgentSettingsRoutes(e *echo.Group) {
-	g := e.Group("/agent/settings", s.authenticate, middlewares.SuperadminPermission())
-	g.GET("/token", s.agentSettings.GetToken)
-	g.POST("/token/renew", s.agentSettings.RenewToken)
-	g.DELETE("/token", s.agentSettings.RemoveToken)
 }

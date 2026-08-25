@@ -13,7 +13,7 @@ COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
 COPY backend/ ./
-RUN go build -trimpath -o /out/backend ./main.go
+RUN go build -trimpath -ldflags="-s -w" -o /out/backend ./main.go
 
 FROM postgres:18-trixie
 
@@ -34,31 +34,22 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=backend-builder /out/backend /usr/local/bin/backend
-COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/container-entrypoint
-COPY --chmod=755 docker/server.sh /usr/local/bin/container-server
+COPY --chmod=755 deploy/docker/entrypoint-agent.sh /usr/local/bin/container-entrypoint
+COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint-common
+COPY --chmod=755 deploy/docker/common/server.sh /usr/local/bin/container-server
 
-ENV DEBUG=1 \
-    SECRET_KEY=development-secret-key \
-    AGENT_NODE=false \
-    SUPERADMIN_USERNAME=admin \
-    SUPERADMIN_PASSWORD=admin-development-password \
-    ALLOW_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173 \
-    CURRENT_RELEASE=development \
-    SYSTEMD=false \
-    TELEGRAM_BOT_ENABLED=false \
-    TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
-    OCSERV_PORT=443 \
+ENV OCSERV_PORT=443 \
+    AGENT_NODE=true \
     OC_NET=172.16.24.0/24 \
     OCSERV_DNS=1.1.1.1 \
-    SSL_CN=ocserv-dashboard-dev \
-    SSL_ORG=ocserv-dashboard-dev \
+    SSL_CN=ocserv-dashboard-agent \
+    SSL_ORG=ocserv-dashboard \
     SSL_EXPIRE=3650 \
     OCSERV_PRESERVE_CONFIG=false \
     PGDATA=/var/lib/postgresql/18/docker \
     POSTGRES_HOST=127.0.0.1 \
     POSTGRES_PORT=5432 \
     POSTGRES_USER=ocserv \
-    POSTGRES_PASSWORD=ocserv-development-password \
     POSTGRES_DB=ocserv_db \
     POSTGRES_SSLMODE=disable \
     POSTGRES_READY_MAX_ATTEMPTS=60 \
@@ -66,6 +57,7 @@ ENV DEBUG=1 \
     RUN_MIGRATIONS=true \
     MIGRATION_MAX_ATTEMPTS=30 \
     MIGRATION_RETRY_SECONDS=2 \
+    TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
     OCSERV_DEBUG=999
 
 RUN mkdir -p \
@@ -77,10 +69,9 @@ RUN mkdir -p \
 
 EXPOSE 443/tcp 443/udp 5432/tcp 8080/tcp
 
-# scripts/dev.sh and the development Compose example bind-mount the
-# repository-local .volume directory onto these runtime paths.
+VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/opt/ocserv_dashboard/uploads/receipts"]
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl --fail --silent http://127.0.0.1:8080/health >/dev/null || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/container-entrypoint"]

@@ -17,6 +17,7 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/crypto"
 	"github.com/mmtaee/ocserv-dashboard/backend/pkg/request"
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
 type loginSystemRepository struct {
@@ -185,10 +186,19 @@ type localAgentTokenRepository struct {
 	current *models.AgentToken
 }
 
-func (r *localAgentTokenRepository) GetOrCreate(_ context.Context, token string) (*models.AgentToken, error) {
+func (r *localAgentTokenRepository) Get(context.Context) (*models.AgentToken, error) {
 	if r.current == nil {
-		r.current = &models.AgentToken{ID: 1, Token: token}
+		return nil, gorm.ErrRecordNotFound
 	}
+	copy := *r.current
+	return &copy, nil
+}
+
+func (r *localAgentTokenRepository) Create(_ context.Context, token string) (*models.AgentToken, error) {
+	if r.current != nil {
+		return nil, gorm.ErrDuplicatedKey
+	}
+	r.current = &models.AgentToken{ID: 1, Token: token}
 	copy := *r.current
 	return &copy, nil
 }
@@ -204,9 +214,9 @@ func (r *localAgentTokenRepository) Delete(context.Context) error {
 	return nil
 }
 
-func TestAgentTokenGetRenewAndRemove(t *testing.T) {
+func TestAgentTokenCreateGetRenewAndRemove(t *testing.T) {
 	repository := &localAgentTokenRepository{}
-	values := []string{"first", "unused", "renewed", "after-remove"}
+	values := []string{"first", "renewed", "after-remove"}
 	index := 0
 	usecase := agentsettings.New(repository, func() (string, error) {
 		value := values[index]
@@ -214,30 +224,38 @@ func TestAgentTokenGetRenewAndRemove(t *testing.T) {
 		return value, nil
 	})
 
-	first, err := usecase.Get(context.Background())
+	_, err := usecase.Get(context.Background())
+	require.ErrorIs(t, err, gorm.ErrRecordNotFound)
+	first, err := usecase.Create(context.Background())
 	require.NoError(t, err)
 	second, err := usecase.Get(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "first", first.Token)
 	require.Equal(t, first.Token, second.Token)
+	_, err = usecase.Create(context.Background())
+	require.ErrorIs(t, err, agentsettings.ErrTokenExists)
 
 	renewed, err := usecase.Renew(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "renewed", renewed.Token)
 	require.NoError(t, usecase.Remove(context.Background()))
-	afterRemove, err := usecase.Get(context.Background())
+	_, err = usecase.Get(context.Background())
+	require.ErrorIs(t, err, gorm.ErrRecordNotFound)
+	afterRemove, err := usecase.Create(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "after-remove", afterRemove.Token)
+	require.ErrorIs(t, agentsettings.RequireAgentNode(false), agentsettings.ErrAgentNodeRequired)
+	require.NoError(t, agentsettings.RequireAgentNode(true))
 }
 
 func TestAgentModeRoutesAreConditional(t *testing.T) {
 	for _, test := range []struct {
-		name              string
-		agentNode         string
-		wantAgentSettings bool
+		name             string
+		agentNode        string
+		wantMasterAgents bool
 	}{
-		{name: "master", agentNode: "false", wantAgentSettings: false},
-		{name: "agent", agentNode: "true", wantAgentSettings: true},
+		{name: "master", agentNode: "false", wantMasterAgents: true},
+		{name: "agent", agentNode: "true", wantMasterAgents: false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			t.Setenv("AGENT_NODE", test.agentNode)
@@ -250,8 +268,8 @@ func TestAgentModeRoutesAreConditional(t *testing.T) {
 			for _, route := range e.Router().Routes() {
 				paths[route.Method+" "+route.Path] = true
 			}
-			require.Equal(t, test.wantAgentSettings, paths["GET /agent/settings/token"])
-			require.Equal(t, !test.wantAgentSettings, paths["GET /ocserv/agents"])
+			require.False(t, paths["GET /agent/settings/token"])
+			require.Equal(t, test.wantMasterAgents, paths["GET /ocserv/agents"])
 		})
 	}
 }

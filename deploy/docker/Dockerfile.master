@@ -34,8 +34,9 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=backend-builder /out/backend /usr/local/bin/backend
-COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/container-entrypoint
-COPY --chmod=755 docker/server.sh /usr/local/bin/container-server
+COPY --chmod=755 deploy/docker/entrypoint-master.sh /usr/local/bin/container-entrypoint
+COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint-common
+COPY --chmod=755 deploy/docker/common/server.sh /usr/local/bin/container-server
 
 ENV OCSERV_PORT=443 \
     AGENT_NODE=false \
