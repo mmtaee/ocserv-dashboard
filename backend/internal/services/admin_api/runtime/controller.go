@@ -21,8 +21,8 @@ func New(usecase *systemusecase.Usecase) *Controller {
 	return &Controller{request: request.NewCustomRequest(), system: usecase}
 }
 
-// Status returns the managed OCServ runtime status.
-// @Summary OCServ runtime status
+// Status returns the managed Ocserv runtime status.
+// @Summary Ocserv runtime status
 // @Tags System
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
@@ -38,8 +38,8 @@ func (ctl *Controller) Status(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Restart restarts the managed OCServ runtime.
-// @Summary Restart OCServ runtime
+// Restart restarts the managed Ocserv runtime.
+// @Summary Restart Ocserv runtime
 // @Tags System
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
@@ -51,8 +51,8 @@ func (ctl *Controller) Restart(c *echo.Context) error {
 	return ctl.action(c, ctl.system.Restart)
 }
 
-// Enable enables and starts the managed OCServ runtime.
-// @Summary Enable OCServ runtime
+// Enable enables and starts the managed Ocserv runtime.
+// @Summary Enable Ocserv runtime
 // @Tags System
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
@@ -64,8 +64,8 @@ func (ctl *Controller) Enable(c *echo.Context) error {
 	return ctl.action(c, ctl.system.Enable)
 }
 
-// Disable disables and stops the managed OCServ runtime.
-// @Summary Disable OCServ runtime
+// Disable disables and stops the managed Ocserv runtime.
+// @Summary Disable Ocserv runtime
 // @Tags System
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
@@ -78,7 +78,7 @@ func (ctl *Controller) Disable(c *echo.Context) error {
 }
 
 // Config returns the supported main ocserv.conf settings.
-// @Summary Get structured OCServ configuration
+// @Summary Get structured Ocserv configuration
 // @Tags System
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
@@ -95,12 +95,12 @@ func (ctl *Controller) Config(c *echo.Context) error {
 }
 
 // UpdateConfig validates, atomically writes, and activates supported settings.
-// @Summary Update structured OCServ configuration
+// @Summary Update structured Ocserv configuration
 // @Tags System
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Param request body OcservConfig true "Supported OCServ configuration changes"
+// @Param request body OcservConfig true "Supported Ocserv configuration changes"
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse

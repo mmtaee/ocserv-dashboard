@@ -45,6 +45,8 @@ Run `gofmt` on every modified Go file. Use `goimports` when the repository alrea
 
 Add comments for business rules, important constraints, and non-obvious behavior. Avoid comments that restate obvious code.
 
+Use `Ocserv` for product/name prose and `ocserv` for binary, service, package, path, and identifier text. Do not write `OCServ`.
+
 ## Project Layout
 
 Use the existing repository layout first. Established locations include:

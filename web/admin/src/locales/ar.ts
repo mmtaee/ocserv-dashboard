@@ -1,0 +1,46 @@
+import type { MessageSchema } from '@/locales/en'
+
+export default {
+  common: {
+    appName: 'لوحة Ocserv', language: 'اللغة', loading: 'جارٍ التحميل', close: 'إغلاق', more: 'المزيد',
+    breadcrumb: 'مسار التنقل', sidebar: 'الشريط الجانبي', toggleSidebar: 'تبديل الشريط الجانبي',
+    mobileSidebarDescription: 'يعرض الشريط الجانبي على الأجهزة المحمولة.',
+  },
+  auth: {
+    title: 'مرحبًا بعودتك', subtitle: 'سجّل الدخول لإدارة بنية Ocserv التحتية.', failure: 'فشل تسجيل الدخول',
+    username: 'اسم المستخدم', usernamePlaceholder: 'admin', password: 'كلمة المرور', verification: 'التحقق',
+    captchaPrompt: 'أكمل اختبار captcha قبل تسجيل الدخول.', rememberMe: 'تذكرني', submit: 'تسجيل الدخول',
+    promoTitle: 'إدارة آمنة للبنية التحتية', promoDescription: 'راقب الجلسات والمستخدمين والوكلاء وصحة النظام من لوحة واحدة.',
+  },
+  setup: {
+    title: 'تهيئة اللوحة', description: 'اضبط ملف الاتصال وسياسة الاحتفاظ وحماية captcha الاختيارية.',
+    failure: 'فشلت التهيئة', serverAddress: 'عنوان الخادم', serverAddressPlaceholder: 'vpn.example.com',
+    serverPort: 'منفذ الخادم', connectionName: 'اسم الاتصال', defaultConnectionName: 'شبكة Ocserv',
+    retention: 'الاحتفاظ بالمستخدمين غير النشطين', retentionHelp: 'عدد الأيام قبل حذف المستخدمين غير النشطين.',
+    autoDelete: 'حذف المستخدمين غير النشطين تلقائيًا', autoDeleteHelp: 'تطبيق مدة الاحتفاظ تلقائيًا.',
+    captchaSiteKey: 'مفتاح موقع captcha', captchaSecretKey: 'المفتاح السري لـ captcha', submit: 'حفظ ومتابعة',
+    promoTitle: 'بداية نظيفة لشبكتك الخاصة.', promoDescription: 'تُرسل هذه الإعدادات مباشرة إلى واجهة API النظامية المولّدة للوحة.',
+  },
+  dashboard: {
+    administration: 'الإدارة', overview: 'نظرة عامة على البنية التحتية', title: 'لوحة التحكم',
+    connectedUsers: 'المستخدمون المتصلون', activeSessions: 'الجلسات النشطة', managedServers: 'الخوادم المُدارة',
+    activityTitle: 'نشاط الخدمة', activityDescription: 'ستظهر مقاييس اللوحة هنا عند إبلاغ الخدمات عن نشاطها.',
+  },
+  unavailable: {
+    title: 'الخادم غير متاح', description: 'تعذّر على اللوحة تحميل إعدادات تهيئة النظام.',
+    connectionFailed: 'فشل الاتصال', retry: 'إعادة المحاولة',
+  },
+  footer: {
+    developedBy: 'طوّره {developer}', with: 'بـ', love: 'حب', reportIssue: 'الإبلاغ عن مشكلة',
+  },
+  navigation: {
+    search: 'بحث', searchPlaceholder: 'البحث في المستندات...', documentation: 'المستندات',
+    gettingStarted: 'البدء', installation: 'التثبيت', projectStructure: 'هيكل المشروع', buildingApp: 'بناء تطبيقك',
+    routing: 'التوجيه', dataFetching: 'جلب البيانات', rendering: 'العرض', caching: 'التخزين المؤقت', styling: 'التنسيق',
+    optimizing: 'التحسين', configuring: 'الإعداد', testing: 'الاختبار', authentication: 'المصادقة', deploying: 'النشر',
+    upgrading: 'الترقية', examples: 'أمثلة', apiReference: 'مرجع API', components: 'المكوّنات', fileConventions: 'اصطلاحات الملفات',
+    functions: 'الدوال', configOptions: 'خيارات الإعداد', cli: 'واجهة الأوامر', edgeRuntime: 'بيئة Edge', architecture: 'البنية',
+    accessibility: 'إمكانية الوصول', fastRefresh: 'التحديث السريع', compiler: 'المُصرّف',
+    supportedBrowsers: 'المتصفحات المدعومة', turbopack: 'Turbopack',
+  },
+} satisfies MessageSchema

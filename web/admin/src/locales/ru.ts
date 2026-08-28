@@ -1,0 +1,50 @@
+import type { MessageSchema } from '@/locales/en'
+
+export default {
+  common: {
+    appName: 'Панель Ocserv', language: 'Язык', loading: 'Загрузка', close: 'Закрыть', more: 'Ещё',
+    breadcrumb: 'Навигационная цепочка', sidebar: 'Боковая панель', toggleSidebar: 'Переключить боковую панель',
+    mobileSidebarDescription: 'Отображает боковую панель на мобильных устройствах.',
+  },
+  auth: {
+    title: 'С возвращением', subtitle: 'Войдите для управления инфраструктурой Ocserv.', failure: 'Не удалось войти',
+    username: 'Имя пользователя', usernamePlaceholder: 'admin', password: 'Пароль', verification: 'Проверка',
+    captchaPrompt: 'Пройдите проверку captcha перед входом.', rememberMe: 'Запомнить меня', submit: 'Войти',
+    promoTitle: 'Безопасное управление инфраструктурой',
+    promoDescription: 'Контролируйте сеансы, пользователей, агентов и состояние системы в одной панели.',
+  },
+  setup: {
+    title: 'Инициализация панели',
+    description: 'Настройте профиль подключения, срок хранения и дополнительную защиту captcha.',
+    failure: 'Ошибка инициализации', serverAddress: 'Адрес сервера', serverAddressPlaceholder: 'vpn.example.com',
+    serverPort: 'Порт сервера', connectionName: 'Имя подключения', defaultConnectionName: 'VPN Ocserv',
+    retention: 'Хранение неактивных пользователей', retentionHelp: 'Количество дней до удаления неактивных пользователей.',
+    autoDelete: 'Автоматически удалять неактивных пользователей', autoDeleteHelp: 'Автоматически применять срок хранения.',
+    captchaSiteKey: 'Ключ сайта captcha', captchaSecretKey: 'Секретный ключ captcha', submit: 'Сохранить и продолжить',
+    promoTitle: 'Чистый старт для вашей частной сети.',
+    promoDescription: 'Эти настройки отправляются напрямую в сгенерированный системный API панели.',
+  },
+  dashboard: {
+    administration: 'Администрирование', overview: 'Обзор инфраструктуры', title: 'Панель управления',
+    connectedUsers: 'Подключённые пользователи', activeSessions: 'Активные сеансы', managedServers: 'Управляемые серверы',
+    activityTitle: 'Активность сервисов', activityDescription: 'Метрики появятся здесь после получения данных от сервисов.',
+  },
+  unavailable: {
+    title: 'Сервер недоступен', description: 'Не удалось загрузить начальную конфигурацию панели.',
+    connectionFailed: 'Ошибка подключения', retry: 'Повторить',
+  },
+  footer: {
+    developedBy: 'Разработано {developer}', with: 'с', love: 'любовью', reportIssue: 'Сообщить о проблеме',
+  },
+  navigation: {
+    search: 'Поиск', searchPlaceholder: 'Поиск в документации...', documentation: 'Документация',
+    gettingStarted: 'Начало работы', installation: 'Установка', projectStructure: 'Структура проекта',
+    buildingApp: 'Создание приложения', routing: 'Маршрутизация', dataFetching: 'Получение данных', rendering: 'Отрисовка',
+    caching: 'Кэширование', styling: 'Стилизация', optimizing: 'Оптимизация', configuring: 'Настройка', testing: 'Тестирование',
+    authentication: 'Аутентификация', deploying: 'Развёртывание', upgrading: 'Обновление', examples: 'Примеры',
+    apiReference: 'Справочник API', components: 'Компоненты', fileConventions: 'Соглашения о файлах', functions: 'Функции',
+    configOptions: 'Параметры конфигурации', cli: 'CLI', edgeRuntime: 'Среда Edge', architecture: 'Архитектура',
+    accessibility: 'Доступность', fastRefresh: 'Быстрое обновление', compiler: 'Компилятор',
+    supportedBrowsers: 'Поддерживаемые браузеры', turbopack: 'Turbopack',
+  },
+} satisfies MessageSchema

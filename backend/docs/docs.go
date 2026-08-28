@@ -586,9 +586,9 @@ const docTemplate = `{
         "/ocserv/agents": {
             "get": {
                 "tags": [
-                    "OCServ Agents"
+                    "Ocserv Agents"
                 ],
-                "summary": "List OCServ agents",
+                "summary": "List Ocserv agents",
                 "parameters": [
                     {
                         "type": "string",
@@ -624,9 +624,9 @@ const docTemplate = `{
             },
             "post": {
                 "tags": [
-                    "OCServ Agents"
+                    "Ocserv Agents"
                 ],
-                "summary": "Create OCServ agent",
+                "summary": "Create Ocserv agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -676,9 +676,9 @@ const docTemplate = `{
         "/ocserv/agents/{id}": {
             "get": {
                 "tags": [
-                    "OCServ Agents"
+                    "Ocserv Agents"
                 ],
-                "summary": "Get OCServ agent",
+                "summary": "Get Ocserv agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -724,9 +724,9 @@ const docTemplate = `{
             },
             "delete": {
                 "tags": [
-                    "OCServ Agents"
+                    "Ocserv Agents"
                 ],
-                "summary": "Delete OCServ agent",
+                "summary": "Delete Ocserv agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -769,9 +769,9 @@ const docTemplate = `{
             },
             "patch": {
                 "tags": [
-                    "OCServ Agents"
+                    "Ocserv Agents"
                 ],
-                "summary": "Update OCServ agent",
+                "summary": "Update Ocserv agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -1400,7 +1400,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OCServ user and expiry configuration",
+                        "description": "Ocserv user and expiry configuration",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1442,7 +1442,7 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Bulk delete OCServ users",
+                "summary": "Bulk delete Ocserv users",
                 "parameters": [
                     {
                         "type": "string",
@@ -1452,7 +1452,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OCServ user IDs",
+                        "description": "Ocserv user IDs",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1498,7 +1498,7 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Bulk update OCServ users",
+                "summary": "Bulk update Ocserv users",
                 "parameters": [
                     {
                         "type": "string",
@@ -1556,7 +1556,7 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Bulk assign or remove an OCServ group",
+                "summary": "Bulk assign or remove an Ocserv group",
                 "parameters": [
                     {
                         "type": "string",
@@ -1566,7 +1566,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OCServ user IDs and group; empty group removes assignment",
+                        "description": "Ocserv user IDs and group; empty group removes assignment",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1614,7 +1614,7 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Bulk enable or disable OCServ users",
+                "summary": "Bulk enable or disable Ocserv users",
                 "parameters": [
                     {
                         "type": "string",
@@ -1624,7 +1624,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OCServ user IDs and enabled state",
+                        "description": "Ocserv user IDs and enabled state",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1734,7 +1734,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OCServ user and expiry changes",
+                        "description": "Ocserv user and expiry changes",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1894,7 +1894,7 @@ const docTemplate = `{
                 "tags": [
                     "Ocserv(Users)"
                 ],
-                "summary": "Reset OCServ user usage",
+                "summary": "Reset Ocserv user usage",
                 "parameters": [
                     {
                         "type": "string",
@@ -2384,7 +2384,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "Get structured OCServ configuration",
+                "summary": "Get structured Ocserv configuration",
                 "parameters": [
                     {
                         "type": "string",
@@ -2431,7 +2431,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "Update structured OCServ configuration",
+                "summary": "Update structured Ocserv configuration",
                 "parameters": [
                     {
                         "type": "string",
@@ -2441,7 +2441,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Supported OCServ configuration changes",
+                        "description": "Supported Ocserv configuration changes",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2830,7 +2830,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "Disable OCServ runtime",
+                "summary": "Disable Ocserv runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2873,7 +2873,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "Enable OCServ runtime",
+                "summary": "Enable Ocserv runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2916,7 +2916,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "Restart OCServ runtime",
+                "summary": "Restart Ocserv runtime",
                 "parameters": [
                     {
                         "type": "string",
@@ -2959,7 +2959,7 @@ const docTemplate = `{
                 "tags": [
                     "System"
                 ],
-                "summary": "OCServ runtime status",
+                "summary": "Ocserv runtime status",
                 "parameters": [
                     {
                         "type": "string",

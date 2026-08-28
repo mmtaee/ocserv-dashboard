@@ -11,7 +11,7 @@ var (
 	ErrNoConfigChanges = errors.New("no ocserv configuration changes provided")
 )
 
-// RekeyMethod is the supported OCServ key renegotiation strategy.
+// RekeyMethod is the supported Ocserv key renegotiation strategy.
 type RekeyMethod string
 
 const (
@@ -23,7 +23,7 @@ func (method RekeyMethod) IsValid() bool {
 	return method == RekeyMethodSSL || method == RekeyMethodNewTunnel
 }
 
-// Status is a deployment-neutral view of the managed OCServ runtime.
+// Status is a deployment-neutral view of the managed Ocserv runtime.
 type Status struct {
 	ID            string `json:"id"`
 	Description   string `json:"description"`

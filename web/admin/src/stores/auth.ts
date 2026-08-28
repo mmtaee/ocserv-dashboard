@@ -15,18 +15,22 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null)
   const isAuthenticated = computed(() => Boolean(user.value && getAccessToken()))
 
+  function clearSession(): void {
+    clearAccessToken()
+    user.value = null
+  }
+
   async function signIn(
     credentials: GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
   ): Promise<boolean> {
     isLoading.value = true
     error.value = null
     try {
-      const response = await login(credentials)
-      user.value = response.user
+      await login(credentials)
+      user.value = await getCurrentUser()
       return true
     } catch (cause) {
-      clearAccessToken()
-      user.value = null
+      clearSession()
       error.value = normalizeApiError(cause).message
       return false
     } finally {
@@ -42,13 +46,12 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = await getCurrentUser()
       return true
     } catch {
-      clearAccessToken()
-      user.value = null
+      clearSession()
       return false
     } finally {
       isLoading.value = false
     }
   }
 
-  return { error, isAuthenticated, isLoading, restoreSession, signIn, user }
+  return { clearSession, error, isAuthenticated, isLoading, restoreSession, signIn, user }
 })

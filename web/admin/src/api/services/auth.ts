@@ -6,7 +6,7 @@ export async function login(
   credentials: GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
 ) {
   const response = await api.systemUsers.systemUsersLoginPost({ request: credentials })
-  setAccessToken(response.data.token, credentials.remember_me ?? false)
+  setAccessToken(response.data.token)
 
   return response.data
 }

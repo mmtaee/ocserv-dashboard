@@ -1,22 +1,22 @@
-# OCServ Dashboard Backend
+# Ocserv Dashboard Backend
 
-This repository provides one backend application that runs the Admin API, Customer API, Worker, and optional Telegram Bot. The Docker images also run OCServ and PostgreSQL 18 in the same container.
+This repository provides one backend application that runs the Admin API, Customer API, Worker, and optional Telegram Bot. The Docker images also run Ocserv and PostgreSQL 18 in the same container.
 
 ## Runtime sequence
 
 The Docker container starts services in this order:
 
 ```text
-prepare OCServ configuration and networking
+prepare Ocserv configuration and networking
 → initialize and start PostgreSQL 18
 → wait for PostgreSQL readiness
 → run database migrations
 → start the unified backend
-→ start OCServ
+→ start Ocserv
 → supervise all critical processes
 ```
 
-If PostgreSQL, OCServ, or the backend exits unexpectedly, the remaining processes are stopped. SIGINT and SIGTERM trigger graceful shutdown.
+If PostgreSQL, Ocserv, or the backend exits unexpectedly, the remaining processes are stopped. SIGINT and SIGTERM trigger graceful shutdown.
 
 ## Requirements
 
@@ -55,7 +55,7 @@ sudo mkdir -p \
   /opt/ocserv_dashboard/docker_volumes/telegram_receipts
 ```
 
-The container must be named `ocserv`. The Worker reads OCServ logs through the Docker API using that container name.
+The container must be named `ocserv`. The Worker reads Ocserv logs through the Docker API using that container name.
 
 ## Production Docker deployment
 
@@ -433,23 +433,23 @@ Legacy deployments stored PostgreSQL 17 data under `/opt/ocserv_dashboard/docker
 
 ## Troubleshooting
 
-If OCServ cannot initialize networking, confirm the TUN device and capability:
+If Ocserv cannot initialize networking, confirm the TUN device and capability:
 
 ```bash
 ls -l /dev/net/tun
 docker inspect ocserv --format '{{json .HostConfig.CapAdd}}'
 ```
 
-If the Worker stops because it cannot read OCServ logs, confirm:
+If the Worker stops because it cannot read Ocserv logs, confirm:
 
 - the container is named `ocserv`;
 - `/var/run/docker.sock` is mounted;
 - the Docker daemon socket is readable by the container process.
 
-Development defaults to `OCSERV_DEBUG=999`, matching the legacy container and sending OCServ output to `docker logs`. Reduce the level when less output is desired:
+Development defaults to `OCSERV_DEBUG=999`, matching the legacy container and sending Ocserv output to `docker logs`. Reduce the level when less output is desired:
 
 ```bash
 OCSERV_DEBUG=3 ./scripts/dev.sh
 ```
 
-If startup stops before the backend is launched, inspect the container logs. PostgreSQL readiness and migration failures are reported before OCServ and the backend are started.
+If startup stops before the backend is launched, inspect the container logs. PostgreSQL readiness and migration failures are reported before Ocserv and the backend are started.

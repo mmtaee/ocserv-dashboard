@@ -1,178 +1,98 @@
 <script setup lang="ts">
 import type { SidebarProps } from '@/components/ui/sidebar'
-import SearchForm from '@/components/SearchForm.vue'
-import VersionSwitcher from '@/components/VersionSwitcher.vue'
+import { computed } from 'vue'
+import { Activity, Bug, LayoutDashboard, Server, Users } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
+
+import logoUrl from '@/assets/logo.svg'
+import NavMain from '@/components/NavMain.vue'
+import NavSecondary from '@/components/NavSecondary.vue'
+import NavUser from '@/components/NavUser.vue'
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from '@/components/ui/sidebar'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<SidebarProps>()
+const { t } = useI18n({ useScope: 'global' })
+const auth = useAuthStore()
 
-// This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
+const data = computed(() => ({
+  user: {
+    name: auth.user?.username ?? t('auth.username'),
+    detail: auth.user?.superadmin ? t('dashboard.administration') : t('common.appName'),
+  },
   navMain: [
     {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
+      title: t('dashboard.title'),
+      url: '/',
+      icon: LayoutDashboard,
+      isActive: true,
     },
     {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
+      title: t('dashboard.connectedUsers'),
+      url: '/',
+      icon: Users,
+      disabled: true,
     },
     {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
+      title: t('dashboard.activeSessions'),
+      url: '/',
+      icon: Activity,
+      disabled: true,
     },
     {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
+      title: t('dashboard.managedServers'),
+      url: '/',
+      icon: Server,
+      disabled: true,
     },
   ],
-}
+  navSecondary: [
+    {
+      title: t('footer.reportIssue'),
+      url: 'https://github.com/mmtaee/ocserv-dashboard/issues',
+      icon: Bug,
+      external: true,
+    },
+  ],
+}))
 </script>
 
 <template>
-  <Sidebar v-bind="props">
+  <Sidebar
+    class="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+    v-bind="props"
+  >
     <SidebarHeader>
-      <VersionSwitcher
-        :versions="data.versions"
-        :default-version="data.versions[0]!"
-      />
-      <SearchForm />
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" as-child>
+            <RouterLink to="/">
+              <div class="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary p-1.5 text-sidebar-primary-foreground">
+                <img :src="logoUrl" alt="" class="size-full" />
+              </div>
+              <div class="grid flex-1 text-start text-sm leading-tight">
+                <span class="truncate font-medium">{{ t('common.appName') }}</span>
+                <span class="truncate text-xs">{{ t('dashboard.administration') }}</span>
+              </div>
+            </RouterLink>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
     </SidebarHeader>
     <SidebarContent>
-      <SidebarGroup v-for="item in data.navMain" :key="item.title">
-        <SidebarGroupLabel>{{ item.title }}</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem v-for="childItem in item.items" :key="childItem.title">
-              <SidebarMenuButton as-child :is-active="childItem.isActive">
-                <a :href="childItem.url">{{ childItem.title }}</a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+      <NavMain :items="data.navMain" />
+      <NavSecondary :items="data.navSecondary" class="mt-auto" />
     </SidebarContent>
-    <SidebarRail />
+    <SidebarFooter>
+      <NavUser :user="data.user" />
+    </SidebarFooter>
   </Sidebar>
 </template>

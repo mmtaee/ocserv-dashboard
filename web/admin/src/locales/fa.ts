@@ -1,0 +1,46 @@
+import type { MessageSchema } from '@/locales/en'
+
+export default {
+  common: {
+    appName: 'داشبورد Ocserv', language: 'زبان', loading: 'در حال بارگذاری', close: 'بستن', more: 'بیشتر',
+    breadcrumb: 'مسیر پیمایش', sidebar: 'نوار کناری', toggleSidebar: 'تغییر وضعیت نوار کناری',
+    mobileSidebarDescription: 'نوار کناری نسخه موبایل را نمایش می‌دهد.',
+  },
+  auth: {
+    title: 'خوش آمدید', subtitle: 'برای مدیریت زیرساخت Ocserv وارد شوید.', failure: 'ورود ناموفق بود',
+    username: 'نام کاربری', usernamePlaceholder: 'admin', password: 'رمز عبور', verification: 'تأیید',
+    captchaPrompt: 'پیش از ورود کپچا را تکمیل کنید.', rememberMe: 'مرا به خاطر بسپار', submit: 'ورود',
+    promoTitle: 'مدیریت امن زیرساخت', promoDescription: 'نشست‌ها، کاربران، عامل‌ها و سلامت سیستم را از یک پنل پایش کنید.',
+  },
+  setup: {
+    title: 'راه‌اندازی اولیه پنل', description: 'پروفایل اتصال، سیاست نگهداری و محافظت اختیاری کپچا را تنظیم کنید.',
+    failure: 'راه‌اندازی اولیه ناموفق بود', serverAddress: 'نشانی سرور', serverAddressPlaceholder: 'vpn.example.com',
+    serverPort: 'درگاه سرور', connectionName: 'نام اتصال', defaultConnectionName: 'وی‌پی‌ان Ocserv',
+    retention: 'نگهداری کاربران غیرفعال', retentionHelp: 'تعداد روزها پیش از حذف کاربران غیرفعال.',
+    autoDelete: 'حذف خودکار کاربران غیرفعال', autoDeleteHelp: 'دوره نگهداری به‌صورت خودکار اعمال شود.',
+    captchaSiteKey: 'کلید سایت کپچا', captchaSecretKey: 'کلید محرمانه کپچا', submit: 'ذخیره و ادامه',
+    promoTitle: 'شروعی تازه برای شبکه خصوصی شما.', promoDescription: 'این تنظیمات مستقیماً به API سیستمی تولیدشده پنل ارسال می‌شوند.',
+  },
+  dashboard: {
+    administration: 'مدیریت', overview: 'نمای کلی زیرساخت', title: 'داشبورد',
+    connectedUsers: 'کاربران متصل', activeSessions: 'نشست‌های فعال', managedServers: 'سرورهای مدیریت‌شده',
+    activityTitle: 'فعالیت سرویس', activityDescription: 'با گزارش فعالیت سرویس‌ها، معیارهای داشبورد اینجا نمایش داده می‌شوند.',
+  },
+  unavailable: {
+    title: 'سرور در دسترس نیست', description: 'داشبورد نتوانست پیکربندی راه‌اندازی اولیه پنل را بارگذاری کند.',
+    connectionFailed: 'اتصال ناموفق بود', retry: 'تلاش دوباره',
+  },
+  footer: {
+    developedBy: 'توسعه‌یافته توسط {developer}', with: 'با', love: 'عشق', reportIssue: 'گزارش مشکل',
+  },
+  navigation: {
+    search: 'جستجو', searchPlaceholder: 'جستجو در مستندات...', documentation: 'مستندات',
+    gettingStarted: 'شروع کار', installation: 'نصب', projectStructure: 'ساختار پروژه', buildingApp: 'ساخت برنامه',
+    routing: 'مسیریابی', dataFetching: 'دریافت داده', rendering: 'رندر', caching: 'کش', styling: 'استایل‌دهی',
+    optimizing: 'بهینه‌سازی', configuring: 'پیکربندی', testing: 'آزمایش', authentication: 'احراز هویت', deploying: 'استقرار',
+    upgrading: 'ارتقا', examples: 'نمونه‌ها', apiReference: 'مرجع API', components: 'کامپوننت‌ها', fileConventions: 'قواعد فایل‌ها',
+    functions: 'توابع', configOptions: 'گزینه‌های پیکربندی', cli: 'رابط خط فرمان', edgeRuntime: 'محیط اجرای لبه', architecture: 'معماری',
+    accessibility: 'دسترس‌پذیری', fastRefresh: 'نوسازی سریع', compiler: 'کامپایلر',
+    supportedBrowsers: 'مرورگرهای پشتیبانی‌شده', turbopack: 'Turbopack',
+  },
+} satisfies MessageSchema

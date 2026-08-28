@@ -1,8 +1,8 @@
 // Package adminapi wires the administrative HTTP API.
 //
-// @title OCServ Dashboard Admin API
+// @title Ocserv Dashboard Admin API
 // @version 1.0
-// @description Administrative API for managing OCServ Dashboard users, groups, reports, runtime, backups, system settings, Telegram integrations, and agent nodes.
+// @description Administrative API for managing Ocserv Dashboard users, groups, reports, runtime, backups, system settings, Telegram integrations, and agent nodes.
 // @BasePath /api
 // @accept json
 // @produce json

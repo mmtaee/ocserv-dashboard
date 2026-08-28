@@ -1,0 +1,43 @@
+import type { MessageSchema } from '@/locales/en'
+
+export default {
+  common: {
+    appName: 'Ocserv 控制面板', language: '语言', loading: '加载中', close: '关闭', more: '更多',
+    breadcrumb: '面包屑导航', sidebar: '侧边栏', toggleSidebar: '切换侧边栏', mobileSidebarDescription: '显示移动端侧边栏。',
+  },
+  auth: {
+    title: '欢迎回来', subtitle: '登录以管理您的 Ocserv 基础设施。', failure: '登录失败',
+    username: '用户名', usernamePlaceholder: 'admin', password: '密码', verification: '验证',
+    captchaPrompt: '请先完成验证码再登录。', rememberMe: '记住我', submit: '登录',
+    promoTitle: '安全的基础设施管理', promoDescription: '在一个面板中监控会话、用户、代理和系统健康状态。',
+  },
+  setup: {
+    title: '初始化面板', description: '配置连接配置文件、保留策略和可选的验证码保护。',
+    failure: '初始化失败', serverAddress: '服务器地址', serverAddressPlaceholder: 'vpn.example.com',
+    serverPort: '服务器端口', connectionName: '连接名称', defaultConnectionName: 'Ocserv VPN',
+    retention: '非活跃用户保留期', retentionHelp: '删除非活跃用户前保留的天数。',
+    autoDelete: '自动删除非活跃用户', autoDeleteHelp: '自动应用保留期限。',
+    captchaSiteKey: '验证码站点密钥', captchaSecretKey: '验证码密钥', submit: '保存并继续',
+    promoTitle: '为您的专用网络开启全新起点。', promoDescription: '这些设置会直接发送到生成的面板系统 API。',
+  },
+  dashboard: {
+    administration: '管理', overview: '基础设施概览', title: '控制面板',
+    connectedUsers: '已连接用户', activeSessions: '活跃会话', managedServers: '托管服务器',
+    activityTitle: '服务活动', activityDescription: '服务上报活动后，面板指标将显示在这里。',
+  },
+  unavailable: {
+    title: '服务器不可用', description: '控制面板无法加载系统初始化配置。', connectionFailed: '连接失败', retry: '重试',
+  },
+  footer: {
+    developedBy: '由 {developer} 开发', with: '用', love: '爱', reportIssue: '报告问题',
+  },
+  navigation: {
+    search: '搜索', searchPlaceholder: '搜索文档...', documentation: '文档',
+    gettingStarted: '入门', installation: '安装', projectStructure: '项目结构', buildingApp: '构建应用程序',
+    routing: '路由', dataFetching: '数据获取', rendering: '渲染', caching: '缓存', styling: '样式',
+    optimizing: '优化', configuring: '配置', testing: '测试', authentication: '身份验证', deploying: '部署',
+    upgrading: '升级', examples: '示例', apiReference: 'API 参考', components: '组件', fileConventions: '文件约定',
+    functions: '函数', configOptions: '配置选项', cli: 'CLI', edgeRuntime: '边缘运行时', architecture: '架构',
+    accessibility: '无障碍', fastRefresh: '快速刷新', compiler: '编译器', supportedBrowsers: '支持的浏览器', turbopack: 'Turbopack',
+  },
+} satisfies MessageSchema

@@ -1,4 +1,4 @@
-import { getAccessToken } from '@/api/auth-token'
+import { requireAuthorizationHeader } from '@/api/auth-token'
 import { api } from '@/api/client'
 import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse,
@@ -17,8 +17,9 @@ export async function getSystemInit(): Promise<SystemInitConfig | null> {
 }
 
 export async function updateSystemConfig(request: SystemUpdateData) {
-  const token = getAccessToken()
-  const authorization = token ? (token.startsWith('Bearer ') ? token : `Bearer ${token}`) : ''
-  const response = await api.system.systemPatch({ authorization, request })
+  const response = await api.system.systemPatch({
+    authorization: requireAuthorizationHeader(),
+    request,
+  })
   return response.data
 }

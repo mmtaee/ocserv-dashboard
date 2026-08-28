@@ -1,8 +1,11 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios'
 
-import { getAccessToken } from '@/api/auth-token'
+import { clearAccessToken, getAccessToken } from '@/api/auth-token'
 
 const DEFAULT_TIMEOUT_MS = 15_000
+type UnauthorizedHandler = () => void | Promise<unknown>
+
+let unauthorizedHandler: UnauthorizedHandler | null = null
 
 export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
@@ -43,6 +46,10 @@ export function normalizeApiError(error: unknown): ApiError {
   })
 }
 
+export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {
+  unauthorizedHandler = handler
+}
+
 export const httpClient: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
   timeout:
@@ -66,5 +73,19 @@ httpClient.interceptors.request.use((config) => {
 
 httpClient.interceptors.response.use(
   (response) => response,
-  (error: unknown) => Promise.reject(normalizeApiError(error)),
+  async (error: unknown) => {
+    const apiError = normalizeApiError(error)
+
+    if (apiError.status === 401) {
+      clearAccessToken()
+
+      try {
+        await unauthorizedHandler?.()
+      } catch {
+        // Preserve the original API error when navigation cannot complete.
+      }
+    }
+
+    return Promise.reject(apiError)
+  },
 )

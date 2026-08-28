@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Shared OCServ setup used by master, agent, and systemd deployments.
+# Shared Ocserv setup used by master, agent, and systemd deployments.
 
 set -Eeuo pipefail
 
@@ -46,7 +46,7 @@ ensure_client_pki() {
     fi
 
     if [[ ! -f "${OCSERV_CA_CERT}" ]]; then
-        log "generating OCServ client certificate authority"
+        log "generating Ocserv client certificate authority"
         cat >"${ca_template}" <<EOF
 cn = "${SSL_CN}"
 organization = "${SSL_ORG}"
@@ -89,7 +89,7 @@ ensure_server_certificate() {
         return
     fi
 
-    log "generating OCServ server certificate"
+    log "generating Ocserv server certificate"
     cat >"${ca_template}" <<EOF
 cn = "${SSL_CN}"
 organization = "${SSL_ORG}"
@@ -137,7 +137,7 @@ write_ocserv_config() {
     pre_login_banner="${pre_login_banner//\"/\\\"}"
     pre_login_banner="${pre_login_banner//$'\n'/\\n}"
 
-    log "writing OCServ configuration"
+    log "writing Ocserv configuration"
     cat >"${OCSERV_CONF}" <<EOF
 # Managed by the ocserv-dashboard container
 auth = "certificate"

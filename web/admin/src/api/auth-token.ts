@@ -12,16 +12,12 @@ export function getAccessToken(): string | null {
   return accessToken
 }
 
-export function setAccessToken(token: string, persist = true): void {
+export function setAccessToken(token: string): void {
   accessToken = token
 
   if (typeof window === 'undefined') return
 
-  if (persist) {
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, token)
-  } else {
-    window.localStorage.removeItem(ACCESS_TOKEN_KEY)
-  }
+  window.localStorage.setItem(ACCESS_TOKEN_KEY, token)
 }
 
 export function clearAccessToken(): void {

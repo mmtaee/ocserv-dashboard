@@ -9,7 +9,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:           "backend",
-	Short:         "OCServ dashboard backend",
+	Short:         "Ocserv dashboard backend",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

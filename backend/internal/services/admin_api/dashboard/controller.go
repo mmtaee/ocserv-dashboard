@@ -36,7 +36,7 @@ func (ctl *Controller) Home(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// OcservStats returns OCServ runtime statistics.
+// OcservStats returns Ocserv runtime statistics.
 //
 // @Summary Content of ocserv server stats
 // @Description Content of ocserv server stats

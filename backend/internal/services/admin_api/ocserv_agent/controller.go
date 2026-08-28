@@ -19,9 +19,9 @@ func New(usecase *agents.Usecase) *Controller {
 	return &Controller{request: request.NewCustomRequest(), agents: usecase}
 }
 
-// List returns configured master-node OCServ agents.
-// @Summary List OCServ agents
-// @Tags OCServ Agents
+// List returns configured master-node Ocserv agents.
+// @Summary List Ocserv agents
+// @Tags Ocserv Agents
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 401 {object} request.ErrorResponse
 // @Failure 403 {object} request.ErrorResponse
@@ -35,9 +35,9 @@ func (ctl *Controller) List(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Get returns one configured OCServ agent.
-// @Summary Get OCServ agent
-// @Tags OCServ Agents
+// Get returns one configured Ocserv agent.
+// @Summary Get Ocserv agent
+// @Tags Ocserv Agents
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Agent ID"
 // @Failure 400 {object} request.ErrorResponse
@@ -58,8 +58,8 @@ func (ctl *Controller) Get(c *echo.Context) error {
 }
 
 // Create stores a manually supplied agent token on the master node.
-// @Summary Create OCServ agent
-// @Tags OCServ Agents
+// @Summary Create Ocserv agent
+// @Tags Ocserv Agents
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param request body CreateInput true "Agent"
 // @Failure 400 {object} request.ErrorResponse
@@ -79,9 +79,9 @@ func (ctl *Controller) Create(c *echo.Context) error {
 	return c.JSON(http.StatusCreated, result)
 }
 
-// Update replaces an OCServ agent configuration.
-// @Summary Update OCServ agent
-// @Tags OCServ Agents
+// Update replaces an Ocserv agent configuration.
+// @Summary Update Ocserv agent
+// @Tags Ocserv Agents
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Agent ID"
 // @Param request body UpdateInput true "Agent"
@@ -106,9 +106,9 @@ func (ctl *Controller) Update(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Delete removes an OCServ agent.
-// @Summary Delete OCServ agent
-// @Tags OCServ Agents
+// Delete removes an Ocserv agent.
+// @Summary Delete Ocserv agent
+// @Tags Ocserv Agents
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Agent ID"
 // @Failure 400 {object} request.ErrorResponse

@@ -13,6 +13,12 @@ export const useSystemInitStore = defineStore('system-init', () => {
   const isInitialized = computed(() => config.value?.first_init === true)
   const captchaSiteKey = computed(() => config.value?.google_captcha_site_key?.trim() ?? '')
 
+  function applyConfig(nextConfig: SystemInitConfig): void {
+    config.value = { ...config.value, ...nextConfig }
+    isAvailable.value = true
+    error.value = null
+  }
+
   async function initialize(): Promise<boolean> {
     isLoading.value = true
     error.value = null
@@ -30,5 +36,5 @@ export const useSystemInitStore = defineStore('system-init', () => {
     }
   }
 
-  return { captchaSiteKey, config, error, initialize, isAvailable, isInitialized, isLoading }
+  return { applyConfig, captchaSiteKey, config, error, initialize, isAvailable, isInitialized, isLoading }
 })

@@ -169,7 +169,7 @@ start_container() {
     log "Health:     http://127.0.0.1:${API_PORT}/health"
     log "PostgreSQL: 127.0.0.1:${POSTGRES_PORT}"
     log "VPN:        tcp/udp ${VPN_PORT}"
-    log "OCServ log: debug level ${OCSERV_DEBUG_LEVEL}"
+    log "Ocserv log: debug level ${OCSERV_DEBUG_LEVEL}"
 }
 
 follow_logs() {

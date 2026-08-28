@@ -140,7 +140,7 @@ stop_services() {
     fi
     stopping=true
 
-    log "stopping backend, OCServ, and PostgreSQL"
+    log "stopping backend, Ocserv, and PostgreSQL"
     [[ -n "${backend_pid}" ]] && kill -TERM "${backend_pid}" 2>/dev/null || true
     [[ -n "${ocserv_pid}" ]] && kill -TERM "${ocserv_pid}" 2>/dev/null || true
     [[ -n "${postgres_pid}" ]] && kill -INT "${postgres_pid}" 2>/dev/null || true
@@ -184,7 +184,7 @@ main() {
     /usr/local/bin/backend "${backend_args[@]}" &
     backend_pid=$!
 
-    log "starting OCServ with debug level ${OCSERV_DEBUG}"
+    log "starting Ocserv with debug level ${OCSERV_DEBUG}"
     if [[ "${OCSERV_DEBUG}" == 0 ]]; then
         /usr/sbin/ocserv \
             --foreground \

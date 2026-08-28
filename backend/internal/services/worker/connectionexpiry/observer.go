@@ -21,8 +21,8 @@ func New(repository Repository) *Observer {
 	return &Observer{repository: repository}
 }
 
-// Observe records the first successful OCServ session using the timestamp
-// supplied by the live OCServ log source.
+// Observe records the first successful Ocserv session using the timestamp
+// supplied by the live Ocserv log source.
 func (o *Observer) Observe(ctx context.Context, line string, observedAt time.Time) error {
 	match := newSessionPattern.FindStringSubmatch(line)
 	if len(match) != 2 {

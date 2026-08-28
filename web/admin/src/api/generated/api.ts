@@ -1701,13 +1701,13 @@ export class OCCTLApi extends BaseAPI implements OCCTLApiInterface {
 
 
 /**
- * OCServAgentsApi - axios parameter creator
+ * OcservAgentsApi - axios parameter creator
  */
-export const OCServAgentsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const OcservAgentsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary List OCServ agents
+         * @summary List Ocserv agents
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1743,7 +1743,7 @@ export const OCServAgentsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @summary Delete OCServ agent
+         * @summary Delete Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {*} [options] Override http request option.
@@ -1783,7 +1783,7 @@ export const OCServAgentsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @summary Get OCServ agent
+         * @summary Get Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {*} [options] Override http request option.
@@ -1823,7 +1823,7 @@ export const OCServAgentsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @summary Update OCServ agent
+         * @summary Update Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {OcservAgentUpdateInput} request Agent
@@ -1869,7 +1869,7 @@ export const OCServAgentsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @summary Create OCServ agent
+         * @summary Create Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {OcservAgentCreateInput} request Agent
          * @param {*} [options] Override http request option.
@@ -1913,14 +1913,14 @@ export const OCServAgentsApiAxiosParamCreator = function (configuration?: Config
 };
 
 /**
- * OCServAgentsApi - functional programming interface
+ * OcservAgentsApi - functional programming interface
  */
-export const OCServAgentsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = OCServAgentsApiAxiosParamCreator(configuration)
+export const OcservAgentsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OcservAgentsApiAxiosParamCreator(configuration)
     return {
         /**
          * 
-         * @summary List OCServ agents
+         * @summary List Ocserv agents
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1928,12 +1928,12 @@ export const OCServAgentsApiFp = function(configuration?: Configuration) {
         async ocservAgentsGet(authorization: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ModelsOcservAgent>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservAgentsGet(authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OCServAgentsApi.ocservAgentsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservAgentsApi.ocservAgentsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary Delete OCServ agent
+         * @summary Delete Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {*} [options] Override http request option.
@@ -1942,12 +1942,12 @@ export const OCServAgentsApiFp = function(configuration?: Configuration) {
         async ocservAgentsIdDelete(authorization: string, id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservAgentsIdDelete(authorization, id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OCServAgentsApi.ocservAgentsIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservAgentsApi.ocservAgentsIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary Get OCServ agent
+         * @summary Get Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {*} [options] Override http request option.
@@ -1956,12 +1956,12 @@ export const OCServAgentsApiFp = function(configuration?: Configuration) {
         async ocservAgentsIdGet(authorization: string, id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsOcservAgent>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservAgentsIdGet(authorization, id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OCServAgentsApi.ocservAgentsIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservAgentsApi.ocservAgentsIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary Update OCServ agent
+         * @summary Update Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Agent ID
          * @param {OcservAgentUpdateInput} request Agent
@@ -1971,12 +1971,12 @@ export const OCServAgentsApiFp = function(configuration?: Configuration) {
         async ocservAgentsIdPatch(authorization: string, id: number, request: OcservAgentUpdateInput, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsOcservAgent>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservAgentsIdPatch(authorization, id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OCServAgentsApi.ocservAgentsIdPatch']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservAgentsApi.ocservAgentsIdPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary Create OCServ agent
+         * @summary Create Ocserv agent
          * @param {string} authorization Bearer TOKEN
          * @param {OcservAgentCreateInput} request Agent
          * @param {*} [options] Override http request option.
@@ -1985,126 +1985,126 @@ export const OCServAgentsApiFp = function(configuration?: Configuration) {
         async ocservAgentsPost(authorization: string, request: OcservAgentCreateInput, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelsOcservAgent>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ocservAgentsPost(authorization, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OCServAgentsApi.ocservAgentsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OcservAgentsApi.ocservAgentsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * OCServAgentsApi - factory interface
+ * OcservAgentsApi - factory interface
  */
-export const OCServAgentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = OCServAgentsApiFp(configuration)
+export const OcservAgentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OcservAgentsApiFp(configuration)
     return {
         /**
          * 
-         * @summary List OCServ agents
-         * @param {OCServAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
+         * @summary List Ocserv agents
+         * @param {OcservAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservAgentsGet(requestParameters: OCServAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsOcservAgent>> {
+        ocservAgentsGet(requestParameters: OcservAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsOcservAgent>> {
             return localVarFp.ocservAgentsGet(requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary Delete OCServ agent
-         * @param {OCServAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
+         * @summary Delete Ocserv agent
+         * @param {OcservAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservAgentsIdDelete(requestParameters: OCServAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        ocservAgentsIdDelete(requestParameters: OcservAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.ocservAgentsIdDelete(requestParameters.authorization, requestParameters.id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary Get OCServ agent
-         * @param {OCServAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
+         * @summary Get Ocserv agent
+         * @param {OcservAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservAgentsIdGet(requestParameters: OCServAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
+        ocservAgentsIdGet(requestParameters: OcservAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
             return localVarFp.ocservAgentsIdGet(requestParameters.authorization, requestParameters.id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary Update OCServ agent
-         * @param {OCServAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
+         * @summary Update Ocserv agent
+         * @param {OcservAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservAgentsIdPatch(requestParameters: OCServAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
+        ocservAgentsIdPatch(requestParameters: OcservAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
             return localVarFp.ocservAgentsIdPatch(requestParameters.authorization, requestParameters.id, requestParameters.request, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary Create OCServ agent
-         * @param {OCServAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
+         * @summary Create Ocserv agent
+         * @param {OcservAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ocservAgentsPost(requestParameters: OCServAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
+        ocservAgentsPost(requestParameters: OcservAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent> {
             return localVarFp.ocservAgentsPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * OCServAgentsApi - interface
+ * OcservAgentsApi - interface
  */
-export interface OCServAgentsApiInterface {
+export interface OcservAgentsApiInterface {
     /**
      * 
-     * @summary List OCServ agents
-     * @param {OCServAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
+     * @summary List Ocserv agents
+     * @param {OcservAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    ocservAgentsGet(requestParameters: OCServAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsOcservAgent>>;
+    ocservAgentsGet(requestParameters: OcservAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ModelsOcservAgent>>;
 
     /**
      * 
-     * @summary Delete OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
+     * @summary Delete Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    ocservAgentsIdDelete(requestParameters: OCServAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void>;
+    ocservAgentsIdDelete(requestParameters: OcservAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void>;
 
     /**
      * 
-     * @summary Get OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
+     * @summary Get Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    ocservAgentsIdGet(requestParameters: OCServAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
+    ocservAgentsIdGet(requestParameters: OcservAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
 
     /**
      * 
-     * @summary Update OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
+     * @summary Update Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    ocservAgentsIdPatch(requestParameters: OCServAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
+    ocservAgentsIdPatch(requestParameters: OcservAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
 
     /**
      * 
-     * @summary Create OCServ agent
-     * @param {OCServAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
+     * @summary Create Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    ocservAgentsPost(requestParameters: OCServAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
+    ocservAgentsPost(requestParameters: OcservAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ModelsOcservAgent>;
 
 }
 
 /**
- * Request parameters for ocservAgentsGet operation in OCServAgentsApi.
+ * Request parameters for ocservAgentsGet operation in OcservAgentsApi.
  */
-export interface OCServAgentsApiOcservAgentsGetRequest {
+export interface OcservAgentsApiOcservAgentsGetRequest {
     /**
      * Bearer TOKEN
      */
@@ -2112,24 +2112,9 @@ export interface OCServAgentsApiOcservAgentsGetRequest {
 }
 
 /**
- * Request parameters for ocservAgentsIdDelete operation in OCServAgentsApi.
+ * Request parameters for ocservAgentsIdDelete operation in OcservAgentsApi.
  */
-export interface OCServAgentsApiOcservAgentsIdDeleteRequest {
-    /**
-     * Bearer TOKEN
-     */
-    readonly authorization: string
-
-    /**
-     * Agent ID
-     */
-    readonly id: number
-}
-
-/**
- * Request parameters for ocservAgentsIdGet operation in OCServAgentsApi.
- */
-export interface OCServAgentsApiOcservAgentsIdGetRequest {
+export interface OcservAgentsApiOcservAgentsIdDeleteRequest {
     /**
      * Bearer TOKEN
      */
@@ -2142,9 +2127,24 @@ export interface OCServAgentsApiOcservAgentsIdGetRequest {
 }
 
 /**
- * Request parameters for ocservAgentsIdPatch operation in OCServAgentsApi.
+ * Request parameters for ocservAgentsIdGet operation in OcservAgentsApi.
  */
-export interface OCServAgentsApiOcservAgentsIdPatchRequest {
+export interface OcservAgentsApiOcservAgentsIdGetRequest {
+    /**
+     * Bearer TOKEN
+     */
+    readonly authorization: string
+
+    /**
+     * Agent ID
+     */
+    readonly id: number
+}
+
+/**
+ * Request parameters for ocservAgentsIdPatch operation in OcservAgentsApi.
+ */
+export interface OcservAgentsApiOcservAgentsIdPatchRequest {
     /**
      * Bearer TOKEN
      */
@@ -2162,9 +2162,9 @@ export interface OCServAgentsApiOcservAgentsIdPatchRequest {
 }
 
 /**
- * Request parameters for ocservAgentsPost operation in OCServAgentsApi.
+ * Request parameters for ocservAgentsPost operation in OcservAgentsApi.
  */
-export interface OCServAgentsApiOcservAgentsPostRequest {
+export interface OcservAgentsApiOcservAgentsPostRequest {
     /**
      * Bearer TOKEN
      */
@@ -2177,62 +2177,62 @@ export interface OCServAgentsApiOcservAgentsPostRequest {
 }
 
 /**
- * OCServAgentsApi - object-oriented interface
+ * OcservAgentsApi - object-oriented interface
  */
-export class OCServAgentsApi extends BaseAPI implements OCServAgentsApiInterface {
+export class OcservAgentsApi extends BaseAPI implements OcservAgentsApiInterface {
     /**
      * 
-     * @summary List OCServ agents
-     * @param {OCServAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
+     * @summary List Ocserv agents
+     * @param {OcservAgentsApiOcservAgentsGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ocservAgentsGet(requestParameters: OCServAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig) {
-        return OCServAgentsApiFp(this.configuration).ocservAgentsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    public ocservAgentsGet(requestParameters: OcservAgentsApiOcservAgentsGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservAgentsApiFp(this.configuration).ocservAgentsGet(requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary Delete OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
+     * @summary Delete Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdDeleteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ocservAgentsIdDelete(requestParameters: OCServAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig) {
-        return OCServAgentsApiFp(this.configuration).ocservAgentsIdDelete(requestParameters.authorization, requestParameters.id, options).then((request) => request(this.axios, this.basePath));
+    public ocservAgentsIdDelete(requestParameters: OcservAgentsApiOcservAgentsIdDeleteRequest, options?: RawAxiosRequestConfig) {
+        return OcservAgentsApiFp(this.configuration).ocservAgentsIdDelete(requestParameters.authorization, requestParameters.id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary Get OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
+     * @summary Get Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ocservAgentsIdGet(requestParameters: OCServAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig) {
-        return OCServAgentsApiFp(this.configuration).ocservAgentsIdGet(requestParameters.authorization, requestParameters.id, options).then((request) => request(this.axios, this.basePath));
+    public ocservAgentsIdGet(requestParameters: OcservAgentsApiOcservAgentsIdGetRequest, options?: RawAxiosRequestConfig) {
+        return OcservAgentsApiFp(this.configuration).ocservAgentsIdGet(requestParameters.authorization, requestParameters.id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary Update OCServ agent
-     * @param {OCServAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
+     * @summary Update Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsIdPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ocservAgentsIdPatch(requestParameters: OCServAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig) {
-        return OCServAgentsApiFp(this.configuration).ocservAgentsIdPatch(requestParameters.authorization, requestParameters.id, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    public ocservAgentsIdPatch(requestParameters: OcservAgentsApiOcservAgentsIdPatchRequest, options?: RawAxiosRequestConfig) {
+        return OcservAgentsApiFp(this.configuration).ocservAgentsIdPatch(requestParameters.authorization, requestParameters.id, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary Create OCServ agent
-     * @param {OCServAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
+     * @summary Create Ocserv agent
+     * @param {OcservAgentsApiOcservAgentsPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ocservAgentsPost(requestParameters: OCServAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig) {
-        return OCServAgentsApiFp(this.configuration).ocservAgentsPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    public ocservAgentsPost(requestParameters: OcservAgentsApiOcservAgentsPostRequest, options?: RawAxiosRequestConfig) {
+        return OcservAgentsApiFp(this.configuration).ocservAgentsPost(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -3507,9 +3507,9 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
     return {
         /**
          * 
-         * @summary Bulk delete OCServ users
+         * @summary Bulk delete Ocserv users
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkIDsRequest} request OCServ user IDs
+         * @param {OcservUserBulkIDsRequest} request Ocserv user IDs
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3549,9 +3549,9 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @summary Bulk assign or remove an OCServ group
+         * @summary Bulk assign or remove an Ocserv group
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkGroupRequest} request OCServ user IDs and group; empty group removes assignment
+         * @param {OcservUserBulkGroupRequest} request Ocserv user IDs and group; empty group removes assignment
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3591,7 +3591,7 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @summary Bulk update OCServ users
+         * @summary Bulk update Ocserv users
          * @param {string} authorization Bearer TOKEN
          * @param {OcservUserBulkUpdateRequest} request Bulk user updates
          * @param {*} [options] Override http request option.
@@ -3633,9 +3633,9 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @summary Bulk enable or disable OCServ users
+         * @summary Bulk enable or disable Ocserv users
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkStatusRequest} request OCServ user IDs and enabled state
+         * @param {OcservUserBulkStatusRequest} request Ocserv user IDs and enabled state
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3950,7 +3950,7 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
          * 
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Ocserv User ID
-         * @param {OcservUserUpdateOcservUserData} request OCServ user and expiry changes
+         * @param {OcservUserUpdateOcservUserData} request Ocserv user and expiry changes
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3993,7 +3993,7 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @summary Reset OCServ user usage
+         * @summary Reset Ocserv user usage
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Ocserv User ID
          * @param {*} [options] Override http request option.
@@ -4162,7 +4162,7 @@ export const OcservUsersApiAxiosParamCreator = function (configuration?: Configu
         /**
          * 
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserCreateOcservUserData} request OCServ user and expiry configuration
+         * @param {OcservUserCreateOcservUserData} request Ocserv user and expiry configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4269,9 +4269,9 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary Bulk delete OCServ users
+         * @summary Bulk delete Ocserv users
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkIDsRequest} request OCServ user IDs
+         * @param {OcservUserBulkIDsRequest} request Ocserv user IDs
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4283,9 +4283,9 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Bulk assign or remove an OCServ group
+         * @summary Bulk assign or remove an Ocserv group
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkGroupRequest} request OCServ user IDs and group; empty group removes assignment
+         * @param {OcservUserBulkGroupRequest} request Ocserv user IDs and group; empty group removes assignment
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4297,7 +4297,7 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Bulk update OCServ users
+         * @summary Bulk update Ocserv users
          * @param {string} authorization Bearer TOKEN
          * @param {OcservUserBulkUpdateRequest} request Bulk user updates
          * @param {*} [options] Override http request option.
@@ -4311,9 +4311,9 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Bulk enable or disable OCServ users
+         * @summary Bulk enable or disable Ocserv users
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserBulkStatusRequest} request OCServ user IDs and enabled state
+         * @param {OcservUserBulkStatusRequest} request Ocserv user IDs and enabled state
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4424,7 +4424,7 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
          * 
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Ocserv User ID
-         * @param {OcservUserUpdateOcservUserData} request OCServ user and expiry changes
+         * @param {OcservUserUpdateOcservUserData} request Ocserv user and expiry changes
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4436,7 +4436,7 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Reset OCServ user usage
+         * @summary Reset Ocserv user usage
          * @param {string} authorization Bearer TOKEN
          * @param {number} id Ocserv User ID
          * @param {*} [options] Override http request option.
@@ -4498,7 +4498,7 @@ export const OcservUsersApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} authorization Bearer TOKEN
-         * @param {OcservUserCreateOcservUserData} request OCServ user and expiry configuration
+         * @param {OcservUserCreateOcservUserData} request Ocserv user and expiry configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4541,7 +4541,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
     return {
         /**
          * 
-         * @summary Bulk delete OCServ users
+         * @summary Bulk delete Ocserv users
          * @param {OcservUsersApiOcservUsersBulkDeleteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4551,7 +4551,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @summary Bulk assign or remove an OCServ group
+         * @summary Bulk assign or remove an Ocserv group
          * @param {OcservUsersApiOcservUsersBulkGroupPatchRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4561,7 +4561,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @summary Bulk update OCServ users
+         * @summary Bulk update Ocserv users
          * @param {OcservUsersApiOcservUsersBulkPatchRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4571,7 +4571,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @summary Bulk enable or disable OCServ users
+         * @summary Bulk enable or disable Ocserv users
          * @param {OcservUsersApiOcservUsersBulkStatusPatchRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4661,7 +4661,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @summary Reset OCServ user usage
+         * @summary Reset Ocserv user usage
          * @param {OcservUsersApiOcservUsersIdResetUsagePostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4738,7 +4738,7 @@ export const OcservUsersApiFactory = function (configuration?: Configuration, ba
 export interface OcservUsersApiInterface {
     /**
      * 
-     * @summary Bulk delete OCServ users
+     * @summary Bulk delete Ocserv users
      * @param {OcservUsersApiOcservUsersBulkDeleteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4747,7 +4747,7 @@ export interface OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk assign or remove an OCServ group
+     * @summary Bulk assign or remove an Ocserv group
      * @param {OcservUsersApiOcservUsersBulkGroupPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4756,7 +4756,7 @@ export interface OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk update OCServ users
+     * @summary Bulk update Ocserv users
      * @param {OcservUsersApiOcservUsersBulkPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4765,7 +4765,7 @@ export interface OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk enable or disable OCServ users
+     * @summary Bulk enable or disable Ocserv users
      * @param {OcservUsersApiOcservUsersBulkStatusPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4845,7 +4845,7 @@ export interface OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Reset OCServ user usage
+     * @summary Reset Ocserv user usage
      * @param {OcservUsersApiOcservUsersIdResetUsagePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4917,7 +4917,7 @@ export interface OcservUsersApiOcservUsersBulkDeleteRequest {
     readonly authorization: string
 
     /**
-     * OCServ user IDs
+     * Ocserv user IDs
      */
     readonly request: OcservUserBulkIDsRequest
 }
@@ -4932,7 +4932,7 @@ export interface OcservUsersApiOcservUsersBulkGroupPatchRequest {
     readonly authorization: string
 
     /**
-     * OCServ user IDs and group; empty group removes assignment
+     * Ocserv user IDs and group; empty group removes assignment
      */
     readonly request: OcservUserBulkGroupRequest
 }
@@ -4962,7 +4962,7 @@ export interface OcservUsersApiOcservUsersBulkStatusPatchRequest {
     readonly authorization: string
 
     /**
-     * OCServ user IDs and enabled state
+     * Ocserv user IDs and enabled state
      */
     readonly request: OcservUserBulkStatusRequest
 }
@@ -5062,7 +5062,7 @@ export interface OcservUsersApiOcservUsersIdPatchRequest {
     readonly id: number
 
     /**
-     * OCServ user and expiry changes
+     * Ocserv user and expiry changes
      */
     readonly request: OcservUserUpdateOcservUserData
 }
@@ -5122,7 +5122,7 @@ export interface OcservUsersApiOcservUsersPostRequest {
     readonly authorization: string
 
     /**
-     * OCServ user and expiry configuration
+     * Ocserv user and expiry configuration
      */
     readonly request: OcservUserCreateOcservUserData
 }
@@ -5133,7 +5133,7 @@ export interface OcservUsersApiOcservUsersPostRequest {
 export class OcservUsersApi extends BaseAPI implements OcservUsersApiInterface {
     /**
      * 
-     * @summary Bulk delete OCServ users
+     * @summary Bulk delete Ocserv users
      * @param {OcservUsersApiOcservUsersBulkDeleteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5144,7 +5144,7 @@ export class OcservUsersApi extends BaseAPI implements OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk assign or remove an OCServ group
+     * @summary Bulk assign or remove an Ocserv group
      * @param {OcservUsersApiOcservUsersBulkGroupPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5155,7 +5155,7 @@ export class OcservUsersApi extends BaseAPI implements OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk update OCServ users
+     * @summary Bulk update Ocserv users
      * @param {OcservUsersApiOcservUsersBulkPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5166,7 +5166,7 @@ export class OcservUsersApi extends BaseAPI implements OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Bulk enable or disable OCServ users
+     * @summary Bulk enable or disable Ocserv users
      * @param {OcservUsersApiOcservUsersBulkStatusPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5266,7 +5266,7 @@ export class OcservUsersApi extends BaseAPI implements OcservUsersApiInterface {
 
     /**
      * 
-     * @summary Reset OCServ user usage
+     * @summary Reset Ocserv user usage
      * @param {OcservUsersApiOcservUsersIdResetUsagePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5936,7 +5936,7 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary Get structured OCServ configuration
+         * @summary Get structured Ocserv configuration
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5972,9 +5972,9 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary Update structured OCServ configuration
+         * @summary Update structured Ocserv configuration
          * @param {string} authorization Bearer TOKEN
-         * @param {RuntimeOcservConfig} request Supported OCServ configuration changes
+         * @param {RuntimeOcservConfig} request Supported Ocserv configuration changes
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6086,7 +6086,7 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary Disable OCServ runtime
+         * @summary Disable Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6122,7 +6122,7 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary Enable OCServ runtime
+         * @summary Enable Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6158,7 +6158,7 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary Restart OCServ runtime
+         * @summary Restart Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6194,7 +6194,7 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @summary OCServ runtime status
+         * @summary Ocserv runtime status
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6264,7 +6264,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Get structured OCServ configuration
+         * @summary Get structured Ocserv configuration
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6277,9 +6277,9 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Update structured OCServ configuration
+         * @summary Update structured Ocserv configuration
          * @param {string} authorization Bearer TOKEN
-         * @param {RuntimeOcservConfig} request Supported OCServ configuration changes
+         * @param {RuntimeOcservConfig} request Supported Ocserv configuration changes
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6317,7 +6317,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Disable OCServ runtime
+         * @summary Disable Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6330,7 +6330,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Enable OCServ runtime
+         * @summary Enable Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6343,7 +6343,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Restart OCServ runtime
+         * @summary Restart Ocserv runtime
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6356,7 +6356,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary OCServ runtime status
+         * @summary Ocserv runtime status
          * @param {string} authorization Bearer TOKEN
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6397,7 +6397,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary Get structured OCServ configuration
+         * @summary Get structured Ocserv configuration
          * @param {SystemApiSystemOcservConfigGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6407,7 +6407,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary Update structured OCServ configuration
+         * @summary Update structured Ocserv configuration
          * @param {SystemApiSystemOcservConfigPatchRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6436,7 +6436,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary Disable OCServ runtime
+         * @summary Disable Ocserv runtime
          * @param {SystemApiSystemdDisablePostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6446,7 +6446,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary Enable OCServ runtime
+         * @summary Enable Ocserv runtime
          * @param {SystemApiSystemdEnablePostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6456,7 +6456,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary Restart OCServ runtime
+         * @summary Restart Ocserv runtime
          * @param {SystemApiSystemdRestartPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6466,7 +6466,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @summary OCServ runtime status
+         * @summary Ocserv runtime status
          * @param {SystemApiSystemdStatusGetRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6500,7 +6500,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary Get structured OCServ configuration
+     * @summary Get structured Ocserv configuration
      * @param {SystemApiSystemOcservConfigGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6509,7 +6509,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary Update structured OCServ configuration
+     * @summary Update structured Ocserv configuration
      * @param {SystemApiSystemOcservConfigPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6535,7 +6535,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary Disable OCServ runtime
+     * @summary Disable Ocserv runtime
      * @param {SystemApiSystemdDisablePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6544,7 +6544,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary Enable OCServ runtime
+     * @summary Enable Ocserv runtime
      * @param {SystemApiSystemdEnablePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6553,7 +6553,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary Restart OCServ runtime
+     * @summary Restart Ocserv runtime
      * @param {SystemApiSystemdRestartPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6562,7 +6562,7 @@ export interface SystemApiInterface {
 
     /**
      * 
-     * @summary OCServ runtime status
+     * @summary Ocserv runtime status
      * @param {SystemApiSystemdStatusGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6601,7 +6601,7 @@ export interface SystemApiSystemOcservConfigPatchRequest {
     readonly authorization: string
 
     /**
-     * Supported OCServ configuration changes
+     * Supported Ocserv configuration changes
      */
     readonly request: RuntimeOcservConfig
 }
@@ -6688,7 +6688,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary Get structured OCServ configuration
+     * @summary Get structured Ocserv configuration
      * @param {SystemApiSystemOcservConfigGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6699,7 +6699,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary Update structured OCServ configuration
+     * @summary Update structured Ocserv configuration
      * @param {SystemApiSystemOcservConfigPatchRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6731,7 +6731,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary Disable OCServ runtime
+     * @summary Disable Ocserv runtime
      * @param {SystemApiSystemdDisablePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6742,7 +6742,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary Enable OCServ runtime
+     * @summary Enable Ocserv runtime
      * @param {SystemApiSystemdEnablePostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6753,7 +6753,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary Restart OCServ runtime
+     * @summary Restart Ocserv runtime
      * @param {SystemApiSystemdRestartPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6764,7 +6764,7 @@ export class SystemApi extends BaseAPI implements SystemApiInterface {
 
     /**
      * 
-     * @summary OCServ runtime status
+     * @summary Ocserv runtime status
      * @param {SystemApiSystemdStatusGetRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

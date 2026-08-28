@@ -1846,9 +1846,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: List OCServ agents
+      summary: List Ocserv agents
       tags:
-      - OCServ Agents
+      - Ocserv Agents
     post:
       parameters:
       - description: Bearer TOKEN
@@ -1879,9 +1879,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Create OCServ agent
+      summary: Create Ocserv agent
       tags:
-      - OCServ Agents
+      - Ocserv Agents
   /ocserv/agents/{id}:
     delete:
       parameters:
@@ -1910,9 +1910,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Delete OCServ agent
+      summary: Delete Ocserv agent
       tags:
-      - OCServ Agents
+      - Ocserv Agents
     get:
       parameters:
       - description: Bearer TOKEN
@@ -1942,9 +1942,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Get OCServ agent
+      summary: Get Ocserv agent
       tags:
-      - OCServ Agents
+      - Ocserv Agents
     patch:
       parameters:
       - description: Bearer TOKEN
@@ -1980,9 +1980,9 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Update OCServ agent
+      summary: Update Ocserv agent
       tags:
-      - OCServ Agents
+      - Ocserv Agents
   /ocserv/groups:
     get:
       consumes:
@@ -2363,7 +2363,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: OCServ user and expiry configuration
+      - description: Ocserv user and expiry configuration
         in: body
         name: request
         required: true
@@ -2421,7 +2421,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: OCServ user and expiry changes
+      - description: Ocserv user and expiry changes
         in: body
         name: request
         required: true
@@ -2555,7 +2555,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Reset OCServ user usage
+      summary: Reset Ocserv user usage
       tags:
       - Ocserv(Users)
   /ocserv/users/{id}/session_logs:
@@ -2616,7 +2616,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: OCServ user IDs
+      - description: Ocserv user IDs
         in: body
         name: request
         required: true
@@ -2641,7 +2641,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Bulk delete OCServ users
+      summary: Bulk delete Ocserv users
       tags:
       - Ocserv(Users)
     patch:
@@ -2678,7 +2678,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Bulk update OCServ users
+      summary: Bulk update Ocserv users
       tags:
       - Ocserv(Users)
   /ocserv/users/bulk/group:
@@ -2691,7 +2691,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: OCServ user IDs and group; empty group removes assignment
+      - description: Ocserv user IDs and group; empty group removes assignment
         in: body
         name: request
         required: true
@@ -2716,7 +2716,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Bulk assign or remove an OCServ group
+      summary: Bulk assign or remove an Ocserv group
       tags:
       - Ocserv(Users)
   /ocserv/users/bulk/status:
@@ -2729,7 +2729,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: OCServ user IDs and enabled state
+      - description: Ocserv user IDs and enabled state
         in: body
         name: request
         required: true
@@ -2754,7 +2754,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/middlewares.PermissionDenied'
-      summary: Bulk enable or disable OCServ users
+      summary: Bulk enable or disable Ocserv users
       tags:
       - Ocserv(Users)
   /ocserv/users/ocpasswd:
@@ -3035,7 +3035,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Get structured OCServ configuration
+      summary: Get structured Ocserv configuration
       tags:
       - System
     patch:
@@ -3047,7 +3047,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Supported OCServ configuration changes
+      - description: Supported Ocserv configuration changes
         in: body
         name: request
         required: true
@@ -3072,7 +3072,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Update structured OCServ configuration
+      summary: Update structured Ocserv configuration
       tags:
       - System
   /system/release:
@@ -3325,7 +3325,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Disable OCServ runtime
+      summary: Disable Ocserv runtime
       tags:
       - System
   /systemd/enable:
@@ -3353,7 +3353,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Enable OCServ runtime
+      summary: Enable Ocserv runtime
       tags:
       - System
   /systemd/restart:
@@ -3381,7 +3381,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: Restart OCServ runtime
+      summary: Restart Ocserv runtime
       tags:
       - System
   /systemd/status:
@@ -3409,7 +3409,7 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/request.ErrorResponse'
-      summary: OCServ runtime status
+      summary: Ocserv runtime status
       tags:
       - System
 swagger: "2.0"

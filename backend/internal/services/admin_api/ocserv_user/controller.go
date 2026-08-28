@@ -21,7 +21,7 @@ func New(usecase *userusecase.Usecase) *Controller {
 	return &Controller{request: request.NewCustomRequest(), users: usecase}
 }
 
-// Users lists OCServ users. @Summary List of Ocserv Users
+// Users lists Ocserv users. @Summary List of Ocserv Users
 // @Tags Ocserv(Users)
 // @Produce json
 // @Param expire_in_days query int false "Return users expiring within the next N days" minimum(1)
@@ -62,7 +62,7 @@ func parseExpireInDays(c *echo.Context) (*int, error) {
 	return &days, nil
 }
 
-// User returns an OCServ user. @Summary Ocserv user detail
+// User returns an Ocserv user. @Summary Ocserv user detail
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id} [get]
@@ -82,12 +82,12 @@ func (ctl *Controller) User(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Create creates an OCServ user. @Summary Ocserv User creation
+// Create creates an Ocserv user. @Summary Ocserv User creation
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Param request body CreateOcservUserData true "OCServ user and expiry configuration"
+// @Param request body CreateOcservUserData true "Ocserv user and expiry configuration"
 // @Success 201 {object} models.OcservUser
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
@@ -108,13 +108,13 @@ func (ctl *Controller) Create(c *echo.Context) error {
 	return c.JSON(http.StatusCreated, result)
 }
 
-// Update updates an OCServ user. @Summary Ocserv User update
+// Update updates an Ocserv user. @Summary Ocserv User update
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
 // @Param id path int true "Ocserv User ID"
-// @Param request body UpdateOcservUserData true "OCServ user and expiry changes"
+// @Param request body UpdateOcservUserData true "Ocserv user and expiry changes"
 // @Success 200 {object} models.OcservUser
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
@@ -140,8 +140,8 @@ func (ctl *Controller) Update(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// BulkUpdate updates multiple OCServ users atomically.
-// @Summary Bulk update OCServ users
+// BulkUpdate updates multiple Ocserv users atomically.
+// @Summary Bulk update Ocserv users
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
@@ -168,13 +168,13 @@ func (ctl *Controller) BulkUpdate(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// BulkDelete deletes multiple OCServ users atomically.
-// @Summary Bulk delete OCServ users
+// BulkDelete deletes multiple Ocserv users atomically.
+// @Summary Bulk delete Ocserv users
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Param request body BulkIDsRequest true "OCServ user IDs"
+// @Param request body BulkIDsRequest true "Ocserv user IDs"
 // @Success 200 {object} BulkDeleteResponse
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
@@ -196,13 +196,13 @@ func (ctl *Controller) BulkDelete(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// BulkSetEnabled enables or disables multiple OCServ users atomically.
-// @Summary Bulk enable or disable OCServ users
+// BulkSetEnabled enables or disables multiple Ocserv users atomically.
+// @Summary Bulk enable or disable Ocserv users
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Param request body BulkStatusRequest true "OCServ user IDs and enabled state"
+// @Param request body BulkStatusRequest true "Ocserv user IDs and enabled state"
 // @Success 200 {object} BulkUsersResponse
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
@@ -225,12 +225,12 @@ func (ctl *Controller) BulkSetEnabled(c *echo.Context) error {
 }
 
 // BulkSetGroup assigns a group, or removes assignment when group is empty.
-// @Summary Bulk assign or remove an OCServ group
+// @Summary Bulk assign or remove an Ocserv group
 // @Tags Ocserv(Users)
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
-// @Param request body BulkGroupRequest true "OCServ user IDs and group; empty group removes assignment"
+// @Param request body BulkGroupRequest true "Ocserv user IDs and group; empty group removes assignment"
 // @Success 200 {object} BulkUsersResponse
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
@@ -252,7 +252,7 @@ func (ctl *Controller) BulkSetGroup(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Delete deletes an OCServ user. @Summary Ocserv User delete
+// Delete deletes an Ocserv user. @Summary Ocserv User delete
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id} [delete]
@@ -271,7 +271,7 @@ func (ctl *Controller) Delete(c *echo.Context) error {
 	return c.JSON(http.StatusNoContent, nil)
 }
 
-// Lock locks an OCServ user. @Summary Ocserv User locking
+// Lock locks an Ocserv user. @Summary Ocserv User locking
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/lock [post]
@@ -290,7 +290,7 @@ func (ctl *Controller) Lock(c *echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
-// UnLock unlocks an OCServ user. @Summary Ocserv User unlocking
+// UnLock unlocks an Ocserv user. @Summary Ocserv User unlocking
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/unlock [post]
@@ -309,8 +309,8 @@ func (ctl *Controller) UnLock(c *echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
-// ResetUsage clears an OCServ user's current bandwidth counters.
-// @Summary Reset OCServ user usage
+// ResetUsage clears an Ocserv user's current bandwidth counters.
+// @Summary Reset Ocserv user usage
 // @Tags Ocserv(Users)
 // @Produce json
 // @Param Authorization header string true "Bearer TOKEN"
@@ -336,7 +336,7 @@ func (ctl *Controller) ResetUsage(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// Statistics returns OCServ user traffic statistics. @Summary Ocserv User Statistics
+// Statistics returns Ocserv user traffic statistics. @Summary Ocserv User Statistics
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/statistics [get]
@@ -421,7 +421,7 @@ func (ctl *Controller) ActivateExpired(c *echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
-// CreateCertificate creates an OCServ user certificate. @Summary Create certificate for ocserv user
+// CreateCertificate creates an Ocserv user certificate. @Summary Create certificate for ocserv user
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/certificate [post]
@@ -440,7 +440,7 @@ func (ctl *Controller) CreateCertificate(c *echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
-// DownloadCertificate downloads an OCServ user certificate. @Summary Download ocserv user certificate
+// DownloadCertificate downloads an Ocserv user certificate. @Summary Download ocserv user certificate
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/certificate [get]
@@ -461,7 +461,7 @@ func (ctl *Controller) DownloadCertificate(c *echo.Context) error {
 	return c.Attachment(path, username+".p12")
 }
 
-// SessionLogs returns an OCServ user's session logs. @Summary Ocserv User session logs
+// SessionLogs returns an Ocserv user's session logs. @Summary Ocserv User session logs
 // @Tags Ocserv(Users)
 // @Param id path int true "Ocserv User ID"
 // @Router /ocserv/users/{id}/session_logs [get]

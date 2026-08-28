@@ -1,0 +1,50 @@
+import type { MessageSchema } from '@/locales/en'
+
+export default {
+  common: {
+    appName: 'Pannello Ocserv', language: 'Lingua', loading: 'Caricamento', close: 'Chiudi', more: 'Altro',
+    breadcrumb: 'Percorso di navigazione', sidebar: 'Barra laterale', toggleSidebar: 'Attiva/disattiva barra laterale',
+    mobileSidebarDescription: 'Mostra la barra laterale su dispositivi mobili.',
+  },
+  auth: {
+    title: 'Bentornato', subtitle: "Accedi per gestire l'infrastruttura Ocserv.", failure: 'Accesso non riuscito',
+    username: 'Nome utente', usernamePlaceholder: 'admin', password: 'Password', verification: 'Verifica',
+    captchaPrompt: 'Completa il captcha prima di accedere.', rememberMe: 'Ricordami', submit: 'Accedi',
+    promoTitle: "Amministrazione sicura dell'infrastruttura",
+    promoDescription: 'Monitora sessioni, utenti, agenti e stato del sistema da un unico pannello.',
+  },
+  setup: {
+    title: 'Inizializza il pannello',
+    description: 'Configura il profilo di connessione, i criteri di conservazione e la protezione captcha opzionale.',
+    failure: 'Inizializzazione non riuscita', serverAddress: 'Indirizzo del server', serverAddressPlaceholder: 'vpn.example.com',
+    serverPort: 'Porta del server', connectionName: 'Nome connessione', defaultConnectionName: 'VPN Ocserv',
+    retention: 'Conservazione utenti inattivi', retentionHelp: 'Numero di giorni prima della rimozione degli utenti inattivi.',
+    autoDelete: 'Elimina automaticamente gli utenti inattivi', autoDeleteHelp: 'Applica automaticamente il periodo di conservazione.',
+    captchaSiteKey: 'Chiave sito captcha', captchaSecretKey: 'Chiave segreta captcha', submit: 'Salva e continua',
+    promoTitle: 'Un nuovo inizio per la tua rete privata.',
+    promoDescription: "Queste impostazioni vengono inviate direttamente all'API di sistema generata del pannello.",
+  },
+  dashboard: {
+    administration: 'Amministrazione', overview: "Panoramica dell'infrastruttura", title: 'Pannello di controllo',
+    connectedUsers: 'Utenti connessi', activeSessions: 'Sessioni attive', managedServers: 'Server gestiti',
+    activityTitle: 'Attività del servizio', activityDescription: "Le metriche appariranno qui quando i servizi segnaleranno l'attività.",
+  },
+  unavailable: {
+    title: 'Server non disponibile', description: 'Impossibile caricare la configurazione iniziale del pannello.',
+    connectionFailed: 'Connessione non riuscita', retry: 'Riprova',
+  },
+  footer: {
+    developedBy: 'Sviluppato da {developer}', with: 'con', love: 'amore', reportIssue: 'Segnala un problema',
+  },
+  navigation: {
+    search: 'Cerca', searchPlaceholder: 'Cerca nella documentazione...', documentation: 'Documentazione',
+    gettingStarted: 'Per iniziare', installation: 'Installazione', projectStructure: 'Struttura del progetto',
+    buildingApp: "Creazione dell'applicazione", routing: 'Instradamento', dataFetching: 'Recupero dati', rendering: 'Rendering',
+    caching: 'Cache', styling: 'Stili', optimizing: 'Ottimizzazione', configuring: 'Configurazione', testing: 'Test',
+    authentication: 'Autenticazione', deploying: 'Distribuzione', upgrading: 'Aggiornamento', examples: 'Esempi',
+    apiReference: 'Riferimento API', components: 'Componenti', fileConventions: 'Convenzioni dei file', functions: 'Funzioni',
+    configOptions: 'Opzioni di configurazione', cli: 'CLI', edgeRuntime: 'Runtime Edge', architecture: 'Architettura',
+    accessibility: 'Accessibilità', fastRefresh: 'Aggiornamento rapido', compiler: 'Compilatore',
+    supportedBrowsers: 'Browser supportati', turbopack: 'Turbopack',
+  },
+} satisfies MessageSchema

@@ -107,13 +107,13 @@ install_packages() {
         packages+=(postgresql)
     fi
 
-    log "installing OCServ and system dependencies"
+    log "installing Ocserv and system dependencies"
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     apt-get install -y --no-install-recommends "${packages[@]}"
 
     command -v go >/dev/null 2>&1 || die "Go is required to build backend/go.mod; install the declared Go version and rerun"
-    command -v /usr/sbin/ocserv >/dev/null 2>&1 || die "OCServ installation did not provide /usr/sbin/ocserv"
+    command -v /usr/sbin/ocserv >/dev/null 2>&1 || die "Ocserv installation did not provide /usr/sbin/ocserv"
     systemctl stop ocserv.service 2>/dev/null || true
 }
 
@@ -172,8 +172,8 @@ build_backend() {
 }
 
 setup_ocserv_host() {
-    log "configuring OCServ certificates, authentication, VPN network, and firewall"
-    # The shared setup keeps Docker and systemd OCServ layouts identical.
+    log "configuring Ocserv certificates, authentication, VPN network, and firewall"
+    # The shared setup keeps Docker and systemd Ocserv layouts identical.
     # shellcheck source=/dev/null
     (
         source "${PROJECT_ROOT}/deploy/docker/common/entrypoint.sh"
@@ -200,7 +200,7 @@ migrate_user_config_links() {
     local kept=0
     local skipped=0
 
-    log "migrating legacy empty per-user OCServ configs"
+    log "migrating legacy empty per-user Ocserv configs"
     user_rows="$(
         PGPASSWORD="${POSTGRES_PASSWORD}" PGSSLMODE="${POSTGRES_SSLMODE:-disable}" psql \
             -h "${POSTGRES_HOST}" \
@@ -209,7 +209,7 @@ migrate_user_config_links() {
             -d "${POSTGRES_DB}" \
             -AtF $'\t' \
             -c "SELECT username, \"group\" FROM ocserv_users WHERE \"group\" IS NOT NULL AND \"group\" <> '' AND \"group\" <> 'defaults' AND \"group\" <> '*';"
-    )" || die "failed to read OCServ users for filesystem migration"
+    )" || die "failed to read Ocserv users for filesystem migration"
 
     while IFS=$'\t' read -r username group; do
         [[ -n "${username}" && -n "${group}" ]] || continue
@@ -258,7 +258,7 @@ EOF
 
     cat >"${BACKEND_UNIT}" <<EOF
 [Unit]
-Description=OCServ Dashboard unified backend
+Description=Ocserv Dashboard unified backend
 After=network-online.target ocserv.service
 Wants=network-online.target
 Requires=ocserv.service
@@ -293,7 +293,7 @@ EOF
 verify_services() {
     systemctl is-active --quiet ocserv.service || {
         journalctl -u ocserv.service -n 50 --no-pager >&2 || true
-        die "OCServ failed to start"
+        die "Ocserv failed to start"
     }
     systemctl is-active --quiet ocserv-dashboard.service || {
         journalctl -u ocserv-dashboard.service -n 50 --no-pager >&2 || true

@@ -60,11 +60,11 @@ Class | Method | HTTP request | Description
 *HomeApi* | [**homeSystemStatsGet**](docs/HomeApi.md#homesystemstatsget) | **GET** /home/system-stats | Content of os system usage stats
 *OCCTLApi* | [**occtlCommandsGet**](docs/OCCTLApi.md#occtlcommandsget) | **GET** /occtl/commands | Occtl Commands
 *OCCTLApi* | [**occtlServerInfoGet**](docs/OCCTLApi.md#occtlserverinfoget) | **GET** /occtl/server_info | Server information
-*OCServAgentsApi* | [**ocservAgentsGet**](docs/OCServAgentsApi.md#ocservagentsget) | **GET** /ocserv/agents | List OCServ agents
-*OCServAgentsApi* | [**ocservAgentsIdDelete**](docs/OCServAgentsApi.md#ocservagentsiddelete) | **DELETE** /ocserv/agents/{id} | Delete OCServ agent
-*OCServAgentsApi* | [**ocservAgentsIdGet**](docs/OCServAgentsApi.md#ocservagentsidget) | **GET** /ocserv/agents/{id} | Get OCServ agent
-*OCServAgentsApi* | [**ocservAgentsIdPatch**](docs/OCServAgentsApi.md#ocservagentsidpatch) | **PATCH** /ocserv/agents/{id} | Update OCServ agent
-*OCServAgentsApi* | [**ocservAgentsPost**](docs/OCServAgentsApi.md#ocservagentspost) | **POST** /ocserv/agents | Create OCServ agent
+*OcservAgentsApi* | [**ocservAgentsGet**](docs/OcservAgentsApi.md#ocservagentsget) | **GET** /ocserv/agents | List Ocserv agents
+*OcservAgentsApi* | [**ocservAgentsIdDelete**](docs/OcservAgentsApi.md#ocservagentsiddelete) | **DELETE** /ocserv/agents/{id} | Delete Ocserv agent
+*OcservAgentsApi* | [**ocservAgentsIdGet**](docs/OcservAgentsApi.md#ocservagentsidget) | **GET** /ocserv/agents/{id} | Get Ocserv agent
+*OcservAgentsApi* | [**ocservAgentsIdPatch**](docs/OcservAgentsApi.md#ocservagentsidpatch) | **PATCH** /ocserv/agents/{id} | Update Ocserv agent
+*OcservAgentsApi* | [**ocservAgentsPost**](docs/OcservAgentsApi.md#ocservagentspost) | **POST** /ocserv/agents | Create Ocserv agent
 *OcservGroupsApi* | [**ocservGroupsDefaultsGet**](docs/OcservGroupsApi.md#ocservgroupsdefaultsget) | **GET** /ocserv/groups/defaults | Ocserv Defaults Group config
 *OcservGroupsApi* | [**ocservGroupsDefaultsPatch**](docs/OcservGroupsApi.md#ocservgroupsdefaultspatch) | **PATCH** /ocserv/groups/defaults | Update Ocserv Defaults Group
 *OcservGroupsApi* | [**ocservGroupsGet**](docs/OcservGroupsApi.md#ocservgroupsget) | **GET** /ocserv/groups | List of Ocserv groups
@@ -77,10 +77,10 @@ Class | Method | HTTP request | Description
 *OcservOcpasswdApi* | [**ocservUsersOcpasswdSyncPost**](docs/OcservOcpasswdApi.md#ocservusersocpasswdsyncpost) | **POST** /ocserv/users/ocpasswd/sync | 
 *OcservUnsyncedGroupApi* | [**ocservGroupsSyncPost**](docs/OcservUnsyncedGroupApi.md#ocservgroupssyncpost) | **POST** /ocserv/groups/sync | Ocserv Groups from file
 *OcservUnsyncedGroupApi* | [**ocservGroupsUnsyncedGet**](docs/OcservUnsyncedGroupApi.md#ocservgroupsunsyncedget) | **GET** /ocserv/groups/unsynced | list of Unsynced Groups
-*OcservUsersApi* | [**ocservUsersBulkDelete**](docs/OcservUsersApi.md#ocservusersbulkdelete) | **DELETE** /ocserv/users/bulk | Bulk delete OCServ users
-*OcservUsersApi* | [**ocservUsersBulkGroupPatch**](docs/OcservUsersApi.md#ocservusersbulkgrouppatch) | **PATCH** /ocserv/users/bulk/group | Bulk assign or remove an OCServ group
-*OcservUsersApi* | [**ocservUsersBulkPatch**](docs/OcservUsersApi.md#ocservusersbulkpatch) | **PATCH** /ocserv/users/bulk | Bulk update OCServ users
-*OcservUsersApi* | [**ocservUsersBulkStatusPatch**](docs/OcservUsersApi.md#ocservusersbulkstatuspatch) | **PATCH** /ocserv/users/bulk/status | Bulk enable or disable OCServ users
+*OcservUsersApi* | [**ocservUsersBulkDelete**](docs/OcservUsersApi.md#ocservusersbulkdelete) | **DELETE** /ocserv/users/bulk | Bulk delete Ocserv users
+*OcservUsersApi* | [**ocservUsersBulkGroupPatch**](docs/OcservUsersApi.md#ocservusersbulkgrouppatch) | **PATCH** /ocserv/users/bulk/group | Bulk assign or remove an Ocserv group
+*OcservUsersApi* | [**ocservUsersBulkPatch**](docs/OcservUsersApi.md#ocservusersbulkpatch) | **PATCH** /ocserv/users/bulk | Bulk update Ocserv users
+*OcservUsersApi* | [**ocservUsersBulkStatusPatch**](docs/OcservUsersApi.md#ocservusersbulkstatuspatch) | **PATCH** /ocserv/users/bulk/status | Bulk enable or disable Ocserv users
 *OcservUsersApi* | [**ocservUsersGet**](docs/OcservUsersApi.md#ocservusersget) | **GET** /ocserv/users | 
 *OcservUsersApi* | [**ocservUsersIdActivatePost**](docs/OcservUsersApi.md#ocservusersidactivatepost) | **POST** /ocserv/users/{id}/activate | 
 *OcservUsersApi* | [**ocservUsersIdCertificateGet**](docs/OcservUsersApi.md#ocservusersidcertificateget) | **GET** /ocserv/users/{id}/certificate | 
@@ -90,7 +90,7 @@ Class | Method | HTTP request | Description
 *OcservUsersApi* | [**ocservUsersIdGet**](docs/OcservUsersApi.md#ocservusersidget) | **GET** /ocserv/users/{id} | 
 *OcservUsersApi* | [**ocservUsersIdLockPost**](docs/OcservUsersApi.md#ocservusersidlockpost) | **POST** /ocserv/users/{id}/lock | 
 *OcservUsersApi* | [**ocservUsersIdPatch**](docs/OcservUsersApi.md#ocservusersidpatch) | **PATCH** /ocserv/users/{id} | 
-*OcservUsersApi* | [**ocservUsersIdResetUsagePost**](docs/OcservUsersApi.md#ocservusersidresetusagepost) | **POST** /ocserv/users/{id}/reset-usage | Reset OCServ user usage
+*OcservUsersApi* | [**ocservUsersIdResetUsagePost**](docs/OcservUsersApi.md#ocservusersidresetusagepost) | **POST** /ocserv/users/{id}/reset-usage | Reset Ocserv user usage
 *OcservUsersApi* | [**ocservUsersIdSessionLogsGet**](docs/OcservUsersApi.md#ocservusersidsessionlogsget) | **GET** /ocserv/users/{id}/session_logs | 
 *OcservUsersApi* | [**ocservUsersIdStatisticsGet**](docs/OcservUsersApi.md#ocservusersidstatisticsget) | **GET** /ocserv/users/{id}/statistics | 
 *OcservUsersApi* | [**ocservUsersIdTerminateByIdPost**](docs/OcservUsersApi.md#ocservusersidterminatebyidpost) | **POST** /ocserv/users/{id}/terminate_by_id | 
@@ -104,14 +104,14 @@ Class | Method | HTTP request | Description
 *ReportApi* | [**reportsUsersGet**](docs/ReportApi.md#reportsusersget) | **GET** /reports/users | Result of all user reports
 *SystemApi* | [**systemGet**](docs/SystemApi.md#systemget) | **GET** /system | Get panel System Config
 *SystemApi* | [**systemInitGet**](docs/SystemApi.md#systeminitget) | **GET** /system/init | Get panel System init Config
-*SystemApi* | [**systemOcservConfigGet**](docs/SystemApi.md#systemocservconfigget) | **GET** /system/ocserv-config | Get structured OCServ configuration
-*SystemApi* | [**systemOcservConfigPatch**](docs/SystemApi.md#systemocservconfigpatch) | **PATCH** /system/ocserv-config | Update structured OCServ configuration
+*SystemApi* | [**systemOcservConfigGet**](docs/SystemApi.md#systemocservconfigget) | **GET** /system/ocserv-config | Get structured Ocserv configuration
+*SystemApi* | [**systemOcservConfigPatch**](docs/SystemApi.md#systemocservconfigpatch) | **PATCH** /system/ocserv-config | Update structured Ocserv configuration
 *SystemApi* | [**systemPatch**](docs/SystemApi.md#systempatch) | **PATCH** /system | Update panel System Config
 *SystemApi* | [**systemReleaseGet**](docs/SystemApi.md#systemreleaseget) | **GET** /system/release | Get Dashboard the current and latest release
-*SystemApi* | [**systemdDisablePost**](docs/SystemApi.md#systemddisablepost) | **POST** /systemd/disable | Disable OCServ runtime
-*SystemApi* | [**systemdEnablePost**](docs/SystemApi.md#systemdenablepost) | **POST** /systemd/enable | Enable OCServ runtime
-*SystemApi* | [**systemdRestartPost**](docs/SystemApi.md#systemdrestartpost) | **POST** /systemd/restart | Restart OCServ runtime
-*SystemApi* | [**systemdStatusGet**](docs/SystemApi.md#systemdstatusget) | **GET** /systemd/status | OCServ runtime status
+*SystemApi* | [**systemdDisablePost**](docs/SystemApi.md#systemddisablepost) | **POST** /systemd/disable | Disable Ocserv runtime
+*SystemApi* | [**systemdEnablePost**](docs/SystemApi.md#systemdenablepost) | **POST** /systemd/enable | Enable Ocserv runtime
+*SystemApi* | [**systemdRestartPost**](docs/SystemApi.md#systemdrestartpost) | **POST** /systemd/restart | Restart Ocserv runtime
+*SystemApi* | [**systemdStatusGet**](docs/SystemApi.md#systemdstatusget) | **GET** /systemd/status | Ocserv runtime status
 *SystemBackupApi* | [**backupOcservGroupsGet**](docs/SystemBackupApi.md#backupocservgroupsget) | **GET** /backup/ocserv_groups | Backup ocserv groups
 *SystemBackupApi* | [**backupOcservUsersGet**](docs/SystemBackupApi.md#backupocservusersget) | **GET** /backup/ocserv_users | Backup ocserv users
 *SystemRestoreApi* | [**backupOcservGroupsPost**](docs/SystemRestoreApi.md#backupocservgroupspost) | **POST** /backup/ocserv_groups | Restore ocserv groups
