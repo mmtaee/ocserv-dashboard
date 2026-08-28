@@ -1,6 +1,6 @@
-import type { AxiosInstance } from 'axios'
+import type { AxiosInstance } from "axios";
 
-import { apiBaseUrl, httpClient } from '@/api/http'
+import { apiBaseUrl, httpClient } from "@/api/http";
 import {
   AuthApi,
   Configuration,
@@ -17,20 +17,20 @@ import {
   SystemRestoreApi,
   SystemUserApi,
   SystemUsersApi,
-} from '@/api/generated'
+} from "@/api/generated";
 
 type GeneratedApiConstructor<T> = new (
   configuration?: Configuration,
   basePath?: string,
   axios?: AxiosInstance,
-) => T
+) => T;
 
 export const apiConfiguration = new Configuration({
   basePath: apiBaseUrl,
-})
+});
 
 export function createGeneratedApi<T>(Api: GeneratedApiConstructor<T>): T {
-  return new Api(apiConfiguration, apiBaseUrl, httpClient)
+  return new Api(apiConfiguration, apiBaseUrl, httpClient);
 }
 
 export const api = {
@@ -48,4 +48,4 @@ export const api = {
   restore: createGeneratedApi(SystemRestoreApi),
   systemUser: createGeneratedApi(SystemUserApi),
   systemUsers: createGeneratedApi(SystemUsersApi),
-} as const
+} as const;

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { SidebarIcon } from "@lucide/vue"
-import { useI18n } from 'vue-i18n'
+import { SidebarIcon } from "@lucide/vue";
+import { useI18n } from "vue-i18n";
 
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
-import SearchForm from '@/components/SearchForm.vue'
+import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
+import SearchForm from "@/components/SearchForm.vue";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,17 +11,19 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useSidebar } from '@/components/ui/sidebar'
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useSidebar } from "@/components/ui/sidebar";
 
-const { toggleSidebar } = useSidebar()
-const { t } = useI18n({ useScope: 'global' })
+const { toggleSidebar } = useSidebar();
+const { t } = useI18n({ useScope: "global" });
 </script>
 
 <template>
-  <header class="bg-background sticky top-0 z-50 flex w-full items-center border-b">
+  <header
+    class="bg-background sticky top-0 z-50 flex w-full items-center border-b"
+  >
     <div class="flex h-(--header-height) w-full items-center gap-2 px-4">
       <Button
         class="size-8"
@@ -37,12 +39,12 @@ const { t } = useI18n({ useScope: 'global' })
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/">
-              {{ t('common.appName') }}
+              {{ t("common.appName") }}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{{ t('dashboard.title') }}</BreadcrumbPage>
+            <BreadcrumbPage>{{ t("dashboard.title") }}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

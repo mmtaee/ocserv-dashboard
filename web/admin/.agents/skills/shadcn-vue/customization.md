@@ -124,7 +124,7 @@ module.exports = {
       },
     },
   },
-}
+};
 ```
 
 ```html
@@ -149,9 +149,7 @@ Prefer these approaches in order:
 ### 1. Built-in variants
 
 ```html
-<Button variant="outline" size="sm">
-  Click
-</Button>
+<button variant="outline" size="sm">Click</button>
 ```
 
 ### 2. Tailwind classes via `class`

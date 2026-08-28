@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
-import {
-  Avatar,
-  AvatarFallback,
-} from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
+} from "@/components/ui/sidebar";
 
 const props = defineProps<{
   user: {
-    name: string
-    detail: string
-  }
-}>()
+    name: string;
+    detail: string;
+  };
+}>();
 
-const initials = computed(() => props.user.name.slice(0, 2).toLocaleUpperCase())
+const initials = computed(() =>
+  props.user.name.slice(0, 2).toLocaleUpperCase(),
+);
 </script>
 
 <template>

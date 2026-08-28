@@ -24,18 +24,18 @@ npx shadcn-vue@latest init [components...] [options]
 
 Initializes shadcn-vue in an existing project or creates a new project (when `--name` is provided). Optionally installs components in the same step.
 
-| Flag                    | Short | Description                                         | Default |
-| ----------------------- | ----- | --------------------------------------------------- | ------- |
-| `--template <template>` | `-t`  | Template (nuxt, vite, astro, laravel)               | —       |
-| `--preset [name]`       | `-p`  | Preset configuration (named, code, or URL)          | —       |
-| `--yes`                 | `-y`  | Skip confirmation prompt                            | `true`  |
+| Flag                    | Short | Description                                    | Default |
+| ----------------------- | ----- | ---------------------------------------------- | ------- |
+| `--template <template>` | `-t`  | Template (nuxt, vite, astro, laravel)          | —       |
+| `--preset [name]`       | `-p`  | Preset configuration (named, code, or URL)     | —       |
+| `--yes`                 | `-y`  | Skip confirmation prompt                       | `true`  |
 | `--defaults`            | `-d`  | Use defaults (`--template=nuxt --preset=nova`) | `false` |
-| `--force`               | `-f`  | Force overwrite existing configuration              | `false` |
-| `--cwd <cwd>`           | `-c`  | Working directory                                   | current |
-| `--name <name>`         | `-n`  | Name for new project                                | —       |
-| `--silent`              | `-s`  | Mute output                                         | `false` |
-| `--rtl`                 |       | Enable RTL support                                  | —       |
-| `--reinstall`           |       | Re-install existing UI components                   | `false` |
+| `--force`               | `-f`  | Force overwrite existing configuration         | `false` |
+| `--cwd <cwd>`           | `-c`  | Working directory                              | current |
+| `--name <name>`         | `-n`  | Name for new project                           | —       |
+| `--silent`              | `-s`  | Mute output                                    | `false` |
+| `--rtl`                 |       | Enable RTL support                             | —       |
+| `--reinstall`           |       | Re-install existing UI components              | `false` |
 
 `npx shadcn-vue@latest create` is an alias for `npx shadcn-vue@latest init`.
 
@@ -67,14 +67,14 @@ npx shadcn-vue@latest add [components...] [options]
 
 Accepts component names, registry-prefixed names (`@magicui/shimmer-button`), URLs, or local paths.
 
-| Flag            | Short | Description                                                                                                          | Default |
-| --------------- | ----- | -------------------------------------------------------------------------------------------------------------------- | ------- |
-| `--yes`         | `-y`  | Skip confirmation prompt                                                                                             | `false` |
-| `--overwrite`   | `-o`  | Overwrite existing files                                                                                             | `false` |
-| `--cwd <cwd>`   | `-c`  | Working directory                                                                                                    | current |
-| `--all`         | `-a`  | Add all available components                                                                                         | `false` |
-| `--path <path>` | `-p`  | Target path for the component                                                                                        | —       |
-| `--silent`      | `-s`  | Mute output                                                                                                          | `false` |
+| Flag            | Short | Description                   | Default |
+| --------------- | ----- | ----------------------------- | ------- |
+| `--yes`         | `-y`  | Skip confirmation prompt      | `false` |
+| `--overwrite`   | `-o`  | Overwrite existing files      | `false` |
+| `--cwd <cwd>`   | `-c`  | Working directory             | current |
+| `--all`         | `-a`  | Add all available components  | `false` |
+| `--path <path>` | `-p`  | Target path for the component | —       |
+| `--silent`      | `-s`  | Mute output                   | `false` |
 
 #### Smart Merge from Upstream
 
@@ -157,21 +157,21 @@ Displays project info and `components.json` configuration. Run this first to dis
 
 **Components.json fields:**
 
-| Field                | Type      | Meaning                                                                                     |
-| -------------------- | --------- | --------------------------------------------------------------------------------------------|
-| `base`               | `string`  | Primitive library (`reka`) — determines component APIs and available props                  |
-| `style`              | `string`  | Visual style (e.g. `nova`, `vega`)                                                          |
-| `typescript`         | `boolean` | TypeScript flag                                                                             |
-| `tailwind.config`    | `string`  | Tailwind config path                                                                        |
-| `tailwind.css`       | `string`  | Global CSS path — this is where custom CSS variables go                                     |
-| `iconLibrary`        | `string`  | Icon library — determines icon import package (e.g. `@lucide/vue`, `@tabler/icons-vue`) |
-| `aliases.components` | `string`  | Component import alias (e.g. `@/components`)                                                |
-| `aliases.utils`      | `string`  | Utils import alias (e.g. `@/lib/utils`)                                                     |
-| `aliases.ui`         | `string`  | UI component alias (e.g. `@/components/ui`)                                                 |
-| `aliases.lib`        | `string`  | Lib alias (e.g. `@/lib`)                                                                    |
-| `aliases.composables`| `string`  | Composables/Hooks alias (e.g. `@/composables`)                                              |
-| `resolvedPaths`      | `object`  | Absolute file-system paths for each alias                                                   |
-| `registries`         | `object`  | Configured custom registries                                                                |
+| Field                 | Type      | Meaning                                                                                 |
+| --------------------- | --------- | --------------------------------------------------------------------------------------- |
+| `base`                | `string`  | Primitive library (`reka`) — determines component APIs and available props              |
+| `style`               | `string`  | Visual style (e.g. `nova`, `vega`)                                                      |
+| `typescript`          | `boolean` | TypeScript flag                                                                         |
+| `tailwind.config`     | `string`  | Tailwind config path                                                                    |
+| `tailwind.css`        | `string`  | Global CSS path — this is where custom CSS variables go                                 |
+| `iconLibrary`         | `string`  | Icon library — determines icon import package (e.g. `@lucide/vue`, `@tabler/icons-vue`) |
+| `aliases.components`  | `string`  | Component import alias (e.g. `@/components`)                                            |
+| `aliases.utils`       | `string`  | Utils import alias (e.g. `@/lib/utils`)                                                 |
+| `aliases.ui`          | `string`  | UI component alias (e.g. `@/components/ui`)                                             |
+| `aliases.lib`         | `string`  | Lib alias (e.g. `@/lib`)                                                                |
+| `aliases.composables` | `string`  | Composables/Hooks alias (e.g. `@/composables`)                                          |
+| `resolvedPaths`       | `object`  | Absolute file-system paths for each alias                                               |
+| `registries`          | `object`  | Configured custom registries                                                            |
 
 **Links fields:**
 
@@ -194,12 +194,12 @@ Builds `registry.json` into individual JSON files for distribution. Default inpu
 
 ## Templates
 
-| Value   | Framework |
-| ------- | --------- |
-| `nuxt`  | Nuxt      |
-| `vite`  | Vite      |
-| `astro` | Astro     |
-| `laravel` | Laravel |
+| Value     | Framework |
+| --------- | --------- |
+| `nuxt`    | Nuxt      |
+| `vite`    | Vite      |
+| `astro`   | Astro     |
+| `laravel` | Laravel   |
 
 ---
 

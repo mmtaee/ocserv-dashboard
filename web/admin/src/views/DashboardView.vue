@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-import AppSidebar from '@/components/AppSidebar.vue'
-import SiteHeader from '@/components/SiteHeader.vue'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { isRtlLocale } from '@/locales'
+import AppSidebar from "@/components/AppSidebar.vue";
+import SiteHeader from "@/components/SiteHeader.vue";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { isRtlLocale } from "@/locales";
 
-const { locale, t } = useI18n({ useScope: 'global' })
-const sidebarSide = computed(() => isRtlLocale(locale.value) ? 'right' : 'left')
+const { locale, t } = useI18n({ useScope: "global" });
+const sidebarSide = computed(() =>
+  isRtlLocale(locale.value) ? "right" : "left",
+);
 const summaryCards = computed(() => [
-  t('dashboard.connectedUsers'),
-  t('dashboard.activeSessions'),
-  t('dashboard.managedServers'),
-])
+  t("dashboard.connectedUsers"),
+  t("dashboard.activeSessions"),
+  t("dashboard.managedServers"),
+]);
 </script>
 
 <template>
@@ -25,16 +27,28 @@ const summaryCards = computed(() => [
       <div class="flex min-h-0 flex-1">
         <AppSidebar :side="sidebarSide" collapsible="icon" />
         <SidebarInset>
-          <main class="flex flex-1 flex-col gap-6 p-4 pb-14 lg:p-6 lg:pb-14" aria-busy="true">
+          <main
+            class="flex flex-1 flex-col gap-6 p-4 pb-14 lg:p-6 lg:pb-14"
+            aria-busy="true"
+          >
             <div>
-              <h1 class="text-2xl font-semibold tracking-tight">{{ t('dashboard.overview') }}</h1>
-              <p class="text-sm text-muted-foreground">{{ t('dashboard.activityDescription') }}</p>
+              <h1 class="text-2xl font-semibold tracking-tight">
+                {{ t("dashboard.overview") }}
+              </h1>
+              <p class="text-sm text-muted-foreground">
+                {{ t("dashboard.activityDescription") }}
+              </p>
             </div>
 
-            <section class="grid gap-4 md:grid-cols-3" :aria-label="t('dashboard.overview')">
+            <section
+              class="grid gap-4 md:grid-cols-3"
+              :aria-label="t('dashboard.overview')"
+            >
               <Card v-for="label in summaryCards" :key="label">
                 <CardHeader class="gap-2 pb-2">
-                  <span class="text-sm font-medium text-muted-foreground">{{ label }}</span>
+                  <span class="text-sm font-medium text-muted-foreground">{{
+                    label
+                  }}</span>
                   <Skeleton class="h-8 w-20" />
                 </CardHeader>
                 <CardContent>
@@ -46,7 +60,9 @@ const summaryCards = computed(() => [
             <Card class="min-h-72 flex-1">
               <CardHeader>
                 <div class="grid gap-2">
-                  <span class="font-semibold">{{ t('dashboard.activityTitle') }}</span>
+                  <span class="font-semibold">{{
+                    t("dashboard.activityTitle")
+                  }}</span>
                   <Skeleton class="h-4 w-64 max-w-full" />
                 </div>
               </CardHeader>

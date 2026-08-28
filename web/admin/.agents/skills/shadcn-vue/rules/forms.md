@@ -52,7 +52,7 @@ Never use raw `Input` or `Textarea` inside an `InputGroup`.
 
 ```html
 <InputGroup>
-  <Input placeholder="Search..." />
+  <input placeholder="Search..." />
 </InputGroup>
 ```
 
@@ -80,10 +80,10 @@ Never place a `Button` directly inside or adjacent to an `Input` with custom pos
 
 ```html
 <div class="relative">
-  <Input placeholder="Search..." class="pr-10" />
-  <Button class="absolute right-0 top-0" size="icon">
+  <input placeholder="Search..." class="pr-10" />
+  <button class="absolute right-0 top-0" size="icon">
     <SearchIcon />
-  </Button>
+  </button>
 </div>
 ```
 
@@ -163,7 +163,6 @@ Combine with `Field` for labelled toggle groups:
 </Field>
 ```
 
-
 ---
 
 ## FieldSet + FieldLegend for grouping related fields
@@ -171,7 +170,7 @@ Combine with `Field` for labelled toggle groups:
 Use `FieldSet` + `FieldLegend` for related checkboxes, radios, or switches — not `div` with a heading:
 
 ```html
-<FieldSet>
+<fieldset>
   <FieldLegend variant="label">Preferences</FieldLegend>
   <FieldDescription>Select all that apply.</FieldDescription>
   <FieldGroup class="gap-3">
@@ -180,7 +179,7 @@ Use `FieldSet` + `FieldLegend` for related checkboxes, radios, or switches — n
       <FieldLabel for="dark" class="font-normal">Dark mode</FieldLabel>
     </Field>
   </FieldGroup>
-</FieldSet>
+</fieldset>
 ```
 
 ---
@@ -193,14 +192,14 @@ Both attributes are needed — `data-invalid`/`data-disabled` styles the field (
 <!-- Invalid. -->
 <Field data-invalid>
   <FieldLabel for="email">Email</FieldLabel>
-  <Input id="email" aria-invalid />
+  <input id="email" aria-invalid />
   <FieldDescription>Invalid email address.</FieldDescription>
 </Field>
 
 <!-- Disabled. -->
 <Field data-disabled>
   <FieldLabel for="email">Email</FieldLabel>
-  <Input id="email" disabled />
+  <input id="email" disabled />
 </Field>
 ```
 

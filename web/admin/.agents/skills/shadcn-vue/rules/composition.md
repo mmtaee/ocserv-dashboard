@@ -44,13 +44,13 @@ Never render items directly inside the content container.
 
 This applies to all group-based components:
 
-| Item | Group |
-|------|-------|
-| `SelectItem`, `SelectLabel` | `SelectGroup` |
+| Item                                                       | Group               |
+| ---------------------------------------------------------- | ------------------- |
+| `SelectItem`, `SelectLabel`                                | `SelectGroup`       |
 | `DropdownMenuItem`, `DropdownMenuLabel`, `DropdownMenuSub` | `DropdownMenuGroup` |
-| `MenubarItem` | `MenubarGroup` |
-| `ContextMenuItem` | `ContextMenuGroup` |
-| `CommandItem` | `CommandGroup` |
+| `MenubarItem`                                              | `MenubarGroup`      |
+| `ContextMenuItem`                                          | `ContextMenuGroup`  |
+| `CommandItem`                                              | `CommandGroup`      |
 
 ---
 
@@ -75,7 +75,7 @@ This applies to all group-based components:
     <EmptyDescription>Get started by creating a new project.</EmptyDescription>
   </EmptyHeader>
   <EmptyContent>
-    <Button>Create Project</Button>
+    <button>Create Project</button>
   </EmptyContent>
 </Empty>
 ```
@@ -100,14 +100,14 @@ toast("File deleted.", {
 
 ## Choosing between overlay components
 
-| Use case | Component |
-|----------|-----------|
-| Focused task that requires input | `Dialog` |
-| Destructive action confirmation | `AlertDialog` |
-| Side panel with details or filters | `Sheet` |
-| Mobile-first bottom panel | `Drawer` |
-| Quick info on hover | `HoverCard` |
-| Small contextual content on click | `Popover` |
+| Use case                           | Component     |
+| ---------------------------------- | ------------- |
+| Focused task that requires input   | `Dialog`      |
+| Destructive action confirmation    | `AlertDialog` |
+| Side panel with details or filters | `Sheet`       |
+| Mobile-first bottom panel          | `Drawer`      |
+| Quick info on hover                | `HoverCard`   |
+| Small contextual content on click  | `Popover`     |
 
 ---
 
@@ -139,7 +139,7 @@ Use full composition — don't dump everything into `CardContent`:
   </CardHeader>
   <CardContent>...</CardContent>
   <CardFooter>
-    <Button>Invite</Button>
+    <button>Invite</button>
   </CardFooter>
 </Card>
 ```
@@ -151,10 +151,10 @@ Use full composition — don't dump everything into `CardContent`:
 Compose with `Spinner` + `data-icon` + `disabled`:
 
 ```html
-<Button disabled>
+<button disabled>
   <Spinner data-icon="inline-start" />
   Saving...
-</Button>
+</button>
 ```
 
 ---
@@ -190,8 +190,8 @@ Always include `AvatarFallback` for when the image fails to load:
 
 ## Use existing components instead of custom markup
 
-| Instead of | Use |
-|---|---|
-| `<hr>` or `<div class="border-t">` | `<Separator />` |
+| Instead of                                     | Use                              |
+| ---------------------------------------------- | -------------------------------- |
+| `<hr>` or `<div class="border-t">`             | `<Separator />`                  |
 | `<div class="animate-pulse">` with styled divs | `<Skeleton class="h-4 w-3/4" />` |
-| `<span class="rounded-full bg-green-100 ...">` | `<Badge variant="secondary">` |
+| `<span class="rounded-full bg-green-100 ...">` | `<Badge variant="secondary">`    |

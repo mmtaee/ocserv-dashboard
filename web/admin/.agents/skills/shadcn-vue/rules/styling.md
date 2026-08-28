@@ -65,15 +65,15 @@ If you need a success/positive color that doesn't exist as a semantic token, use
 **Incorrect:**
 
 ```html
-<Button class="border border-input bg-transparent hover:bg-accent">
+<button class="border border-input bg-transparent hover:bg-accent">
   Click me
-</Button>
+</button>
 ```
 
 **Correct:**
 
 ```html
-<Button variant="outline">Click me</Button>
+<button variant="outline">Click me</button>
 ```
 
 ---
@@ -99,6 +99,7 @@ Use `class` for layout (e.g. `max-w-md`, `mx-auto`, `mt-4`), **not** for overrid
 ```
 
 To customize a component's appearance, prefer these approaches in order:
+
 1. **Built-in variants** — `variant="outline"`, `variant="destructive"`, etc.
 2. **Semantic color tokens** — `bg-primary`, `text-muted-foreground`.
 3. **CSS variables** — define custom colors in the global CSS file (see [customization.md](../customization.md)).
@@ -111,9 +112,9 @@ Use `gap-*` instead. `space-y-4` → `flex flex-col gap-4`. `space-x-2` → `fle
 
 ```html
 <div class="flex flex-col gap-4">
-  <Input />
-  <Input />
-  <Button>Submit</Button>
+  <input />
+  <input />
+  <button>Submit</button>
 </div>
 ```
 
@@ -144,7 +145,9 @@ Use the `cn()` utility from the project for conditional or merged class names. D
 **Incorrect:**
 
 ```html
-<div :class="`flex items-center ${isActive ? 'bg-primary text-primary-foreground' : 'bg-muted'}`">
+<div
+  :class="`flex items-center ${isActive ? 'bg-primary text-primary-foreground' : 'bg-muted'}`"
+></div>
 ```
 
 **Correct:**

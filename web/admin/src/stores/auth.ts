@@ -1,57 +1,67 @@
-import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
 
-import { clearAccessToken, getAccessToken } from '@/api/auth-token'
+import { clearAccessToken, getAccessToken } from "@/api/auth-token";
 import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
   ModelsUser,
-} from '@/api/generated'
-import { normalizeApiError } from '@/api/http'
-import { getCurrentUser, login } from '@/api/services/auth'
+} from "@/api/generated";
+import { normalizeApiError } from "@/api/http";
+import { getCurrentUser, login } from "@/api/services/auth";
 
-export const useAuthStore = defineStore('auth', () => {
-  const user = ref<ModelsUser | null>(null)
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-  const isAuthenticated = computed(() => Boolean(user.value && getAccessToken()))
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref<ModelsUser | null>(null);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
+  const isAuthenticated = computed(() =>
+    Boolean(user.value && getAccessToken()),
+  );
 
   function clearSession(): void {
-    clearAccessToken()
-    user.value = null
+    clearAccessToken();
+    user.value = null;
   }
 
   async function signIn(
     credentials: GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemLoginData,
   ): Promise<boolean> {
-    isLoading.value = true
-    error.value = null
+    isLoading.value = true;
+    error.value = null;
     try {
-      await login(credentials)
-      user.value = await getCurrentUser()
-      return true
+      await login(credentials);
+      user.value = await getCurrentUser();
+      return true;
     } catch (cause) {
-      clearSession()
-      error.value = normalizeApiError(cause).message
-      return false
+      clearSession();
+      error.value = normalizeApiError(cause).message;
+      return false;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 
   async function restoreSession(): Promise<boolean> {
-    if (!getAccessToken()) return false
-    isLoading.value = true
-    error.value = null
+    if (!getAccessToken()) return false;
+    isLoading.value = true;
+    error.value = null;
     try {
-      user.value = await getCurrentUser()
-      return true
+      user.value = await getCurrentUser();
+      return true;
     } catch {
-      clearSession()
-      return false
+      clearSession();
+      return false;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 
-  return { clearSession, error, isAuthenticated, isLoading, restoreSession, signIn, user }
-})
+  return {
+    clearSession,
+    error,
+    isAuthenticated,
+    isLoading,
+    restoreSession,
+    signIn,
+    user,
+  };
+});

@@ -87,34 +87,44 @@ These are the most common patterns that differentiate correct shadcn-vue code. F
 <FieldGroup>
   <Field>
     <FieldLabel for="email">Email</FieldLabel>
-    <Input id="email" />
+    <input id="email" />
   </Field>
 </FieldGroup>
 
 <!-- Validation: data-invalid on Field, aria-invalid on the control. -->
 <Field data-invalid>
   <FieldLabel>Email</FieldLabel>
-  <Input aria-invalid />
+  <input aria-invalid />
   <FieldDescription>Invalid email.</FieldDescription>
 </Field>
 
 <!-- Icons in buttons: data-icon, no sizing classes. -->
-<Button>
+<button>
   <SearchIcon data-icon="inline-start" />
   Search
-</Button>
+</button>
 
 <!-- Spacing: gap-*, not space-y-*. -->
-<div class="flex flex-col gap-4">  <!-- correct -->
-<div class="space-y-4">           <!-- wrong -->
+<div class="flex flex-col gap-4">
+  <!-- correct -->
+  <div class="space-y-4">
+    <!-- wrong -->
 
-<!-- Equal dimensions: size-*, not w-* h-*. -->
-<Avatar class="size-10">   <!-- correct -->
-<Avatar class="w-10 h-10"> <!-- wrong -->
+    <!-- Equal dimensions: size-*, not w-* h-*. -->
+    <Avatar class="size-10">
+      <!-- correct -->
+      <Avatar class="w-10 h-10">
+        <!-- wrong -->
 
-<!-- Status colors: Badge variants or semantic tokens, not raw colors. -->
-<Badge variant="secondary">+20.1%</Badge>    <!-- correct -->
-<span class="text-emerald-600">+20.1%</span> <!-- wrong -->
+        <!-- Status colors: Badge variants or semantic tokens, not raw colors. -->
+        <Badge variant="secondary">+20.1%</Badge>
+        <!-- correct -->
+        <span class="text-emerald-600">+20.1%</span>
+        <!-- wrong --></Avatar
+      ></Avatar
+    >
+  </div>
+</div>
 ```
 
 ## Component Selection
@@ -127,7 +137,7 @@ These are the most common patterns that differentiate correct shadcn-vue code. F
 | Data display               | `Table`, `Card`, `Badge`, `Avatar`                                                                  |
 | Navigation                 | `Sidebar`, `NavigationMenu`, `Breadcrumb`, `Tabs`, `Pagination`                                     |
 | Overlays                   | `Dialog` (modal), `Sheet` (side panel), `Drawer` (bottom sheet), `AlertDialog` (confirmation)       |
-| Feedback                   | `vue-sonner` (toast), `Alert`, `Progress`, `Skeleton`, `Spinner`                                   |
+| Feedback                   | `vue-sonner` (toast), `Alert`, `Progress`, `Skeleton`, `Spinner`                                    |
 | Command palette            | `Command` inside `Dialog`                                                                           |
 | Charts                     | `Chart` (wraps Unovis)                                                                              |
 | Layout                     | `Card`, `Separator`, `Resizable`, `ScrollArea`, `Accordion`, `Collapsible`                          |

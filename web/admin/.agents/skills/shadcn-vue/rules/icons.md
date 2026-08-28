@@ -11,24 +11,24 @@ Add `data-icon="inline-start"` (prefix) or `data-icon="inline-end"` (suffix) to 
 **Incorrect:**
 
 ```html
-<Button>
+<button>
   <SearchIcon class="mr-2 size-4" />
   Search
-</Button>
+</button>
 ```
 
 **Correct:**
 
 ```html
-<Button>
-  <SearchIcon data-icon="inline-start"/>
+<button>
+  <SearchIcon data-icon="inline-start" />
   Search
-</Button>
+</button>
 
-<Button>
+<button>
   Next
-  <ArrowRightIcon data-icon="inline-end"/>
-</Button>
+  <ArrowRightIcon data-icon="inline-end" />
+</button>
 ```
 
 ---
@@ -40,10 +40,10 @@ Components handle icon sizing via CSS. Don't add `size-4`, `w-4 h-4`, or other s
 **Incorrect:**
 
 ```html
-<Button>
+<button>
   <SearchIcon class="size-4" data-icon="inline-start" />
   Search
-</Button>
+</button>
 
 <DropdownMenuItem>
   <SettingsIcon class="mr-2 size-4" />
@@ -54,10 +54,10 @@ Components handle icon sizing via CSS. Don't add `size-4`, `w-4 h-4`, or other s
 **Correct:**
 
 ```html
-<Button>
+<button>
   <SearchIcon data-icon="inline-start" />
   Search
-</Button>
+</button>
 
 <DropdownMenuItem>
   <SettingsIcon />
