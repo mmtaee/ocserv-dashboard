@@ -317,6 +317,12 @@ The UI can access the API at:
 http://localhost:8080
 ```
 
+Swagger UI is available at:
+
+```text
+http://localhost:8080/swagger/index.html
+```
+
 The development PostgreSQL server is available locally at `127.0.0.1:5435`.
 
 ### Standalone development container
@@ -401,6 +407,12 @@ Health check:
 
 ```bash
 curl -fsS http://127.0.0.1:8080/health
+```
+
+Open API documentation:
+
+```text
+http://127.0.0.1:8080/swagger/index.html
 ```
 
 Stop the production stack:

@@ -137,6 +137,8 @@ definitions:
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse:
     properties:
+      first_init:
+        type: boolean
       google_captcha_site_key:
         type: string
       telegram_bot_enabled:
@@ -152,6 +154,8 @@ definitions:
         type: string
       client_profile_server_port:
         type: integer
+      first_init:
+        type: boolean
       google_captcha_secret_key:
         type: string
       google_captcha_site_key:

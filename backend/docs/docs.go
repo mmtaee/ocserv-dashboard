@@ -3205,6 +3205,9 @@ const docTemplate = `{
         "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse": {
             "type": "object",
             "properties": {
+                "first_init": {
+                    "type": "boolean"
+                },
                 "google_captcha_site_key": {
                     "type": "string"
                 },
@@ -3227,6 +3230,9 @@ const docTemplate = `{
                 },
                 "client_profile_server_port": {
                     "type": "integer"
+                },
+                "first_init": {
+                    "type": "boolean"
                 },
                 "google_captcha_secret_key": {
                     "type": "string"

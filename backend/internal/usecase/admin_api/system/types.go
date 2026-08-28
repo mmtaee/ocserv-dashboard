@@ -19,9 +19,11 @@ type Options struct {
 type GetSystemInitResponse struct {
 	GoogleCaptchaSiteKey string `json:"google_captcha_site_key" validate:"omitempty"`
 	TelegramBotEnabled   bool   `json:"telegram_bot_enabled" validate:"omitempty"`
+	FirstInit            bool   `json:"first_init" validate:"omitempty"`
 }
 
 type GetSystemResponse struct {
+	FirstInit                   bool   `json:"first_init" validate:"omitempty"`
 	GoogleCaptchaSiteKey        string `json:"google_captcha_site_key" validate:"omitempty"`
 	GoogleCaptchaSecretKey      string `json:"google_captcha_secret_key" validate:"omitempty"`
 	AutoDeleteInactiveUsers     bool   `json:"auto_delete_inactive_users" validate:"omitempty"`

@@ -1,20 +1,15 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
-import vuetify from 'vite-plugin-vuetify'
 
+// https://vite.dev/config/
 export default defineConfig({
-  base: '/admin/',
-  plugins: [vue(), vuetify({ autoImport: true })],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
     },
-  },
-  server: {
-    port: 5173,
-    fs: { allow: ['..'] },
   },
 })

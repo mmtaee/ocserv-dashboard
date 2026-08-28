@@ -43,6 +43,7 @@ func (s *SystemRepository) SystemUpdate(ctx context.Context, system *models.Syst
 		Where("id = ?", latest.ID).
 		Updates(
 			map[string]interface{}{
+				"first_init":                     system.FirstInit,
 				"google_captcha_secret_key":      system.GoogleCaptchaSecretKey,
 				"google_captcha_site_key":        system.GoogleCaptchaSiteKey,
 				"auto_delete_inactive_users":     system.AutoDeleteInactiveUsers,

@@ -18,7 +18,11 @@ func (u *Usecase) Init(ctx context.Context) (*GetSystemInitResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &GetSystemInitResponse{GoogleCaptchaSiteKey: settings.GoogleCaptchaSiteKey, TelegramBotEnabled: u.telegramEnabled}, nil
+	return &GetSystemInitResponse{
+		GoogleCaptchaSiteKey: settings.GoogleCaptchaSiteKey,
+		TelegramBotEnabled:   u.telegramEnabled,
+		FirstInit:            settings.FirstInit,
+	}, nil
 }
 
 func (u *Usecase) Settings(ctx context.Context) (*GetSystemResponse, error) {
@@ -69,6 +73,7 @@ func (u *Usecase) Update(ctx context.Context, userID uint, input PatchSystemUpda
 	if err != nil {
 		return nil, err
 	}
+	settings.FirstInit = true
 	ctx = context.WithValue(ctx, "userID", userID)
 	updated, err := u.systems.SystemUpdate(ctx, settings)
 	if err != nil {
@@ -79,6 +84,7 @@ func (u *Usecase) Update(ctx context.Context, userID uint, input PatchSystemUpda
 
 func systemResponse(settings *models.System) *GetSystemResponse {
 	return &GetSystemResponse{
+		FirstInit:            settings.FirstInit,
 		GoogleCaptchaSiteKey: settings.GoogleCaptchaSiteKey, GoogleCaptchaSecretKey: settings.GoogleCaptchaSecretKey,
 		AutoDeleteInactiveUsers: settings.AutoDeleteInactiveUsers, KeepInactiveUserDays: settings.KeepInactiveUserDays,
 		ClientProfileServerAddress: settings.ClientProfileServerAddress, ClientProfileServerPort: settings.ClientProfileServerPort,

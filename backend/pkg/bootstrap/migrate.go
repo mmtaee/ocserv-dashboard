@@ -22,9 +22,11 @@ var commonMigrations = []*gormigrate.Migration{
 func MigrationsFor(agentNode bool) []*gormigrate.Migration {
 	selected := append([]*gormigrate.Migration(nil), commonMigrations...)
 	if agentNode {
-		return append(selected, migrations.Migration009)
+		selected = append(selected, migrations.Migration009)
+	} else {
+		selected = append(selected, migrations.Migration008)
 	}
-	return append(selected, migrations.Migration008)
+	return append(selected, migrations.Migration010)
 }
 
 func Migrate(db *gorm.DB) error {

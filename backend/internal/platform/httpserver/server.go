@@ -11,7 +11,9 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/mmtaee/ocserv-dashboard/backend/config"
+	_ "github.com/mmtaee/ocserv-dashboard/backend/docs"
 	appmiddleware "github.com/mmtaee/ocserv-dashboard/backend/pkg/middlewares"
+	echoSwagger "github.com/swaggo/echo-swagger/v2"
 )
 
 type RouteRegistrar interface {
@@ -41,8 +43,11 @@ func New(cfg *config.Config, registrars ...RouteRegistrar) *Server {
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Skipper: func(c *echo.Context) bool {
 		path := c.Path()
-		return strings.HasPrefix(path, "/api/v1/ocserv/users/backup") || strings.HasPrefix(path, "/api/v1/ocserv/groups/backup")
+		return strings.HasPrefix(path, "/swagger") ||
+			strings.HasPrefix(path, "/api/v1/ocserv/users/backup") ||
+			strings.HasPrefix(path, "/api/v1/ocserv/groups/backup")
 	}}))
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	api := e.Group("/api")
 	for _, registrar := range registrars {
