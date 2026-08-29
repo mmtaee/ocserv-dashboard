@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import type { SidebarProps } from "@/components/ui/sidebar";
-import { computed } from "vue";
-import { Activity, Bug, LayoutDashboard, Server, Users } from "@lucide/vue";
-import { useI18n } from "vue-i18n";
+import type { SidebarProps } from '@/components/ui/sidebar'
 
-import logoUrl from "@/assets/logo.svg";
-import NavMain from "@/components/NavMain.vue";
-import NavSecondary from "@/components/NavSecondary.vue";
-import NavUser from "@/components/NavUser.vue";
+import {
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  LifeBuoy,
+  Map,
+  PieChart,
+  Send,
+  Settings2,
+  SquareTerminal,
+} from "@lucide/vue"
+
+import NavMain from '@/components/NavMain.vue'
+import NavProjects from '@/components/NavProjects.vue'
+import NavSecondary from '@/components/NavSecondary.vue'
+import NavUser from '@/components/NavUser.vue'
 import {
   Sidebar,
   SidebarContent,
@@ -16,55 +26,133 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { useAuthStore } from "@/stores/auth";
+} from '@/components/ui/sidebar'
 
-const props = defineProps<SidebarProps>();
-const { t } = useI18n({ useScope: "global" });
-const auth = useAuthStore();
+const props = defineProps<SidebarProps>()
 
-const data = computed(() => ({
+const data = {
   user: {
-    name: auth.user?.username ?? t("auth.username"),
-    detail: auth.user?.superadmin
-      ? t("dashboard.administration")
-      : t("common.appName"),
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: t("dashboard.title"),
-      url: "/",
-      icon: LayoutDashboard,
+      title: "Playground",
+      url: "#",
+      icon: SquareTerminal,
       isActive: true,
+      items: [
+        {
+          title: "History",
+          url: "#",
+        },
+        {
+          title: "Starred",
+          url: "#",
+        },
+        {
+          title: "Settings",
+          url: "#",
+        },
+      ],
     },
     {
-      title: t("dashboard.connectedUsers"),
-      url: "/",
-      icon: Users,
-      disabled: true,
+      title: "Models",
+      url: "#",
+      icon: Bot,
+      items: [
+        {
+          title: "Genesis",
+          url: "#",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
+        },
+      ],
     },
     {
-      title: t("dashboard.activeSessions"),
-      url: "/",
-      icon: Activity,
-      disabled: true,
+      title: "Documentation",
+      url: "#",
+      icon: BookOpen,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
     },
     {
-      title: t("dashboard.managedServers"),
-      url: "/",
-      icon: Server,
-      disabled: true,
+      title: "Settings",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "General",
+          url: "#",
+        },
+        {
+          title: "Team",
+          url: "#",
+        },
+        {
+          title: "Billing",
+          url: "#",
+        },
+        {
+          title: "Limits",
+          url: "#",
+        },
+      ],
     },
   ],
   navSecondary: [
     {
-      title: t("footer.reportIssue"),
-      url: "https://github.com/mmtaee/ocserv-dashboard/issues",
-      icon: Bug,
-      external: true,
+      title: "Support",
+      url: "#",
+      icon: LifeBuoy,
+    },
+    {
+      title: "Feedback",
+      url: "#",
+      icon: Send,
     },
   ],
-}));
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
+    },
+  ],
+}
 </script>
 
 <template>
@@ -76,27 +164,22 @@ const data = computed(() => ({
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" as-child>
-            <RouterLink to="/">
-              <div
-                class="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary p-1.5 text-sidebar-primary-foreground"
-              >
-                <img :src="logoUrl" alt="" class="size-full" />
+            <a href="#">
+              <div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <Command class="size-4" />
               </div>
               <div class="grid flex-1 text-start text-sm leading-tight">
-                <span class="truncate font-medium">{{
-                  t("common.appName")
-                }}</span>
-                <span class="truncate text-xs">{{
-                  t("dashboard.administration")
-                }}</span>
+                <span class="truncate font-medium">Acme Inc</span>
+                <span class="truncate text-xs">Enterprise</span>
               </div>
-            </RouterLink>
+            </a>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
     <SidebarContent>
       <NavMain :items="data.navMain" />
+      <NavProjects :projects="data.projects" />
       <NavSecondary :items="data.navSecondary" class="mt-auto" />
     </SidebarContent>
     <SidebarFooter>

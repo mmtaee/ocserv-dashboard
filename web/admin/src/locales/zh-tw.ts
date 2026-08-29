@@ -10,6 +10,8 @@ export default {
     breadcrumb: "麵包屑導覽",
     sidebar: "側邊欄",
     toggleSidebar: "切換側邊欄",
+    switchToLightTheme: "切換至淺色主題",
+    switchToDarkTheme: "切換至深色主題",
     mobileSidebarDescription: "顯示行動版側邊欄。",
   },
   auth: {

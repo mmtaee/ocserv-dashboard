@@ -3,12 +3,15 @@ import { createApp } from "vue";
 
 import App from "./App.vue";
 import { setUnauthorizedHandler } from "@/api/http";
+import { useTheme } from "@/composables/use-theme";
 import { i18n } from "@/locales";
 import { installRouterGuards, router } from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
 
 import "./style.css";
+
+useTheme();
 
 async function bootstrap(): Promise<void> {
   const app = createApp(App);

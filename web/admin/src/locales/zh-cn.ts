@@ -10,6 +10,8 @@ export default {
     breadcrumb: "面包屑导航",
     sidebar: "侧边栏",
     toggleSidebar: "切换侧边栏",
+    switchToLightTheme: "切换到浅色主题",
+    switchToDarkTheme: "切换到深色主题",
     mobileSidebarDescription: "显示移动端侧边栏。",
   },
   auth: {

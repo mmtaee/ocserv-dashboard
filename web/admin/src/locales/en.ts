@@ -8,6 +8,8 @@ const en = {
     breadcrumb: "Breadcrumb",
     sidebar: "Sidebar",
     toggleSidebar: "Toggle sidebar",
+    switchToLightTheme: "Switch to light theme",
+    switchToDarkTheme: "Switch to dark theme",
     mobileSidebarDescription: "Displays the mobile sidebar.",
   },
   auth: {

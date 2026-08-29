@@ -10,6 +10,8 @@ export default {
     breadcrumb: "Percorso di navigazione",
     sidebar: "Barra laterale",
     toggleSidebar: "Attiva/disattiva barra laterale",
+    switchToLightTheme: "Passa al tema chiaro",
+    switchToDarkTheme: "Passa al tema scuro",
     mobileSidebarDescription: "Mostra la barra laterale su dispositivi mobili.",
   },
   auth: {

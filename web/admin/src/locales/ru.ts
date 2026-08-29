@@ -10,6 +10,8 @@ export default {
     breadcrumb: "Навигационная цепочка",
     sidebar: "Боковая панель",
     toggleSidebar: "Переключить боковую панель",
+    switchToLightTheme: "Переключить на светлую тему",
+    switchToDarkTheme: "Переключить на тёмную тему",
     mobileSidebarDescription:
       "Отображает боковую панель на мобильных устройствах.",
   },

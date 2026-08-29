@@ -10,6 +10,8 @@ export default {
     breadcrumb: "مسار التنقل",
     sidebar: "الشريط الجانبي",
     toggleSidebar: "تبديل الشريط الجانبي",
+    switchToLightTheme: "التبديل إلى السمة الفاتحة",
+    switchToDarkTheme: "التبديل إلى السمة الداكنة",
     mobileSidebarDescription: "يعرض الشريط الجانبي على الأجهزة المحمولة.",
   },
   auth: {
