@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { HTMLAttributes } from "vue";
+import { Languages } from "@lucide/vue";
 import { useI18n } from "vue-i18n";
 
 import {
@@ -25,7 +26,8 @@ const selectedLanguage = computed({
 <template>
   <div :class="props.class">
     <Select v-model="selectedLanguage">
-      <SelectTrigger class="w-40" :aria-label="t('common.language')">
+      <SelectTrigger class="w-32 sm:w-40" :aria-label="t('common.language')">
+        <Languages />
         <SelectValue :placeholder="t('common.language')" />
       </SelectTrigger>
       <SelectContent>

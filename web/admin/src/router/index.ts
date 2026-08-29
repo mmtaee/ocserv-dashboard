@@ -2,17 +2,24 @@ import type { Pinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { getAccessToken } from "@/api/auth-token";
+import { dashboardRoutes } from "@/router/dashboard-routes";
 import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
+
+const dashboardView = () => import("@/views/DashboardView.vue");
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: "/",
-      name: "home",
-      component: () => import("@/views/DashboardView.vue"),
-    },
+    ...dashboardRoutes.map((route) => ({
+      path: route.path,
+      name: route.name,
+      component: dashboardView,
+      meta: {
+        titleKey: route.titleKey,
+        superadminOnly: !route.adminVisible,
+      },
+    })),
     {
       path: "/login",
       name: "login",
@@ -60,6 +67,10 @@ export function installRouterGuards(pinia: Pinia): void {
       to.name === "system-setup" ||
       to.name === "server-unavailable"
     ) {
+      return { name: "home" };
+    }
+
+    if (to.meta.superadminOnly && !auth.user?.superadmin) {
       return { name: "home" };
     }
 

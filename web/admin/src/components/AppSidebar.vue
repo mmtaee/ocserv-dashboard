@@ -1,23 +1,10 @@
 <script setup lang="ts">
-import type { SidebarProps } from '@/components/ui/sidebar'
+import type { SidebarProps } from "@/components/ui/sidebar";
+import { ShieldCheck } from "@lucide/vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Settings2,
-  SquareTerminal,
-} from "@lucide/vue"
-
-import NavMain from '@/components/NavMain.vue'
-import NavProjects from '@/components/NavProjects.vue'
-import NavSecondary from '@/components/NavSecondary.vue'
-import NavUser from '@/components/NavUser.vue'
+import NavMain from "@/components/NavMain.vue";
 import {
   Sidebar,
   SidebarContent,
@@ -26,133 +13,38 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { dashboardRoutes } from "@/router/dashboard-routes";
+import { useAuthStore } from "@/stores/auth";
 
-const props = defineProps<SidebarProps>()
+const props = defineProps<SidebarProps>();
+const { t } = useI18n({ useScope: "global" });
+const auth = useAuthStore();
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+const groups = computed(() => {
+  const visibleRoutes = dashboardRoutes.filter(
+    (route) => auth.user?.superadmin || route.adminVisible,
+  );
+  const sectionKeys = [
+    ...new Set(visibleRoutes.map((route) => route.sectionKey)),
+  ];
+
+  return sectionKeys.map((sectionKey) => ({
+    title: t(sectionKey),
+    items: visibleRoutes
+      .filter((route) => route.sectionKey === sectionKey)
+      .map((route) => ({
+        title: t(route.titleKey),
+        path: route.path,
+        icon: route.icon,
+      })),
+  }));
+});
+
+const roleLabel = computed(() =>
+  auth.user?.superadmin ? t("navigation.superadmin") : t("navigation.admin"),
+);
 </script>
 
 <template>
@@ -164,26 +56,36 @@ const data = {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" as-child>
-            <a href="#">
-              <div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <Command class="size-4" />
+            <RouterLink to="/">
+              <div
+                class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+              >
+                <ShieldCheck />
               </div>
               <div class="grid flex-1 text-start text-sm leading-tight">
-                <span class="truncate font-medium">Acme Inc</span>
-                <span class="truncate text-xs">Enterprise</span>
+                <span class="truncate font-medium">
+                  {{                  t("common.appName")                }}
+                </span>
+                <span class="truncate text-xs">{{ roleLabel }}</span>
               </div>
-            </a>
+            </RouterLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
     <SidebarContent>
-      <NavMain :items="data.navMain" />
-      <NavProjects :projects="data.projects" />
-      <NavSecondary :items="data.navSecondary" class="mt-auto" />
+      <NavMain :groups="groups" />
     </SidebarContent>
     <SidebarFooter>
-      <NavUser :user="data.user" />
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton :tooltip="auth.user?.username">
+            <ShieldCheck />
+            <span class="truncate">{{ auth.user?.username }}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
     </SidebarFooter>
+    <SidebarRail />
   </Sidebar>
 </template>
