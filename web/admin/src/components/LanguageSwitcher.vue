@@ -26,7 +26,7 @@ const selectedLanguage = computed({
 <template>
   <div :class="props.class">
     <Select v-model="selectedLanguage">
-      <SelectTrigger class="w-32 sm:w-40" :aria-label="t('common.language')">
+      <SelectTrigger class="w-32 sm:w-35" :aria-label="t('common.language')">
         <Languages />
         <SelectValue :placeholder="t('common.language')" />
       </SelectTrigger>

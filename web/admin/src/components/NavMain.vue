@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { LucideIcon } from "@lucide/vue";
-import { useRoute } from "vue-router";
+import type {LucideIcon} from "@lucide/vue";
+import {useRoute} from "vue-router";
 
 import {
   SidebarGroup,
@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import AppFooter from "@/components/AppFooter.vue";
 
 defineProps<{
   groups: {
@@ -41,4 +42,5 @@ const route = useRoute();
       </SidebarMenu>
     </SidebarGroupContent>
   </SidebarGroup>
+  <AppFooter />
 </template>
