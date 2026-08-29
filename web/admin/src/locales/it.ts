@@ -99,6 +99,7 @@ export default {
     backup: "Backup",
     admin: "Amministratore",
     superadmin: "Super amministratore",
+    logout: "Esci",
     search: "Cerca",
     searchPlaceholder: "Cerca nella documentazione...",
     documentation: "Documentazione",

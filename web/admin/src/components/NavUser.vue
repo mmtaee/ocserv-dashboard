@@ -1,18 +1,9 @@
 <script setup lang="ts">
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "@lucide/vue"
+import { LogOut } from "@lucide/vue";
+import { computed, onBeforeUnmount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,96 +12,95 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar'
+} from "@/components/ui/dropdown-menu";
 
-const props = defineProps<{
-  user: {
-    name: string
-    email: string
-    avatar: string
+const props = withDefaults(
+  defineProps<{
+    user: {
+      name: string;
+      role: string;
+    };
+    isLoggingOut?: boolean;
+  }>(),
+  { isLoggingOut: false },
+);
+
+const emit = defineEmits<{
+  logout: [];
+}>();
+const { t } = useI18n({ useScope: "global" });
+const isOpen = ref(false);
+let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+function cancelClose(): void {
+  if (closeTimer !== undefined) {
+    clearTimeout(closeTimer);
+    closeTimer = undefined;
   }
-}>()
+}
 
-const { isMobile } = useSidebar()
+function openOnHover(): void {
+  cancelClose();
+  isOpen.value = true;
+}
+
+function closeOnHover(): void {
+  cancelClose();
+  closeTimer = setTimeout(() => {
+    isOpen.value = false;
+    closeTimer = undefined;
+  }, 150);
+}
+
+onBeforeUnmount(cancelClose);
+
+const initials = computed(() =>
+  props.user.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join(""),
+);
 </script>
 
 <template>
-  <SidebarMenu>
-    <SidebarMenuItem>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <SidebarMenuButton
-            size="lg"
-            class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-          >
-            <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="user.avatar" :alt="user.name" />
-              <AvatarFallback class="rounded-lg">
-                CN
-              </AvatarFallback>
-            </Avatar>
-            <div class="grid flex-1 text-start text-sm leading-tight">
-              <span class="truncate font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
-            </div>
-            <ChevronsUpDown class="ms-auto size-4" />
-          </SidebarMenuButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-          :side="isMobile ? 'bottom' : 'right'"
-          align="start"
-          :side-offset="4"
-        >
-          <DropdownMenuLabel class="p-0 font-normal">
-            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-              <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage :src="user.avatar" :alt="user.name" />
-                <AvatarFallback class="rounded-lg">
-                  CN
-                </AvatarFallback>
-              </Avatar>
-              <div class="grid flex-1 text-start text-sm leading-tight">
-                <span class="truncate font-medium">{{ user.name }}</span>
-                <span class="truncate text-xs">{{ user.email }}</span>
-              </div>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Sparkles />
-              Upgrade to Pro
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCard />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bell />
-              Notifications
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </SidebarMenuItem>
-  </SidebarMenu>
+  <DropdownMenu v-model:open="isOpen" :modal="false">
+    <DropdownMenuTrigger as-child>
+      <Avatar
+        class="size-9 cursor-pointer rounded-md"
+        @mouseenter="openOnHover"
+        @mouseleave="closeOnHover"
+      >
+        <AvatarFallback class="rounded-md">
+          {{ initials }}
+        </AvatarFallback>
+      </Avatar>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent
+      class="min-w-56"
+      align="end"
+      side="bottom"
+      @mouseenter="openOnHover"
+      @mouseleave="closeOnHover"
+    >
+      <DropdownMenuLabel class="font-normal">
+        <div class="flex flex-col gap-1 text-start">
+          <span class="truncate text-sm font-medium capitalize">
+            {{ user.name }}
+          </span>
+          <span class="truncate text-xs text-muted-foreground">
+            {{ user.role }}
+          </span>
+        </div>
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem :disabled="isLoggingOut" @select="emit('logout')">
+          <LogOut />
+          {{ t("navigation.logout") }}
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+    </DropdownMenuContent>
+  </DropdownMenu>
 </template>

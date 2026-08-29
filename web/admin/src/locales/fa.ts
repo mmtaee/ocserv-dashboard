@@ -98,6 +98,7 @@ export default {
     backup: "پشتیبان",
     admin: "مدیر",
     superadmin: "مدیر ارشد",
+    logout: "خروج",
     search: "جستجو",
     searchPlaceholder: "جستجو در مستندات...",
     documentation: "مستندات",

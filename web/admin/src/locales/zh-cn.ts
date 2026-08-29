@@ -93,6 +93,7 @@ export default {
     backup: "备份",
     admin: "管理员",
     superadmin: "超级管理员",
+    logout: "退出登录",
     search: "搜索",
     searchPlaceholder: "搜索文档...",
     documentation: "文档",

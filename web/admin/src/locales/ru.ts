@@ -98,6 +98,7 @@ export default {
     backup: "Резервная копия",
     admin: "Администратор",
     superadmin: "Суперадминистратор",
+    logout: "Выйти",
     search: "Поиск",
     searchPlaceholder: "Поиск в документации...",
     documentation: "Документация",

@@ -1,15 +1,5 @@
 <script setup lang="ts">
-import type {SidebarProps} from "@/components/ui/sidebar";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-import {ShieldCheck} from "@lucide/vue";
+import {Sidebar, SidebarContent, type SidebarProps, SidebarRail} from "@/components/ui/sidebar";
 import {computed} from "vue";
 import {useI18n} from "vue-i18n";
 
@@ -40,8 +30,6 @@ const groups = computed(() => {
       })),
   }));
 });
-
-
 </script>
 
 <template>
@@ -49,19 +37,9 @@ const groups = computed(() => {
     class="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
     v-bind="props"
   >
-    <SidebarContent>
+    <SidebarContent class="pb-8">
       <NavMain :groups="groups" />
     </SidebarContent>
-    <SidebarFooter>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton :tooltip="auth.user?.username">
-            <ShieldCheck />
-            <span class="truncate">{{ auth.user?.username }}</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarFooter>
     <SidebarRail />
   </Sidebar>
 </template>

@@ -96,6 +96,7 @@ const en = {
     backup: "Backup",
     admin: "Admin",
     superadmin: "Superadmin",
+    logout: "Log out",
     search: "Search",
     searchPlaceholder: "Search the docs...",
     documentation: "Documentation",

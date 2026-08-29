@@ -7,7 +7,7 @@ import type {
   ModelsUser,
 } from "@/api/generated";
 import { normalizeApiError } from "@/api/http";
-import { getCurrentUser, login } from "@/api/services/auth";
+import { getCurrentUser, login, logout } from "@/api/services/auth";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<ModelsUser | null>(null);
@@ -55,6 +55,19 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function signOut(): Promise<void> {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      await logout();
+    } catch {
+      // Local session state must still be cleared if the server is unavailable.
+    } finally {
+      clearSession();
+      isLoading.value = false;
+    }
+  }
+
   return {
     clearSession,
     error,
@@ -62,6 +75,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading,
     restoreSession,
     signIn,
+    signOut,
     user,
   };
 });

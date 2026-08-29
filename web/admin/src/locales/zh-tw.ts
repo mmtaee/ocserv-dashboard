@@ -94,6 +94,7 @@ export default {
     backup: "備份",
     admin: "管理員",
     superadmin: "超級管理員",
+    logout: "登出",
     search: "搜尋",
     searchPlaceholder: "搜尋文件...",
     documentation: "文件",

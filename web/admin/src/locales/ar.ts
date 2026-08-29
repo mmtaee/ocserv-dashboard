@@ -95,6 +95,7 @@ export default {
     backup: "نسخ احتياطي",
     admin: "مسؤول",
     superadmin: "مسؤول أعلى",
+    logout: "تسجيل الخروج",
     search: "بحث",
     searchPlaceholder: "البحث في المستندات...",
     documentation: "المستندات",

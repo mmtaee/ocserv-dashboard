@@ -8,10 +8,10 @@ const issuesUrl = "https://github.com/mmtaee/ocserv-dashboard/issues";
 
 <template>
   <footer
-    class="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-background/80"
+    class="fixed end-0 bottom-0 z-50 border-t bg-background/95 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur supports-backdrop-filter:bg-background/80"
   >
     <div
-      class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 text-start"
+      class="flex w-full flex-wrap items-center justify-between gap-x-10 gap-y-1 text-start"
     >
       <p
         class="inline-flex items-center gap-1 whitespace-nowrap text-foreground"

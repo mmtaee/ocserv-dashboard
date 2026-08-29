@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import AppFooter from "@/components/AppFooter.vue";
 
 defineProps<{
   groups: {
@@ -42,5 +41,4 @@ const route = useRoute();
       </SidebarMenu>
     </SidebarGroupContent>
   </SidebarGroup>
-  <AppFooter />
 </template>
