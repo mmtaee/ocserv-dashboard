@@ -170,10 +170,8 @@ onMounted(() => refresh());
       </CardContent>
 
       <Separator />
-      <CardFooter
-        class="flex flex-col items-center gap-3 sm:flex-row sm:justify-between"
-      >
-        <span class="text-sm text-muted-foreground">
+      <CardFooter class="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
+        <span class="text-center text-sm text-muted-foreground sm:text-start">
           {{
             t("ocservGroups.pageStatus", {
               page: meta.page,
@@ -184,7 +182,7 @@ onMounted(() => refresh());
         </span>
         <Pagination
           v-slot="{ page }"
-          class="mx-0 w-auto"
+          class="mx-auto w-auto sm:col-start-2"
           :disabled="loading"
           :items-per-page="meta.size"
           :page="meta.page"
