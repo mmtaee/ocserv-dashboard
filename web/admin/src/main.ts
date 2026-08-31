@@ -19,18 +19,9 @@ async function bootstrap(): Promise<void> {
 
   app.use(i18n);
   app.use(pinia);
-  app.use(router);
 
   const systemInit = useSystemInitStore(pinia);
   const auth = useAuthStore(pinia);
-
-  setUnauthorizedHandler(async () => {
-    auth.clearSession();
-
-    if (router.currentRoute.value.name !== "login") {
-      await router.replace({ name: "login" });
-    }
-  });
 
   await systemInit.initialize();
 
@@ -39,14 +30,14 @@ async function bootstrap(): Promise<void> {
   }
 
   installRouterGuards(pinia);
-  await router.replace({
-    name: !systemInit.isAvailable
-      ? "server-unavailable"
-      : !auth.isAuthenticated
-        ? "login"
-        : !systemInit.isInitialized
-          ? "system-setup"
-          : "home",
+  app.use(router);
+
+  setUnauthorizedHandler(async () => {
+    auth.clearSession();
+
+    if (router.currentRoute.value.name !== "login") {
+      await router.replace({ name: "login" });
+    }
   });
 
   await router.isReady();

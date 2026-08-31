@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import DashboardLayout from "@/components/DashboardLayout.vue";
-import OcservUsersPage from "@/components/ocserv-users/OcservUsersPage.vue";
+import OcctlPage from "@/components/occtl/OcctlPage.vue";
 </script>
 
 <template>
   <DashboardLayout>
-    <OcservUsersPage />
+    <OcctlPage />
   </DashboardLayout>
 </template>

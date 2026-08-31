@@ -4,6 +4,7 @@ import ar from "@/locales/ar";
 import en from "@/locales/en";
 import fa from "@/locales/fa";
 import it from "@/locales/it";
+import { occtlMessages } from "@/locales/occtl";
 import { ocservGroupsMessages } from "@/locales/ocserv-groups";
 import { ocservUsersMessages } from "@/locales/ocserv-users";
 import ru from "@/locales/ru";
@@ -20,42 +21,49 @@ export const messages = {
   en: {
     ...en,
     groupDefaults: groupDefaultsMessages.en,
+    occtl: occtlMessages.en,
     ocservGroups: ocservGroupsMessages.en,
     ocservUsers: ocservUsersMessages.en,
   },
   it: {
     ...it,
     groupDefaults: groupDefaultsMessages.it,
+    occtl: occtlMessages.it,
     ocservGroups: ocservGroupsMessages.it,
     ocservUsers: ocservUsersMessages.it,
   },
   "zh-cn": {
     ...zhCn,
     groupDefaults: groupDefaultsMessages["zh-cn"],
+    occtl: occtlMessages["zh-cn"],
     ocservGroups: ocservGroupsMessages["zh-cn"],
     ocservUsers: ocservUsersMessages["zh-cn"],
   },
   "zh-tw": {
     ...zhTw,
     groupDefaults: groupDefaultsMessages["zh-tw"],
+    occtl: occtlMessages["zh-tw"],
     ocservGroups: ocservGroupsMessages["zh-tw"],
     ocservUsers: ocservUsersMessages["zh-tw"],
   },
   ru: {
     ...ru,
     groupDefaults: groupDefaultsMessages.ru,
+    occtl: occtlMessages.ru,
     ocservGroups: ocservGroupsMessages.ru,
     ocservUsers: ocservUsersMessages.ru,
   },
   fa: {
     ...fa,
     groupDefaults: groupDefaultsMessages.fa,
+    occtl: occtlMessages.fa,
     ocservGroups: ocservGroupsMessages.fa,
     ocservUsers: ocservUsersMessages.fa,
   },
   ar: {
     ...ar,
     groupDefaults: groupDefaultsMessages.ar,
+    occtl: occtlMessages.ar,
     ocservGroups: ocservGroupsMessages.ar,
     ocservUsers: ocservUsersMessages.ar,
   },

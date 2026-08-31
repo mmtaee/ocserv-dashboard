@@ -8,6 +8,7 @@ import { useSystemInitStore } from "@/stores/system-init";
 
 const dashboardView = () => import("@/views/DashboardView.vue");
 const emptyRouteView = () => import("@/views/EmptyRouteView.vue");
+const occtlView = () => import("@/views/OcctlView.vue");
 const ocservGroupDefaultsView = () =>
   import("@/views/OcservGroupDefaultsView.vue");
 const ocservGroupsView = () => import("@/views/OcservGroupsView.vue");
@@ -17,6 +18,7 @@ const dashboardComponents: Partial<
   Record<(typeof dashboardRoutes)[number]["name"], () => Promise<unknown>>
 > = {
   home: dashboardView,
+  occtl: occtlView,
   "ocserv-group-defaults": ocservGroupDefaultsView,
   "ocserv-groups": ocservGroupsView,
   "ocserv-users": ocservUsersView,

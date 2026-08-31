@@ -185,9 +185,13 @@ const columns: ColumnDef<DataTableFeatures, OcservUser>[] =
             ? t("ocservUsers.never")
             : formatDate(row.original.expire_at),
     }),
-    columnHelper.accessor((user) => user.running_rx + user.running_tx, {
-      id: "usage",
-      header: ({ column }) => sortableHeader(column, t("ocservUsers.usage")),
+    columnHelper.accessor("running_rx", {
+      header: ({ column }) => sortableHeader(column, t("ocservUsers.rx")),
+      cell: ({ getValue }) =>
+        h("span", { class: "font-mono tabular-nums" }, formatBytes(getValue())),
+    }),
+    columnHelper.accessor("running_tx", {
+      header: ({ column }) => sortableHeader(column, t("ocservUsers.tx")),
       cell: ({ getValue }) =>
         h("span", { class: "font-mono tabular-nums" }, formatBytes(getValue())),
     }),
