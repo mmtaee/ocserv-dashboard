@@ -58,28 +58,6 @@ const columnHelper = createColumnHelper<
 >();
 const columns: ColumnDef<DataTableFeatures, OcservGroupWithTraffic>[] =
   columnHelper.columns([
-    columnHelper.accessor((group) => group.id ?? 0, {
-      id: "id",
-      header: ({ column }) =>
-        h(
-          Button,
-          {
-            type: "button",
-            variant: "ghost",
-            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-          },
-          () => [
-            t("ocservGroups.id"),
-            h(ArrowUpDown, { "data-icon": "inline-end" }),
-          ],
-        ),
-      cell: ({ row }) =>
-        h(
-          "span",
-          { class: "font-mono text-muted-foreground" },
-          row.original.id ?? "—",
-        ),
-    }),
     columnHelper.accessor("name", {
       filterFn: "includesString",
       sortFn: "text",
@@ -167,7 +145,7 @@ const columns: ColumnDef<DataTableFeatures, OcservGroupWithTraffic>[] =
 
 <template>
   <DefineActions v-slot="{ group }">
-    <div class="text-end">
+    <div class="text-center">
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button
@@ -200,6 +178,7 @@ const columns: ColumnDef<DataTableFeatures, OcservGroupWithTraffic>[] =
   </DefineActions>
 
   <DataTable
+    align="center"
     :columns="columns"
     :data="groups"
     filter-column="name"

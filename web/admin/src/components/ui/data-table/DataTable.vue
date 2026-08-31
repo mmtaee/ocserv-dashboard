@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 
 const props = defineProps<{
+  align?: "center" | "end" | "start";
   columns: ColumnDef<DataTableFeatures, TData>[];
   data: TData[];
   filterColumn?: string;
@@ -27,6 +28,12 @@ const props = defineProps<{
   filterPlaceholder?: string;
   loading?: boolean;
 }>();
+
+const alignmentClasses = {
+  center: "text-center",
+  end: "text-end",
+  start: "text-start",
+} as const;
 
 const filterId = useId();
 const table = useTable({
@@ -70,7 +77,11 @@ function updateFilter(value: string | number): void {
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id"
           >
-            <TableHead v-for="header in headerGroup.headers" :key="header.id">
+            <TableHead
+              v-for="header in headerGroup.headers"
+              :key="header.id"
+              :class="alignmentClasses[align ?? 'start']"
+            >
               <FlexRender v-if="!header.isPlaceholder" :header="header" />
             </TableHead>
           </TableRow>
@@ -79,7 +90,11 @@ function updateFilter(value: string | number): void {
         <TableBody>
           <template v-if="loading">
             <TableRow v-for="rowIndex in 6" :key="rowIndex">
-              <TableCell v-for="(_, columnIndex) in columns" :key="columnIndex">
+              <TableCell
+                v-for="(_, columnIndex) in columns"
+                :key="columnIndex"
+                :class="alignmentClasses[align ?? 'start']"
+              >
                 <Skeleton class="h-5 w-full" />
               </TableCell>
             </TableRow>
@@ -87,7 +102,11 @@ function updateFilter(value: string | number): void {
 
           <template v-else-if="table.getRowModel().rows.length">
             <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableCell v-for="cell in row.getAllCells()" :key="cell.id">
+              <TableCell
+                v-for="cell in row.getAllCells()"
+                :key="cell.id"
+                :class="alignmentClasses[align ?? 'start']"
+              >
                 <FlexRender :cell="cell" />
               </TableCell>
             </TableRow>
