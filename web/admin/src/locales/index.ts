@@ -4,6 +4,7 @@ import ar from "@/locales/ar";
 import en from "@/locales/en";
 import fa from "@/locales/fa";
 import it from "@/locales/it";
+import { ocservGroupsMessages } from "@/locales/ocserv-groups";
 import ru from "@/locales/ru";
 import zhCn from "@/locales/zh-cn";
 import zhTw from "@/locales/zh-tw";
@@ -15,13 +16,41 @@ const DEFAULT_LANGUAGE_CONFIG =
 const rtlLocales = new Set(["fa", "ar"]);
 
 export const messages = {
-  en: { ...en, groupDefaults: groupDefaultsMessages.en },
-  it: { ...it, groupDefaults: groupDefaultsMessages.it },
-  "zh-cn": { ...zhCn, groupDefaults: groupDefaultsMessages["zh-cn"] },
-  "zh-tw": { ...zhTw, groupDefaults: groupDefaultsMessages["zh-tw"] },
-  ru: { ...ru, groupDefaults: groupDefaultsMessages.ru },
-  fa: { ...fa, groupDefaults: groupDefaultsMessages.fa },
-  ar: { ...ar, groupDefaults: groupDefaultsMessages.ar },
+  en: {
+    ...en,
+    groupDefaults: groupDefaultsMessages.en,
+    ocservGroups: ocservGroupsMessages.en,
+  },
+  it: {
+    ...it,
+    groupDefaults: groupDefaultsMessages.it,
+    ocservGroups: ocservGroupsMessages.it,
+  },
+  "zh-cn": {
+    ...zhCn,
+    groupDefaults: groupDefaultsMessages["zh-cn"],
+    ocservGroups: ocservGroupsMessages["zh-cn"],
+  },
+  "zh-tw": {
+    ...zhTw,
+    groupDefaults: groupDefaultsMessages["zh-tw"],
+    ocservGroups: ocservGroupsMessages["zh-tw"],
+  },
+  ru: {
+    ...ru,
+    groupDefaults: groupDefaultsMessages.ru,
+    ocservGroups: ocservGroupsMessages.ru,
+  },
+  fa: {
+    ...fa,
+    groupDefaults: groupDefaultsMessages.fa,
+    ocservGroups: ocservGroupsMessages.fa,
+  },
+  ar: {
+    ...ar,
+    groupDefaults: groupDefaultsMessages.ar,
+    ocservGroups: ocservGroupsMessages.ar,
+  },
 } as const;
 export type AppLocale = keyof typeof messages;
 

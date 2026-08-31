@@ -117,6 +117,7 @@ function setBoolean(
         <template v-for="field in fields" :key="field.key">
           <Field
             v-if="field.kind === 'boolean'"
+            :data-disabled="disabled"
             orientation="horizontal"
             class="items-center rounded-lg border p-3"
           >
@@ -131,7 +132,7 @@ function setBoolean(
             </FieldLabel>
           </Field>
 
-          <Field v-else>
+          <Field v-else :data-disabled="disabled">
             <FieldLabel :for="field.key">
               {{ field.key }}
             </FieldLabel>

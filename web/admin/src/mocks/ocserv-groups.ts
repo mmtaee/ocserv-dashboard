@@ -1,4 +1,7 @@
-import type { ModelsOcservGroupConfig } from "@/api/generated";
+import type {
+  ModelsOcservGroup,
+  ModelsOcservGroupConfig,
+} from "@/api/generated";
 
 export const mockOcservDefaultGroupConfig = {
   cgroup: "cpuset,cpu:test",
@@ -28,3 +31,35 @@ export const mockOcservDefaultGroupConfig = {
   "tunnel-all-dns": true,
   "tx-data-per-sec": 200_000,
 } satisfies ModelsOcservGroupConfig;
+
+export const mockOcservGroups = [
+  {
+    config: {
+      ...mockOcservDefaultGroupConfig,
+      "ipv4-network": "10.10.0.0/24",
+      "max-same-clients": 3,
+    },
+    id: 1,
+    name: "employees",
+  },
+  {
+    config: {
+      dns: ["10.20.0.2"],
+      "ipv4-network": "10.20.0.0/24",
+      route: ["10.0.0.0/8"],
+      "tunnel-all-dns": true,
+    },
+    id: 2,
+    name: "engineering",
+  },
+  {
+    config: {
+      "deny-roaming": true,
+      "ipv4-network": "10.30.0.0/24",
+      "no-udp": true,
+      "session-timeout": 1800,
+    },
+    id: 3,
+    name: "contractors",
+  },
+] satisfies ModelsOcservGroup[];
