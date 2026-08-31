@@ -41,6 +41,8 @@ export const mockOcservGroups = [
     },
     id: 1,
     name: "employees",
+    total_rx: 93_952_409_600,
+    total_tx: 41_197_731_328,
   },
   {
     config: {
@@ -51,6 +53,8 @@ export const mockOcservGroups = [
     },
     id: 2,
     name: "engineering",
+    total_rx: 214_748_364_800,
+    total_tx: 128_849_018_880,
   },
   {
     config: {
@@ -61,5 +65,12 @@ export const mockOcservGroups = [
     },
     id: 3,
     name: "contractors",
+    total_rx: 8_589_934_592,
+    total_tx: 3_221_225_472,
   },
-] satisfies ModelsOcservGroup[];
+] satisfies Array<
+  ModelsOcservGroup & {
+    total_rx: number;
+    total_tx: number;
+  }
+>;

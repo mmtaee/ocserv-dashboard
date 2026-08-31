@@ -2,7 +2,10 @@
 import { MoreHorizontal, Network } from "@lucide/vue";
 import { useI18n } from "vue-i18n";
 
-import type { OcservGroup } from "@/api/services/ocserv-groups";
+import type {
+  OcservGroup,
+  OcservGroupWithTraffic,
+} from "@/api/services/ocserv-groups";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,7 +32,7 @@ import {
 } from "@/components/ui/table";
 
 defineProps<{
-  groups: OcservGroup[];
+  groups: OcservGroupWithTraffic[];
   loading?: boolean;
 }>();
 const emit = defineEmits<{
@@ -37,11 +40,17 @@ const emit = defineEmits<{
   edit: [group: OcservGroup];
   view: [group: OcservGroup];
 }>();
-const { t } = useI18n({ useScope: "global" });
+const { locale, t } = useI18n({ useScope: "global" });
 
 function configuredFieldCount(group: OcservGroup): number {
   return Object.values(group.config ?? {}).filter((value) => value != null)
     .length;
+}
+
+function bytesToGigabytes(value: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    maximumFractionDigits: 3,
+  }).format(value / 1024 ** 3);
 }
 </script>
 
@@ -70,6 +79,8 @@ function configuredFieldCount(group: OcservGroup): number {
         <TableHead>{{ t("ocservGroups.id") }}</TableHead>
         <TableHead>{{ t("ocservGroups.name") }}</TableHead>
         <TableHead>{{ t("ocservGroups.config") }}</TableHead>
+        <TableHead>{{ t("ocservGroups.totalRx") }}</TableHead>
+        <TableHead>{{ t("ocservGroups.totalTx") }}</TableHead>
         <TableHead class="w-16 text-end">
           <span class="sr-only">{{ t("ocservGroups.actions") }}</span>
         </TableHead>
@@ -85,6 +96,14 @@ function configuredFieldCount(group: OcservGroup): number {
         </TableCell>
         <TableCell class="text-muted-foreground">
           {{ configuredFieldCount(group) }}
+        </TableCell>
+        <TableCell class="font-mono tabular-nums">
+          {{ bytesToGigabytes(group.total_rx) }}
+          {{ t("dashboard.gigabytes") }}
+        </TableCell>
+        <TableCell class="font-mono tabular-nums">
+          {{ bytesToGigabytes(group.total_tx) }}
+          {{ t("dashboard.gigabytes") }}
         </TableCell>
         <TableCell class="text-end">
           <DropdownMenu>

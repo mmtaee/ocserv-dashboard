@@ -19,9 +19,18 @@ import {
 export type OcservDefaultGroupConfig = ModelsOcservGroupConfig;
 export type OcservDefaultGroupUpdate = OcservGroupUpdateOcservGroupData;
 export type OcservGroup = ModelsOcservGroup;
+export type OcservGroupWithTraffic = ModelsOcservGroup & {
+  total_rx: number;
+  total_tx: number;
+};
 export type OcservGroupCreate = OcservGroupCreateOcservGroupData;
 export type OcservGroupUpdate = OcservGroupUpdateOcservGroupData;
-export type OcservGroupsList = OcservGroupOcservGroupsResponse;
+export type OcservGroupsList = Omit<
+  OcservGroupOcservGroupsResponse,
+  "result"
+> & {
+  result?: OcservGroupWithTraffic[];
+};
 export type OcservGroupsListOptions = Omit<
   OcservGroupsApiOcservGroupsGetRequest,
   "authorization"
@@ -30,9 +39,9 @@ export type OcservGroupsListOptions = Omit<
 let currentMockConfig: ModelsOcservGroupConfig = cloneMock(
   mockOcservDefaultGroupConfig,
 );
-let currentMockGroups: ModelsOcservGroup[] = cloneMock(mockOcservGroups);
+let currentMockGroups: OcservGroupWithTraffic[] = cloneMock(mockOcservGroups);
 
-function mockGroup(id: number): ModelsOcservGroup {
+function mockGroup(id: number): OcservGroupWithTraffic {
   const group = currentMockGroups.find((item) => item.id === id);
   if (!group) throw new ApiError("Ocserv group not found.", { status: 400 });
   return group;
@@ -60,7 +69,9 @@ export async function getOcservGroups(
     authorization: requireAuthorizationHeader(),
     ...options,
   });
-  return response.data;
+  // The backend response uses ModelsOcservGroupWithTraffic. The checked-in
+  // generated client still exposes its result as the base ModelsOcservGroup.
+  return response.data as OcservGroupsList;
 }
 
 export async function getOcservGroupNames(): Promise<string[]> {
@@ -91,10 +102,12 @@ export async function createOcservGroup(
   if (isTestMode) {
     if (currentMockGroups.some(({ name }) => name === request.name))
       throw new ApiError("Ocserv group name already exists.", { status: 400 });
-    const group: ModelsOcservGroup = {
+    const group: OcservGroupWithTraffic = {
       config: cloneMock(request.config),
       id: Math.max(0, ...currentMockGroups.map(({ id }) => id ?? 0)) + 1,
       name: request.name,
+      total_rx: 0,
+      total_tx: 0,
     };
     currentMockGroups = [...currentMockGroups, group];
     return cloneMock(group);

@@ -38,6 +38,8 @@ const en = {
   search: "Search groups",
   searchPlaceholder: "Search the current page by group name…",
   success: "Group operation completed",
+  totalRx: "Total RX",
+  totalTx: "Total TX",
   updateSuccess: "The Ocserv group was updated.",
   value: "Value",
   view: "View details",

@@ -4,6 +4,7 @@ import type {
   OcservGroup,
   OcservGroupCreate,
   OcservGroupsList,
+  OcservGroupWithTraffic,
   OcservGroupUpdate,
 } from "@/api/services/ocserv-groups";
 import {
@@ -19,7 +20,7 @@ import { normalizeApiError } from "@/api/http";
 export type OcservGroupsSuccess = "create" | "delete" | "update";
 
 export function useOcservGroups() {
-  const groups = shallowRef<OcservGroup[]>([]);
+  const groups = shallowRef<OcservGroupWithTraffic[]>([]);
   const groupNames = shallowRef<string[]>([]);
   const meta = shallowRef<OcservGroupsList["meta"]>({
     page: 1,
