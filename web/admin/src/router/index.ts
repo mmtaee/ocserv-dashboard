@@ -8,6 +8,15 @@ import { useSystemInitStore } from "@/stores/system-init";
 
 const dashboardView = () => import("@/views/DashboardView.vue");
 const emptyRouteView = () => import("@/views/EmptyRouteView.vue");
+const ocservGroupDefaultsView = () =>
+  import("@/views/OcservGroupDefaultsView.vue");
+
+const dashboardComponents: Partial<
+  Record<(typeof dashboardRoutes)[number]["name"], () => Promise<unknown>>
+> = {
+  home: dashboardView,
+  "ocserv-group-defaults": ocservGroupDefaultsView,
+};
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,7 +24,7 @@ export const router = createRouter({
     ...dashboardRoutes.map((route) => ({
       path: route.path,
       name: route.name,
-      component: route.name === "home" ? dashboardView : emptyRouteView,
+      component: dashboardComponents[route.name] ?? emptyRouteView,
       meta: {
         titleKey: route.titleKey,
         superadminOnly: !route.adminVisible,

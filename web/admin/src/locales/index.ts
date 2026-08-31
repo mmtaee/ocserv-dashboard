@@ -7,6 +7,7 @@ import it from "@/locales/it";
 import ru from "@/locales/ru";
 import zhCn from "@/locales/zh-cn";
 import zhTw from "@/locales/zh-tw";
+import { groupDefaultsMessages } from "@/locales/group-defaults";
 
 const LANGUAGE_STORAGE_KEY = "ocserv-dashboard.language";
 const DEFAULT_LANGUAGE_CONFIG =
@@ -14,13 +15,13 @@ const DEFAULT_LANGUAGE_CONFIG =
 const rtlLocales = new Set(["fa", "ar"]);
 
 export const messages = {
-  en,
-  it,
-  "zh-cn": zhCn,
-  "zh-tw": zhTw,
-  ru,
-  fa,
-  ar,
+  en: { ...en, groupDefaults: groupDefaultsMessages.en },
+  it: { ...it, groupDefaults: groupDefaultsMessages.it },
+  "zh-cn": { ...zhCn, groupDefaults: groupDefaultsMessages["zh-cn"] },
+  "zh-tw": { ...zhTw, groupDefaults: groupDefaultsMessages["zh-tw"] },
+  ru: { ...ru, groupDefaults: groupDefaultsMessages.ru },
+  fa: { ...fa, groupDefaults: groupDefaultsMessages.fa },
+  ar: { ...ar, groupDefaults: groupDefaultsMessages.ar },
 } as const;
 export type AppLocale = keyof typeof messages;
 
