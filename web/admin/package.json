@@ -16,6 +16,7 @@
   "dependencies": {
     "@lucide/vue": "^1.37.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/vue-table": "^9.2.4",
     "@unovis/ts": "^1.6.7",
     "@unovis/vue": "^1.6.7",
     "@vue/devtools-api": "^8.2.1",

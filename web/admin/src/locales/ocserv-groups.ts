@@ -21,6 +21,7 @@ const en = {
   editTitle: "Edit Ocserv group",
   enabled: "Enabled",
   id: "ID",
+  morePages: "More pages",
   name: "Name",
   nameExists: "A group with this name already exists.",
   nameRequired: "Enter a group name.",

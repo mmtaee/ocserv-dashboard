@@ -1204,10 +1204,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/store@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "@tanstack/store@npm:0.11.1"
+  checksum: 10c0/36e308f3a5037a4d79e2b2ea9f6f4015a617fcd7cb8ff541fe50869b015fb8753b267a8c24709ad197c4c3b5fd85207edc4f71eccaf9b0d311f62336a9cf7764
+  languageName: node
+  linkType: hard
+
+"@tanstack/table-core@npm:9.2.4":
+  version: 9.2.4
+  resolution: "@tanstack/table-core@npm:9.2.4"
+  dependencies:
+    "@tanstack/store": "npm:^0.11.1"
+  checksum: 10c0/fae9e7f3028f45eb2cd3e831365e398a92030d685acdd0458c3c2245eb8456176abd0d5ca208ea58eb9e7a4ccc666c26986269c93bc4ce25603866805bb837b9
+  languageName: node
+  linkType: hard
+
 "@tanstack/virtual-core@npm:3.17.8":
   version: 3.17.8
   resolution: "@tanstack/virtual-core@npm:3.17.8"
   checksum: 10c0/0889044d89d1c403939f3984017857c68c54769e538e7bac52d8af6a3feaa20a6a9ffd627cadd95a7cdd0136856a03d8eb8302d0e53a53910fdb05916d7b4a79
+  languageName: node
+  linkType: hard
+
+"@tanstack/vue-table@npm:^9.2.4":
+  version: 9.2.4
+  resolution: "@tanstack/vue-table@npm:9.2.4"
+  dependencies:
+    "@tanstack/store": "npm:^0.11.1"
+    "@tanstack/table-core": "npm:9.2.4"
+  peerDependencies:
+    vue: ">=3.2"
+  checksum: 10c0/472f24c2343ab5cf48d727ff22208c63fb63a12f65a0f3c57ad89ae18cb733a14c41d5c71e6e0f9d8b525a7213113431f77f14bca38272d7cdf30f9e54ec9e53
   languageName: node
   linkType: hard
 
@@ -2142,6 +2170,7 @@ __metadata:
     "@lucide/vue": "npm:^1.37.0"
     "@openapitools/openapi-generator-cli": "npm:^2.41.0"
     "@tailwindcss/vite": "npm:^4.3.3"
+    "@tanstack/vue-table": "npm:^9.2.4"
     "@types/node": "npm:^26.4.0"
     "@unovis/ts": "npm:^1.6.7"
     "@unovis/vue": "npm:^1.6.7"

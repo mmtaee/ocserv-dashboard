@@ -23,8 +23,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useOcservGroups } from "@/composables/useOcservGroups";
@@ -46,7 +52,6 @@ const {
   update,
 } = useOcservGroups();
 
-const query = shallowRef("");
 const editorOpen = shallowRef(false);
 const editorMode = shallowRef<"create" | "edit">("create");
 const editorGroup = shallowRef<OcservGroup | null>(null);
@@ -55,13 +60,6 @@ const detailsGroup = shallowRef<OcservGroup | null>(null);
 const deleteOpen = shallowRef(false);
 const deleteGroup = shallowRef<OcservGroup | null>(null);
 
-const filteredGroups = computed(() => {
-  const value = query.value.trim().toLocaleLowerCase();
-  if (!value) return groups.value;
-  return groups.value.filter(({ name }) =>
-    name.toLocaleLowerCase().includes(value),
-  );
-});
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(meta.value.total_records / meta.value.size)),
 );
@@ -119,6 +117,11 @@ async function confirmDelete(): Promise<void> {
   }
 }
 
+function changePage(page: number): void {
+  if (loading.value || page === meta.value.page) return;
+  void refresh(page);
+}
+
 onMounted(() => refresh());
 </script>
 
@@ -156,21 +159,9 @@ onMounted(() => refresh());
         </CardAction>
       </CardHeader>
 
-      <CardContent class="flex flex-col gap-4 px-0">
-        <Field class="px-6">
-          <FieldLabel for="ocserv-group-search" class="sr-only">
-            {{ t("ocservGroups.search") }}
-          </FieldLabel>
-          <Input
-            id="ocserv-group-search"
-            v-model="query"
-            :placeholder="t('ocservGroups.searchPlaceholder')"
-            type="search"
-          />
-        </Field>
-
+      <CardContent>
         <OcservGroupsTable
-          :groups="filteredGroups"
+          :groups="groups"
           :loading="loading"
           @delete="openDelete"
           @edit="openEdit"
@@ -179,7 +170,9 @@ onMounted(() => refresh());
       </CardContent>
 
       <Separator />
-      <CardFooter class="flex items-center justify-between">
+      <CardFooter
+        class="flex flex-col items-center gap-3 sm:flex-row sm:justify-between"
+      >
         <span class="text-sm text-muted-foreground">
           {{
             t("ocservGroups.pageStatus", {
@@ -189,26 +182,39 @@ onMounted(() => refresh());
             })
           }}
         </span>
-        <div class="flex gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            :disabled="loading || meta.page <= 1"
-            @click="refresh(meta.page - 1)"
-          >
-            {{ t("ocservGroups.previous") }}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            :disabled="loading || meta.page >= totalPages"
-            @click="refresh(meta.page + 1)"
-          >
-            {{ t("ocservGroups.next") }}
-          </Button>
-        </div>
+        <Pagination
+          v-slot="{ page }"
+          class="mx-0 w-auto"
+          :disabled="loading"
+          :items-per-page="meta.size"
+          :page="meta.page"
+          :sibling-count="1"
+          show-edges
+          :total="meta.total_records"
+          @update:page="changePage"
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious :label="t('ocservGroups.previous')" />
+            <template
+              v-for="(item, index) in items"
+              :key="`${item.type}-${index}`"
+            >
+              <PaginationItem
+                v-if="item.type === 'page'"
+                :value="item.value"
+                :is-active="item.value === page"
+              >
+                {{ item.value }}
+              </PaginationItem>
+              <PaginationEllipsis
+                v-else
+                :index="index"
+                :label="t('ocservGroups.morePages')"
+              />
+            </template>
+            <PaginationNext :label="t('ocservGroups.next')" />
+          </PaginationContent>
+        </Pagination>
       </CardFooter>
     </Card>
 

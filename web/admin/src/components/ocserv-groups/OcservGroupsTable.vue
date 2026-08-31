@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { MoreHorizontal, Network } from "@lucide/vue";
+import type { ColumnDef } from "@tanstack/vue-table";
+import { ArrowUpDown, MoreHorizontal, Network } from "@lucide/vue";
+import { createColumnHelper } from "@tanstack/vue-table";
+import { createReusableTemplate } from "@vueuse/core";
+import { h } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type {
@@ -7,6 +11,7 @@ import type {
   OcservGroupWithTraffic,
 } from "@/api/services/ocserv-groups";
 import { Button } from "@/components/ui/button";
+import { DataTable, type DataTableFeatures } from "@/components/ui/data-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,15 +26,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 defineProps<{
   groups: OcservGroupWithTraffic[];
@@ -41,6 +37,9 @@ const emit = defineEmits<{
   view: [group: OcservGroup];
 }>();
 const { locale, t } = useI18n({ useScope: "global" });
+const [DefineActions, ReuseActions] = createReusableTemplate<{
+  group: OcservGroupWithTraffic;
+}>();
 
 function configuredFieldCount(group: OcservGroup): number {
   return Object.values(group.config ?? {}).filter((value) => value != null)
@@ -52,90 +51,176 @@ function bytesToGigabytes(value: number): string {
     maximumFractionDigits: 3,
   }).format(value / 1024 ** 3);
 }
+
+const columnHelper = createColumnHelper<
+  DataTableFeatures,
+  OcservGroupWithTraffic
+>();
+const columns: ColumnDef<DataTableFeatures, OcservGroupWithTraffic>[] =
+  columnHelper.columns([
+    columnHelper.accessor((group) => group.id ?? 0, {
+      id: "id",
+      header: ({ column }) =>
+        h(
+          Button,
+          {
+            type: "button",
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => [
+            t("ocservGroups.id"),
+            h(ArrowUpDown, { "data-icon": "inline-end" }),
+          ],
+        ),
+      cell: ({ row }) =>
+        h(
+          "span",
+          { class: "font-mono text-muted-foreground" },
+          row.original.id ?? "—",
+        ),
+    }),
+    columnHelper.accessor("name", {
+      filterFn: "includesString",
+      sortFn: "text",
+      header: ({ column }) =>
+        h(
+          Button,
+          {
+            type: "button",
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => [
+            t("ocservGroups.name"),
+            h(ArrowUpDown, { "data-icon": "inline-end" }),
+          ],
+        ),
+      cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+    }),
+    columnHelper.accessor((group) => configuredFieldCount(group), {
+      id: "config",
+      header: ({ column }) =>
+        h(
+          Button,
+          {
+            type: "button",
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => [
+            t("ocservGroups.config"),
+            h(ArrowUpDown, { "data-icon": "inline-end" }),
+          ],
+        ),
+      cell: ({ getValue }) =>
+        h("span", { class: "text-muted-foreground" }, String(getValue())),
+    }),
+    columnHelper.accessor("total_rx", {
+      header: ({ column }) =>
+        h(
+          Button,
+          {
+            type: "button",
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => [
+            t("ocservGroups.totalRx"),
+            h(ArrowUpDown, { "data-icon": "inline-end" }),
+          ],
+        ),
+      cell: ({ getValue }) =>
+        h("span", { class: "font-mono tabular-nums" }, [
+          bytesToGigabytes(getValue()),
+          ` ${t("dashboard.gigabytes")}`,
+        ]),
+    }),
+    columnHelper.accessor("total_tx", {
+      header: ({ column }) =>
+        h(
+          Button,
+          {
+            type: "button",
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => [
+            t("ocservGroups.totalTx"),
+            h(ArrowUpDown, { "data-icon": "inline-end" }),
+          ],
+        ),
+      cell: ({ getValue }) =>
+        h("span", { class: "font-mono tabular-nums" }, [
+          bytesToGigabytes(getValue()),
+          ` ${t("dashboard.gigabytes")}`,
+        ]),
+    }),
+    columnHelper.display({
+      id: "actions",
+      enableSorting: false,
+      header: () => h("span", { class: "sr-only" }, t("ocservGroups.actions")),
+      cell: ({ row }) => h(ReuseActions, { group: row.original }),
+    }),
+  ]);
 </script>
 
 <template>
-  <div v-if="loading" class="flex flex-col gap-3 p-4" aria-busy="true">
-    <Skeleton v-for="index in 6" :key="index" class="h-12 w-full" />
-  </div>
+  <DefineActions v-slot="{ group }">
+    <div class="text-end">
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :aria-label="t('ocservGroups.actions')"
+          >
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem @select="emit('view', group)">
+              {{ t("ocservGroups.view") }}
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="emit('edit', group)">
+              {{ t("ocservGroups.edit") }}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              @select="emit('delete', group)"
+            >
+              {{ t("ocservGroups.delete") }}
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  </DefineActions>
 
-  <Empty v-else-if="groups.length === 0" class="border-0 py-14">
-    <EmptyHeader>
-      <EmptyMedia variant="icon">
-        <Network />
-      </EmptyMedia>
-      <EmptyTitle>
-        {{ t("ocservGroups.noGroups") }}
-      </EmptyTitle>
-      <EmptyDescription>
-        {{ t("ocservGroups.noGroupsDescription") }}
-      </EmptyDescription>
-    </EmptyHeader>
-  </Empty>
-
-  <Table v-else>
-    <TableHeader>
-      <TableRow>
-        <TableHead>{{ t("ocservGroups.id") }}</TableHead>
-        <TableHead>{{ t("ocservGroups.name") }}</TableHead>
-        <TableHead>{{ t("ocservGroups.config") }}</TableHead>
-        <TableHead>{{ t("ocservGroups.totalRx") }}</TableHead>
-        <TableHead>{{ t("ocservGroups.totalTx") }}</TableHead>
-        <TableHead class="w-16 text-end">
-          <span class="sr-only">{{ t("ocservGroups.actions") }}</span>
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow v-for="group in groups" :key="group.id ?? group.name">
-        <TableCell class="font-mono text-muted-foreground">
-          {{ group.id ?? "—" }}
-        </TableCell>
-        <TableCell class="font-medium">
-          {{ group.name }}
-        </TableCell>
-        <TableCell class="text-muted-foreground">
-          {{ configuredFieldCount(group) }}
-        </TableCell>
-        <TableCell class="font-mono tabular-nums">
-          {{ bytesToGigabytes(group.total_rx) }}
-          {{ t("dashboard.gigabytes") }}
-        </TableCell>
-        <TableCell class="font-mono tabular-nums">
-          {{ bytesToGigabytes(group.total_tx) }}
-          {{ t("dashboard.gigabytes") }}
-        </TableCell>
-        <TableCell class="text-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                :aria-label="t('ocservGroups.actions')"
-              >
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem @select="emit('view', group)">
-                  {{ t("ocservGroups.view") }}
-                </DropdownMenuItem>
-                <DropdownMenuItem @select="emit('edit', group)">
-                  {{ t("ocservGroups.edit") }}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  @select="emit('delete', group)"
-                >
-                  {{ t("ocservGroups.delete") }}
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+  <DataTable
+    :columns="columns"
+    :data="groups"
+    filter-column="name"
+    :filter-label="t('ocservGroups.search')"
+    :filter-placeholder="t('ocservGroups.searchPlaceholder')"
+    :loading="loading"
+  >
+    <template #empty>
+      <Empty class="border-0 py-14">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Network />
+          </EmptyMedia>
+          <EmptyTitle>
+            {{ t("ocservGroups.noGroups") }}
+          </EmptyTitle>
+          <EmptyDescription>
+            {{ t("ocservGroups.noGroupsDescription") }}
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    </template>
+  </DataTable>
 </template>
