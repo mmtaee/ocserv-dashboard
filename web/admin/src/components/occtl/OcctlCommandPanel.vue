@@ -123,7 +123,7 @@ function submit(): void {
           </Field>
         </FieldGroup>
       </CardContent>
-      <CardFooter class="justify-end">
+      <CardFooter class="justify-end mt-5">
         <Button type="submit" :disabled="pending">
           <Spinner v-if="pending" data-icon="inline-start" />
           <Play v-else data-icon="inline-start" />
