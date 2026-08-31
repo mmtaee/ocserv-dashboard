@@ -24,31 +24,31 @@ This is a critical gotcha that can cause silent failures in production.
 
 ```javascript
 // stores/user.js - WRONG: Private state breaks SSR/DevTools
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   // Public state
-  const name = ref('')
-  const email = ref('')
+  const name = ref("");
+  const email = ref("");
 
   // "Private" state - NOT returned
-  const authToken = ref('')  // Won't be serialized for SSR!
-  const lastFetchTime = ref(null)  // Won't appear in DevTools!
+  const authToken = ref(""); // Won't be serialized for SSR!
+  const lastFetchTime = ref(null); // Won't appear in DevTools!
 
-  const isLoggedIn = computed(() => !!authToken.value)
+  const isLoggedIn = computed(() => !!authToken.value);
 
   async function login(credentials) {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials)
-    })
-    const data = await response.json()
+    const response = await fetch("/api/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+    const data = await response.json();
 
-    authToken.value = data.token  // This state won't transfer to client in SSR!
-    name.value = data.name
-    email.value = data.email
-    lastFetchTime.value = Date.now()
+    authToken.value = data.token; // This state won't transfer to client in SSR!
+    name.value = data.name;
+    email.value = data.email;
+    lastFetchTime.value = Date.now();
   }
 
   // WRONG: Not returning authToken and lastFetchTime
@@ -56,9 +56,9 @@ export const useUserStore = defineStore('user', () => {
     name,
     email,
     isLoggedIn,
-    login
-  }
-})
+    login,
+  };
+});
 ```
 
 **What breaks:**
@@ -72,37 +72,37 @@ export const useUserStore = defineStore('user', () => {
 
 ```javascript
 // stores/user.js - CORRECT: All state returned
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   // All state properties
-  const name = ref('')
-  const email = ref('')
-  const authToken = ref('')
-  const lastFetchTime = ref(null)
+  const name = ref("");
+  const email = ref("");
+  const authToken = ref("");
+  const lastFetchTime = ref(null);
 
   // Getters
-  const isLoggedIn = computed(() => !!authToken.value)
+  const isLoggedIn = computed(() => !!authToken.value);
 
   // Actions
   async function login(credentials) {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials)
-    })
-    const data = await response.json()
+    const response = await fetch("/api/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+    const data = await response.json();
 
-    authToken.value = data.token
-    name.value = data.name
-    email.value = data.email
-    lastFetchTime.value = Date.now()
+    authToken.value = data.token;
+    name.value = data.name;
+    email.value = data.email;
+    lastFetchTime.value = Date.now();
   }
 
   function logout() {
-    authToken.value = ''
-    name.value = ''
-    email.value = ''
+    authToken.value = "";
+    name.value = "";
+    email.value = "";
   }
 
   // CORRECT: Return ALL state, getters, and actions
@@ -116,9 +116,9 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn,
     // Actions
     login,
-    logout
-  }
-})
+    logout,
+  };
+});
 ```
 
 ## If You Need "Private" State
@@ -126,20 +126,20 @@ export const useUserStore = defineStore('user', () => {
 Use naming conventions instead of actually hiding state:
 
 ```javascript
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   // Convention: underscore prefix for "internal" state
   // Still returned, but signals it's not for external use
-  const _authToken = ref('')
-  const _lastFetchTime = ref(null)
+  const _authToken = ref("");
+  const _lastFetchTime = ref(null);
 
   // Public state
-  const name = ref('')
-  const email = ref('')
+  const name = ref("");
+  const email = ref("");
 
-  const isLoggedIn = computed(() => !!_authToken.value)
+  const isLoggedIn = computed(() => !!_authToken.value);
 
   // Return everything - convention communicates intent
   return {
@@ -149,9 +149,9 @@ export const useUserStore = defineStore('user', () => {
     // Public
     name,
     email,
-    isLoggedIn
-  }
-})
+    isLoggedIn,
+  };
+});
 ```
 
 ## Option Stores Don't Have This Problem
@@ -160,26 +160,26 @@ With the Options API syntax, all state is automatically tracked:
 
 ```javascript
 // stores/user.js - Options syntax: all state is tracked automatically
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useUserStore = defineStore('user', {
+export const useUserStore = defineStore("user", {
   state: () => ({
-    name: '',
-    email: '',
-    authToken: '',  // Automatically included
-    lastFetchTime: null  // Automatically included
+    name: "",
+    email: "",
+    authToken: "", // Automatically included
+    lastFetchTime: null, // Automatically included
   }),
 
   getters: {
-    isLoggedIn: (state) => !!state.authToken
+    isLoggedIn: (state) => !!state.authToken,
   },
 
   actions: {
     async login(credentials) {
       // ...
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ## How Setup Stores Map to State
@@ -187,41 +187,43 @@ export const useUserStore = defineStore('user', {
 Understanding the mapping helps avoid mistakes:
 
 ```javascript
-defineStore('example', () => {
+defineStore("example", () => {
   // ref() becomes state
-  const count = ref(0)  // → state.count
+  const count = ref(0); // → state.count
 
   // computed() becomes getters
-  const double = computed(() => count.value * 2)  // → getters.double
+  const double = computed(() => count.value * 2); // → getters.double
 
   // Regular functions become actions
-  function increment() {  // → actions.increment
-    count.value++
+  function increment() {
+    // → actions.increment
+    count.value++;
   }
 
   // CRITICAL: Must return all of them
-  return { count, double, increment }
-})
+  return { count, double, increment };
+});
 ```
 
 ## Debugging: Verify All State is Returned
 
 ```javascript
 // Test that DevTools can see all state
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // In DevTools console or tests:
-console.log(userStore.$state)
+console.log(userStore.$state);
 // Should include ALL reactive state properties
 
 // Check what's returned
-console.log(Object.keys(userStore))
+console.log(Object.keys(userStore));
 // Should include: name, email, authToken, lastFetchTime, isLoggedIn, login, logout
 ```
 
 ## Reference
+
 - [Pinia - Setup Stores](https://pinia.vuejs.org/core-concepts/#setup-stores)
 - [Pinia - SSR](https://pinia.vuejs.org/ssr/)
 - [Mastering Pinia - Common Mistakes](https://masteringpinia.com/blog/top-5-mistakes-to-avoid-when-using-pinia)

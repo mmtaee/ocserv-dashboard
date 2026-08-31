@@ -22,6 +22,7 @@ tags: [typescript, options-api, tsconfig, this-typing, configuration]
 TypeScript's default behavior without strict mode allows implicit `any` typing, which defeats the purpose of using TypeScript with Vue's Options API.
 
 **tsconfig.json without strict mode:**
+
 ```json
 {
   "compilerOptions": {
@@ -32,25 +33,26 @@ TypeScript's default behavior without strict mode allows implicit `any` typing, 
 ```
 
 **Component with hidden type errors:**
+
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
     return {
       count: 0,
-      message: 'Hello'
-    }
+      message: "Hello",
+    };
   },
   methods: {
     increment() {
       // Without strict mode, these errors are SILENT:
-      this.cont++          // Typo: should be 'count'
-      this.nonExistent     // Property doesn't exist
-      this.message.toFixed() // Wrong method for string
-    }
-  }
-})
+      this.cont++; // Typo: should be 'count'
+      this.nonExistent; // Property doesn't exist
+      this.message.toFixed(); // Wrong method for string
+    },
+  },
+});
 ```
 
 All of the above errors compile successfully without strict mode because `this` is implicitly `any`.
@@ -58,6 +60,7 @@ All of the above errors compile successfully without strict mode because `this` 
 ## Correct Configuration
 
 **Recommended tsconfig.json:**
+
 ```json
 {
   "compilerOptions": {
@@ -72,6 +75,7 @@ All of the above errors compile successfully without strict mode because `this` 
 ```
 
 **Minimum for Options API type safety:**
+
 ```json
 {
   "compilerOptions": {
@@ -84,43 +88,43 @@ All of the above errors compile successfully without strict mode because `this` 
 
 The `strict` flag is a shorthand for enabling multiple type-checking options:
 
-| Option | Effect |
-|--------|--------|
-| `noImplicitThis` | Errors on `this` with implicit `any` type |
-| `noImplicitAny` | Errors on expressions with implicit `any` type |
-| `strictNullChecks` | null and undefined are distinct types |
-| `strictFunctionTypes` | Stricter function parameter checking |
-| `strictPropertyInitialization` | Class properties must be initialized |
-| `strictBindCallApply` | Stricter bind, call, apply typing |
-| `alwaysStrict` | Emits "use strict" in output |
+| Option                         | Effect                                         |
+| ------------------------------ | ---------------------------------------------- |
+| `noImplicitThis`               | Errors on `this` with implicit `any` type      |
+| `noImplicitAny`                | Errors on expressions with implicit `any` type |
+| `strictNullChecks`             | null and undefined are distinct types          |
+| `strictFunctionTypes`          | Stricter function parameter checking           |
+| `strictPropertyInitialization` | Class properties must be initialized           |
+| `strictBindCallApply`          | Stricter bind, call, apply typing              |
+| `alwaysStrict`                 | Emits "use strict" in output                   |
 
 ## Correct Component with Proper Typing
 
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
     return {
       count: 0,
-      message: 'Hello'
-    }
+      message: "Hello",
+    };
   },
   computed: {
     doubleCount(): number {
-      return this.count * 2  // 'this.count' is typed as number
-    }
+      return this.count * 2; // 'this.count' is typed as number
+    },
   },
   methods: {
     increment() {
-      this.count++           // Type-safe: count is number
+      this.count++; // Type-safe: count is number
       // this.cont++         // ERROR: Property 'cont' does not exist
     },
     greet(name: string) {
-      return `${this.message}, ${name}!`  // Type-safe
-    }
-  }
-})
+      return `${this.message}, ${name}!`; // Type-safe
+    },
+  },
+});
 ```
 
 ## Common Errors After Enabling Strict Mode
@@ -129,7 +133,7 @@ export default defineComponent({
 
 ```typescript
 // Before: worked silently
-this.unknownProp
+this.unknownProp;
 
 // After: TypeScript error
 // Property 'unknownProp' does not exist on type 'ComponentPublicInstance<...>'
@@ -150,6 +154,7 @@ methods: {
 ```
 
 Fix with proper null checks:
+
 ```typescript
 methods: {
   getFirst() {
@@ -166,28 +171,28 @@ Even with strict mode, you must use `defineComponent()` to enable proper type in
 // BAD - No type inference for 'this'
 export default {
   data() {
-    return { count: 0 }
+    return { count: 0 };
   },
   methods: {
     increment() {
-      this.count++  // 'this' is any even with strict mode!
-    }
-  }
-}
+      this.count++; // 'this' is any even with strict mode!
+    },
+  },
+};
 
 // GOOD - Full type inference
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
-    return { count: 0 }
+    return { count: 0 };
   },
   methods: {
     increment() {
-      this.count++  // 'this.count' is properly typed as number
-    }
-  }
-})
+      this.count++; // 'this.count' is properly typed as number
+    },
+  },
+});
 ```
 
 ## Reference

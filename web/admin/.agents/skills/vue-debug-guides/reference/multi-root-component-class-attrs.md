@@ -48,8 +48,8 @@ When a Vue 3 component has multiple root elements, class and style bindings from
 
 ```vue
 <script setup>
-import { useAttrs } from 'vue'
-const attrs = useAttrs()
+import { useAttrs } from "vue";
+const attrs = useAttrs();
 // attrs.class and attrs.style are available
 </script>
 
@@ -67,13 +67,13 @@ For single-root components where you want to control attribute placement:
 ```vue
 <script>
 export default {
-  inheritAttrs: false
-}
+  inheritAttrs: false,
+};
 </script>
 
 <script setup>
-import { useAttrs } from 'vue'
-const attrs = useAttrs()
+import { useAttrs } from "vue";
+const attrs = useAttrs();
 </script>
 
 <template>

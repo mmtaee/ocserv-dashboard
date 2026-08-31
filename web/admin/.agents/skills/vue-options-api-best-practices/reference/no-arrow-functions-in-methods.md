@@ -19,50 +19,53 @@ Arrow functions lexically bind `this` from their enclosing scope, not from the o
 - [ ] Arrow functions ARE allowed inside methods for callbacks
 
 **Incorrect:**
+
 ```javascript
 export default {
   data() {
-    return { count: 0 }
+    return { count: 0 };
   },
   methods: {
     // WRONG: Arrow function - `this` will be undefined
     increment: () => {
-      this.count++ // Error: Cannot read property 'count' of undefined
+      this.count++; // Error: Cannot read property 'count' of undefined
     },
     // WRONG: Arrow function assigned to property
     decrement: () => {
-      this.count--
-    }
-  }
-}
+      this.count--;
+    },
+  },
+};
 ```
 
 **Correct:**
+
 ```javascript
 export default {
   data() {
-    return { count: 0 }
+    return { count: 0 };
   },
   methods: {
     // CORRECT: ES6 method shorthand (preferred)
     increment() {
-      this.count++ // Works! this refers to component instance
+      this.count++; // Works! this refers to component instance
     },
     // CORRECT: Traditional function expression
-    decrement: function() {
-      this.count--
+    decrement: function () {
+      this.count--;
     },
     // Arrow functions ARE fine for callbacks INSIDE methods
     fetchData() {
-      fetch('/api/data')
-        .then(response => response.json())
-        .then(data => {
-          this.data = data // Arrow function inherits `this` from fetchData
-        })
-    }
-  }
-}
+      fetch("/api/data")
+        .then((response) => response.json())
+        .then((data) => {
+          this.data = data; // Arrow function inherits `this` from fetchData
+        });
+    },
+  },
+};
 ```
 
 ## Reference
+
 - [Vue.js Methods - Avoid Arrow Functions](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#methods)

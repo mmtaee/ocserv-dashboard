@@ -15,7 +15,7 @@ const props = withDefaults(
     percent: 0,
     used: undefined,
     total: undefined,
-    variant: "ring",
+    variant: "liquid",
   },
 );
 
@@ -31,11 +31,16 @@ const normalizedPercent = computed(() =>
 const ringOffset = computed(
   () => circumference * (1 - normalizedPercent.value / 100),
 );
-const waveY = computed(() => 94 - normalizedPercent.value * 0.88);
-const wavePath = computed(
-  () =>
-    `M 0 ${waveY.value} Q 25 ${waveY.value - 6} 50 ${waveY.value} T 100 ${waveY.value} V 100 H 0 Z`,
-);
+const fillY = computed(() => 100 - normalizedPercent.value);
+const wavePaths = computed(() => {
+  const y = fillY.value;
+  const amplitude = Math.min(5, y, 100 - y);
+
+  return {
+    back: `M 0 ${y} C 18 ${y + amplitude} 32 ${y - amplitude} 50 ${y} C 68 ${y + amplitude} 82 ${y - amplitude} 100 ${y} V 100 H 0 Z`,
+    front: `M 0 ${y} C 16 ${y - amplitude} 34 ${y + amplitude} 50 ${y} C 66 ${y - amplitude} 84 ${y + amplitude} 100 ${y} V 100 H 0 Z`,
+  };
+});
 const percentLabel = computed(() =>
   new Intl.NumberFormat(locale.value, { maximumFractionDigits: 2 }).format(
     normalizedPercent.value,
@@ -86,7 +91,12 @@ const detail = computed(() => {
           :stroke-dashoffset="ringOffset"
         />
       </svg>
-      <svg v-else viewBox="0 0 100 100" class="size-full" aria-hidden="true">
+      <svg
+        v-else-if="variant === 'liquid'"
+        viewBox="0 0 100 100"
+        class="size-full"
+        aria-hidden="true"
+      >
         <defs>
           <clipPath :id="clipId">
             <circle cx="50" cy="50" r="44" />
@@ -101,8 +111,12 @@ const detail = computed(() => {
         />
         <g :clip-path="`url(#${clipId})`">
           <path
-            :d="wavePath"
-            class="fill-primary transition-[d] duration-500"
+            :d="wavePaths.back"
+            class="fill-primary/45 transition-all duration-500"
+          />
+          <path
+            :d="wavePaths.front"
+            class="fill-primary transition-all duration-500"
           />
         </g>
         <circle

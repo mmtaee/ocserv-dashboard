@@ -20,6 +20,7 @@ The ESLint rule `vue/no-use-v-if-with-v-for` enforces this best practice.
 - [ ] Enable eslint-plugin-vue rule `vue/no-use-v-if-with-v-for`
 
 **Incorrect:**
+
 ```html
 <!-- WRONG: v-if and v-for on same element - ambiguous precedence -->
 <template>
@@ -51,22 +52,21 @@ The ESLint rule `vue/no-use-v-if-with-v-for` enforces this best practice.
 ```
 
 **Correct:**
+
 ```html
 <!-- CORRECT: Filter with computed property -->
 <template>
-  <li v-for="user in activeUsers" :key="user.id">
-    {{ user.name }}
-  </li>
+  <li v-for="user in activeUsers" :key="user.id">{{ user.name }}</li>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+  import { computed } from "vue";
 
-const props = defineProps(['users'])
+  const props = defineProps(["users"]);
 
-const activeUsers = computed(() =>
-  props.users.filter(user => user.isActive)
-)
+  const activeUsers = computed(() =>
+    props.users.filter((user) => user.isActive),
+  );
 </script>
 ```
 
@@ -74,9 +74,7 @@ const activeUsers = computed(() =>
 <!-- CORRECT: Wrap with <template v-if> for conditional list -->
 <template>
   <template v-if="shouldShowList">
-    <li v-for="user in users" :key="user.id">
-      {{ user.name }}
-    </li>
+    <li v-for="user in users" :key="user.id">{{ user.name }}</li>
   </template>
 </template>
 ```
@@ -86,9 +84,7 @@ const activeUsers = computed(() =>
 <template>
   <ul>
     <template v-for="user in users" :key="user.id">
-      <li v-if="user.isActive">
-        {{ user.name }}
-      </li>
+      <li v-if="user.isActive">{{ user.name }}</li>
     </template>
   </ul>
 </template>
@@ -117,20 +113,19 @@ const activeUsers = computed(() =>
 // 4. Testable - can unit test the filtering logic
 // 5. No ambiguity about intent
 
-const activeUsers = computed(() =>
-  users.value.filter(u => u.isActive)
-)
+const activeUsers = computed(() => users.value.filter((u) => u.isActive));
 
 // Can add more complex filtering
 const filteredUsers = computed(() =>
   users.value
-    .filter(u => u.isActive)
-    .filter(u => u.role === selectedRole.value)
-    .sort((a, b) => a.name.localeCompare(b.name))
-)
+    .filter((u) => u.isActive)
+    .filter((u) => u.role === selectedRole.value)
+    .sort((a, b) => a.name.localeCompare(b.name)),
+);
 ```
 
 ## Reference
+
 - [Vue.js Style Guide - Avoid v-if with v-for](https://vuejs.org/style-guide/rules-essential.html#avoid-v-if-with-v-for)
 - [Vue 3 Migration Guide - v-if vs v-for Precedence](https://v3-migration.vuejs.org/breaking-changes/v-if-v-for)
 - [ESLint Plugin Vue - no-use-v-if-with-v-for](https://eslint.vuejs.org/rules/no-use-v-if-with-v-for)

@@ -18,6 +18,7 @@ tags: [vue3, events, keyboard, modifiers, keyup, shortcuts]
 - [ ] Test keyboard shortcuts with proper key release order
 
 **Incorrect:**
+
 ```html
 <!-- WRONG: Expecting this to fire when Ctrl is released -->
 <template>
@@ -38,6 +39,7 @@ tags: [vue3, events, keyboard, modifiers, keyup, shortcuts]
 ```
 
 **Correct:**
+
 ```html
 <!-- CORRECT: User must hold Ctrl while releasing another key -->
 <template>
@@ -47,10 +49,10 @@ tags: [vue3, events, keyboard, modifiers, keyup, shortcuts]
 </template>
 
 <script setup>
-function saveDocument(event) {
-  event.preventDefault()
-  // Save logic here
-}
+  function saveDocument(event) {
+    event.preventDefault();
+    // Save logic here
+  }
 </script>
 ```
 
@@ -95,10 +97,14 @@ function saveDocument(event) {
 
 ```html
 <!-- Available system modifiers -->
-<input @keyup.ctrl="..." />   <!-- Ctrl key -->
-<input @keyup.alt="..." />    <!-- Alt key (Option on Mac) -->
-<input @keyup.shift="..." />  <!-- Shift key -->
-<input @keyup.meta="..." />   <!-- Cmd on Mac, Windows key on PC -->
+<input @keyup.ctrl="..." />
+<!-- Ctrl key -->
+<input @keyup.alt="..." />
+<!-- Alt key (Option on Mac) -->
+<input @keyup.shift="..." />
+<!-- Shift key -->
+<input @keyup.meta="..." />
+<!-- Cmd on Mac, Windows key on PC -->
 ```
 
 ## The .exact Modifier
@@ -133,5 +139,6 @@ function saveDocument(event) {
 ```
 
 ## Reference
+
 - [Vue.js Event Handling - Key Modifiers](https://vuejs.org/guide/essentials/event-handling.html#key-modifiers)
 - [Vue.js Event Handling - System Modifier Keys](https://vuejs.org/guide/essentials/event-handling.html#system-modifier-keys)

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {useI18n} from "vue-i18n";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import AppSidebar from "@/components/AppSidebar.vue";
 import SiteHeader from "@/components/SiteHeader.vue";
-import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
-import {isRtlLocale} from "@/locales";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { isRtlLocale } from "@/locales";
 
 const { locale } = useI18n({ useScope: "global" });
 const sidebarSide = computed(() =>

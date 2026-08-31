@@ -19,6 +19,7 @@ tags: [vue3, events, components, emit, click, migration]
 - [ ] For multi-root components, explicitly bind `$attrs` or emit events
 
 **Incorrect:**
+
 ```html
 <!-- WRONG: Expecting native click to work on custom component -->
 <template>
@@ -46,6 +47,7 @@ tags: [vue3, events, components, emit, click, migration]
 ```
 
 **Correct:**
+
 ```html
 <!-- CORRECT: Child component emits the click event -->
 <!-- MyButton.vue -->
@@ -56,7 +58,7 @@ tags: [vue3, events, components, emit, click, migration]
 </template>
 
 <script setup>
-defineEmits(['click'])
+  defineEmits(["click"]);
 </script>
 
 <!-- Parent.vue -->
@@ -92,9 +94,9 @@ defineEmits(['click'])
 </template>
 
 <script setup>
-defineOptions({
-  inheritAttrs: false
-})
+  defineOptions({
+    inheritAttrs: false,
+  });
 </script>
 ```
 
@@ -123,13 +125,13 @@ defineOptions({
 
 ```javascript
 // In Vue 3, if you declare an event in emits:
-defineEmits(['click'])
+defineEmits(["click"]);
 
 // Then @click on the component ONLY listens to emitted events
 // NOT native click events
 
 // If you don't declare 'click' in emits:
-defineEmits(['custom-event'])
+defineEmits(["custom-event"]);
 
 // Then @click on single-root component will:
 // 1. Fall through to root element as native listener
@@ -141,14 +143,14 @@ defineEmits(['custom-event'])
 ```vue
 <script setup>
 // Define what events this component emits
-const emit = defineEmits(['click', 'update', 'delete'])
+const emit = defineEmits(["click", "update", "delete"]);
 
 function handleClick(event) {
   // Do component logic
-  processClick()
+  processClick();
 
   // Then emit to parent
-  emit('click', event)
+  emit("click", event);
 }
 </script>
 
@@ -175,6 +177,7 @@ function handleClick(event) {
 ```
 
 ## Reference
+
 - [Vue.js Component Events](https://vuejs.org/guide/components/events.html)
 - [Vue.js Fallthrough Attributes](https://vuejs.org/guide/components/attrs.html)
 - [Vue 3 Migration - .native Modifier Removed](https://v3-migration.vuejs.org/breaking-changes/v-on-native-modifier-removed.html)

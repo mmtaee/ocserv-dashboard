@@ -20,18 +20,19 @@ Only use the documented vnode properties: `type`, `props`, `children`, and `key`
 - [ ] Treat vnodes as opaque data structures for rendering, not inspection
 
 **Incorrect:**
+
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
   setup(props, { slots }) {
     return () => {
-      const slotContent = slots.default?.()
+      const slotContent = slots.default?.();
 
       // WRONG: Accessing internal properties
       if (slotContent?.[0]?.el) {
         // el is an internal property
-        console.log(slotContent[0].el.tagName)
+        console.log(slotContent[0].el.tagName);
       }
 
       // WRONG: Using shapeFlag internal property
@@ -39,106 +40,108 @@ export default {
         // This is internal implementation
       }
 
-      return h('div', slotContent)
-    }
-  }
-}
+      return h("div", slotContent);
+    };
+  },
+};
 ```
 
 ```javascript
 // WRONG: Inspecting component instance via vnode
-const vnode = h(MyComponent)
-console.log(vnode.component) // Internal property
-console.log(vnode.appContext) // Internal property
+const vnode = h(MyComponent);
+console.log(vnode.component); // Internal property
+console.log(vnode.appContext); // Internal property
 ```
 
 **Correct:**
+
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
   setup(props, { slots }) {
     return () => {
-      const slotContent = slots.default?.()
+      const slotContent = slots.default?.();
 
       // CORRECT: Only use documented properties
       if (slotContent?.[0]) {
-        const vnode = slotContent[0]
-        console.log(vnode.type)     // Safe: element type or component
-        console.log(vnode.props)    // Safe: props object
-        console.log(vnode.children) // Safe: children
-        console.log(vnode.key)      // Safe: key prop
+        const vnode = slotContent[0];
+        console.log(vnode.type); // Safe: element type or component
+        console.log(vnode.props); // Safe: props object
+        console.log(vnode.children); // Safe: children
+        console.log(vnode.key); // Safe: key prop
       }
 
-      return h('div', slotContent)
-    }
-  }
-}
+      return h("div", slotContent);
+    };
+  },
+};
 ```
 
 ```javascript
-import { h, ref, onMounted } from 'vue'
+import { h, ref, onMounted } from "vue";
 
 export default {
   setup() {
     // CORRECT: Use template refs for DOM access
-    const divRef = ref(null)
+    const divRef = ref(null);
 
     onMounted(() => {
       // Safe way to access DOM element
-      console.log(divRef.value.tagName)
-    })
+      console.log(divRef.value.tagName);
+    });
 
-    return () => h('div', { ref: divRef }, 'Content')
-  }
-}
+    return () => h("div", { ref: divRef }, "Content");
+  },
+};
 ```
 
 ## Documented VNode Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `type` | `string \| Component` | Element tag name or component definition |
-| `props` | `object \| null` | Props passed to the vnode |
-| `children` | `any` | Child vnodes, text, or slots |
-| `key` | `string \| number \| null` | Key for list rendering |
+| Property   | Type                       | Description                              |
+| ---------- | -------------------------- | ---------------------------------------- |
+| `type`     | `string \| Component`      | Element tag name or component definition |
+| `props`    | `object \| null`           | Props passed to the vnode                |
+| `children` | `any`                      | Child vnodes, text, or slots             |
+| `key`      | `string \| number \| null` | Key for list rendering                   |
 
 ## Safe VNode Inspection Patterns
 
 ```javascript
-import { h, isVNode } from 'vue'
+import { h, isVNode } from "vue";
 
 export default {
   setup(props, { slots }) {
     return () => {
-      const children = slots.default?.() || []
+      const children = slots.default?.() || [];
 
       // Safe: Check if something is a vnode
-      children.forEach(child => {
+      children.forEach((child) => {
         if (isVNode(child)) {
           // Safe: Check vnode type
-          if (typeof child.type === 'string') {
-            console.log('Element:', child.type)
-          } else if (typeof child.type === 'object') {
-            console.log('Component:', child.type.name)
+          if (typeof child.type === "string") {
+            console.log("Element:", child.type);
+          } else if (typeof child.type === "object") {
+            console.log("Component:", child.type.name);
           }
 
           // Safe: Read props
           if (child.props?.class) {
-            console.log('Has class:', child.props.class)
+            console.log("Has class:", child.props.class);
           }
         }
-      })
+      });
 
-      return h('div', children)
-    }
-  }
-}
+      return h("div", children);
+    };
+  },
+};
 ```
 
 ## Why This Matters
 
 Vue's internal vnode structure may change for:
+
 - Performance optimizations
 - New feature implementations
 - Bug fixes
@@ -147,5 +150,6 @@ Vue's internal vnode structure may change for:
 Code relying on internal properties will break silently or throw errors when upgrading Vue versions. The documented properties are part of Vue's public API and are guaranteed to remain stable.
 
 ## Reference
+
 - [Vue.js Render Function APIs](https://vuejs.org/api/render-function.html)
 - [Vue.js Render Functions - The Virtual DOM](https://vuejs.org/guide/extras/render-function.html#the-virtual-dom)

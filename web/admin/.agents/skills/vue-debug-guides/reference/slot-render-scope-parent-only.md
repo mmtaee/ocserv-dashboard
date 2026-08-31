@@ -20,10 +20,11 @@ When you provide content for a slot, that content is defined in your parent temp
 - [ ] Check that all template expressions reference data available in the current component
 
 **Incorrect:**
+
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import SubmitButton from './SubmitButton.vue'
+import SubmitButton from "./SubmitButton.vue";
 </script>
 
 <template>
@@ -41,10 +42,10 @@ import SubmitButton from './SubmitButton.vue'
 ```vue
 <!-- SubmitButton.vue (Child) -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const buttonText = ref('Click me')  // Not accessible in parent's slot content
-const isLoading = ref(false)        // Not accessible in parent's slot content
+const buttonText = ref("Click me"); // Not accessible in parent's slot content
+const isLoading = ref(false); // Not accessible in parent's slot content
 </script>
 
 <template>
@@ -55,13 +56,14 @@ const isLoading = ref(false)        // Not accessible in parent's slot content
 ```
 
 **Correct - Use Scoped Slots:**
+
 ```vue
 <!-- SubmitButton.vue (Child) - Expose data via slot props -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const buttonText = ref('Click me')
-const isLoading = ref(false)
+const buttonText = ref("Click me");
+const isLoading = ref(false);
 </script>
 
 <template>
@@ -75,7 +77,7 @@ const isLoading = ref(false)
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import SubmitButton from './SubmitButton.vue'
+import SubmitButton from "./SubmitButton.vue";
 </script>
 
 <template>
@@ -88,15 +90,16 @@ import SubmitButton from './SubmitButton.vue'
 ```
 
 **Correct - Use Parent Data:**
+
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import { ref } from 'vue'
-import SubmitButton from './SubmitButton.vue'
+import { ref } from "vue";
+import SubmitButton from "./SubmitButton.vue";
 
 // Define data in parent where slot content is compiled
-const message = ref('Submit Form')
-const isSubmitting = ref(false)
+const message = ref("Submit Form");
+const isSubmitting = ref(false);
 </script>
 
 <template>
@@ -115,21 +118,22 @@ Think of slots as function parameters:
 ```javascript
 // Slot content is like a callback defined in parent scope
 function Parent() {
-  const parentData = 'Hello'
+  const parentData = "Hello";
 
   // This callback can only see parentData, not childData
   Child((slotProps) => {
-    return parentData + (slotProps?.text || '')
-  })
+    return parentData + (slotProps?.text || "");
+  });
 }
 
 function Child(slotCallback) {
-  const childData = 'World'  // Not visible to callback
+  const childData = "World"; // Not visible to callback
 
   // Must explicitly pass data via slot props
-  return slotCallback({ text: childData })
+  return slotCallback({ text: childData });
 }
 ```
 
 ## Reference
+
 - [Vue.js Slots - Render Scope](https://vuejs.org/guide/components/slots.html#render-scope)

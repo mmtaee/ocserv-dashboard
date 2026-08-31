@@ -23,27 +23,27 @@ tags: [vue3, vue-router, navigation-guards, migration, async]
 // WRONG: Using deprecated next() function
 router.beforeEach((to, from, next) => {
   if (!isAuthenticated) {
-    next('/login')  // Easy to forget this call
+    next("/login"); // Easy to forget this call
   }
   // BUG: next() not called when authenticated - navigation hangs!
-})
+});
 
 // WRONG: Multiple next() calls
 router.beforeEach((to, from, next) => {
   if (!isAuthenticated) {
-    next('/login')
+    next("/login");
   }
-  next()  // BUG: Called twice when not authenticated!
-})
+  next(); // BUG: Called twice when not authenticated!
+});
 
 // WRONG: next() in async code without proper handling
 router.beforeEach(async (to, from, next) => {
-  const user = await fetchUser()
+  const user = await fetchUser();
   if (!user) {
-    next('/login')
+    next("/login");
   }
-  next()  // Still gets called even after redirect!
-})
+  next(); // Still gets called even after redirect!
+});
 ```
 
 ## Solution: Use Return-Based Guards
@@ -52,26 +52,26 @@ router.beforeEach(async (to, from, next) => {
 // CORRECT: Return-based syntax (modern Vue Router 4+)
 router.beforeEach((to, from) => {
   if (!isAuthenticated) {
-    return '/login'  // Redirect
+    return "/login"; // Redirect
   }
   // Return nothing (undefined) to proceed
-})
+});
 
 // CORRECT: Return false to cancel navigation
 router.beforeEach((to, from) => {
   if (hasUnsavedChanges) {
-    return false  // Cancel navigation
+    return false; // Cancel navigation
   }
-})
+});
 
 // CORRECT: Async with return-based syntax
 router.beforeEach(async (to, from) => {
-  const user = await fetchUser()
+  const user = await fetchUser();
   if (!user) {
-    return { name: 'Login', query: { redirect: to.fullPath } }
+    return { name: "Login", query: { redirect: to.fullPath } };
   }
   // Proceed with navigation
-})
+});
 ```
 
 ## Return Values Explained
@@ -79,20 +79,20 @@ router.beforeEach(async (to, from) => {
 ```javascript
 router.beforeEach((to, from) => {
   // Return nothing/undefined - allow navigation
-  return
+  return;
 
   // Return false - cancel navigation, stay on current route
-  return false
+  return false;
 
   // Return string path - redirect to path
-  return '/login'
+  return "/login";
 
   // Return route object - redirect with full control
-  return { name: 'Login', query: { redirect: to.fullPath } }
+  return { name: "Login", query: { redirect: to.fullPath } };
 
   // Return Error - cancel and trigger router.onError()
-  return new Error('Navigation cancelled')
-})
+  return new Error("Navigation cancelled");
+});
 ```
 
 ## If You Must Use next() (Legacy Code)
@@ -103,17 +103,17 @@ If maintaining legacy code that uses `next()`, follow these rules strictly:
 // CORRECT: Exactly one next() call per code path
 router.beforeEach((to, from, next) => {
   if (!isAuthenticated) {
-    next('/login')
-    return  // CRITICAL: Exit after calling next()
+    next("/login");
+    return; // CRITICAL: Exit after calling next()
   }
 
   if (!hasPermission(to)) {
-    next('/forbidden')
-    return  // CRITICAL: Exit after calling next()
+    next("/forbidden");
+    return; // CRITICAL: Exit after calling next()
   }
 
-  next()  // Only reached if all checks pass
-})
+  next(); // Only reached if all checks pass
+});
 ```
 
 ## Error Handling Pattern
@@ -121,20 +121,20 @@ router.beforeEach((to, from, next) => {
 ```javascript
 router.beforeEach(async (to, from) => {
   try {
-    await validateAccess(to)
+    await validateAccess(to);
     // Proceed
   } catch (error) {
     if (error.status === 401) {
-      return '/login'
+      return "/login";
     }
     if (error.status === 403) {
-      return '/forbidden'
+      return "/forbidden";
     }
     // Log error and proceed anyway (or return false)
-    console.error('Access validation failed:', error)
-    return false
+    console.error("Access validation failed:", error);
+    return false;
   }
-})
+});
 ```
 
 ## Key Points
@@ -146,5 +146,6 @@ router.beforeEach(async (to, from) => {
 5. **Test all code paths** - Each branch must result in either return or next()
 
 ## Reference
+
 - [Vue Router Navigation Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html)
 - [RFC: Remove next() from Navigation Guards](https://github.com/vuejs/rfcs/discussions/302)

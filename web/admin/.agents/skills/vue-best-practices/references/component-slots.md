@@ -21,6 +21,7 @@ tags: [vue3, slots, components, typescript, composables]
 ## Shorthand syntax for named slots
 
 **BAD:**
+
 ```vue
 <MyComponent>
   <template v-slot:header> ... </template>
@@ -28,6 +29,7 @@ tags: [vue3, slots, components, typescript, composables]
 ```
 
 **GOOD:**
+
 ```vue
 <MyComponent>
   <template #header> ... </template>
@@ -39,6 +41,7 @@ tags: [vue3, slots, components, typescript, composables]
 Use `$slots` checks when wrapper elements add spacing, borders, or layout constraints.
 
 **BAD:**
+
 ```vue
 <!-- Card.vue -->
 <template>
@@ -59,6 +62,7 @@ Use `$slots` checks when wrapper elements add spacing, borders, or layout constr
 ```
 
 **GOOD:**
+
 ```vue
 <!-- Card.vue -->
 <template>
@@ -83,15 +87,16 @@ Use `$slots` checks when wrapper elements add spacing, borders, or layout constr
 In `<script setup lang="ts">`, use `defineSlots` so slot consumers get autocomplete and static checks.
 
 **BAD:**
+
 ```vue
 <!-- ProductList.vue -->
 <script setup lang="ts">
 interface Product {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-defineProps<{ products: Product[] }>()
+defineProps<{ products: Product[] }>();
 </script>
 
 <template>
@@ -104,20 +109,21 @@ defineProps<{ products: Product[] }>()
 ```
 
 **GOOD:**
+
 ```vue
 <!-- ProductList.vue -->
 <script setup lang="ts">
 interface Product {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-defineProps<{ products: Product[] }>()
+defineProps<{ products: Product[] }>();
 
 defineSlots<{
-  default(props: { product: Product; index: number }): any
-  empty(): any
-}>()
+  default(props: { product: Product; index: number }): any;
+  empty(): any;
+}>();
 </script>
 
 <template>
@@ -135,6 +141,7 @@ defineSlots<{
 Fallback content makes components resilient when parents omit optional slots.
 
 **BAD:**
+
 ```vue
 <!-- SubmitButton.vue -->
 <template>
@@ -145,6 +152,7 @@ Fallback content makes components resilient when parents omit optional slots.
 ```
 
 **GOOD:**
+
 ```vue
 <!-- SubmitButton.vue -->
 <template>
@@ -159,21 +167,22 @@ Fallback content makes components resilient when parents omit optional slots.
 Renderless components are still useful for slot-driven composition, but composables are usually cleaner for logic-only reuse.
 
 **BAD:**
+
 ```vue
 <!-- MouseTracker.vue -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 
-const x = ref(0)
-const y = ref(0)
+const x = ref(0);
+const y = ref(0);
 
 function onMove(event: MouseEvent) {
-  x.value = event.pageX
-  y.value = event.pageY
+  x.value = event.pageX;
+  y.value = event.pageY;
 }
 
-onMounted(() => window.addEventListener('mousemove', onMove))
-onUnmounted(() => window.removeEventListener('mousemove', onMove))
+onMounted(() => window.addEventListener("mousemove", onMove));
+onUnmounted(() => window.removeEventListener("mousemove", onMove));
 </script>
 
 <template>
@@ -182,32 +191,33 @@ onUnmounted(() => window.removeEventListener('mousemove', onMove))
 ```
 
 **GOOD:**
+
 ```ts
 // composables/useMouse.ts
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 
 export function useMouse() {
-  const x = ref(0)
-  const y = ref(0)
+  const x = ref(0);
+  const y = ref(0);
 
   function onMove(event: MouseEvent) {
-    x.value = event.pageX
-    y.value = event.pageY
+    x.value = event.pageX;
+    y.value = event.pageY;
   }
 
-  onMounted(() => window.addEventListener('mousemove', onMove))
-  onUnmounted(() => window.removeEventListener('mousemove', onMove))
+  onMounted(() => window.addEventListener("mousemove", onMove));
+  onUnmounted(() => window.removeEventListener("mousemove", onMove));
 
-  return { x, y }
+  return { x, y };
 }
 ```
 
 ```vue
 <!-- MousePosition.vue -->
 <script setup lang="ts">
-import { useMouse } from '@/composables/useMouse'
+import { useMouse } from "@/composables/useMouse";
 
-const { x, y } = useMouse()
+const { x, y } = useMouse();
 </script>
 
 <template>

@@ -20,12 +20,13 @@ This is a platform-specific bug that only manifests on iOS Safari. Desktop brows
 - [ ] Consider this for any user-facing forms, especially on mobile-first apps
 
 **Problem - iOS users cannot select first option:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-// Initial value is empty string, doesn't match any option
-const selected = ref('')
+  // Initial value is empty string, doesn't match any option
+  const selected = ref("");
 </script>
 
 <template>
@@ -42,11 +43,12 @@ const selected = ref('')
 ```
 
 **Solution - Add disabled placeholder option:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-const selected = ref('')  // Matches the placeholder option
+  const selected = ref(""); // Matches the placeholder option
 </script>
 
 <template>
@@ -72,10 +74,10 @@ const selected = ref('')  // Matches the placeholder option
 ```html
 <!-- If you MUST have a pre-selected default, set the initial value to match -->
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-// Set initial value to match an actual option
-const country = ref('us')  // Pre-selects "United States"
+  // Set initial value to match an actual option
+  const country = ref("us"); // Pre-selects "United States"
 </script>
 
 <template>
@@ -88,4 +90,5 @@ const country = ref('us')  // Pre-selects "United States"
 ```
 
 ## Reference
+
 - [Vue.js Form Input Bindings - Select](https://vuejs.org/guide/essentials/forms.html#select)

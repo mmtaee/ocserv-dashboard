@@ -20,71 +20,74 @@ When you modify reactive state, Vue doesn't update the DOM synchronously. Instea
 - [ ] Consider if you really need DOM access - often you can work with reactive data instead
 
 **Incorrect:**
-```javascript
-import { ref } from 'vue'
 
-const message = ref('Hello')
-const messageEl = ref(null)
+```javascript
+import { ref } from "vue";
+
+const message = ref("Hello");
+const messageEl = ref(null);
 
 function updateMessage() {
-  message.value = 'Updated!'
+  message.value = "Updated!";
 
   // WRONG: DOM still shows "Hello" at this point
-  console.log(messageEl.value.textContent) // "Hello" - stale!
+  console.log(messageEl.value.textContent); // "Hello" - stale!
 
   // WRONG: Scrolling/focusing may not work correctly
-  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
 }
 ```
 
 **Correct:**
-```javascript
-import { ref, nextTick } from 'vue'
 
-const message = ref('Hello')
-const messageEl = ref(null)
+```javascript
+import { ref, nextTick } from "vue";
+
+const message = ref("Hello");
+const messageEl = ref(null);
 
 async function updateMessage() {
-  message.value = 'Updated!'
+  message.value = "Updated!";
 
   // CORRECT: Wait for DOM to update
-  await nextTick()
+  await nextTick();
 
   // Now the DOM is updated
-  console.log(messageEl.value.textContent) // "Updated!"
+  console.log(messageEl.value.textContent); // "Updated!"
 
   // Scrolling and focusing now work correctly
-  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
 }
 
 // Alternative: callback syntax
 function updateWithCallback() {
-  message.value = 'Updated!'
+  message.value = "Updated!";
 
   nextTick(() => {
-    console.log(messageEl.value.textContent) // "Updated!"
-  })
+    console.log(messageEl.value.textContent); // "Updated!"
+  });
 }
 ```
 
 ```vue
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick } from "vue";
 
-const items = ref([])
-const listRef = ref(null)
+const items = ref([]);
+const listRef = ref(null);
 
 async function addItem() {
-  items.value.push({ id: Date.now(), text: 'New item' })
+  items.value.push({ id: Date.now(), text: "New item" });
 
-  await nextTick()
+  await nextTick();
 
   // Now we can safely scroll to the new item
-  listRef.value.lastElementChild?.scrollIntoView({ behavior: 'smooth' })
+  listRef.value.lastElementChild?.scrollIntoView({ behavior: "smooth" });
 }
 </script>
 ```
 
 ## Reference
+
 - [Vue.js Reactivity Fundamentals - DOM Update Timing](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#dom-update-timing)
 - [Vue.js nextTick API](https://vuejs.org/api/general.html#nexttick)

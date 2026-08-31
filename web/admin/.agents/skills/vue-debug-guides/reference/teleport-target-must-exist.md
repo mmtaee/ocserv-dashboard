@@ -20,6 +20,7 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 - [ ] Use Vue 3.5+ `defer` prop when target is rendered later in the same component tree
 
 **Incorrect:**
+
 ```vue
 <template>
   <!-- ERROR: Target doesn't exist yet when Teleport mounts -->
@@ -33,6 +34,7 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 ```
 
 **Correct - Option 1: External container in index.html:**
+
 ```html
 <!-- index.html -->
 <body>
@@ -53,6 +55,7 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 ```
 
 **Correct - Option 2: Teleport to body:**
+
 ```vue
 <template>
   <!-- Safe: body always exists -->
@@ -63,6 +66,7 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 ```
 
 **Correct - Option 3: Vue 3.5+ defer prop:**
+
 ```vue
 <template>
   <!-- Works in Vue 3.5+: defer resolves target after other parts mount -->
@@ -88,7 +92,8 @@ The `defer` prop only waits for elements rendered in the **same mount/update tic
 
   <!-- If this component loads asynchronously, defer won't work -->
   <Suspense>
-    <AsyncComponent />  <!-- Contains #async-container -->
+    <AsyncComponent />
+    <!-- Contains #async-container -->
   </Suspense>
 </template>
 ```
@@ -96,6 +101,7 @@ The `defer` prop only waits for elements rendered in the **same mount/update tic
 ## Common Patterns
 
 ### Recommended: Centralized Teleport Containers
+
 ```html
 <!-- index.html -->
 <body>
@@ -109,5 +115,6 @@ The `defer` prop only waits for elements rendered in the **same mount/update tic
 ```
 
 ## Reference
+
 - [Vue.js Teleport - Using with Vue-rendered Targets](https://vuejs.org/guide/built-ins/teleport.html#using-with-vue-rendered-targets)
 - [Vue.js Teleport - Deferred Teleport](https://vuejs.org/guide/built-ins/teleport.html#deferred-teleport)

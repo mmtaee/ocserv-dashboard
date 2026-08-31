@@ -3,7 +3,16 @@ title: Use Arrow Functions for Prop Validators in TypeScript < 4.7
 impact: HIGH
 impactDescription: Regular functions in prop validators can break type inference for the entire component in TypeScript versions before 4.7
 type: gotcha
-tags: [vue3, typescript, options-api, props, type-inference, defineComponent, legacy]
+tags:
+  [
+    vue3,
+    typescript,
+    options-api,
+    props,
+    type-inference,
+    defineComponent,
+    legacy,
+  ]
 ---
 
 # Use Arrow Functions for Prop Validators in TypeScript < 4.7
@@ -23,13 +32,14 @@ tags: [vue3, typescript, options-api, props, type-inference, defineComponent, le
 TypeScript needs to infer the type of `this` inside regular functions. In Vue's Options API context, this inference can fail in versions before 4.7, causing cascading type inference failures.
 
 **BAD - Can break type inference in TS < 4.7:**
+
 ```typescript
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType } from "vue";
 
 interface Book {
-  title: string
-  author: string
-  year: number
+  title: string;
+  author: string;
+  year: number;
 }
 
 export default defineComponent({
@@ -38,36 +48,37 @@ export default defineComponent({
       type: Object as PropType<Book>,
       required: true,
       // Regular function - causes inference issues in TS < 4.7
-      validator: function(book: Book) {
-        return book.title.length > 0
-      }
+      validator: function (book: Book) {
+        return book.title.length > 0;
+      },
     },
     count: {
       type: Number,
       // Regular function - causes inference issues in TS < 4.7
-      default: function() {
-        return 0
-      }
-    }
+      default: function () {
+        return 0;
+      },
+    },
   },
   // Type inference for computed, methods, etc. may break!
   computed: {
     bookTitle() {
       // 'this' might be typed as 'any' due to broken inference
-      return this.book.title
-    }
-  }
-})
+      return this.book.title;
+    },
+  },
+});
 ```
 
 **GOOD - Use arrow functions:**
+
 ```typescript
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType } from "vue";
 
 interface Book {
-  title: string
-  author: string
-  year: number
+  title: string;
+  author: string;
+  year: number;
 }
 
 export default defineComponent({
@@ -76,21 +87,21 @@ export default defineComponent({
       type: Object as PropType<Book>,
       required: true,
       // Arrow function - safe for all TS versions
-      validator: (book: Book) => book.title.length > 0
+      validator: (book: Book) => book.title.length > 0,
     },
     count: {
       type: Number,
       // Arrow function - safe for all TS versions
-      default: () => 0
-    }
+      default: () => 0,
+    },
   },
   computed: {
     bookTitle() {
       // 'this' is properly typed
-      return this.book.title  // Type: string
-    }
-  }
-})
+      return this.book.title; // Type: string
+    },
+  },
+});
 ```
 
 ## Why Arrow Functions Work

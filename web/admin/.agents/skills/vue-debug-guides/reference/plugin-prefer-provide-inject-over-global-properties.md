@@ -24,18 +24,18 @@ export default {
   install(app, options) {
     // Attaching to globalProperties - only works with Options API
     app.config.globalProperties.$translate = (key: string) => {
-      return key.split('.').reduce((o, i) => o?.[i], options)
-    }
-  }
-}
+      return key.split(".").reduce((o, i) => o?.[i], options);
+    };
+  },
+};
 
 // In component - requires type augmentation for TypeScript
 // Also DOES NOT work in <script setup>
 export default {
   mounted() {
-    console.log(this.$translate('greeting.hello'))
-  }
-}
+    console.log(this.$translate("greeting.hello"));
+  },
+};
 ```
 
 ## Good Practice
@@ -102,11 +102,11 @@ If you must use globalProperties, you need proper type augmentation:
 
 ```typescript
 // types/vue.d.ts
-export {}
+export {};
 
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
-    $translate: (key: string) => string
+    $translate: (key: string) => string;
   }
 }
 ```

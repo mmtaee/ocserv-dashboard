@@ -63,9 +63,14 @@ export default {
     systemUsage: "مصرف سیستم",
     systemUsageDescription: "مصرف زنده منابع سیستم‌عامل.",
     systemUsageError: "آمار مصرف سیستم به‌روزرسانی نشد.",
+    systemAndContainerUsage: "مصرف سیستم و Docker",
+    systemAndContainerUsageDescription:
+      "مصرف زنده منابع سیستم‌عامل و کانتینر Docker.",
     containerUsage: "مصرف کانتینرهای Docker",
     containerUsageDescription: "مصرف زنده منابع کانتینرهای در حال اجرا.",
     containerUsageError: "آمار کانتینرها به‌روزرسانی نشد.",
+    containerCpuUsage: "مصرف پردازنده Docker",
+    containerRamUsage: "مصرف حافظه Docker",
     ocservStatistics: "آمار Ocserv",
     ocservStatisticsDescription:
       "وضعیت زنده سرور Ocserv، نشست‌ها و آمار ترافیک.",

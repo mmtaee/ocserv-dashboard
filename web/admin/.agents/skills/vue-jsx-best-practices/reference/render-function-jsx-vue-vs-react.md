@@ -21,6 +21,7 @@ When writing JSX in Vue, use the same attribute names you would use in regular H
 - [ ] Configure TypeScript properly for Vue JSX type inference
 
 **Incorrect (React-style):**
+
 ```jsx
 // AVOID: React conventions cause TypeScript errors in Vue JSX
 // (Vue runtime is lenient and converts these, but types don't allow them)
@@ -31,24 +32,25 @@ export default {
         <label htmlFor="email">Email:</label>
         <input id="email" className="input-field" />
       </div>
-    )
-  }
-}
+    );
+  },
+};
 ```
 
 ```tsx
 // AVOID: TypeScript will reject className/htmlFor with Vue's JSX types
 const Button = () => (
   <button
-    className="btn btn-primary"  // TS error: Property 'className' does not exist
-    htmlFor="form"               // TS error: Property 'htmlFor' does not exist
+    className="btn btn-primary" // TS error: Property 'className' does not exist
+    htmlFor="form" // TS error: Property 'htmlFor' does not exist
   >
     Submit
   </button>
-)
+);
 ```
 
 **Correct (Vue-style):**
+
 ```jsx
 // CORRECT: Use standard HTML attributes
 export default {
@@ -58,20 +60,14 @@ export default {
         <label for="email">Email:</label>
         <input id="email" class="input-field" />
       </div>
-    )
-  }
-}
+    );
+  },
+};
 ```
 
 ```tsx
 // CORRECT: Vue TSX with HTML attributes
-const Button = () => (
-  <button
-    class="btn btn-primary"
-  >
-    Submit
-  </button>
-)
+const Button = () => <button class="btn btn-primary">Submit</button>;
 ```
 
 ## TypeScript Configuration for Vue JSX
@@ -94,24 +90,24 @@ Starting from Vue 3.4, Vue no longer implicitly registers the global JSX namespa
 For Vite projects, ensure you have the JSX plugin configured in `vite.config.ts`:
 
 ```typescript
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 
 export default defineConfig({
-  plugins: [vue(), vueJsx()]
-})
+  plugins: [vue(), vueJsx()],
+});
 ```
 
 ## Other Attribute Differences
 
-| React JSX | Vue JSX | HTML |
-|-----------|---------|------|
-| className | class | class |
-| htmlFor | for | for |
-| onChange | onInput (for live updates) | oninput |
-| tabIndex | tabindex | tabindex |
-| readOnly | readonly | readonly |
+| React JSX | Vue JSX                    | HTML     |
+| --------- | -------------------------- | -------- |
+| className | class                      | class    |
+| htmlFor   | for                        | for      |
+| onChange  | onInput (for live updates) | oninput  |
+| tabIndex  | tabindex                   | tabindex |
+| readOnly  | readonly                   | readonly |
 
 ## Event Handling in Vue JSX
 
@@ -119,8 +115,8 @@ export default defineConfig({
 // Vue JSX event handling
 export default {
   setup() {
-    const handleClick = () => console.log('clicked')
-    const handleInput = (e) => console.log(e.target.value)
+    const handleClick = () => console.log("clicked");
+    const handleInput = (e) => console.log(e.target.value);
 
     return () => (
       <div>
@@ -128,14 +124,15 @@ export default {
         <input onInput={handleInput} />
 
         {/* Event modifiers via helper */}
-        <div onClick={withModifiers(handleClick, ['self'])}>
+        <div onClick={withModifiers(handleClick, ["self"])}>
           Only triggers on self
         </div>
       </div>
-    )
-  }
-}
+    );
+  },
+};
 ```
 
 ## Reference
+
 - [Vue.js JSX and TSX](https://vuejs.org/guide/extras/render-function.html#jsx-tsx)

@@ -20,11 +20,12 @@ This is a browser limitation, not a Vue issue. If you need to submit one of two 
 - [ ] For form submissions with custom values, handle the transformation server-side or in submit handler
 
 **Problem - false-value not submitted:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-const status = ref('no')  // JavaScript value works correctly
+  const status = ref("no"); // JavaScript value works correctly
 </script>
 
 <template>
@@ -37,7 +38,7 @@ const status = ref('no')  // JavaScript value works correctly
       true-value="yes"
       false-value="no"
       name="status"
-    >
+    />
     <label>Active</label>
 
     <!-- status.value correctly shows "yes" or "no" in Vue -->
@@ -48,22 +49,23 @@ const status = ref('no')  // JavaScript value works correctly
 ```
 
 **Solution 1 - Use radio buttons for two-value submission:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-const status = ref('no')
+  const status = ref("no");
 </script>
 
 <template>
   <form action="/api/update" method="POST">
     <!-- CORRECT: Radio buttons always submit a value -->
     <label>
-      <input type="radio" v-model="status" value="yes" name="status">
+      <input type="radio" v-model="status" value="yes" name="status" />
       Active
     </label>
     <label>
-      <input type="radio" v-model="status" value="no" name="status">
+      <input type="radio" v-model="status" value="no" name="status" />
       Inactive
     </label>
 
@@ -73,28 +75,29 @@ const status = ref('no')
 ```
 
 **Solution 2 - Handle in submit handler (for SPA/AJAX):**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-const isActive = ref(false)
+  const isActive = ref(false);
 
-async function submitForm() {
-  // Transform checkbox state to desired value before sending
-  const payload = {
-    status: isActive.value ? 'yes' : 'no'
+  async function submitForm() {
+    // Transform checkbox state to desired value before sending
+    const payload = {
+      status: isActive.value ? "yes" : "no",
+    };
+
+    await fetch("/api/update", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   }
-
-  await fetch('/api/update', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  })
-}
 </script>
 
 <template>
   <!-- For AJAX submission, checkbox is fine - transform in handler -->
-  <input type="checkbox" v-model="isActive">
+  <input type="checkbox" v-model="isActive" />
   <label>Active</label>
 
   <button @click="submitForm">Save</button>
@@ -102,17 +105,19 @@ async function submitForm() {
 ```
 
 **Solution 3 - Hidden input fallback:**
+
 ```html
 <template>
   <form action="/api/update" method="POST">
     <!-- Hidden input provides fallback value -->
-    <input type="hidden" name="status" value="no">
+    <input type="hidden" name="status" value="no" />
     <!-- Checkbox overrides with "yes" when checked -->
-    <input type="checkbox" name="status" value="yes" v-model="isActive">
+    <input type="checkbox" name="status" value="yes" v-model="isActive" />
     <label>Active</label>
   </form>
 </template>
 ```
 
 ## Reference
+
 - [Vue.js Form Input Bindings - Checkbox](https://vuejs.org/guide/essentials/forms.html#checkbox)

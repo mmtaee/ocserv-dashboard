@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import {Sidebar, SidebarContent, type SidebarProps, SidebarRail} from "@/components/ui/sidebar";
-import {computed} from "vue";
-import {useI18n} from "vue-i18n";
+import {
+  Sidebar,
+  SidebarContent,
+  type SidebarProps,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import NavMain from "@/components/NavMain.vue";
-import {dashboardRoutes} from "@/router/dashboard-routes";
-import {useAuthStore} from "@/stores/auth";
+import { dashboardRoutes } from "@/router/dashboard-routes";
+import { useAuthStore } from "@/stores/auth";
 
 const props = defineProps<SidebarProps>();
 const { t } = useI18n({ useScope: "global" });

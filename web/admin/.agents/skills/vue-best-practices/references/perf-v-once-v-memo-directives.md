@@ -22,6 +22,7 @@ Use `v-once` for truly static content and `v-memo` for conditionally-static cont
 ## v-once: Render Once, Never Update
 
 **BAD:**
+
 ```vue
 <template>
   <!-- BAD: Re-evaluated on every parent re-render -->
@@ -39,6 +40,7 @@ Use `v-once` for truly static content and `v-memo` for conditionally-static cont
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <!-- GOOD: Rendered once, skipped on all future updates -->
@@ -56,16 +58,17 @@ Use `v-once` for truly static content and `v-memo` for conditionally-static cont
 
 <script setup>
 // These values are set once at component creation
-const termsVersion = '2.1'
-const termsContent = fetchedTermsHTML
-const copyrightYear = 2024
-const companyName = 'Acme Corp'
+const termsVersion = "2.1";
+const termsContent = fetchedTermsHTML;
+const copyrightYear = 2024;
+const companyName = "Acme Corp";
 </script>
 ```
 
 ## v-memo: Conditional Memoization for Lists
 
 **BAD:**
+
 ```vue
 <template>
   <!-- BAD: All items re-render when selectedId changes -->
@@ -78,14 +81,11 @@ const companyName = 'Acme Corp'
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <!-- GOOD: Items only re-render when their selection state changes -->
-  <div
-    v-for="item in list"
-    :key="item.id"
-    v-memo="[item.id === selectedId]"
-  >
+  <div v-for="item in list" :key="item.id" v-memo="[item.id === selectedId]">
     <div :class="{ selected: item.id === selectedId }">
       <ExpensiveComponent :data="item" />
     </div>
@@ -93,10 +93,10 @@ const companyName = 'Acme Corp'
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const list = ref([/* many items */])
-const selectedId = ref(null)
+const list = ref([/* many items */]);
+const selectedId = ref(null);
 
 // When selectedId changes:
 // - Only the previously-selected item re-renders (selected: true -> false)
@@ -124,9 +124,9 @@ const selectedId = ref(null)
 </template>
 
 <script setup>
-const selectedId = ref(null)
-const editingId = ref(null)
-const items = ref([/* ... */])
+const selectedId = ref(null);
+const editingId = ref(null);
+const items = ref([/* ... */]);
 </script>
 ```
 
@@ -147,36 +147,39 @@ const items = ref([/* ... */])
 <template>
   <!-- DON'T: Content that DOES need to update -->
   <div v-once>
-    <span>Count: {{ count }}</span>  <!-- count won't update! -->
+    <span>Count: {{ count }}</span>
+    <!-- count won't update! -->
   </div>
 
   <!-- DON'T: When child components have their own reactive state -->
   <div v-memo="[selected]">
-    <InputField v-model="item.name" />  <!-- v-model won't work properly -->
+    <InputField v-model="item.name" />
+    <!-- v-model won't work properly -->
   </div>
 
   <!-- DON'T: When the memoization benefit is minimal -->
-  <span v-once>{{ simpleText }}</span>  <!-- Overhead not worth it -->
+  <span v-once>{{ simpleText }}</span>
+  <!-- Overhead not worth it -->
 </template>
 ```
 
 ## Performance Comparison
 
-| Scenario | Without Directive | With v-once/v-memo |
-|----------|-------------------|-------------------|
-| Static header, parent re-renders 100x | Re-evaluated 100x | Evaluated 1x |
-| 1000 items, selection changes | 1000 items re-render | 2 items re-render |
-| Complex child component | Full re-render | Skipped if memoized |
+| Scenario                              | Without Directive    | With v-once/v-memo  |
+| ------------------------------------- | -------------------- | ------------------- |
+| Static header, parent re-renders 100x | Re-evaluated 100x    | Evaluated 1x        |
+| 1000 items, selection changes         | 1000 items re-render | 2 items re-render   |
+| Complex child component               | Full re-render       | Skipped if memoized |
 
 ## Debugging Memoized Components
 
 ```vue
 <script setup>
-import { onUpdated } from 'vue'
+import { onUpdated } from "vue";
 
 // This won't fire if v-memo prevents update
 onUpdated(() => {
-  console.log('Component updated')
-})
+  console.log("Component updated");
+});
 </script>
 ```

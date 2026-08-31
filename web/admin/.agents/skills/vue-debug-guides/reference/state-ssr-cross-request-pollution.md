@@ -3,7 +3,17 @@ title: Prevent Cross-Request State Pollution in SSR Applications
 impact: CRITICAL
 impactDescription: Singleton stores in SSR share state across all server requests, potentially leaking user data between requests
 type: gotcha
-tags: [vue3, ssr, state-management, pinia, vuex, security, server-side-rendering, nuxt]
+tags:
+  [
+    vue3,
+    ssr,
+    state-management,
+    pinia,
+    vuex,
+    security,
+    server-side-rendering,
+    nuxt,
+  ]
 ---
 
 # Prevent Cross-Request State Pollution in SSR Applications
@@ -24,14 +34,14 @@ This is one of the most critical gotchas in Vue state management that can have s
 
 ```javascript
 // store.js - DANGEROUS for SSR
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 // This is a singleton - same instance for ALL requests
 export const store = reactive({
   user: null,
   cart: [],
-  preferences: {}
-})
+  preferences: {},
+});
 ```
 
 **What happens in SSR:**
@@ -51,70 +61,70 @@ Pinia handles SSR correctly by creating fresh store instances per request:
 
 ```javascript
 // stores/user.js
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useUserStore = defineStore('user', {
+export const useUserStore = defineStore("user", {
   state: () => ({
     user: null,
-    preferences: {}
+    preferences: {},
   }),
   actions: {
     setUser(user) {
-      this.user = user
-    }
-  }
-})
+      this.user = user;
+    },
+  },
+});
 ```
 
 ```javascript
 // main.js (or entry-server.js)
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createPinia } from "pinia";
+import { createApp } from "vue";
+import App from "./App.vue";
 
 // For SSR: Create fresh instances per request
 export function createAppInstance() {
-  const app = createApp(App)
-  const pinia = createPinia()
+  const app = createApp(App);
+  const pinia = createPinia();
 
-  app.use(pinia)
+  app.use(pinia);
 
-  return { app, pinia }
+  return { app, pinia };
 }
 ```
 
 ```javascript
 // entry-server.js
-import { createAppInstance } from './main'
-import { renderToString } from 'vue/server-renderer'
+import { createAppInstance } from "./main";
+import { renderToString } from "vue/server-renderer";
 
 export async function render(url, context) {
   // Fresh app and store instance per request
-  const { app, pinia } = createAppInstance()
+  const { app, pinia } = createAppInstance();
 
   // ... setup router, fetch data, etc.
 
-  const html = await renderToString(app)
+  const html = await renderToString(app);
 
   // Serialize state for client hydration
-  const state = pinia.state.value
+  const state = pinia.state.value;
 
-  return { html, state }
+  return { html, state };
 }
 ```
 
 ```javascript
 // entry-client.js - Hydrate from serialized state
-import { createAppInstance } from './main'
+import { createAppInstance } from "./main";
 
-const { app, pinia } = createAppInstance()
+const { app, pinia } = createAppInstance();
 
 // Restore server state before mounting
 if (window.__PINIA_STATE__) {
-  pinia.state.value = window.__PINIA_STATE__
+  pinia.state.value = window.__PINIA_STATE__;
 }
 
-app.mount('#app')
+app.mount("#app");
 ```
 
 ## Solution 2: Factory Pattern for Hand-Rolled State
@@ -123,39 +133,39 @@ If not using Pinia, create a factory function:
 
 ```javascript
 // store.js - SSR-safe with factory
-import { reactive, readonly } from 'vue'
+import { reactive, readonly } from "vue";
 
 // Factory function creates fresh state per call
 export function createStore() {
   const state = reactive({
     user: null,
     cart: [],
-    preferences: {}
-  })
+    preferences: {},
+  });
 
   return {
     state: readonly(state),
     setUser(user) {
-      state.user = user
+      state.user = user;
     },
     addToCart(item) {
-      state.cart.push(item)
-    }
-  }
+      state.cart.push(item);
+    },
+  };
 }
 ```
 
 ```javascript
 // entry-server.js
-import { createStore } from './store'
-import { provide } from 'vue'
+import { createStore } from "./store";
+import { provide } from "vue";
 
 export async function render(url) {
-  const app = createApp(App)
+  const app = createApp(App);
 
   // Fresh store instance for this request only
-  const store = createStore()
-  app.provide('store', store)
+  const store = createStore();
+  app.provide("store", store);
 
   // ... render
 }
@@ -167,22 +177,22 @@ For frameworks like Nuxt, use request context:
 
 ```javascript
 // composables/useRequestState.js
-import { useSSRContext } from 'vue'
+import { useSSRContext } from "vue";
 
 export function useRequestState(key, initialValue) {
   if (import.meta.env.SSR) {
-    const ctx = useSSRContext()
-    ctx.state = ctx.state || {}
+    const ctx = useSSRContext();
+    ctx.state = ctx.state || {};
 
     if (!(key in ctx.state)) {
-      ctx.state[key] = initialValue()
+      ctx.state[key] = initialValue();
     }
 
-    return ctx.state[key]
+    return ctx.state[key];
   }
 
   // Client-side: use regular reactive state
-  return reactive(initialValue())
+  return reactive(initialValue());
 }
 ```
 
@@ -195,53 +205,53 @@ In Nuxt 3, state isolation is handled automatically:
 // You can use stores normally
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const userStore = useUserStore()
-  await userStore.fetchUser()
-})
+  const userStore = useUserStore();
+  await userStore.fetchUser();
+});
 ```
 
 ## Testing for State Pollution
 
 ```javascript
 // test/ssr-state-isolation.test.js
-import { describe, it, expect } from 'vitest'
-import { render } from './entry-server'
+import { describe, it, expect } from "vitest";
+import { render } from "./entry-server";
 
-describe('SSR State Isolation', () => {
-  it('should not leak state between concurrent requests', async () => {
+describe("SSR State Isolation", () => {
+  it("should not leak state between concurrent requests", async () => {
     // Simulate concurrent requests
     const [result1, result2] = await Promise.all([
-      render('/user/1', { userId: '1' }),
-      render('/user/2', { userId: '2' })
-    ])
+      render("/user/1", { userId: "1" }),
+      render("/user/2", { userId: "2" }),
+    ]);
 
     // Each should have their own user data
-    expect(result1.html).toContain('User 1')
-    expect(result2.html).toContain('User 2')
+    expect(result1.html).toContain("User 1");
+    expect(result2.html).toContain("User 2");
 
     // State should not be mixed
-    expect(result1.html).not.toContain('User 2')
-    expect(result2.html).not.toContain('User 1')
-  })
-})
+    expect(result1.html).not.toContain("User 2");
+    expect(result2.html).not.toContain("User 1");
+  });
+});
 ```
 
 ```javascript
 // Alternative: Test store isolation directly
-import { createApp } from './app.js'
+import { createApp } from "./app.js";
 
-test('requests do not share state', async () => {
+test("requests do not share state", async () => {
   // Simulate two concurrent requests
-  const { app: app1, store: store1 } = createApp()
-  const { app: app2, store: store2 } = createApp()
+  const { app: app1, store: store1 } = createApp();
+  const { app: app2, store: store2 } = createApp();
 
-  store1.user = { id: 1, name: 'Alice' }
-  store2.user = { id: 2, name: 'Bob' }
+  store1.user = { id: 1, name: "Alice" };
+  store2.user = { id: 2, name: "Bob" };
 
   // Each should have its own state
-  expect(store1.user.name).toBe('Alice')
-  expect(store2.user.name).toBe('Bob')
-})
+  expect(store1.user.name).toBe("Alice");
+  expect(store2.user.name).toBe("Bob");
+});
 ```
 
 ## Red Flags to Watch For
@@ -250,16 +260,16 @@ test('requests do not share state', async () => {
 // ANY module-level reactive state is dangerous in SSR
 
 // BAD: Module-level reactive
-export const globalUser = ref(null)
+export const globalUser = ref(null);
 
 // BAD: Module-level reactive object
-export const appState = reactive({})
+export const appState = reactive({});
 
 // BAD: Shared Map/Set
-export const cache = new Map()
+export const cache = new Map();
 
 // BAD: Even plain objects can be problematic
-let requestCount = 0  // Shared across requests
+let requestCount = 0; // Shared across requests
 ```
 
 ## Why Pinia is Recommended for SSR
@@ -271,6 +281,7 @@ let requestCount = 0  // Shared across requests
 5. **Tested patterns** - Battle-tested SSR handling
 
 ## Reference
+
 - [Vue.js State Management - SSR Considerations](https://vuejs.org/guide/scaling-up/state-management.html#ssr-considerations)
 - [Pinia SSR Guide](https://pinia.vuejs.org/ssr/)
 - [Vue SSR Guide](https://vuejs.org/guide/scaling-up/ssr.html)

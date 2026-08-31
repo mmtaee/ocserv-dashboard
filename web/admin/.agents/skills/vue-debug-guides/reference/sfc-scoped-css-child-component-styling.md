@@ -18,6 +18,7 @@ tags: [vue3, sfc, scoped-css, deep-selector, child-components]
 - [ ] Consider using unscoped styles or CSS modules for heavily nested styling
 
 **Problematic Code:**
+
 ```vue
 <template>
   <div class="container">
@@ -38,6 +39,7 @@ tags: [vue3, sfc, scoped-css, deep-selector, child-components]
 ```
 
 **Correct Code:**
+
 ```vue
 <template>
   <div class="container">
@@ -90,9 +92,12 @@ Vue scoped CSS adds a unique data attribute to all elements in the component's t
 }
 
 /* DEPRECATED - don't use these in Vue 3 */
-.parent >>> .child-class { }   /* Won't work in SCSS */
-.parent /deep/ .child-class { } /* Deprecated */
-.parent ::v-deep .child-class { } /* Old syntax */
+.parent >>> .child-class {
+} /* Won't work in SCSS */
+.parent /deep/ .child-class {
+} /* Deprecated */
+.parent ::v-deep .child-class {
+} /* Old syntax */
 </style>
 ```
 
@@ -152,5 +157,6 @@ Using `:deep()` with element selectors can be slower:
 ```
 
 ## Reference
+
 - [Vue.js Scoped CSS - Deep Selectors](https://vuejs.org/api/sfc-css-features.html#deep-selectors)
 - [Vue Loader Scoped CSS](https://vue-loader.vuejs.org/guide/scoped-css.html)

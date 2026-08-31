@@ -7,6 +7,7 @@
 ## Why This Matters
 
 In SSR applications, hydration mismatches cause:
+
 - Visual flickering as the client re-renders
 - Loss of state in affected components
 - Console warnings in development (silent failures in production)
@@ -20,18 +21,14 @@ In SSR applications, hydration mismatches cause:
   <!-- Async component directly in Suspense can fail hydration -->
   <Suspense>
     <AsyncDashboard />
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from "vue";
 
-const AsyncDashboard = defineAsyncComponent(
-  () => import('./Dashboard.vue')
-)
+const AsyncDashboard = defineAsyncComponent(() => import("./Dashboard.vue"));
 </script>
 ```
 
@@ -64,9 +61,7 @@ const AsyncDashboard = defineAsyncComponent(
   <ClientOnly>
     <Suspense>
       <AsyncDashboard />
-      <template #fallback>
-        Loading dashboard...
-      </template>
+      <template #fallback> Loading dashboard... </template>
     </Suspense>
 
     <template #fallback>
@@ -80,17 +75,17 @@ const AsyncDashboard = defineAsyncComponent(
 
 ```vue
 <script setup>
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
 // IMPORTANT: All useQuery calls must be BEFORE any await
 const { data, suspense } = useQuery({
-  queryKey: ['dashboard'],
+  queryKey: ["dashboard"],
   queryFn: fetchDashboardData,
   staleTime: 1000 * 60 * 5, // 5 minutes - prevents refetch after hydration
-})
+});
 
 // Wait for suspense AFTER all useQuery calls
-await suspense()
+await suspense();
 
 // Now safe to use data
 </script>
@@ -100,21 +95,21 @@ await suspense()
 
 ```vue
 <script setup>
-import { ref, onErrorCaptured, onMounted } from 'vue'
+import { ref, onErrorCaptured, onMounted } from "vue";
 
-const hydrationError = ref(false)
-const isClient = ref(false)
+const hydrationError = ref(false);
+const isClient = ref(false);
 
 onMounted(() => {
-  isClient.value = true
-})
+  isClient.value = true;
+});
 
 onErrorCaptured((err) => {
-  if (err.message?.includes('hydration')) {
-    hydrationError.value = true
-    return false
+  if (err.message?.includes("hydration")) {
+    hydrationError.value = true;
+    return false;
   }
-})
+});
 </script>
 
 <template>
@@ -135,12 +130,12 @@ onErrorCaptured((err) => {
 
 ## Common SSR + Suspense Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Hydration mismatch | Async chunk not loaded in time | Wrap with Suspense or use ClientOnly |
-| Empty flash on Safari | Slow chunk loading | Preload critical chunks, use skeleton |
-| useQuery after await error | Vue context lost after await | Put all useQuery calls before any await |
-| Immediate refetch after hydration | staleTime too low | Set appropriate staleTime value |
+| Issue                             | Cause                          | Solution                                |
+| --------------------------------- | ------------------------------ | --------------------------------------- |
+| Hydration mismatch                | Async chunk not loaded in time | Wrap with Suspense or use ClientOnly    |
+| Empty flash on Safari             | Slow chunk loading             | Preload critical chunks, use skeleton   |
+| useQuery after await error        | Vue context lost after await   | Put all useQuery calls before any await |
+| Immediate refetch after hydration | staleTime too low              | Set appropriate staleTime value         |
 
 ## Key Points
 

@@ -20,33 +20,33 @@ tags: [vue3, typescript, options-api, provide-inject, type-safety]
 
 ```typescript
 // Provider component (parent)
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   provide() {
     return {
-      theme: 'dark',
-      user: { id: 1, name: 'John' }
-    }
-  }
-})
+      theme: "dark",
+      user: { id: 1, name: "John" },
+    };
+  },
+});
 ```
 
 ```typescript
 // Consumer component (child) - Options API
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  inject: ['theme', 'user'],
+  inject: ["theme", "user"],
 
   mounted() {
     // TypeScript Error: Property 'theme' does not exist on type...
-    console.log(this.theme)
+    console.log(this.theme);
 
     // TypeScript Error: Property 'user' does not exist on type...
-    console.log(this.user.name)
-  }
-})
+    console.log(this.user.name);
+  },
+});
 ```
 
 ## Solution 1: Type Augmentation
@@ -55,31 +55,31 @@ Augment the component type to include injected properties:
 
 ```typescript
 // types/injections.d.ts
-import 'vue'
+import "vue";
 
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
-    theme: 'light' | 'dark'
-    user: { id: number; name: string }
+    theme: "light" | "dark";
+    user: { id: number; name: string };
   }
 }
 
-export {}
+export {};
 ```
 
 ```typescript
 // Consumer component - now typed
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  inject: ['theme', 'user'],
+  inject: ["theme", "user"],
 
   mounted() {
     // Now works - typed from ComponentCustomProperties
-    console.log(this.theme)  // 'light' | 'dark'
-    console.log(this.user.name)  // string
-  }
-})
+    console.log(this.theme); // 'light' | 'dark'
+    console.log(this.user.name); // string
+  },
+});
 ```
 
 **Note**: This adds types globally to ALL components, not just those that inject these values.
@@ -89,40 +89,40 @@ export default defineComponent({
 Use the object syntax with computed property wrappers for type safety:
 
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 interface User {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 export default defineComponent({
   inject: {
     theme: {
-      from: 'theme',
-      default: 'light'
+      from: "theme",
+      default: "light",
     },
     user: {
-      from: 'user',
-      default: () => ({ id: 0, name: 'Guest' })
-    }
+      from: "user",
+      default: () => ({ id: 0, name: "Guest" }),
+    },
   },
 
   computed: {
     // Type via computed wrapper
-    typedTheme(): 'light' | 'dark' {
-      return this.theme as 'light' | 'dark'
+    typedTheme(): "light" | "dark" {
+      return this.theme as "light" | "dark";
     },
     typedUser(): User {
-      return this.user as User
-    }
+      return this.user as User;
+    },
   },
 
   mounted() {
-    console.log(this.typedTheme)
-    console.log(this.typedUser.name)
-  }
-})
+    console.log(this.typedTheme);
+    console.log(this.typedUser.name);
+  },
+});
 ```
 
 ## Why This Happens

@@ -22,6 +22,7 @@ This is a common bug when wrapping native elements or migrating from Vue 2 to Vu
 ## The Problem
 
 **Incorrect - Undeclared emit causes double firing:**
+
 ```vue
 <!-- MyButton.vue -->
 <script setup>
@@ -46,12 +47,13 @@ This is a common bug when wrapping native elements or migrating from Vue 2 to Vu
 
 <script setup>
 function handleClick() {
-  console.log('clicked') // Logs twice!
+  console.log("clicked"); // Logs twice!
 }
 </script>
 ```
 
 **What happens:**
+
 1. User clicks the button
 2. Native click event fires on the button element
 3. `@click` falls through to button (because 'click' isn't in emits), triggering `handleClick`
@@ -61,11 +63,12 @@ function handleClick() {
 ## The Solution
 
 **Correct - Declare the emit:**
+
 ```vue
 <!-- MyButton.vue -->
 <script setup>
 // Declare 'click' as a component event
-const emit = defineEmits(['click'])
+const emit = defineEmits(["click"]);
 </script>
 
 <template>
@@ -85,6 +88,7 @@ const emit = defineEmits(['click'])
 ```
 
 When you declare `click` in `emits`:
+
 - Vue knows `@click` on the component is listening for a component event
 - The listener does NOT fall through to the root element
 - Only your explicit `emit('click')` triggers the parent's handler
@@ -92,17 +96,18 @@ When you declare `click` in `emits`:
 ## Options API Version
 
 **Correct - Using emits option:**
+
 ```vue
 <script>
 export default {
-  emits: ['click', 'input', 'change'],
+  emits: ["click", "input", "change"],
 
   methods: {
     handleClick(event) {
-      this.$emit('click', event)
-    }
-  }
-}
+      this.$emit("click", event);
+    },
+  },
+};
 </script>
 ```
 
@@ -114,7 +119,7 @@ export default {
 <!-- CustomInput.vue -->
 <script setup>
 // Declare all events you re-emit
-const emit = defineEmits(['input', 'change', 'focus', 'blur'])
+const emit = defineEmits(["input", "change", "focus", "blur"]);
 </script>
 
 <template>
@@ -132,7 +137,7 @@ const emit = defineEmits(['input', 'change', 'focus', 'blur'])
 ```vue
 <!-- IconButton.vue -->
 <script setup>
-const emit = defineEmits(['click'])
+const emit = defineEmits(["click"]);
 </script>
 
 <template>
@@ -151,7 +156,7 @@ If your component has a single root element and you want native event behavior:
 <!-- MyButton.vue -->
 <script setup>
 // Don't declare 'click' - let it fall through naturally
-const emit = defineEmits(['custom-action'])
+const emit = defineEmits(["custom-action"]);
 </script>
 
 <template>
@@ -171,6 +176,7 @@ const emit = defineEmits(['custom-action'])
 ```
 
 This works because:
+
 - You don't re-emit 'click' explicitly
 - The native click listener falls through to the single root button
 - Native click fires once when button is clicked
@@ -180,9 +186,9 @@ This works because:
 ```vue
 <script setup>
 function handleClick(event) {
-  console.log('Event type:', event?.type)
-  console.log('Is native:', event instanceof Event)
-  console.trace('Click handler called')
+  console.log("Event type:", event?.type);
+  console.log("Is native:", event instanceof Event);
+  console.trace("Click handler called");
 }
 </script>
 ```
@@ -190,6 +196,7 @@ function handleClick(event) {
 If you see two stack traces with different origins, you have the double-firing issue.
 
 ## Reference
+
 - [Vue 3 Migration - emits Option](https://v3-migration.vuejs.org/breaking-changes/emits-option)
 - [Vue.js Component Events](https://vuejs.org/guide/components/events.html)
 - [Vue.js Fallthrough Attributes](https://vuejs.org/guide/components/attrs.html)

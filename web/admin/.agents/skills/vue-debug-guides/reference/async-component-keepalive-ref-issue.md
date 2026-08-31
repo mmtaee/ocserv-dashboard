@@ -12,18 +12,16 @@ This is a known Vue issue where the ref binding works correctly on first activat
 
 ```vue
 <script setup>
-import { ref, defineAsyncComponent } from 'vue'
+import { ref, defineAsyncComponent } from "vue";
 
-const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue')
-)
+const AsyncWidget = defineAsyncComponent(() => import("./Widget.vue"));
 
-const currentComponent = ref(AsyncWidget)
-const widgetRef = ref(null)
+const currentComponent = ref(AsyncWidget);
+const widgetRef = ref(null);
 
 function callWidgetMethod() {
   // May be undefined after component reactivation!
-  widgetRef.value?.doSomething()
+  widgetRef.value?.doSomething();
 }
 </script>
 
@@ -40,20 +38,18 @@ function callWidgetMethod() {
 
 ```vue
 <script setup>
-import { ref, defineAsyncComponent, onActivated, nextTick } from 'vue'
+import { ref, defineAsyncComponent, onActivated, nextTick } from "vue";
 
-const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue')
-)
+const AsyncWidget = defineAsyncComponent(() => import("./Widget.vue"));
 
-const currentComponent = ref(AsyncWidget)
-const widgetRef = ref(null)
+const currentComponent = ref(AsyncWidget);
+const widgetRef = ref(null);
 
 // Use a computed or method that waits for ref to be available
 async function callWidgetMethod() {
-  await nextTick()
+  await nextTick();
   if (widgetRef.value) {
-    widgetRef.value.doSomething()
+    widgetRef.value.doSomething();
   }
 }
 </script>
@@ -71,7 +67,7 @@ If possible, use one of these alternatives:
 
 <!-- Option B: Use static component with keep-alive -->
 <script setup>
-import Widget from './Widget.vue'  // Regular import
+import Widget from "./Widget.vue"; // Regular import
 </script>
 <template>
   <keep-alive>
@@ -85,16 +81,16 @@ import Widget from './Widget.vue'  // Regular import
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import { provide, ref } from 'vue'
+import { provide, ref } from "vue";
 
-const sharedState = ref({ /* shared data */ })
-provide('widgetState', sharedState)
+const sharedState = ref({/* shared data */});
+provide("widgetState", sharedState);
 </script>
 
 <!-- Widget.vue (async component) -->
 <script setup>
-import { inject } from 'vue'
-const widgetState = inject('widgetState')
+import { inject } from "vue";
+const widgetState = inject("widgetState");
 </script>
 ```
 

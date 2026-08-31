@@ -48,11 +48,11 @@ defineProps(['label'])
 ```vue
 <!-- BaseInput.vue - CORRECT: attrs bound to input element -->
 <script setup>
-defineProps(['label'])
+defineProps(["label"]);
 
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 </script>
 
 <template>
@@ -87,8 +87,8 @@ defineOptions({
 ```vue
 <script setup>
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 </script>
 ```
 
@@ -97,8 +97,8 @@ defineOptions({
 ```vue
 <script>
 export default {
-  inheritAttrs: false
-}
+  inheritAttrs: false,
+};
 </script>
 
 <script setup>
@@ -113,7 +113,7 @@ export default {
 export default {
   inheritAttrs: false,
   // other options...
-}
+};
 </script>
 ```
 
@@ -123,24 +123,24 @@ export default {
 
 ```vue
 <script setup>
-import { useAttrs, computed } from 'vue'
+import { useAttrs, computed } from "vue";
 
 defineProps({
   label: String,
-  error: String
-})
+  error: String,
+});
 
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 
-const attrs = useAttrs()
+const attrs = useAttrs();
 
 // Separate class/style for wrapper vs input
 const inputAttrs = computed(() => {
-  const { class: _, style: __, ...rest } = attrs
-  return rest
-})
+  const { class: _, style: __, ...rest } = attrs;
+  return rest;
+});
 </script>
 
 <template>
@@ -160,13 +160,13 @@ defineProps({
   icon: String,
   iconPosition: {
     type: String,
-    default: 'left'
-  }
-})
+    default: "left",
+  },
+});
 
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 </script>
 
 <template>
@@ -184,12 +184,12 @@ defineOptions({
 <script setup>
 defineProps({
   to: String,
-  external: Boolean
-})
+  external: Boolean,
+});
 
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 </script>
 
 <template>

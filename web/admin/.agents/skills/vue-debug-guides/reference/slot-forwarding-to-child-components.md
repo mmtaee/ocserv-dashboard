@@ -18,10 +18,11 @@ tags: [vue3, slots, component-composition, wrapper-components, slot-forwarding]
 - [ ] Handle cases where slotProps might be undefined
 
 **Basic Slot Forwarding Pattern:**
+
 ```vue
 <!-- EnhancedButton.vue - Wrapper component -->
 <script setup>
-import BaseButton from './BaseButton.vue'
+import BaseButton from "./BaseButton.vue";
 </script>
 
 <template>
@@ -37,9 +38,10 @@ import BaseButton from './BaseButton.vue'
 ```
 
 **Usage:**
+
 ```vue
 <script setup>
-import EnhancedButton from './EnhancedButton.vue'
+import EnhancedButton from "./EnhancedButton.vue";
 </script>
 
 <template>
@@ -48,9 +50,7 @@ import EnhancedButton from './EnhancedButton.vue'
     <template #icon>
       <IconCheck />
     </template>
-    <template #default>
-      Click me
-    </template>
+    <template #default> Click me </template>
   </EnhancedButton>
 </template>
 ```
@@ -62,9 +62,9 @@ When the child component provides slot props, you must forward them:
 ```vue
 <!-- DataTableWrapper.vue -->
 <script setup>
-import DataTable from './DataTable.vue'
+import DataTable from "./DataTable.vue";
 
-const props = defineProps(['data'])
+const props = defineProps(["data"]);
 </script>
 
 <template>
@@ -131,13 +131,14 @@ If you only want to forward certain slots:
 
 ## Common Mistakes
 
-| Mistake | Problem | Solution |
-|---------|---------|----------|
-| Not using `v-bind="slotProps"` | Scoped slot data lost | Always bind slotProps |
-| Forgetting `?? {}` or null check | Error when slotProps undefined | Add nullish coalescing |
-| Static slot names in loop | Only forwards one slot | Use `v-slot:[slotName]` dynamic syntax |
-| Missing `v-for` key warning | Vue warning (non-critical) | Keys not needed for slot functions |
+| Mistake                          | Problem                        | Solution                               |
+| -------------------------------- | ------------------------------ | -------------------------------------- |
+| Not using `v-bind="slotProps"`   | Scoped slot data lost          | Always bind slotProps                  |
+| Forgetting `?? {}` or null check | Error when slotProps undefined | Add nullish coalescing                 |
+| Static slot names in loop        | Only forwards one slot         | Use `v-slot:[slotName]` dynamic syntax |
+| Missing `v-for` key warning      | Vue warning (non-critical)     | Keys not needed for slot functions     |
 
 ## Reference
+
 - [Vue Land FAQ - Forwarding Slots](https://vue-land.github.io/faq/forwarding-slots)
 - [Vue.js Slots - Scoped Slots](https://vuejs.org/guide/components/slots.html#scoped-slots)

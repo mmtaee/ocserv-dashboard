@@ -18,6 +18,7 @@ tags: [vue3, teleport, scoped-styles, css]
 - [ ] Keep teleported content styles in a separate non-scoped style block
 
 **Problem - Scoped Styles Not Applied:**
+
 ```vue
 <template>
   <Teleport to="body">
@@ -35,12 +36,13 @@ tags: [vue3, teleport, scoped-styles, css]
 }
 
 .modal-text {
-  color: blue;  /* May not work */
+  color: blue; /* May not work */
 }
 </style>
 ```
 
 **Solution 1 - Use Non-Scoped Styles for Teleported Content:**
+
 ```vue
 <template>
   <Teleport to="body">
@@ -52,7 +54,9 @@ tags: [vue3, teleport, scoped-styles, css]
 
 <style scoped>
 /* Component-specific styles */
-.button { color: blue; }
+.button {
+  color: blue;
+}
 </style>
 
 <style>
@@ -74,6 +78,7 @@ tags: [vue3, teleport, scoped-styles, css]
 ```
 
 **Solution 2 - Use :deep() Selector:**
+
 ```vue
 <template>
   <Teleport to="body">
@@ -96,6 +101,7 @@ tags: [vue3, teleport, scoped-styles, css]
 ```
 
 **Solution 3 - CSS Modules:**
+
 ```vue
 <template>
   <Teleport to="body">
@@ -139,9 +145,7 @@ Pass classes explicitly to avoid inheritance issues:
 <template>
   <button @click="open = true">Open</button>
   <Teleport to="body">
-    <div :class="['modal', $attrs.class]" :style="$attrs.style">
-      Content
-    </div>
+    <div :class="['modal', $attrs.class]" :style="$attrs.style">Content</div>
   </Teleport>
 </template>
 ```
@@ -172,7 +176,7 @@ Create a dedicated stylesheet for modal/overlay components:
 
 ```vue
 <script setup>
-import './modal-styles.css'
+import "./modal-styles.css";
 </script>
 
 <template>
@@ -187,5 +191,6 @@ import './modal-styles.css'
 ```
 
 ## Reference
+
 - [Vue.js SFC CSS Features - Scoped CSS](https://vuejs.org/api/sfc-css-features.html#scoped-css)
 - [GitHub Issue #2047 - Scoped styles and teleport](https://github.com/vuejs/core/issues/2047)

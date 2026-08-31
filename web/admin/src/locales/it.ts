@@ -64,9 +64,14 @@ export default {
     systemUsage: "Utilizzo del sistema",
     systemUsageDescription: "Utilizzo in tempo reale delle risorse di sistema.",
     systemUsageError: "Impossibile aggiornare le statistiche di sistema.",
+    systemAndContainerUsage: "Utilizzo del sistema e dei container Docker",
+    systemAndContainerUsageDescription:
+      "Utilizzo in tempo reale delle risorse del sistema operativo e dei container Docker.",
     containerUsage: "Utilizzo dei container Docker",
     containerUsageDescription: "Utilizzo in tempo reale dei container attivi.",
     containerUsageError: "Impossibile aggiornare le statistiche dei container.",
+    containerCpuUsage: "Utilizzo CPU Docker",
+    containerRamUsage: "Utilizzo RAM Docker",
     ocservStatistics: "Statistiche Ocserv",
     ocservStatisticsDescription:
       "Stato del server Ocserv, sessioni e traffico in tempo reale.",

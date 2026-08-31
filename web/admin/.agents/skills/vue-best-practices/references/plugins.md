@@ -21,78 +21,85 @@ tags: [vue3, plugins, provide-inject, typescript, dependency-injection]
 ## Structure Plugins for `app.use()`
 
 A Vue plugin must be either:
+
 - An object with `install(app, options?)`
 - A function with the same signature
 
 **BAD:**
+
 ```ts
 const notAPlugin = {
-  doSomething() {}
-}
+  doSomething() {},
+};
 
-app.use(notAPlugin)
+app.use(notAPlugin);
 ```
 
 **GOOD:**
+
 ```ts
-import type { App } from 'vue'
+import type { App } from "vue";
 
 interface PluginOptions {
-  prefix?: string
-  debug?: boolean
+  prefix?: string;
+  debug?: boolean;
 }
 
 const myPlugin = {
   install(app: App, options: PluginOptions = {}) {
-    const { prefix = 'my', debug = false } = options
+    const { prefix = "my", debug = false } = options;
 
     if (debug) {
-      console.log('Installing myPlugin with prefix:', prefix)
+      console.log("Installing myPlugin with prefix:", prefix);
     }
 
-    app.provide('myPlugin', { prefix })
-  }
-}
+    app.provide("myPlugin", { prefix });
+  },
+};
 
-app.use(myPlugin, { prefix: 'custom', debug: true })
+app.use(myPlugin, { prefix: "custom", debug: true });
 ```
 
 **GOOD:**
+
 ```ts
-import type { App } from 'vue'
+import type { App } from "vue";
 
 function simplePlugin(app: App, options?: { message: string }) {
-  app.config.globalProperties.$greet = () => options?.message ?? 'Hello!'
+  app.config.globalProperties.$greet = () => options?.message ?? "Hello!";
 }
 
-app.use(simplePlugin, { message: 'Welcome!' })
+app.use(simplePlugin, { message: "Welcome!" });
 ```
 
 ## Register Capabilities Explicitly in `install()`
 
 Inside `install()`, wire behavior through Vue application APIs:
+
 - `app.component()` for global components
 - `app.directive()` for global directives
 - `app.provide()` for injectable services and config
 - `app.config.globalProperties` for optional global helpers (sparingly)
 
 **BAD:**
+
 ```ts
 const uselessPlugin = {
   install(app, options) {
-    const service = createService(options)
-  }
-}
+    const service = createService(options);
+  },
+};
 ```
 
 **GOOD:**
+
 ```ts
 const usefulPlugin = {
   install(app, options) {
-    const service = createService(options)
-    app.provide(serviceKey, service)
-  }
-}
+    const service = createService(options);
+    app.provide(serviceKey, service);
+  },
+};
 ```
 
 ## Type Plugin Contracts
@@ -100,17 +107,17 @@ const usefulPlugin = {
 Use Vue's `Plugin` type to keep install signatures and options type-safe.
 
 ```ts
-import type { App, Plugin } from 'vue'
+import type { App, Plugin } from "vue";
 
 interface MyOptions {
-  apiKey: string
+  apiKey: string;
 }
 
 const myPlugin: Plugin<[MyOptions]> = {
   install(app: App, options: MyOptions) {
-    app.provide(apiKeyKey, options.apiKey)
-  }
-}
+    app.provide(apiKeyKey, options.apiKey);
+  },
+};
 ```
 
 ## Use Symbol Injection Keys in Plugins
@@ -118,34 +125,36 @@ const myPlugin: Plugin<[MyOptions]> = {
 String keys can collide (`'http'`, `'config'`, `'i18n'`). Use symbol keys with `InjectionKey<T>` so injections are unique and typed.
 
 **BAD:**
+
 ```ts
 export default {
   install(app) {
-    app.provide('http', axios)
-    app.provide('config', appConfig)
-  }
-}
+    app.provide("http", axios);
+    app.provide("config", appConfig);
+  },
+};
 ```
 
 **GOOD:**
+
 ```ts
-import type { InjectionKey } from 'vue'
-import type { AxiosInstance } from 'axios'
+import type { InjectionKey } from "vue";
+import type { AxiosInstance } from "axios";
 
 interface AppConfig {
-  apiUrl: string
-  timeout: number
+  apiUrl: string;
+  timeout: number;
 }
 
-export const httpKey: InjectionKey<AxiosInstance> = Symbol('http')
-export const configKey: InjectionKey<AppConfig> = Symbol('appConfig')
+export const httpKey: InjectionKey<AxiosInstance> = Symbol("http");
+export const configKey: InjectionKey<AppConfig> = Symbol("appConfig");
 
 export default {
   install(app) {
-    app.provide(httpKey, axios)
-    app.provide(configKey, { apiUrl: '/api', timeout: 5000 })
-  }
-}
+    app.provide(httpKey, axios);
+    app.provide(configKey, { apiUrl: "/api", timeout: 5000 });
+  },
+};
 ```
 
 ## Provide Required Injection Helpers
@@ -153,14 +162,16 @@ export default {
 Wrap required injections in composables that throw clear setup errors.
 
 ```ts
-import { inject } from 'vue'
-import { authKey, type AuthService } from '@/injection-keys'
+import { inject } from "vue";
+import { authKey, type AuthService } from "@/injection-keys";
 
 export function useAuth(): AuthService {
-  const auth = inject(authKey)
+  const auth = inject(authKey);
   if (!auth) {
-    throw new Error('Auth plugin not installed. Did you forget app.use(authPlugin)?')
+    throw new Error(
+      "Auth plugin not installed. Did you forget app.use(authPlugin)?",
+    );
   }
-  return auth
+  return auth;
 }
 ```

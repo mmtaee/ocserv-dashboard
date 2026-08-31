@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DropdownMenuRootEmits, DropdownMenuRootProps } from "reka-ui"
-import { DropdownMenuRoot, useForwardPropsEmits } from "reka-ui"
+import type { DropdownMenuRootEmits, DropdownMenuRootProps } from "reka-ui";
+import { DropdownMenuRoot, useForwardPropsEmits } from "reka-ui";
 
-const props = defineProps<DropdownMenuRootProps>()
-const emits = defineEmits<DropdownMenuRootEmits>()
+const props = defineProps<DropdownMenuRootProps>();
+const emits = defineEmits<DropdownMenuRootEmits>();
 
-const forwarded = useForwardPropsEmits(props, emits)
+const forwarded = useForwardPropsEmits(props, emits);
 </script>
 
 <template>

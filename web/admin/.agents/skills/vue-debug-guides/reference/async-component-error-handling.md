@@ -12,26 +12,25 @@ Network failures, timeouts, and server errors are common in production. Without 
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from "vue";
 
 // No error handling - fails silently
-const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue')
-)
+const AsyncWidget = defineAsyncComponent(() => import("./Widget.vue"));
 </script>
 ```
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from "vue";
 
 // isLoading never becomes false on error - infinite spinner
-const isLoading = ref(true)
+const isLoading = ref(true);
 const Widget = defineAsyncComponent({
-  loader: () => import('./Widget.vue').finally(() => {
-    isLoading.value = false  // Only runs on success
-  })
-})
+  loader: () =>
+    import("./Widget.vue").finally(() => {
+      isLoading.value = false; // Only runs on success
+    }),
+});
 </script>
 ```
 
@@ -39,50 +38,50 @@ const Widget = defineAsyncComponent({
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
-import LoadingSpinner from './LoadingSpinner.vue'
-import ErrorDisplay from './ErrorDisplay.vue'
+import { defineAsyncComponent } from "vue";
+import LoadingSpinner from "./LoadingSpinner.vue";
+import ErrorDisplay from "./ErrorDisplay.vue";
 
 const AsyncWidget = defineAsyncComponent({
-  loader: () => import('./Widget.vue'),
+  loader: () => import("./Widget.vue"),
   loadingComponent: LoadingSpinner,
   errorComponent: ErrorDisplay,
-  delay: 200,    // Prevent loading flicker
-  timeout: 10000 // Show error after 10 seconds
-})
+  delay: 200, // Prevent loading flicker
+  timeout: 10000, // Show error after 10 seconds
+});
 </script>
 ```
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from "vue";
 
 // With retry logic using onError
 const AsyncWidget = defineAsyncComponent({
-  loader: () => import('./Widget.vue'),
+  loader: () => import("./Widget.vue"),
   loadingComponent: LoadingSpinner,
   errorComponent: ErrorDisplay,
   onError(error, retry, fail, attempts) {
     if (attempts <= 3) {
       // Retry up to 3 times
-      retry()
+      retry();
     } else {
       // Give up and show error component
-      fail()
+      fail();
     }
-  }
-})
+  },
+});
 </script>
 ```
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from "vue";
 
 // Fallback component pattern - catch in loader
 const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue').catch(() => import('./WidgetFallback.vue'))
-)
+  import("./Widget.vue").catch(() => import("./WidgetFallback.vue")),
+);
 </script>
 ```
 
@@ -90,12 +89,12 @@ const AsyncWidget = defineAsyncComponent(() =>
 
 The `onError` callback receives four arguments:
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `error` | `Error` | The error that caused the load to fail |
-| `retry` | `Function` | Call to retry loading the component |
-| `fail` | `Function` | Call to give up and show errorComponent |
-| `attempts` | `number` | Number of load attempts so far |
+| Parameter  | Type       | Description                             |
+| ---------- | ---------- | --------------------------------------- |
+| `error`    | `Error`    | The error that caused the load to fail  |
+| `retry`    | `Function` | Call to retry loading the component     |
+| `fail`     | `Function` | Call to give up and show errorComponent |
+| `attempts` | `number`   | Number of load attempts so far          |
 
 ## Key Points
 

@@ -61,9 +61,14 @@ export default {
     systemUsage: "استخدام النظام",
     systemUsageDescription: "الاستخدام المباشر لموارد نظام التشغيل.",
     systemUsageError: "تعذّر تحديث إحصاءات استخدام النظام.",
+    systemAndContainerUsage: "استخدام النظام وDocker",
+    systemAndContainerUsageDescription:
+      "الاستخدام المباشر لموارد نظام التشغيل وحاوية Docker.",
     containerUsage: "استخدام حاويات Docker",
     containerUsageDescription: "الاستخدام المباشر لموارد الحاويات العاملة.",
     containerUsageError: "تعذّر تحديث إحصاءات الحاويات.",
+    containerCpuUsage: "استخدام معالج Docker",
+    containerRamUsage: "استخدام ذاكرة Docker",
     ocservStatistics: "إحصاءات Ocserv",
     ocservStatisticsDescription:
       "حالة خادم Ocserv وجلساته وإحصاءات حركة المرور المباشرة.",

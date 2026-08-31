@@ -9,6 +9,7 @@ tags: [vue3, transition-group, animation, performance, list, css-framework]
 # TransitionGroup Performance with Large Lists and CSS Frameworks
 
 **Impact: MEDIUM** - Vue's `<TransitionGroup>` can experience significant DOM update lag when animating list changes, particularly when:
+
 - Using CSS frameworks (Tailwind, Bootstrap, etc.)
 - Performing array operations like `slice()` that change multiple items
 - Working with larger lists
@@ -24,6 +25,7 @@ Without TransitionGroup, DOM updates occur instantly. With it, there can be noti
 - [ ] Profile with Vue DevTools to identify transition bottlenecks
 
 **Problematic Pattern:**
+
 ```vue
 <template>
   <!-- Potentially slow with large lists or complex CSS -->
@@ -41,13 +43,13 @@ Without TransitionGroup, DOM updates occur instantly. With it, there can be noti
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const items = ref([/* many items */])
+const items = ref([/* many items */]);
 
 // Operations like slice can cause visible lag
 function removeItems() {
-  items.value = items.value.slice(5)  // May lag with TransitionGroup
+  items.value = items.value.slice(5); // May lag with TransitionGroup
 }
 </script>
 
@@ -61,27 +63,24 @@ function removeItems() {
 ```
 
 **Optimized Approach:**
+
 ```vue
 <template>
   <!-- Simpler classes, shorter transitions -->
   <TransitionGroup name="list" tag="ul" class="relative">
-    <li
-      v-for="item in items"
-      :key="item.id"
-      class="list-item"
-    >
+    <li v-for="item in items" :key="item.id" class="list-item">
       {{ item.name }}
     </li>
   </TransitionGroup>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
 
-const items = ref([/* items */])
+const items = ref([/* items */]);
 
 // For large batch operations, consider disabling animations temporarily
-const isAnimating = ref(true)
+const isAnimating = ref(true);
 </script>
 
 <style>
@@ -92,12 +91,14 @@ const isAnimating = ref(true)
 }
 
 .list-move {
-  transition: transform 0.3s ease;  /* Shorter duration */
+  transition: transform 0.3s ease; /* Shorter duration */
 }
 
 .list-enter-active,
 .list-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .list-enter-from,
@@ -136,16 +137,16 @@ const isAnimating = ref(true)
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick } from "vue";
 
-const animationsEnabled = ref(true)
+const animationsEnabled = ref(true);
 
 async function bulkUpdate(newItems) {
   // Disable animations for bulk operations
-  animationsEnabled.value = false
-  items.value = newItems
-  await nextTick()
-  animationsEnabled.value = true
+  animationsEnabled.value = false;
+  items.value = newItems;
+  await nextTick();
+  animationsEnabled.value = true;
 }
 </script>
 ```
@@ -166,7 +167,7 @@ async function bulkUpdate(newItems) {
 </template>
 
 <script setup>
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { RecycleScroller } from "vue-virtual-scroller";
 </script>
 ```
 
@@ -188,7 +189,9 @@ import { RecycleScroller } from 'vue-virtual-scroller'
 .list-enter-active,
 .list-leave-active {
   /* Only animate transform/opacity - GPU accelerated */
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 </style>
 ```
@@ -206,6 +209,7 @@ import { RecycleScroller } from 'vue-virtual-scroller'
 ## When to Avoid TransitionGroup
 
 Consider alternatives when:
+
 - List updates are frequent (real-time data)
 - List contains 100+ items
 - Items have complex CSS or nested components
@@ -225,8 +229,14 @@ Consider alternatives when:
 
 <style>
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-in {
@@ -236,6 +246,7 @@ Consider alternatives when:
 ```
 
 ## Reference
+
 - [Vue.js TransitionGroup](https://vuejs.org/guide/built-ins/transition-group.html)
 - [GitHub Issue: transition-group DOM update lag](https://github.com/vuejs/vue/issues/5845)
 - [Vue Virtual Scroller](https://github.com/Akryum/vue-virtual-scroller)

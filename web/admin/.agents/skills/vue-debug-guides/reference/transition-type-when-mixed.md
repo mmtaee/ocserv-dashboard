@@ -18,13 +18,12 @@ tags: [vue3, transition, animation, css, type, timing]
 - [ ] The type should match whichever animation/transition is longer or more important
 
 **Problematic Code:**
+
 ```vue
 <template>
   <!-- BAD: Both transition and animation present, Vue might pick wrong end event -->
   <Transition name="bounce">
-    <div v-if="show" class="box">
-      Hover me for additional effect
-    </div>
+    <div v-if="show" class="box">Hover me for additional effect</div>
   </Transition>
 </template>
 
@@ -39,36 +38,47 @@ tags: [vue3, transition, animation, css, type, timing]
 }
 
 @keyframes bounce-in {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes bounce-out {
-  0% { transform: scale(1); }
-  100% { transform: scale(0); }
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
 }
 
 /* Additional hover transition on same element */
 .box {
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .box:hover {
   background-color: #f0f0f0;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>
 ```
 
 **Correct Code:**
+
 ```vue
 <template>
   <!-- GOOD: Explicitly specify that animation controls timing -->
   <Transition name="bounce" type="animation">
-    <div v-if="show" class="box">
-      Hover me for additional effect
-    </div>
+    <div v-if="show" class="box">Hover me for additional effect</div>
   </Transition>
 </template>
 
@@ -83,24 +93,36 @@ tags: [vue3, transition, animation, css, type, timing]
 }
 
 @keyframes bounce-in {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes bounce-out {
-  0% { transform: scale(1); }
-  100% { transform: scale(0); }
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
 }
 
 /* Additional hover transition - unrelated to Vue transition timing */
 .box {
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .box:hover {
   background-color: #f0f0f0;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>
 ```
@@ -108,6 +130,7 @@ tags: [vue3, transition, animation, css, type, timing]
 ## When to Use Each Type
 
 ### Use `type="animation"` when:
+
 - Your enter/leave effects use `@keyframes` animations
 - The animation is longer than any transitions
 - You want precise control over multi-step animations
@@ -130,6 +153,7 @@ tags: [vue3, transition, animation, css, type, timing]
 ```
 
 ### Use `type="transition"` when:
+
 - Your enter/leave effects use CSS `transition` property
 - You have decorative animations that shouldn't affect timing
 
@@ -155,8 +179,13 @@ tags: [vue3, transition, animation, css, type, timing]
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 </style>
 ```
@@ -169,4 +198,5 @@ tags: [vue3, transition, animation, css, type, timing]
 4. CSS classes remain applied after transition should be complete
 
 ## Reference
+
 - [Vue.js Transition Documentation](https://vuejs.org/guide/built-ins/transition.html#css-based-transitions)

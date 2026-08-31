@@ -65,9 +65,14 @@ export default {
     systemUsageDescription:
       "Текущее использование ресурсов операционной системы.",
     systemUsageError: "Не удалось обновить статистику системы.",
+    systemAndContainerUsage: "Использование системы и Docker",
+    systemAndContainerUsageDescription:
+      "Текущее использование ресурсов операционной системы и контейнера Docker.",
     containerUsage: "Использование контейнеров Docker",
     containerUsageDescription: "Текущее использование ресурсов контейнерами.",
     containerUsageError: "Не удалось обновить статистику контейнеров.",
+    containerCpuUsage: "Использование ЦП Docker",
+    containerRamUsage: "Использование ОЗУ Docker",
     ocservStatistics: "Статистика Ocserv",
     ocservStatisticsDescription:
       "Текущее состояние сервера Ocserv, сеансы и статистика трафика.",

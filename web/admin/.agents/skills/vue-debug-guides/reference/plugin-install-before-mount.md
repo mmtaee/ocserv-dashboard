@@ -17,39 +17,39 @@ All plugins must be installed using `app.use()` BEFORE calling `app.mount()`. In
 ## Bad Practice
 
 ```typescript
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import i18nPlugin from './plugins/i18n'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import i18nPlugin from "./plugins/i18n";
 
-const app = createApp(App)
+const app = createApp(App);
 
 // Mounting first - plugins not yet available!
-app.mount('#app')
+app.mount("#app");
 
 // Installing after mount - TOO LATE!
-app.use(router)
-app.use(i18nPlugin, { locale: 'en' })
+app.use(router);
+app.use(i18nPlugin, { locale: "en" });
 ```
 
 ## Good Practice
 
 ```typescript
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import { createPinia } from 'pinia'
-import i18nPlugin from './plugins/i18n'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import { createPinia } from "pinia";
+import i18nPlugin from "./plugins/i18n";
 
-const app = createApp(App)
+const app = createApp(App);
 
 // Install all plugins BEFORE mounting
-app.use(createPinia())
-app.use(router)
-app.use(i18nPlugin, { locale: 'en' })
+app.use(createPinia());
+app.use(router);
+app.use(i18nPlugin, { locale: "en" });
 
 // Mount LAST
-app.mount('#app')
+app.mount("#app");
 ```
 
 ## Plugin Installation Order
@@ -57,20 +57,20 @@ app.mount('#app')
 The order of `app.use()` calls can matter when plugins depend on each other:
 
 ```typescript
-const app = createApp(App)
+const app = createApp(App);
 
 // 1. State management first (other plugins might need it)
-app.use(createPinia())
+app.use(createPinia());
 
 // 2. Router (may depend on state)
-app.use(router)
+app.use(router);
 
 // 3. Other plugins (may depend on router or state)
-app.use(authPlugin)
-app.use(i18nPlugin, { locale: 'en' })
+app.use(authPlugin);
+app.use(i18nPlugin, { locale: "en" });
 
 // 4. Mount last
-app.mount('#app')
+app.mount("#app");
 ```
 
 ## Async Plugin Installation
@@ -78,24 +78,24 @@ app.mount('#app')
 If you need to perform async operations before mounting:
 
 ```typescript
-import { createApp } from 'vue'
-import App from './App.vue'
-import { loadPlugins } from './plugins'
+import { createApp } from "vue";
+import App from "./App.vue";
+import { loadPlugins } from "./plugins";
 
 async function bootstrap() {
-  const app = createApp(App)
+  const app = createApp(App);
 
   // Await async plugin setup
-  const i18nPlugin = await loadI18nMessages()
+  const i18nPlugin = await loadI18nMessages();
 
   // Install all plugins
-  app.use(i18nPlugin)
+  app.use(i18nPlugin);
 
   // Mount after everything is ready
-  app.mount('#app')
+  app.mount("#app");
 }
 
-bootstrap()
+bootstrap();
 ```
 
 ## Duplicate Installation Protection
@@ -103,8 +103,8 @@ bootstrap()
 Vue's `app.use()` automatically prevents duplicate plugin installation:
 
 ```typescript
-app.use(myPlugin)
-app.use(myPlugin) // This second call is ignored - no double installation
+app.use(myPlugin);
+app.use(myPlugin); // This second call is ignored - no double installation
 
 // This is handled internally by Vue, providing a safety net
 ```

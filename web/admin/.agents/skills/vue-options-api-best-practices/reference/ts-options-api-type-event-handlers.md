@@ -20,73 +20,73 @@ tags: [vue3, typescript, options-api, events, type-safety, DOM]
 ## The Problem
 
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   methods: {
     // BAD - 'event' is implicitly 'any'
     handleClick(event) {
-      console.log(event.target.value)  // No type checking!
+      console.log(event.target.value); // No type checking!
     },
 
     // BAD - Causes error with noImplicitAny
     handleInput(event) {
       // Error: Parameter 'event' implicitly has an 'any' type
-      this.searchTerm = event.target.value
-    }
-  }
-})
+      this.searchTerm = event.target.value;
+    },
+  },
+});
 ```
 
 ## The Solution: Explicit Event Types
 
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
     return {
-      searchTerm: ''
-    }
+      searchTerm: "",
+    };
   },
   methods: {
     // GOOD - Explicit Event type
     handleClick(event: MouseEvent) {
-      console.log(event.clientX, event.clientY)
+      console.log(event.clientX, event.clientY);
       // Cast target for element-specific properties
-      const button = event.target as HTMLButtonElement
-      console.log(button.disabled)
+      const button = event.target as HTMLButtonElement;
+      console.log(button.disabled);
     },
 
     // GOOD - Explicit Event type with target assertion
     handleInput(event: Event) {
-      const input = event.target as HTMLInputElement
-      this.searchTerm = input.value
+      const input = event.target as HTMLInputElement;
+      this.searchTerm = input.value;
     },
 
     // GOOD - KeyboardEvent for keyboard handlers
     handleKeydown(event: KeyboardEvent) {
-      if (event.key === 'Enter') {
-        this.submit()
+      if (event.key === "Enter") {
+        this.submit();
       }
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ## Common DOM Event Types
 
-| Event Type | Use For |
-|------------|---------|
-| `Event` | Generic events, custom events |
-| `MouseEvent` | click, dblclick, mouseenter, mouseleave, etc. |
-| `KeyboardEvent` | keydown, keyup, keypress |
-| `InputEvent` | input (modern browsers) |
-| `FocusEvent` | focus, blur |
-| `SubmitEvent` | form submit |
-| `DragEvent` | drag, drop, dragenter, dragover |
-| `TouchEvent` | touchstart, touchend, touchmove |
-| `WheelEvent` | wheel |
+| Event Type      | Use For                                       |
+| --------------- | --------------------------------------------- |
+| `Event`         | Generic events, custom events                 |
+| `MouseEvent`    | click, dblclick, mouseenter, mouseleave, etc. |
+| `KeyboardEvent` | keydown, keyup, keypress                      |
+| `InputEvent`    | input (modern browsers)                       |
+| `FocusEvent`    | focus, blur                                   |
+| `SubmitEvent`   | form submit                                   |
+| `DragEvent`     | drag, drop, dragenter, dragover               |
+| `TouchEvent`    | touchstart, touchend, touchmove               |
+| `WheelEvent`    | wheel                                         |
 
 ## Type Assertions for event.target
 

@@ -20,28 +20,29 @@ The compiler transforms top-level await, and code after await runs in a differen
 - [ ] Test parent ref access when using async setup
 
 **Incorrect:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const data = ref(null)
-const count = ref(0)
+const data = ref(null);
+const count = ref(0);
 
 function increment() {
-  count.value++
+  count.value++;
 }
 
 // WRONG: await before defineExpose
-const response = await fetch('/api/data')
-data.value = await response.json()
+const response = await fetch("/api/data");
+data.value = await response.json();
 
 // BROKEN: This won't work - called after await!
 defineExpose({
   count,
   increment,
-  data
-})
+  data,
+});
 </script>
 
 <template>
@@ -52,16 +53,16 @@ defineExpose({
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
-import ChildComponent from './ChildComponent.vue'
+import { ref, onMounted } from "vue";
+import ChildComponent from "./ChildComponent.vue";
 
-const childRef = ref(null)
+const childRef = ref(null);
 
 onMounted(() => {
   // FAILS: All exposed properties are undefined!
-  console.log(childRef.value.count) // undefined
-  childRef.value.increment() // TypeError
-})
+  console.log(childRef.value.count); // undefined
+  childRef.value.increment(); // TypeError
+});
 </script>
 
 <template>
@@ -72,28 +73,29 @@ onMounted(() => {
 ```
 
 **Correct:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const data = ref(null)
-const count = ref(0)
+const data = ref(null);
+const count = ref(0);
 
 function increment() {
-  count.value++
+  count.value++;
 }
 
 // CORRECT: defineExpose BEFORE any await
 defineExpose({
   count,
   increment,
-  data
-})
+  data,
+});
 
 // Now safe to use await
-const response = await fetch('/api/data')
-data.value = await response.json()
+const response = await fetch("/api/data");
+data.value = await response.json();
 </script>
 
 <template>
@@ -104,20 +106,20 @@ data.value = await response.json()
 ```vue
 <!-- Alternative: Separate async logic from expose -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
-const data = ref(null)
-const loading = ref(true)
+const data = ref(null);
+const loading = ref(true);
 
 function getData() {
-  return data.value
+  return data.value;
 }
 
 async function refreshData() {
-  loading.value = true
-  const response = await fetch('/api/data')
-  data.value = await response.json()
-  loading.value = false
+  loading.value = true;
+  const response = await fetch("/api/data");
+  data.value = await response.json();
+  loading.value = false;
 }
 
 // CORRECT: No await at top level - defineExpose always works
@@ -125,13 +127,13 @@ defineExpose({
   data,
   getData,
   refreshData,
-  loading
-})
+  loading,
+});
 
 // Trigger async load in lifecycle hook instead
 onMounted(() => {
-  refreshData()
-})
+  refreshData();
+});
 </script>
 
 <template>
@@ -143,30 +145,30 @@ onMounted(() => {
 ```vue
 <!-- If you must use top-level await, define expose first -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const user = ref(null)
-const posts = ref([])
+const user = ref(null);
+const posts = ref([]);
 
 // CORRECT: All expose calls come first
 defineExpose({
   user,
   posts,
-  refresh: () => loadData()
-})
+  refresh: () => loadData(),
+});
 
 // Now safe to await
 async function loadData() {
   const [userRes, postsRes] = await Promise.all([
-    fetch('/api/user'),
-    fetch('/api/posts')
-  ])
-  user.value = await userRes.json()
-  posts.value = await postsRes.json()
+    fetch("/api/user"),
+    fetch("/api/posts"),
+  ]);
+  user.value = await userRes.json();
+  posts.value = await postsRes.json();
 }
 
 // Top-level await after defineExpose is safe
-await loadData()
+await loadData();
 </script>
 ```
 
@@ -188,5 +190,6 @@ async setup() {
 ```
 
 ## Reference
+
 - [Vue.js Script Setup - defineExpose](https://vuejs.org/api/sfc-script-setup.html#defineexpose)
 - [Vue.js Async Components](https://vuejs.org/guide/components/async.html)

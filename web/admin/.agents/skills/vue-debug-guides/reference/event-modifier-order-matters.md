@@ -18,11 +18,13 @@ tags: [vue3, events, modifiers, v-on, click, form]
 - [ ] Test event behavior on both the element and its children
 
 **Incorrect:**
+
 ```html
 <!-- WRONG: Unintended behavior - prevents clicks on children too -->
 <template>
   <div @click.prevent.self="handleClick">
-    <button>Child Button</button> <!-- Default also prevented here! -->
+    <button>Child Button</button>
+    <!-- Default also prevented here! -->
   </div>
 </template>
 ```
@@ -39,11 +41,13 @@ tags: [vue3, events, modifiers, v-on, click, form]
 ```
 
 **Correct:**
+
 ```html
 <!-- CORRECT: Only prevent default on the element itself -->
 <template>
   <div @click.self.prevent="handleClick">
-    <button>Child Button</button> <!-- Default NOT prevented here -->
+    <button>Child Button</button>
+    <!-- Default NOT prevented here -->
   </div>
 </template>
 ```
@@ -98,4 +102,5 @@ tags: [vue3, events, modifiers, v-on, click, form]
 ```
 
 ## Reference
+
 - [Vue.js Event Handling - Event Modifiers](https://vuejs.org/guide/essentials/event-handling.html#event-modifiers)

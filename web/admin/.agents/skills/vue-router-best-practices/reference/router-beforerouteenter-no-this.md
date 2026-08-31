@@ -41,28 +41,28 @@ export default {
   data() {
     return {
       user: null,
-      loading: true
-    }
+      loading: true,
+    };
   },
 
   beforeRouteEnter(to, from, next) {
     // Fetch data before component exists
     fetchUser(to.params.id)
-      .then(user => {
+      .then((user) => {
         // Pass callback to next() - receives component instance as 'vm'
-        next(vm => {
-          vm.user = user
-          vm.loading = false
-        })
+        next((vm) => {
+          vm.user = user;
+          vm.loading = false;
+        });
       })
-      .catch(error => {
-        next(vm => {
-          vm.error = error
-          vm.loading = false
-        })
-      })
-  }
-}
+      .catch((error) => {
+        next((vm) => {
+          vm.error = error;
+          vm.loading = false;
+        });
+      });
+  },
+};
 ```
 
 ## Solution: Async beforeRouteEnter (Options API)
@@ -70,23 +70,23 @@ export default {
 ```javascript
 export default {
   data() {
-    return { userData: null }
+    return { userData: null };
   },
 
   async beforeRouteEnter(to, from, next) {
     try {
-      const user = await fetchUser(to.params.id)
+      const user = await fetchUser(to.params.id);
 
       // Still need callback for component access
-      next(vm => {
-        vm.userData = user
-      })
+      next((vm) => {
+        vm.userData = user;
+      });
     } catch (error) {
       // Redirect on error
-      next('/error')
+      next("/error");
     }
-  }
-}
+  },
+};
 ```
 
 ## Composition API Alternative
@@ -95,27 +95,27 @@ In Composition API with `<script setup>`, you cannot use `beforeRouteEnter` dire
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { ref, onMounted } from "vue";
+import { useRoute, onBeforeRouteUpdate } from "vue-router";
 
-const route = useRoute()
-const user = ref(null)
-const loading = ref(true)
+const route = useRoute();
+const user = ref(null);
+const loading = ref(true);
 
 // Option 1: Fetch in onMounted (after component exists)
 onMounted(async () => {
-  user.value = await fetchUser(route.params.id)
-  loading.value = false
-})
+  user.value = await fetchUser(route.params.id);
+  loading.value = false;
+});
 
 // Option 2: Handle subsequent param changes
 onBeforeRouteUpdate(async (to, from) => {
   if (to.params.id !== from.params.id) {
-    loading.value = true
-    user.value = await fetchUser(to.params.id)
-    loading.value = false
+    loading.value = true;
+    user.value = await fetchUser(to.params.id);
+    loading.value = false;
   }
-})
+});
 </script>
 ```
 
@@ -127,41 +127,41 @@ For data that should load BEFORE navigation, use route-level guards:
 // router.js
 const routes = [
   {
-    path: '/users/:id',
-    component: () => import('./UserProfile.vue'),
+    path: "/users/:id",
+    component: () => import("./UserProfile.vue"),
     beforeEnter: async (to, from) => {
       try {
         // Store data for component to access
-        const user = await fetchUser(to.params.id)
-        to.meta.user = user  // Attach to route meta
+        const user = await fetchUser(to.params.id);
+        to.meta.user = user; // Attach to route meta
       } catch (error) {
-        return '/error'
+        return "/error";
       }
-    }
-  }
-]
+    },
+  },
+];
 ```
 
 ```vue
 <!-- UserProfile.vue -->
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute } from "vue-router";
 
-const route = useRoute()
+const route = useRoute();
 // Access pre-fetched data from meta
-const user = route.meta.user
+const user = route.meta.user;
 </script>
 ```
 
 ## Comparison of Navigation Guards
 
-| Guard | Has `this`/component? | Can delay navigation? | Use case |
-|-------|----------------------|----------------------|----------|
-| beforeRouteEnter | NO (use next callback) | YES | Pre-fetch, redirect if data missing |
-| beforeRouteUpdate | YES | YES | React to param changes |
-| beforeRouteLeave | YES | YES | Unsaved changes warning |
-| Global beforeEach | NO | YES | Auth checks |
-| Route beforeEnter | NO | YES | Route-specific validation |
+| Guard             | Has `this`/component?  | Can delay navigation? | Use case                            |
+| ----------------- | ---------------------- | --------------------- | ----------------------------------- |
+| beforeRouteEnter  | NO (use next callback) | YES                   | Pre-fetch, redirect if data missing |
+| beforeRouteUpdate | YES                    | YES                   | React to param changes              |
+| beforeRouteLeave  | YES                    | YES                   | Unsaved changes warning             |
+| Global beforeEach | NO                     | YES                   | Auth checks                         |
+| Route beforeEnter | NO                     | YES                   | Route-specific validation           |
 
 ## Key Points
 
@@ -172,5 +172,6 @@ const user = route.meta.user
 5. **beforeRouteUpdate and beforeRouteLeave have component access** - They run when component exists
 
 ## Reference
+
 - [Vue Router In-Component Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html#in-component-guards)
 - [Vue Router Navigation Resolution Flow](https://router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow)

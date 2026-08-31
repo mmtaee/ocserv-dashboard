@@ -23,19 +23,19 @@ This is one of the most common mistakes when using Pinia, especially for develop
 
 ```vue
 <script setup>
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // WRONG: Direct destructuring breaks reactivity
-const { name, email, isLoggedIn } = userStore
+const { name, email, isLoggedIn } = userStore;
 
 // Later, when store updates...
-userStore.login({ name: 'John', email: 'john@example.com' })
+userStore.login({ name: "John", email: "john@example.com" });
 
 // name and email are still the OLD values!
 // UI won't update because these are no longer reactive
-console.log(name) // undefined (or initial value)
+console.log(name); // undefined (or initial value)
 </script>
 
 <template>
@@ -48,22 +48,22 @@ console.log(name) // undefined (or initial value)
 
 ```vue
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // CORRECT: Use storeToRefs for state and getters
-const { name, email, isLoggedIn } = storeToRefs(userStore)
+const { name, email, isLoggedIn } = storeToRefs(userStore);
 
 // Actions can be destructured directly (they're just functions)
-const { login, logout } = userStore
+const { login, logout } = userStore;
 
 // Now when the store updates...
-login({ name: 'John', email: 'john@example.com' })
+login({ name: "John", email: "john@example.com" });
 
 // name and email are reactive refs that update automatically
-console.log(name.value) // 'John'
+console.log(name.value); // 'John'
 </script>
 
 <template>
@@ -78,15 +78,15 @@ console.log(name.value) // 'John'
 Pinia stores are reactive objects (like `reactive()`). When you destructure:
 
 ```javascript
-const store = useCounterStore()
+const store = useCounterStore();
 // store is a reactive Proxy
 
-const { count } = store
+const { count } = store;
 // count is now just a primitive number (0), not reactive
 // It's like doing: const count = 0
 
 // vs with storeToRefs
-const { count } = storeToRefs(store)
+const { count } = storeToRefs(store);
 // count is now a ref that stays connected to the store
 // It's like: const count = computed(() => store.count)
 ```
@@ -95,25 +95,21 @@ const { count } = storeToRefs(store)
 
 ```vue
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useCartStore } from '@/stores/cart'
+import { storeToRefs } from "pinia";
+import { useCartStore } from "@/stores/cart";
 
-const cartStore = useCartStore()
+const cartStore = useCartStore();
 
 // State and getters: USE storeToRefs
 const {
-  items,           // state
-  itemCount,       // getter
-  totalPrice,      // getter
-  isEmpty          // getter
-} = storeToRefs(cartStore)
+  items, // state
+  itemCount, // getter
+  totalPrice, // getter
+  isEmpty, // getter
+} = storeToRefs(cartStore);
 
 // Actions: destructure directly
-const {
-  addItem,
-  removeItem,
-  clearCart
-} = cartStore
+const { addItem, removeItem, clearCart } = cartStore;
 </script>
 
 <template>
@@ -137,9 +133,9 @@ If you prefer, you can avoid destructuring entirely:
 
 ```vue
 <script setup>
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 // Use userStore.name, userStore.login(), etc. directly
 </script>
 
@@ -155,19 +151,19 @@ This works fine but is more verbose for stores used frequently in the template.
 
 ```vue
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // WRONG: Don't include actions in storeToRefs
 // Actions are just functions and storeToRefs will skip them anyway
-const { name, login } = storeToRefs(userStore)
+const { name, login } = storeToRefs(userStore);
 // login is undefined! Actions aren't included in storeToRefs result
 
 // CORRECT: Separate state/getters from actions
-const { name } = storeToRefs(userStore)
-const { login } = userStore
+const { name } = storeToRefs(userStore);
+const { login } = userStore;
 </script>
 ```
 
@@ -176,18 +172,19 @@ const { login } = userStore
 With TypeScript, the types work correctly:
 
 ```typescript
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // name is Ref<string>, email is Ref<string>
-const { name, email } = storeToRefs(userStore)
+const { name, email } = storeToRefs(userStore);
 
 // login is (credentials: Credentials) => Promise<void>
-const { login } = userStore
+const { login } = userStore;
 ```
 
 ## Reference
+
 - [Pinia - Destructuring from a Store](https://pinia.vuejs.org/core-concepts/#destructuring-from-a-store)
 - [Pinia API - storeToRefs](https://pinia.vuejs.org/api/modules/pinia.html#storetorefs)

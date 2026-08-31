@@ -1,4 +1,4 @@
-import type {LucideIcon} from "@lucide/vue";
+import type { LucideIcon } from "@lucide/vue";
 import {
   Activity,
   ArchiveRestore,

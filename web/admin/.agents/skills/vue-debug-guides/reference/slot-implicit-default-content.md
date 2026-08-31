@@ -17,9 +17,10 @@ tags: [vue3, slots, named-slots, default-slot, implicit-behavior]
 - [ ] Keep slot content organization intentional
 
 **The Implicit Behavior:**
+
 ```vue
 <script setup>
-import BaseLayout from './BaseLayout.vue'
+import BaseLayout from "./BaseLayout.vue";
 </script>
 
 <template>
@@ -42,6 +43,7 @@ import BaseLayout from './BaseLayout.vue'
 The two `<p>` elements are automatically placed in `<slot>` (the default slot) in the child component.
 
 **Equivalent Explicit Version:**
+
 ```vue
 <template>
   <BaseLayout>
@@ -65,6 +67,7 @@ The two `<p>` elements are automatically placed in `<slot>` (the default slot) i
 ## When Implicit Behavior Causes Confusion
 
 **Scattered Content:**
+
 ```vue
 <template>
   <BaseLayout>
@@ -72,19 +75,22 @@ The two `<p>` elements are automatically placed in `<slot>` (the default slot) i
       <h1>Title</h1>
     </template>
 
-    <p>Content A</p>  <!-- Goes to default slot -->
+    <p>Content A</p>
+    <!-- Goes to default slot -->
 
     <template #sidebar>
       <nav>Navigation</nav>
     </template>
 
-    <p>Content B</p>  <!-- Also goes to default slot! -->
+    <p>Content B</p>
+    <!-- Also goes to default slot! -->
 
     <template #footer>
       <p>Footer</p>
     </template>
 
-    <p>Content C</p>  <!-- Also goes to default slot! -->
+    <p>Content C</p>
+    <!-- Also goes to default slot! -->
   </BaseLayout>
 </template>
 ```
@@ -92,6 +98,7 @@ The two `<p>` elements are automatically placed in `<slot>` (the default slot) i
 All three `<p>` elements end up in the default slot together, which may not be the intended order or grouping.
 
 **Clearer with Explicit Default:**
+
 ```vue
 <template>
   <BaseLayout>
@@ -118,12 +125,12 @@ All three `<p>` elements end up in the default slot together, which may not be t
 
 ## Best Practices
 
-| Scenario | Recommendation |
-|----------|---------------|
-| Only default slot used | Implicit is fine |
-| Mixed named + default slots | Consider explicit `#default` |
-| Complex layouts | Always use explicit templates |
-| Team/shared codebase | Prefer explicit for clarity |
+| Scenario                    | Recommendation                |
+| --------------------------- | ----------------------------- |
+| Only default slot used      | Implicit is fine              |
+| Mixed named + default slots | Consider explicit `#default`  |
+| Complex layouts             | Always use explicit templates |
+| Team/shared codebase        | Prefer explicit for clarity   |
 
 ## The Child Component
 
@@ -152,4 +159,5 @@ All three `<p>` elements end up in the default slot together, which may not be t
 ```
 
 ## Reference
+
 - [Vue.js Slots - Named Slots](https://vuejs.org/guide/components/slots.html#named-slots)

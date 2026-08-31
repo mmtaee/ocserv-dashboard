@@ -24,22 +24,22 @@ tags: [vue3, vue-router, navigation-guards, async, promises]
 // WRONG: Not awaiting - navigation proceeds immediately
 router.beforeEach((to, from) => {
   if (to.meta.requiresAuth) {
-    checkAuth()  // This returns a Promise but we're not waiting!
+    checkAuth(); // This returns a Promise but we're not waiting!
     // Navigation continues before checkAuth completes
   }
-})
+});
 
 // WRONG: Async function but forgot return
 router.beforeEach(async (to, from) => {
   if (to.meta.requiresAuth) {
-    const isValid = await checkAuth()
+    const isValid = await checkAuth();
     if (!isValid) {
       // This redirect might happen after navigation already completed!
-      return '/login'
+      return "/login";
     }
   }
   // Missing return - implicitly returns undefined, allowing navigation
-})
+});
 ```
 
 ## Solution: Proper Async/Await Pattern
@@ -49,19 +49,19 @@ router.beforeEach(async (to, from) => {
 router.beforeEach(async (to, from) => {
   if (to.meta.requiresAuth) {
     try {
-      const isAuthenticated = await checkAuth()
+      const isAuthenticated = await checkAuth();
 
       if (!isAuthenticated) {
-        return { name: 'Login', query: { redirect: to.fullPath } }
+        return { name: "Login", query: { redirect: to.fullPath } };
       }
     } catch (error) {
-      console.error('Auth check failed:', error)
-      return { name: 'Error', params: { message: 'Authentication failed' } }
+      console.error("Auth check failed:", error);
+      return { name: "Error", params: { message: "Authentication failed" } };
     }
   }
   // Explicitly return nothing to proceed
-  return true
-})
+  return true;
+});
 ```
 
 ## Solution: Promise-Based Pattern (Alternative)
@@ -71,52 +71,52 @@ router.beforeEach(async (to, from) => {
 router.beforeEach((to, from) => {
   if (to.meta.requiresAuth) {
     return checkAuth()
-      .then(isAuthenticated => {
+      .then((isAuthenticated) => {
         if (!isAuthenticated) {
-          return { name: 'Login' }
+          return { name: "Login" };
         }
       })
-      .catch(error => {
-        console.error('Auth check failed:', error)
-        return { name: 'Error' }
-      })
+      .catch((error) => {
+        console.error("Auth check failed:", error);
+        return { name: "Error" };
+      });
   }
-})
+});
 ```
 
 ## Loading State During Async Guards
 
 ```javascript
 // app/composables/useNavigationLoading.js
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const isNavigating = ref(false)
+const isNavigating = ref(false);
 
 export function useNavigationLoading() {
-  return { isNavigating }
+  return { isNavigating };
 }
 
 export function setupNavigationLoading(router) {
   router.beforeEach(() => {
-    isNavigating.value = true
-  })
+    isNavigating.value = true;
+  });
 
   router.afterEach(() => {
-    isNavigating.value = false
-  })
+    isNavigating.value = false;
+  });
 
   router.onError(() => {
-    isNavigating.value = false
-  })
+    isNavigating.value = false;
+  });
 }
 ```
 
 ```vue
 <!-- App.vue -->
 <script setup>
-import { useNavigationLoading } from '@/composables/useNavigationLoading'
+import { useNavigationLoading } from "@/composables/useNavigationLoading";
 
-const { isNavigating } = useNavigationLoading()
+const { isNavigating } = useNavigationLoading();
 </script>
 
 <template>
@@ -133,28 +133,28 @@ function withTimeout(promise, ms = 5000) {
   return Promise.race([
     promise,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Request timeout')), ms)
-    )
-  ])
+      setTimeout(() => reject(new Error("Request timeout")), ms),
+    ),
+  ]);
 }
 
 router.beforeEach(async (to, from) => {
   if (to.meta.requiresAuth) {
     try {
-      const isValid = await withTimeout(checkAuth(), 5000)
+      const isValid = await withTimeout(checkAuth(), 5000);
       if (!isValid) {
-        return '/login'
+        return "/login";
       }
     } catch (error) {
-      if (error.message === 'Request timeout') {
+      if (error.message === "Request timeout") {
         // Let user through but show warning
-        console.warn('Auth check timed out')
+        console.warn("Auth check timed out");
       } else {
-        return '/login'
+        return "/login";
       }
     }
   }
-})
+});
 ```
 
 ## Multiple Async Checks
@@ -166,21 +166,21 @@ router.beforeEach(async (to, from) => {
     try {
       const [isAuthenticated, hasSubscription] = await Promise.all([
         checkAuth(),
-        checkSubscription()
-      ])
+        checkSubscription(),
+      ]);
 
       if (!isAuthenticated) {
-        return '/login'
+        return "/login";
       }
 
       if (!hasSubscription) {
-        return '/subscribe'
+        return "/subscribe";
       }
     } catch (error) {
-      return '/error'
+      return "/error";
     }
   }
-})
+});
 ```
 
 ## Error Handling Best Practices
@@ -189,28 +189,28 @@ router.beforeEach(async (to, from) => {
 router.beforeEach(async (to, from) => {
   try {
     // Your async logic here
-    await performChecks(to)
+    await performChecks(to);
   } catch (error) {
     // Always handle errors to prevent navigation from hanging
 
     if (error.response?.status === 401) {
-      return '/login'
+      return "/login";
     }
 
     if (error.response?.status === 403) {
-      return '/forbidden'
+      return "/forbidden";
     }
 
-    if (error.code === 'NETWORK_ERROR') {
+    if (error.code === "NETWORK_ERROR") {
       // Offline - maybe allow navigation but show warning
-      return true
+      return true;
     }
 
     // Unknown error - redirect to error page
-    console.error('Navigation guard error:', error)
-    return { name: 'Error', state: { error: error.message } }
+    console.error("Navigation guard error:", error);
+    return { name: "Error", state: { error: error.message } };
   }
-})
+});
 ```
 
 ## Key Points
@@ -223,5 +223,6 @@ router.beforeEach(async (to, from) => {
 6. **Parallelize independent checks** - Use Promise.all for better performance
 
 ## Reference
+
 - [Vue Router Navigation Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html)
 - [Vue Router Navigation Failures](https://router.vuejs.org/guide/advanced/navigation-failures.html)

@@ -20,17 +20,18 @@ This is especially tricky with `watchEffect` since it runs automatically and may
 - [ ] Use optional chaining (?.) when accessing ref properties in uncertain contexts
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue";
 
-const inputEl = ref(null)
-const showInput = ref(true)
+const inputEl = ref(null);
+const showInput = ref(true);
 
 // WRONG: No null check - will error when v-if is false
 watchEffect(() => {
-  inputEl.value.focus() // TypeError when showInput is false
-})
+  inputEl.value.focus(); // TypeError when showInput is false
+});
 </script>
 
 <template>
@@ -40,22 +41,23 @@ watchEffect(() => {
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue";
 
-const inputEl = ref(null)
-const showInput = ref(true)
+const inputEl = ref(null);
+const showInput = ref(true);
 
 // CORRECT: Handle both mounted and unmounted states
 watchEffect(() => {
   if (inputEl.value) {
-    inputEl.value.focus()
+    inputEl.value.focus();
   } else {
     // Element not mounted yet, or unmounted by v-if
-    console.log('Input element not available')
+    console.log("Input element not available");
   }
-})
+});
 </script>
 
 <template>
@@ -66,17 +68,17 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
-const inputEl = ref(null)
-const showInput = ref(true)
+const inputEl = ref(null);
+const showInput = ref(true);
 
 // CORRECT: Watch the ref and handle null explicitly
 watch(inputEl, (el) => {
   if (el) {
-    el.focus()
+    el.focus();
   }
-})
+});
 </script>
 
 <template>
@@ -86,15 +88,15 @@ watch(inputEl, (el) => {
 
 ```vue
 <script setup>
-import { useTemplateRef, watchEffect } from 'vue'
+import { useTemplateRef, watchEffect } from "vue";
 
 // Vue 3.5+ approach
-const input = useTemplateRef('my-input')
+const input = useTemplateRef("my-input");
 
 // CORRECT: Use optional chaining for safe access
 watchEffect(() => {
-  input.value?.focus()
-})
+  input.value?.focus();
+});
 </script>
 
 <template>
@@ -104,10 +106,10 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
-const inputEl = ref(null)
-const showInput = ref(true)
+const inputEl = ref(null);
+const showInput = ref(true);
 
 // ALTERNATIVE: Use v-show if you need consistent ref access
 // v-show keeps element in DOM, just hides it with CSS
@@ -120,4 +122,5 @@ const showInput = ref(true)
 ```
 
 ## Reference
+
 - [Vue.js Template Refs](https://vuejs.org/guide/essentials/template-refs.html)

@@ -18,6 +18,7 @@ tags: [vue3, events, modifiers, scroll, touch, performance]
 - [ ] If you need conditional prevention, handle it in JavaScript without `.passive`
 
 **Incorrect:**
+
 ```html
 <!-- WRONG: Conflicting modifiers -->
 <template>
@@ -47,6 +48,7 @@ tags: [vue3, events, modifiers, scroll, touch, performance]
 ```
 
 **Correct:**
+
 ```html
 <!-- CORRECT: Use .passive for performance (no prevention needed) -->
 <template>
@@ -74,12 +76,12 @@ tags: [vue3, events, modifiers, scroll, touch, performance]
 </template>
 
 <script setup>
-function handleTouchMove(event) {
-  if (shouldPreventScroll.value) {
-    event.preventDefault()
+  function handleTouchMove(event) {
+    if (shouldPreventScroll.value) {
+      event.preventDefault();
+    }
+    // ... handle touch
   }
-  // ... handle touch
-}
 </script>
 ```
 
@@ -95,7 +97,7 @@ function handleTouchMove(event) {
 // 3. Reduce jank and stuttering
 
 // Equivalent to:
-element.addEventListener('scroll', handler, { passive: true })
+element.addEventListener("scroll", handler, { passive: true });
 ```
 
 ## When to Use .passive
@@ -105,12 +107,12 @@ element.addEventListener('scroll', handler, { passive: true })
 
 <!-- Scroll tracking analytics -->
 <div @scroll.passive="trackScrollPosition">
-
-<!-- Touch gesture detection (no prevention needed) -->
-<div @touchmove.passive="detectGesture">
-
-<!-- Wheel event monitoring -->
-<div @wheel.passive="monitorWheel">
+  <!-- Touch gesture detection (no prevention needed) -->
+  <div @touchmove.passive="detectGesture">
+    <!-- Wheel event monitoring -->
+    <div @wheel.passive="monitorWheel"></div>
+  </div>
+</div>
 ```
 
 ## When to Use .prevent (Without .passive)
@@ -120,22 +122,24 @@ element.addEventListener('scroll', handler, { passive: true })
 
 <!-- Form submission -->
 <form @submit.prevent="handleSubmit">
-
-<!-- Link clicks with custom navigation -->
-<a @click.prevent="navigate">
-
-<!-- Preventing context menu -->
-<div @contextmenu.prevent="showCustomMenu">
+  <!-- Link clicks with custom navigation -->
+  <a @click.prevent="navigate">
+    <!-- Preventing context menu -->
+    <div @contextmenu.prevent="showCustomMenu"></div
+  ></a>
+</form>
 ```
 
 ## Browser Warning
 
 When you combine `.passive` and `.prevent`, the browser console shows:
+
 ```
 [Intervention] Unable to preventDefault inside passive event listener
 due to target being treated as passive.
 ```
 
 ## Reference
+
 - [Vue.js Event Handling - Event Modifiers](https://vuejs.org/guide/essentials/event-handling.html#event-modifiers)
 - [MDN - Improving scroll performance with passive listeners](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#improving_scrolling_performance_with_passive_listeners)

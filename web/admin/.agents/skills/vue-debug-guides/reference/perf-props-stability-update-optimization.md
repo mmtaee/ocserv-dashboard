@@ -20,6 +20,7 @@ Move comparison logic to the parent and pass the boolean result instead. This is
 - [ ] Consider this pattern especially critical for large lists
 
 **Incorrect:**
+
 ```vue
 <template>
   <!-- BAD: activeId changes -> ALL 100 ListItems re-render -->
@@ -32,10 +33,10 @@ Move comparison logic to the parent and pass the boolean result instead. This is
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const list = ref([/* 100 items */])
-const activeId = ref(null)
+const list = ref([/* 100 items */]);
+const activeId = ref(null);
 
 // When activeId changes from 1 to 2:
 // - ListItem 1 needs to re-render (was active, now not)
@@ -55,12 +56,13 @@ const activeId = ref(null)
 <script setup>
 defineProps({
   id: Number,
-  activeId: Number  // This prop changes for ALL items
-})
+  activeId: Number, // This prop changes for ALL items
+});
 </script>
 ```
 
 **Correct:**
+
 ```vue
 <template>
   <!-- GOOD: Only items whose :active actually changed will re-render -->
@@ -73,10 +75,10 @@ defineProps({
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const list = ref([/* 100 items */])
-const activeId = ref(null)
+const list = ref([/* 100 items */]);
+const activeId = ref(null);
 
 // When activeId changes from 1 to 2:
 // - ListItem 1: :active changed from true to false -> re-renders
@@ -96,8 +98,8 @@ const activeId = ref(null)
 <script setup>
 defineProps({
   id: Number,
-  active: Boolean  // This only changes for items that truly changed
-})
+  active: Boolean, // This only changes for items that truly changed
+});
 </script>
 ```
 
@@ -129,12 +131,13 @@ defineProps({
 
 ## Performance Impact Example
 
-| Scenario | Props Changed | Components Re-rendered |
-|----------|---------------|------------------------|
-| 100 items, pass `activeId` | 100 | 100 (all) |
-| 100 items, pass `:active` boolean | 2 | 2 (only changed) |
-| 1000 items, pass `activeId` | 1000 | 1000 (all) |
-| 1000 items, pass `:active` boolean | 2 | 2 (only changed) |
+| Scenario                           | Props Changed | Components Re-rendered |
+| ---------------------------------- | ------------- | ---------------------- |
+| 100 items, pass `activeId`         | 100           | 100 (all)              |
+| 100 items, pass `:active` boolean  | 2             | 2 (only changed)       |
+| 1000 items, pass `activeId`        | 1000          | 1000 (all)             |
+| 1000 items, pass `:active` boolean | 2             | 2 (only changed)       |
 
 ## Reference
+
 - [Vue.js Performance - Props Stability](https://vuejs.org/guide/best-practices/performance.html#props-stability)

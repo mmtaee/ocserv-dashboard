@@ -3,7 +3,18 @@ title: Suspense Component Best Practices
 impact: MEDIUM
 impactDescription: Suspense coordinates async dependencies with fallback UI; misconfiguration leads to missing loading states or confusing UX
 type: best-practice
-tags: [vue3, suspense, async-components, async-setup, loading, fallback, router, transition, keepalive]
+tags:
+  [
+    vue3,
+    suspense,
+    async-components,
+    async-setup,
+    loading,
+    fallback,
+    router,
+    transition,
+    keepalive,
+  ]
 ---
 
 # Suspense Component Best Practices
@@ -25,6 +36,7 @@ tags: [vue3, suspense, async-components, async-setup, loading, fallback, router,
 Suspense tracks a single immediate child in both slots. Wrap multiple elements in a single element or component.
 
 **BAD:**
+
 ```vue
 <template>
   <Suspense>
@@ -40,6 +52,7 @@ Suspense tracks a single immediate child in both slots. Wrap multiple elements i
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <Suspense>
@@ -63,27 +76,25 @@ Suspense tracks a single immediate child in both slots. Wrap multiple elements i
 When Suspense is already resolved and new async work starts, the previous content remains visible until the timeout elapses. Use `timeout="0"` for immediate fallback or a short delay to avoid flicker.
 
 **BAD:**
+
 ```vue
 <template>
   <Suspense>
     <component :is="currentView" :key="viewKey" />
 
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <Suspense :timeout="200">
     <component :is="currentView" :key="viewKey" />
 
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
@@ -93,6 +104,7 @@ When Suspense is already resolved and new async work starts, the previous conten
 Once resolved, Suspense only re-enters pending when the root node of the default slot changes. If async work happens deeper in the tree, no fallback appears.
 
 **BAD:**
+
 ```vue
 <template>
   <Suspense>
@@ -101,22 +113,19 @@ Once resolved, Suspense only re-enters pending when the root node of the default
       <AsyncSettings v-else />
     </TabContainer>
 
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <Suspense>
     <component :is="tabs[tab]" :key="tab" />
 
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
@@ -126,6 +135,7 @@ Once resolved, Suspense only re-enters pending when the root node of the default
 Nested Suspense boundaries need `suspensible` on the inner boundary so the parent can coordinate loading state. Without it, inner async content may render empty nodes until resolved.
 
 **BAD:**
+
 ```vue
 <template>
   <Suspense>
@@ -142,6 +152,7 @@ Nested Suspense boundaries need `suspensible` on the inner boundary so the paren
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <Suspense>
@@ -163,17 +174,17 @@ Use `@pending`, `@resolve`, and `@fallback` for analytics, global loading indica
 
 ```vue
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const isLoading = ref(false)
+const isLoading = ref(false);
 
 const onPending = () => {
-  isLoading.value = true
-}
+  isLoading.value = true;
+};
 
 const onResolve = () => {
-  isLoading.value = false
-}
+  isLoading.value = false;
+};
 </script>
 
 <template>
@@ -193,6 +204,7 @@ const onResolve = () => {
 When combining these components, the nesting order should be `RouterView` -> `Transition` -> `KeepAlive` -> `Suspense` so each wrapper works correctly.
 
 **BAD:**
+
 ```vue
 <template>
   <RouterView v-slot="{ Component }">
@@ -208,6 +220,7 @@ When combining these components, the nesting order should be `RouterView` -> `Tr
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <RouterView v-slot="{ Component }">

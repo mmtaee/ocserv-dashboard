@@ -21,61 +21,63 @@ tags: [vue3, typescript, options-api, defineComponent, type-inference]
 Vue's Options API relies heavily on the `this` context, which TypeScript cannot automatically type without `defineComponent`:
 
 **BAD - No type inference:**
+
 ```typescript
 // No defineComponent - 'this' is typed as 'any'
 export default {
   props: {
-    message: String
+    message: String,
   },
   computed: {
     // 'this' is 'any' - no type checking!
     greeting() {
-      return this.message + '!'  // No type inference
-    }
+      return this.message + "!"; // No type inference
+    },
   },
   methods: {
     // 'this' is 'any' - mistakes won't be caught
     handleClick() {
-      console.log(this.mesage)  // Typo not caught!
-    }
-  }
-}
+      console.log(this.mesage); // Typo not caught!
+    },
+  },
+};
 ```
 
 **GOOD - Full type inference:**
+
 ```typescript
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
   props: {
     message: {
       type: String,
-      required: true
+      required: true,
     },
     count: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data() {
     return {
-      localState: ''
-    }
+      localState: "",
+    };
   },
   computed: {
     // 'this.message' is typed as string
     // 'this.count' is typed as number
     greeting(): string {
-      return this.message + '!'
-    }
+      return this.message + "!";
+    },
   },
   methods: {
     handleClick() {
-      console.log(this.mesage)  // Error: Property 'mesage' does not exist
-      console.log(this.message)  // OK: string
-    }
-  }
-})
+      console.log(this.mesage); // Error: Property 'mesage' does not exist
+      console.log(this.message); // OK: string
+    },
+  },
+});
 ```
 
 ## What defineComponent Enables
@@ -110,18 +112,18 @@ Without this, TypeScript allows implicit `any` for `this`, defeating the purpose
 // At runtime, this is equivalent to:
 // export default { props: { ... }, ... }
 export default defineComponent({
-  props: { /* ... */ }
-})
+  props: {/* ... */},
+});
 ```
 
 This means there's zero runtime cost to using `defineComponent`.
 
 ## When to Use defineComponent vs script setup
 
-| Approach | Use Case |
-|----------|----------|
-| `defineComponent` | Options API, Class-based migration, JSX/TSX components |
-| `<script setup>` | New components, better type inference, less boilerplate |
+| Approach          | Use Case                                                |
+| ----------------- | ------------------------------------------------------- |
+| `defineComponent` | Options API, Class-based migration, JSX/TSX components  |
+| `<script setup>`  | New components, better type inference, less boilerplate |
 
 **Official recommendation**: "While Vue does support TypeScript usage with Options API, it is recommended to use Vue with TypeScript via Composition API as it offers simpler, more efficient and more robust type inference."
 
@@ -129,22 +131,22 @@ This means there's zero runtime cost to using `defineComponent`.
 
 ```vue
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'MyComponent',
+  name: "MyComponent",
   props: {
     title: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     upperTitle(): string {
-      return this.title.toUpperCase()
-    }
-  }
-})
+      return this.title.toUpperCase();
+    },
+  },
+});
 </script>
 
 <template>
@@ -159,9 +161,9 @@ This often happens when copying JavaScript components to TypeScript:
 ```typescript
 // Copied from JS - MISSING defineComponent!
 export default {
-  name: 'MyComponent',
+  name: "MyComponent",
   // ... entire component without type inference
-}
+};
 ```
 
 Always add `defineComponent` when converting to TypeScript.

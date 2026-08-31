@@ -3,7 +3,21 @@ title: Single-File Component Structure, Styling, and Template Patterns
 impact: MEDIUM
 impactDescription: Consistent SFC structure and styling choices improve maintainability, tooling support, and render performance
 type: best-practice
-tags: [vue3, sfc, scoped-css, styles, build-tools, performance, template, v-html, v-for, computed, v-if, v-show]
+tags:
+  [
+    vue3,
+    sfc,
+    scoped-css,
+    styles,
+    build-tools,
+    performance,
+    template,
+    v-html,
+    v-for,
+    computed,
+    v-if,
+    v-show,
+  ]
 ---
 
 # Single-File Component Structure, Styling, and Template Patterns
@@ -26,6 +40,7 @@ tags: [vue3, sfc, scoped-css, styles, build-tools, performance, template, v-html
 ## Colocate template, script, and styles
 
 **BAD:**
+
 ```
 components/
 ├── UserCard.vue
@@ -34,18 +49,19 @@ components/
 ```
 
 **GOOD:**
+
 ```vue
 <!-- components/UserCard.vue -->
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
-  user: { type: Object, required: true }
-})
+  user: { type: Object, required: true },
+});
 
-const displayName = computed(() =>
-  `${props.user.firstName} ${props.user.lastName}`
-)
+const displayName = computed(
+  () => `${props.user.firstName} ${props.user.lastName}`,
+);
 </script>
 
 <template>
@@ -68,9 +84,10 @@ const displayName = computed(() =>
 ## Use PascalCase for component names
 
 **BAD:**
+
 ```vue
 <script setup>
-import userProfile from './user-profile.vue'
+import userProfile from "./user-profile.vue";
 </script>
 
 <template>
@@ -79,9 +96,10 @@ import userProfile from './user-profile.vue'
 ```
 
 **GOOD:**
+
 ```vue
 <script setup>
-import UserProfile from './UserProfile.vue'
+import UserProfile from "./UserProfile.vue";
 </script>
 
 <template>
@@ -102,7 +120,9 @@ import UserProfile from './UserProfile.vue'
 ```vue
 <style>
 /* ❌ leaks everywhere */
-button { border-radius: 999px; }
+button {
+  border-radius: 999px;
+}
 </style>
 ```
 
@@ -110,7 +130,9 @@ button { border-radius: 999px; }
 
 ```vue
 <style scoped>
-.button { border-radius: 999px; }
+.button {
+  border-radius: 999px;
+}
 </style>
 ```
 
@@ -119,12 +141,15 @@ button { border-radius: 999px; }
 ```css
 /* src/assets/main.css */
 /* ✅ resets, tokens, typography, app-wide rules */
-:root { --radius: 999px; }
+:root {
+  --radius: 999px;
+}
 ```
 
 ### Use class selectors in scoped CSS
 
 **BAD:**
+
 ```vue
 <template>
   <article>
@@ -134,13 +159,20 @@ button { border-radius: 999px; }
 </template>
 
 <style scoped>
-article { max-width: 800px; }
-h1 { font-size: 2rem; }
-p { line-height: 1.6; }
+article {
+  max-width: 800px;
+}
+h1 {
+  font-size: 2rem;
+}
+p {
+  line-height: 1.6;
+}
 </style>
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <article class="article">
@@ -150,9 +182,15 @@ p { line-height: 1.6; }
 </template>
 
 <style scoped>
-.article { max-width: 800px; }
-.article-title { font-size: 2rem; }
-.article-subtitle { line-height: 1.6; }
+.article {
+  max-width: 800px;
+}
+.article-title {
+  font-size: 2rem;
+}
+.article-subtitle {
+  line-height: 1.6;
+}
 </style>
 ```
 
@@ -162,13 +200,13 @@ For Vue 3.5+: use `useTemplateRef()` to access template refs.
 
 ```vue
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue'
+import { onMounted, useTemplateRef } from "vue";
 
-const inputRef = useTemplateRef<HTMLInputElement>('input')
+const inputRef = useTemplateRef<HTMLInputElement>("input");
 
 onMounted(() => {
-  inputRef.value?.focus()
-})
+  inputRef.value?.focus();
+});
 </script>
 
 <template>
@@ -179,6 +217,7 @@ onMounted(() => {
 ## Use camelCase in `:style` bindings
 
 **BAD:**
+
 ```vue
 <template>
   <div :style="{ 'font-size': fontSize + 'px', 'background-color': bg }">
@@ -188,11 +227,10 @@ onMounted(() => {
 ```
 
 **GOOD:**
+
 ```vue
 <template>
-  <div :style="{ fontSize: fontSize + 'px', backgroundColor: bg }">
-    Content
-  </div>
+  <div :style="{ fontSize: fontSize + 'px', backgroundColor: bg }">Content</div>
 </template>
 ```
 
@@ -229,9 +267,9 @@ It leads to unclear intent and unnecessary work.
 
 ```vue
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
-const activeUsers = computed(() => users.value.filter(u => u.active))
+const activeUsers = computed(() => users.value.filter((u) => u.active));
 </script>
 
 <template>
@@ -255,6 +293,7 @@ const activeUsers = computed(() => users.value.filter(u => u.active))
 ## Never render untrusted HTML with `v-html`
 
 **BAD:**
+
 ```vue
 <template>
   <!-- DANGEROUS: untrusted input can inject scripts -->
@@ -263,6 +302,7 @@ const activeUsers = computed(() => users.value.filter(u => u.active))
 ```
 
 **GOOD:**
+
 ```vue
 <script setup>
 import { computed } from 'vue'
@@ -288,6 +328,7 @@ const safeHtml = computed(() => DOMPurify.sanitize(props.trustedHtml ?? ''))
 ## Choose `v-if` vs `v-show` by toggle behavior
 
 **BAD:**
+
 ```vue
 <template>
   <!-- Frequent toggles with v-if cause repeated mount/unmount -->
@@ -299,6 +340,7 @@ const safeHtml = computed(() => DOMPurify.sanitize(props.trustedHtml ?? ''))
 ```
 
 **GOOD:**
+
 ```vue
 <template>
   <!-- Frequent toggles: keep in DOM, toggle display -->

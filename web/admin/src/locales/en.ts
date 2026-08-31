@@ -61,9 +61,14 @@ const en = {
     systemUsage: "System usage",
     systemUsageDescription: "Live operating system resource usage.",
     systemUsageError: "System usage statistics could not be refreshed.",
+    systemAndContainerUsage: "System and Docker usage",
+    systemAndContainerUsageDescription:
+      "Live operating system and Docker container resource usage.",
     containerUsage: "Docker container usage",
     containerUsageDescription: "Live resource usage for running containers.",
     containerUsageError: "Container statistics could not be refreshed.",
+    containerCpuUsage: "Docker CPU usage",
+    containerRamUsage: "Docker RAM usage",
     ocservStatistics: "Ocserv statistics",
     ocservStatisticsDescription:
       "Live Ocserv server status, sessions, and traffic statistics.",

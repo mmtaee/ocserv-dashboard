@@ -21,61 +21,63 @@ This is critical because composables often register `onMounted` and `onUnmounted
 - [ ] Exception: Composables CAN be called in lifecycle hooks like `onMounted`
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { useFetch } from './composables/useFetch'
-import { useAuth } from './composables/useAuth'
+import { useFetch } from "./composables/useFetch";
+import { useAuth } from "./composables/useAuth";
 
 // WRONG: Composable called after await
-const config = await loadConfig()
-const { data } = useFetch(config.apiUrl)  // Lifecycle hooks won't register!
+const config = await loadConfig();
+const { data } = useFetch(config.apiUrl); // Lifecycle hooks won't register!
 
 // WRONG: Composable called conditionally
 if (someCondition) {
-  const { user } = useAuth()  // Inconsistent hook registration!
+  const { user } = useAuth(); // Inconsistent hook registration!
 }
 
 // WRONG: Composable called in callback
 setTimeout(() => {
-  const { data } = useFetch('/api/delayed')  // No component context!
-}, 1000)
+  const { data } = useFetch("/api/delayed"); // No component context!
+}, 1000);
 
 // WRONG: Composable called in loop
 for (const url of urls) {
-  const { data } = useFetch(url)  // Creates multiple instances incorrectly
+  const { data } = useFetch(url); // Creates multiple instances incorrectly
 }
 </script>
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useFetch } from './composables/useFetch'
-import { useAuth } from './composables/useAuth'
+import { ref, onMounted } from "vue";
+import { useFetch } from "./composables/useFetch";
+import { useAuth } from "./composables/useAuth";
 
 // CORRECT: Call composables synchronously at top level
-const { user, isAuthenticated } = useAuth()
-const apiUrl = ref('/api/default')
-const { data, execute } = useFetch(apiUrl)
+const { user, isAuthenticated } = useAuth();
+const apiUrl = ref("/api/default");
+const { data, execute } = useFetch(apiUrl);
 
 // Handle async config loading differently
 onMounted(async () => {
-  const config = await loadConfig()
-  apiUrl.value = config.apiUrl  // Update the ref, composable reacts
-})
+  const config = await loadConfig();
+  apiUrl.value = config.apiUrl; // Update the ref, composable reacts
+});
 
 // CORRECT: Handle condition inside, not outside
-const showUserData = computed(() => isAuthenticated.value && someCondition)
+const showUserData = computed(() => isAuthenticated.value && someCondition);
 
 // CORRECT: For multiple URLs, use a different pattern
-const urls = ref(['/api/a', '/api/b', '/api/c'])
-const results = ref([])
+const urls = ref(["/api/a", "/api/b", "/api/c"]);
+const results = ref([]);
 
 // Either fetch in onMounted or use a composable designed for arrays
 onMounted(async () => {
-  results.value = await Promise.all(urls.value.map(url => fetch(url)))
-})
+  results.value = await Promise.all(urls.value.map((url) => fetch(url)));
+});
 </script>
 ```
 
@@ -85,14 +87,14 @@ Composables CAN be called inside lifecycle hooks because Vue maintains the compo
 
 ```vue
 <script setup>
-import { onMounted } from 'vue'
-import { useEventListener } from '@vueuse/core'
+import { onMounted } from "vue";
+import { useEventListener } from "@vueuse/core";
 
 // CORRECT: Called in lifecycle hook - component context is available
 onMounted(() => {
   // This works because we're still in the component's execution context
-  useEventListener(document, 'visibilitychange', handleVisibility)
-})
+  useEventListener(document, "visibilitychange", handleVisibility);
+});
 </script>
 ```
 
@@ -102,17 +104,17 @@ Top-level await in `<script setup>` is special - Vue's compiler automatically pr
 
 ```vue
 <script setup>
-import { useFetch } from './composables/useFetch'
+import { useFetch } from "./composables/useFetch";
 
 // CORRECT: Top-level await in <script setup> preserves context
 // Vue compiler handles this specially
-const config = await loadConfig()
-const { data } = useFetch(config.apiUrl)  // This works!
+const config = await loadConfig();
+const { data } = useFetch(config.apiUrl); // This works!
 
 // But nested awaits still break context:
 async function initLater() {
-  await delay(1000)
-  const { data } = useFetch('/api/late')  // WRONG: This won't work!
+  await delay(1000);
+  const { data } = useFetch("/api/late"); // WRONG: This won't work!
 }
 </script>
 ```
@@ -124,18 +126,23 @@ When you call a composable, Vue needs to know which component instance to associ
 ```javascript
 // Inside a composable
 export function useFetch(url) {
-  const data = ref(null)
+  const data = ref(null);
 
   // These need the current component instance!
-  onMounted(() => { /* ... */ })
-  onUnmounted(() => { /* cleanup */ })
+  onMounted(() => {
+    /* ... */
+  });
+  onUnmounted(() => {
+    /* cleanup */
+  });
 
   // If called outside setup context, Vue can't find the instance
   // and these hooks are silently ignored
-  return { data }
+  return { data };
 }
 ```
 
 ## Reference
+
 - [Vue.js Composables - Usage Restrictions](https://vuejs.org/guide/reusability/composables.html#usage-restrictions)
 - [Vue.js Composition API - Setup Context](https://vuejs.org/api/composition-api-setup.html)

@@ -20,23 +20,23 @@ When using `app.config.globalProperties` in Vue plugins, use them sparingly and 
 
 ```typescript
 // Too many global properties from various plugins
-app.config.globalProperties.$http = axios
-app.config.globalProperties.$api = apiClient
-app.config.globalProperties.$auth = authService
-app.config.globalProperties.$translate = i18n.translate
-app.config.globalProperties.$format = formatters
-app.config.globalProperties.$utils = utilities
-app.config.globalProperties.$config = appConfig
-app.config.globalProperties.$logger = logger
+app.config.globalProperties.$http = axios;
+app.config.globalProperties.$api = apiClient;
+app.config.globalProperties.$auth = authService;
+app.config.globalProperties.$translate = i18n.translate;
+app.config.globalProperties.$format = formatters;
+app.config.globalProperties.$utils = utilities;
+app.config.globalProperties.$config = appConfig;
+app.config.globalProperties.$logger = logger;
 
 // In component - where did all these come from?
 export default {
   mounted() {
-    this.$logger.info('Mounted')
-    const data = await this.$http.get(this.$config.apiUrl)
-    this.$api.process(this.$utils.transform(data))
-  }
-}
+    this.$logger.info("Mounted");
+    const data = await this.$http.get(this.$config.apiUrl);
+    this.$api.process(this.$utils.transform(data));
+  },
+};
 ```
 
 ## Good Practice
@@ -94,7 +94,7 @@ app.config.globalProperties.$myPlugin = {
 You can inspect all global properties for debugging:
 
 ```typescript
-console.log(app.config.globalProperties)
+console.log(app.config.globalProperties);
 ```
 
 ## When Global Properties Are Acceptable

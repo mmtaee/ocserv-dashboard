@@ -20,47 +20,49 @@ Computed properties should be pure - they calculate a value without side effects
 - [ ] Consider using `toSorted()` and `toReversed()` (ES2023) which return new arrays
 
 **Incorrect:**
+
 ```javascript
-const numbers = ref([1, 2, 3, 4, 5])
+const numbers = ref([1, 2, 3, 4, 5]);
 
 // WRONG: Mutates the original array
 const reversedNumbers = computed(() => {
-  return numbers.value.reverse()  // Modifies numbers.value!
-})
+  return numbers.value.reverse(); // Modifies numbers.value!
+});
 
 // WRONG: Same issue with sort
 const sortedItems = computed(() => {
-  return items.value.sort((a, b) => a.name.localeCompare(b.name))
-})
+  return items.value.sort((a, b) => a.name.localeCompare(b.name));
+});
 ```
 
 **Correct:**
+
 ```javascript
-const numbers = ref([1, 2, 3, 4, 5])
+const numbers = ref([1, 2, 3, 4, 5]);
 
 // CORRECT: Create a copy first with spread operator
 const reversedNumbers = computed(() => {
-  return [...numbers.value].reverse()
-})
+  return [...numbers.value].reverse();
+});
 
 // CORRECT: Create a copy before sorting
 const sortedItems = computed(() => {
-  return [...items.value].sort((a, b) => a.name.localeCompare(b.name))
-})
+  return [...items.value].sort((a, b) => a.name.localeCompare(b.name));
+});
 
 // CORRECT: Using slice() to copy
 const reversedNumbers = computed(() => {
-  return numbers.value.slice().reverse()
-})
+  return numbers.value.slice().reverse();
+});
 
 // CORRECT: ES2023 non-mutating methods (if supported)
 const reversedNumbers = computed(() => {
-  return numbers.value.toReversed()
-})
+  return numbers.value.toReversed();
+});
 
 const sortedItems = computed(() => {
-  return items.value.toSorted((a, b) => a.price - b.price)
-})
+  return items.value.toSorted((a, b) => a.price - b.price);
+});
 ```
 
 ## Also Applies to Methods Used in Templates
@@ -70,7 +72,7 @@ When using methods to filter/sort in nested v-for loops, the same rule applies:
 ```javascript
 // CORRECT: Method that doesn't mutate
 function getSortedChildren(parent) {
-  return [...parent.children].sort((a, b) => a.order - b.order)
+  return [...parent.children].sort((a, b) => a.order - b.order);
 }
 ```
 
@@ -83,4 +85,5 @@ function getSortedChildren(parent) {
 ```
 
 ## Reference
+
 - [Vue.js List Rendering - Displaying Filtered/Sorted Results](https://vuejs.org/guide/essentials/list.html#displaying-filtered-sorted-results)

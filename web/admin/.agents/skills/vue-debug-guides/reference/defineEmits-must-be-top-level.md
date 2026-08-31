@@ -22,79 +22,85 @@ This applies to all Vue macros: `defineProps`, `defineEmits`, `defineExpose`, `d
 ## The Problem
 
 **Incorrect - Inside a function:**
+
 ```vue
 <script setup>
 function useEvents() {
   // ERROR: defineEmits cannot be used inside a function
-  const emit = defineEmits(['submit', 'cancel'])
-  return emit
+  const emit = defineEmits(["submit", "cancel"]);
+  return emit;
 }
 
-const emit = useEvents() // This fails at compile time
+const emit = useEvents(); // This fails at compile time
 </script>
 ```
 
 **Incorrect - Inside a conditional:**
+
 ```vue
 <script setup>
 if (someCondition) {
   // ERROR: Cannot use defineEmits in conditional
-  const emit = defineEmits(['eventA'])
+  const emit = defineEmits(["eventA"]);
 } else {
-  const emit = defineEmits(['eventB'])
+  const emit = defineEmits(["eventB"]);
 }
 </script>
 ```
 
 **Incorrect - Referencing local variables:**
+
 ```vue
 <script setup>
-const eventNames = ['submit', 'cancel']
+const eventNames = ["submit", "cancel"];
 
 // ERROR: Cannot reference local variables
-const emit = defineEmits(eventNames)
+const emit = defineEmits(eventNames);
 </script>
 ```
 
 ## Correct Usage
 
 **Correct - Top level declaration:**
+
 ```vue
 <script setup>
 // CORRECT: defineEmits at top level of script setup
-const emit = defineEmits(['submit', 'cancel', 'update'])
+const emit = defineEmits(["submit", "cancel", "update"]);
 
 function handleSubmit() {
-  emit('submit', data)
+  emit("submit", data);
 }
 
 function handleCancel() {
-  emit('cancel')
+  emit("cancel");
 }
 </script>
 ```
 
 **Correct - With TypeScript types:**
+
 ```vue
 <script setup lang="ts">
 // CORRECT: Type-based declaration at top level
 const emit = defineEmits<{
-  submit: [data: FormData]
-  cancel: []
-  'update:modelValue': [value: string]
-}>()
+  submit: [data: FormData];
+  cancel: [];
+  "update:modelValue": [value: string];
+}>();
 
 function handleSubmit(data: FormData) {
-  emit('submit', data)
+  emit("submit", data);
 }
 </script>
 ```
 
 **Correct - Using constant arrays (compile-time constant):**
+
 ```vue
 <script setup>
 // CORRECT: Literal array is fine
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(["submit", "cancel"]);
 </script>
 ```
 
@@ -114,12 +120,13 @@ Since the macro is hoisted out of `<script setup>` during compilation, it cannot
 If you want to share emit logic in a composable, pass the emit function as an argument:
 
 **Correct - Pass emit to composable:**
+
 ```vue
 <script setup>
-const emit = defineEmits(['submit', 'cancel', 'validate'])
+const emit = defineEmits(["submit", "cancel", "validate"]);
 
 // Pass emit to composable
-const { handleSubmit, handleCancel } = useFormEvents(emit)
+const { handleSubmit, handleCancel } = useFormEvents(emit);
 </script>
 ```
 
@@ -127,14 +134,14 @@ const { handleSubmit, handleCancel } = useFormEvents(emit)
 // composables/useFormEvents.js
 export function useFormEvents(emit) {
   function handleSubmit(data) {
-    emit('submit', data)
+    emit("submit", data);
   }
 
   function handleCancel() {
-    emit('cancel')
+    emit("cancel");
   }
 
-  return { handleSubmit, handleCancel }
+  return { handleSubmit, handleCancel };
 }
 ```
 
@@ -147,18 +154,20 @@ The `eslint-plugin-vue` provides the `vue/valid-define-emits` rule that catches 
 export default [
   {
     rules: {
-      'vue/valid-define-emits': 'error'
-    }
-  }
-]
+      "vue/valid-define-emits": "error",
+    },
+  },
+];
 ```
 
 This rule reports:
+
 - `defineEmits` used inside functions
 - `defineEmits` referencing local variables
 - Multiple `defineEmits` calls in the same component
 - `defineEmits` used outside `<script setup>`
 
 ## Reference
+
 - [Vue.js SFC script setup](https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits)
 - [ESLint vue/valid-define-emits](https://eslint.vuejs.org/rules/valid-define-emits)

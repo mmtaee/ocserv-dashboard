@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type {LucideIcon} from "@lucide/vue";
-import {useRoute} from "vue-router";
+import type { LucideIcon } from "@lucide/vue";
+import { useRoute } from "vue-router";
 
 import {
   SidebarGroup,

@@ -1,30 +1,42 @@
 <script setup lang="ts">
-import type { Component } from "vue"
-import type { SidebarMenuButtonProps } from "./SidebarMenuButtonChild.vue"
-import { reactiveOmit } from "@vueuse/core"
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import SidebarMenuButtonChild from "./SidebarMenuButtonChild.vue"
-import { useSidebar } from "./utils"
+import type { Component } from "vue";
+import type { SidebarMenuButtonProps } from "./SidebarMenuButtonChild.vue";
+import { reactiveOmit } from "@vueuse/core";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import SidebarMenuButtonChild from "./SidebarMenuButtonChild.vue";
+import { useSidebar } from "./utils";
 
 defineOptions({
   inheritAttrs: false,
-})
+});
 
-const props = withDefaults(defineProps<SidebarMenuButtonProps & {
-  tooltip?: string | Component
-}>(), {
-  as: "button",
-  variant: "default",
-  size: "default",
-})
+const props = withDefaults(
+  defineProps<
+    SidebarMenuButtonProps & {
+      tooltip?: string | Component;
+    }
+  >(),
+  {
+    as: "button",
+    variant: "default",
+    size: "default",
+  },
+);
 
-const { isMobile, state } = useSidebar()
+const { isMobile, state } = useSidebar();
 
-const delegatedProps = reactiveOmit(props, "tooltip")
+const delegatedProps = reactiveOmit(props, "tooltip");
 </script>
 
 <template>
-  <SidebarMenuButtonChild v-if="!tooltip" v-bind="{ ...delegatedProps, ...$attrs }">
+  <SidebarMenuButtonChild
+    v-if="!tooltip"
+    v-bind="{ ...delegatedProps, ...$attrs }"
+  >
     <slot />
   </SidebarMenuButtonChild>
 

@@ -20,81 +20,85 @@ tags: [vue3, provide-inject, composition-api, async, setup]
 ## The Gotcha: Async Provide Fails Silently
 
 **Wrong - Provide after async operation:**
+
 ```vue
 <script setup>
-import { provide } from 'vue'
+import { provide } from "vue";
 
 // WRONG: provide() called after await - will NOT work
 onMounted(async () => {
-  const userData = await fetchUser()
-  provide('user', userData) // Silent failure!
-})
+  const userData = await fetchUser();
+  provide("user", userData); // Silent failure!
+});
 </script>
 ```
 
 **Wrong - Provide inside callback:**
+
 ```vue
 <script setup>
-import { provide } from 'vue'
+import { provide } from "vue";
 
 // WRONG: provide() inside callback - will NOT work
 setTimeout(() => {
-  provide('config', { theme: 'dark' }) // Silent failure!
-}, 0)
+  provide("config", { theme: "dark" }); // Silent failure!
+}, 0);
 </script>
 ```
 
 **Wrong - Provide after await in setup:**
+
 ```vue
 <script setup>
-import { provide } from 'vue'
+import { provide } from "vue";
 
-const response = await fetch('/api/config')
-const config = await response.json()
+const response = await fetch("/api/config");
+const config = await response.json();
 
 // WRONG: This is after an await, setup context may be lost
-provide('config', config) // May not work reliably
+provide("config", config); // May not work reliably
 </script>
 ```
 
 ## Solution: Provide Synchronously, Update Async
 
 **Correct - Provide ref immediately, update later:**
+
 ```vue
 <script setup>
-import { provide, ref, onMounted } from 'vue'
+import { provide, ref, onMounted } from "vue";
 
 // Provide immediately with initial value
-const user = ref(null)
-const isLoading = ref(true)
-const error = ref(null)
+const user = ref(null);
+const isLoading = ref(true);
+const error = ref(null);
 
-provide('userState', {
+provide("userState", {
   user,
   isLoading,
-  error
-})
+  error,
+});
 
 // Update the ref values asynchronously
 onMounted(async () => {
   try {
-    const userData = await fetchUser()
-    user.value = userData
+    const userData = await fetchUser();
+    user.value = userData;
   } catch (e) {
-    error.value = e
+    error.value = e;
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
+});
 </script>
 ```
 
 ```vue
 <!-- Consumer component -->
 <script setup>
-import { inject } from 'vue'
+import { inject } from "vue";
 
-const { user, isLoading, error } = inject('userState')
+const { user, isLoading, error } = inject("userState");
 </script>
 
 <template>
@@ -111,37 +115,37 @@ Create a reusable pattern for async-provided data:
 ```vue
 <!-- AsyncDataProvider.vue -->
 <script setup>
-import { provide, ref, onMounted, watch } from 'vue'
+import { provide, ref, onMounted, watch } from "vue";
 
 const props = defineProps({
   fetchFn: {
     type: Function,
-    required: true
+    required: true,
   },
   provideKey: {
     type: [String, Symbol],
-    required: true
+    required: true,
   },
   immediate: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
-const data = ref(null)
-const isLoading = ref(false)
-const error = ref(null)
+const data = ref(null);
+const isLoading = ref(false);
+const error = ref(null);
 
 async function load() {
-  isLoading.value = true
-  error.value = null
+  isLoading.value = true;
+  error.value = null;
 
   try {
-    data.value = await props.fetchFn()
+    data.value = await props.fetchFn();
   } catch (e) {
-    error.value = e
+    error.value = e;
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
@@ -150,12 +154,12 @@ provide(props.provideKey, {
   data,
   isLoading,
   error,
-  reload: load
-})
+  reload: load,
+});
 
 // Fetch asynchronously
 if (props.immediate) {
-  onMounted(load)
+  onMounted(load);
 }
 </script>
 
@@ -190,20 +194,20 @@ Vue's `provide()` relies on the current component instance context, which is onl
 You can verify if setup context is available:
 
 ```js
-import { getCurrentInstance } from 'vue'
+import { getCurrentInstance } from "vue";
 
 function debugProvide(key, value) {
-  const instance = getCurrentInstance()
+  const instance = getCurrentInstance();
 
   if (!instance) {
     console.error(
       `provide() called outside setup context. ` +
-      `Key: ${String(key)}. This will fail silently.`
-    )
-    return
+        `Key: ${String(key)}. This will fail silently.`,
+    );
+    return;
   }
 
-  provide(key, value)
+  provide(key, value);
 }
 ```
 
@@ -213,23 +217,24 @@ function debugProvide(key, value) {
 
 ```js
 // main.js
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from "vue";
+import App from "./App.vue";
 
-const app = createApp(App)
+const app = createApp(App);
 
 // This works - app-level provide
-app.provide('appConfig', { version: '1.0.0' })
+app.provide("appConfig", { version: "1.0.0" });
 
 // Even async is OK at app level before mount
-fetchConfig().then(config => {
-  app.provide('apiConfig', config)
-  app.mount('#app')
-})
+fetchConfig().then((config) => {
+  app.provide("apiConfig", config);
+  app.mount("#app");
+});
 ```
 
 But once the app is mounted, `app.provide()` should not be called.
 
 ## Reference
+
 - [Vue.js Composition API - provide()](https://vuejs.org/api/composition-api-dependency-injection.html#provide)
 - [Vue.js Provide/Inject Guide](https://vuejs.org/guide/components/provide-inject.html)

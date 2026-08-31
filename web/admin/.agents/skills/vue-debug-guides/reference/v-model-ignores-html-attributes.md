@@ -20,20 +20,21 @@ Vue's v-model always treats the bound JavaScript state as the single source of t
 - [ ] Audit existing forms for hardcoded HTML default values that may be silently ignored
 
 **Incorrect:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-const username = ref('')  // Empty!
-const isSubscribed = ref(false)  // Not checked!
-const country = ref('')  // No default selection!
+  const username = ref(""); // Empty!
+  const isSubscribed = ref(false); // Not checked!
+  const country = ref(""); // No default selection!
 </script>
 
 <template>
   <!-- WRONG: These HTML attributes are completely ignored -->
-  <input v-model="username" value="default_user">
+  <input v-model="username" value="default_user" />
 
-  <input type="checkbox" v-model="isSubscribed" checked>
+  <input type="checkbox" v-model="isSubscribed" checked />
 
   <select v-model="country">
     <option value="us" selected>United States</option>
@@ -43,21 +44,22 @@ const country = ref('')  // No default selection!
 ```
 
 **Correct:**
+
 ```html
 <script setup>
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-// CORRECT: Set initial values in JavaScript
-const username = ref('default_user')
-const isSubscribed = ref(true)
-const country = ref('us')
+  // CORRECT: Set initial values in JavaScript
+  const username = ref("default_user");
+  const isSubscribed = ref(true);
+  const country = ref("us");
 </script>
 
 <template>
   <!-- HTML attributes not needed - JavaScript state controls everything -->
-  <input v-model="username">
+  <input v-model="username" />
 
-  <input type="checkbox" v-model="isSubscribed">
+  <input type="checkbox" v-model="isSubscribed" />
 
   <select v-model="country">
     <option value="us">United States</option>
@@ -71,13 +73,14 @@ const country = ref('us')
 export default {
   data() {
     return {
-      username: 'default_user',
+      username: "default_user",
       isSubscribed: true,
-      country: 'us'
-    }
-  }
-}
+      country: "us",
+    };
+  },
+};
 ```
 
 ## Reference
+
 - [Vue.js Form Input Bindings](https://vuejs.org/guide/essentials/forms.html)
