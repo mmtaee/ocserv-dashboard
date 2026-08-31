@@ -5,6 +5,7 @@ import en from "@/locales/en";
 import fa from "@/locales/fa";
 import it from "@/locales/it";
 import { ocservGroupsMessages } from "@/locales/ocserv-groups";
+import { ocservUsersMessages } from "@/locales/ocserv-users";
 import ru from "@/locales/ru";
 import zhCn from "@/locales/zh-cn";
 import zhTw from "@/locales/zh-tw";
@@ -20,36 +21,43 @@ export const messages = {
     ...en,
     groupDefaults: groupDefaultsMessages.en,
     ocservGroups: ocservGroupsMessages.en,
+    ocservUsers: ocservUsersMessages.en,
   },
   it: {
     ...it,
     groupDefaults: groupDefaultsMessages.it,
     ocservGroups: ocservGroupsMessages.it,
+    ocservUsers: ocservUsersMessages.it,
   },
   "zh-cn": {
     ...zhCn,
     groupDefaults: groupDefaultsMessages["zh-cn"],
     ocservGroups: ocservGroupsMessages["zh-cn"],
+    ocservUsers: ocservUsersMessages["zh-cn"],
   },
   "zh-tw": {
     ...zhTw,
     groupDefaults: groupDefaultsMessages["zh-tw"],
     ocservGroups: ocservGroupsMessages["zh-tw"],
+    ocservUsers: ocservUsersMessages["zh-tw"],
   },
   ru: {
     ...ru,
     groupDefaults: groupDefaultsMessages.ru,
     ocservGroups: ocservGroupsMessages.ru,
+    ocservUsers: ocservUsersMessages.ru,
   },
   fa: {
     ...fa,
     groupDefaults: groupDefaultsMessages.fa,
     ocservGroups: ocservGroupsMessages.fa,
+    ocservUsers: ocservUsersMessages.fa,
   },
   ar: {
     ...ar,
     groupDefaults: groupDefaultsMessages.ar,
     ocservGroups: ocservGroupsMessages.ar,
+    ocservUsers: ocservUsersMessages.ar,
   },
 } as const;
 export type AppLocale = keyof typeof messages;

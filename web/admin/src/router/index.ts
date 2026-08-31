@@ -11,6 +11,7 @@ const emptyRouteView = () => import("@/views/EmptyRouteView.vue");
 const ocservGroupDefaultsView = () =>
   import("@/views/OcservGroupDefaultsView.vue");
 const ocservGroupsView = () => import("@/views/OcservGroupsView.vue");
+const ocservUsersView = () => import("@/views/OcservUsersView.vue");
 
 const dashboardComponents: Partial<
   Record<(typeof dashboardRoutes)[number]["name"], () => Promise<unknown>>
@@ -18,6 +19,7 @@ const dashboardComponents: Partial<
   home: dashboardView,
   "ocserv-group-defaults": ocservGroupDefaultsView,
   "ocserv-groups": ocservGroupsView,
+  "ocserv-users": ocservUsersView,
 };
 
 export const router = createRouter({
