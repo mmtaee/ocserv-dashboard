@@ -14,7 +14,7 @@ type OcservGroupRepository struct {
 }
 
 type OcservGroupRepositoryInterface interface {
-	Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroup, int64, error)
+	Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroupWithTraffic, int64, error)
 	GroupsLookup(ctx context.Context) ([]string, error)
 	GetByID(ctx context.Context, id string) (*models.OcservGroup, error)
 	Create(ctx context.Context, group *models.OcservGroup) (*models.OcservGroup, error)
@@ -28,14 +28,25 @@ func NewOcservGroupRepository() *OcservGroupRepository {
 	return &OcservGroupRepository{db: database.GetConnection()}
 }
 
-func (r *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroup, int64, error) {
+func (r *OcservGroupRepository) Groups(ctx context.Context, pagination *request.Pagination) ([]models.OcservGroupWithTraffic, int64, error) {
 	query := r.db.WithContext(ctx).Model(&models.OcservGroup{})
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var groups []models.OcservGroup
-	query = request.Paginator(ctx, r.db, pagination).Model(&models.OcservGroup{})
+	trafficByGroup := r.db.WithContext(ctx).
+		Model(&models.OcservUser{}).
+		Select(`"group", SUM(running_rx) AS total_rx, SUM(running_tx) AS total_tx`).
+		Group(`"group"`)
+	var groups []models.OcservGroupWithTraffic
+	query = request.Paginator(ctx, r.db, pagination).
+		Model(&models.OcservGroup{}).
+		Select(`
+			ocserv_groups.*,
+			COALESCE(user_traffic.total_rx, 0) AS total_rx,
+			COALESCE(user_traffic.total_tx, 0) AS total_tx
+		`).
+		Joins(`LEFT JOIN (?) AS user_traffic ON user_traffic."group" = ocserv_groups.name`, trafficByGroup)
 	if err := query.Find(&groups).Error; err != nil {
 		return nil, 0, err
 	}

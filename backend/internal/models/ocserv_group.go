@@ -92,6 +92,12 @@ type OcservGroup struct {
 	Config *OcservGroupConfig `json:"config" gorm:"type:json"`
 }
 
+type OcservGroupWithTraffic struct {
+	OcservGroup
+	TotalRX int64 `json:"total_rx" gorm:"-:migration;->"` // Aggregated current received traffic in bytes.
+	TotalTX int64 `json:"total_tx" gorm:"-:migration;->"` // Aggregated current transmitted traffic in bytes.
+}
+
 func (c *OcservGroupConfig) Value() (driver.Value, error) {
 	return json.Marshal(c)
 }

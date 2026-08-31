@@ -44,7 +44,7 @@ type SyncInput struct {
 }
 
 type ListResult struct {
-	Groups []models.OcservGroup
+	Groups []models.OcservGroupWithTraffic
 	Total  int64
 	Page   int
 	Size   int

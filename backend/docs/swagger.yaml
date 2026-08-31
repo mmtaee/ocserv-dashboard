@@ -592,6 +592,23 @@ definitions:
           for 200 KB/s'
         type: integer
     type: object
+  models.OcservGroupWithTraffic:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      id:
+        type: integer
+      name:
+        type: string
+      total_rx:
+        description: Aggregated current received traffic in bytes.
+        type: integer
+      total_tx:
+        description: Aggregated current transmitted traffic in bytes.
+        type: integer
+    required:
+    - name
+    type: object
   models.OcservInfo:
     properties:
       status:
@@ -961,7 +978,7 @@ definitions:
         $ref: '#/definitions/request.Meta'
       result:
         items:
-          $ref: '#/definitions/models.OcservGroup'
+          $ref: '#/definitions/models.OcservGroupWithTraffic'
         type: array
     required:
     - meta

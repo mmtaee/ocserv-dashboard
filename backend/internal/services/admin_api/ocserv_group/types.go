@@ -11,8 +11,8 @@ type CreateOcservGroupData = groupusecase.CreateInput
 type UpdateOcservGroupData = groupusecase.UpdateInput
 
 type OcservGroupsResponse struct {
-	Meta   request.Meta         `json:"meta" validate:"required"`
-	Result []models.OcservGroup `json:"result" validate:"omitempty"`
+	Meta   request.Meta                    `json:"meta" validate:"required"`
+	Result []models.OcservGroupWithTraffic `json:"result" validate:"omitempty"`
 }
 
 type SyncGroupRequest = groupusecase.SyncInput

@@ -3848,6 +3848,31 @@ const docTemplate = `{
                 }
             }
         },
+        "models.OcservGroupWithTraffic": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "$ref": "#/definitions/models.OcservGroupConfig"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "total_rx": {
+                    "description": "Aggregated current received traffic in bytes.",
+                    "type": "integer"
+                },
+                "total_tx": {
+                    "description": "Aggregated current transmitted traffic in bytes.",
+                    "type": "integer"
+                }
+            }
+        },
         "models.OcservInfo": {
             "type": "object",
             "required": [
@@ -4364,7 +4389,7 @@ const docTemplate = `{
                 "result": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.OcservGroup"
+                        "$ref": "#/definitions/models.OcservGroupWithTraffic"
                     }
                 }
             }
