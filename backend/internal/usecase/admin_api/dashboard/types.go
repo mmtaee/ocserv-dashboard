@@ -109,13 +109,6 @@ type DockerStats struct {
 	RAM  RAM    `json:"ram" validate:"omitempty"`
 }
 
-type DockerService struct {
-	Postgres DockerStats `json:"postgres" validate:"required"`
-	Ocserv   DockerStats `json:"ocserv" validate:"required"`
-	Backend  DockerStats `json:"backend" validate:"required"`
-	Web      DockerStats `json:"web" validate:"required"`
-}
-
 type ServerStatusResponse struct {
 	CPU  CPU  `json:"cpu"`
 	RAM  RAM  `json:"ram"`

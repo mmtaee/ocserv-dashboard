@@ -34,21 +34,16 @@ definitions:
           $ref: '#/definitions/auth.Session'
         type: array
     type: object
-  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService:
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats:
     properties:
-      backend:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
-      ocserv:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
-      postgres:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
-      web:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats'
+      cpu:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
+      name:
+        type: string
+      ram:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
     required:
-    - backend
-    - ocserv
-    - postgres
-    - web
+    - name
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse:
     properties:
@@ -317,17 +312,6 @@ definitions:
         type: number
       used_percent:
         type: number
-    type: object
-  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats:
-    properties:
-      cpu:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
-      name:
-        type: string
-      ram:
-        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
-    required:
-    - name
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo:
     properties:
@@ -1700,7 +1684,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService'
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats'
         "400":
           description: Bad Request
           schema:

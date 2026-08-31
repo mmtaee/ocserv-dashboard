@@ -13,5 +13,4 @@ type RAM = dashboardusecase.RAM
 type Swap = dashboardusecase.Swap
 type Disk = dashboardusecase.Disk
 type DockerStats = dashboardusecase.DockerStats
-type DockerService = dashboardusecase.DockerService
 type ServerStatusResponse = dashboardusecase.ServerStatusResponse

@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
 
 const dashboardView = () => import("@/views/DashboardView.vue");
+const emptyRouteView = () => import("@/views/EmptyRouteView.vue");
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +15,7 @@ export const router = createRouter({
     ...dashboardRoutes.map((route) => ({
       path: route.path,
       name: route.name,
-      component: dashboardView,
+      component: route.name === "home" ? dashboardView : emptyRouteView,
       meta: {
         titleKey: route.titleKey,
         superadminOnly: !route.adminVisible,

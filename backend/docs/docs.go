@@ -397,7 +397,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService"
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats"
                         }
                     },
                     "400": {
@@ -3053,26 +3053,20 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerService": {
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats": {
             "type": "object",
             "required": [
-                "backend",
-                "ocserv",
-                "postgres",
-                "web"
+                "name"
             ],
             "properties": {
-                "backend": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
+                "cpu": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU"
                 },
-                "ocserv": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
+                "name": {
+                    "type": "string"
                 },
-                "postgres": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
-                },
-                "web": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats"
+                "ram": {
+                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM"
                 }
             }
         },
@@ -3468,23 +3462,6 @@ const docTemplate = `{
                 },
                 "used_percent": {
                     "type": "number"
-                }
-            }
-        },
-        "github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.DockerStats": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "cpu": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "ram": {
-                    "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM"
                 }
             }
         },

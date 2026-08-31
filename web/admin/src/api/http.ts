@@ -1,6 +1,7 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 
 import { clearAccessToken, getAccessToken } from "@/api/auth-token";
+import { isTestMode } from "@/api/environment";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 type UnauthorizedHandler = () => void | Promise<unknown>;
@@ -74,6 +75,12 @@ export const httpClient: AxiosInstance = axios.create({
 });
 
 httpClient.interceptors.request.use((config) => {
+  if (isTestMode) {
+    return Promise.reject(
+      new ApiError("Network requests are disabled while test mode is active."),
+    );
+  }
+
   const token = getAccessToken();
 
   if (token && !config.headers.Authorization) {

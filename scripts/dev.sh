@@ -2,7 +2,9 @@
 
 set -Eeuo pipefail
 
+# shellcheck disable=SC2155
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC2155
 readonly PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 readonly DOCKERFILE="${PROJECT_ROOT}/deploy/docker/Dockerfile.dev"
 readonly IMAGE_NAME="${DEV_IMAGE_NAME:-ocserv-dashboard-dev:latest}"

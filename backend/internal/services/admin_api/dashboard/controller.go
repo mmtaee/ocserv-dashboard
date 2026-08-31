@@ -79,7 +79,7 @@ func (ctl *Controller) SystemUsageStats(c *echo.Context) error {
 // @Param Authorization header string true "Bearer TOKEN"
 // @Failure 400 {object} request.ErrorResponse
 // @Failure 401 {object} middlewares.Unauthorized
-// @Success 200 {object} DockerService
+// @Success 200 {object} DockerStats
 // @Router /home/container-stats [get]
 func (ctl *Controller) ContainerUsageStats(c *echo.Context) error {
 	result, err := ctl.dashboard.ContainerUsage(c.Request().Context())

@@ -20,10 +20,6 @@ import globalAxios from "axios";
 import {
   DUMMY_BASE_URL,
   assertParamExists,
-  setApiKeyToObject,
-  setBasicAuthToObject,
-  setBearerAuthToObject,
-  setOAuthToObject,
   setSearchParams,
   serializeDataIfNeeded,
   toPathString,
@@ -33,9 +29,7 @@ import type { RequestArgs } from "./base";
 // @ts-ignore
 import {
   BASE_PATH,
-  COLLECTION_FORMATS,
   BaseAPI,
-  RequiredError,
   operationServerMap,
 } from "./base";
 
@@ -55,11 +49,10 @@ export interface GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiAu
   meta?: RequestMeta;
   result?: Array<AuthSession>;
 }
-export interface GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerService {
-  backend: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardDockerStats;
-  ocserv: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardDockerStats;
-  postgres: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardDockerStats;
-  web: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardDockerStats;
+export interface GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerStats {
+  cpu?: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardCPU;
+  name: string;
+  ram?: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardRAM;
 }
 export interface GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardGetHomeResponse {
   ip_bans?: Array<ModelsIPBanPoints>;
@@ -178,11 +171,6 @@ export interface GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDas
   total?: number;
   used?: number;
   used_percent?: number;
-}
-export interface GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardDockerStats {
-  cpu?: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardCPU;
-  name: string;
-  ram?: GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardRAM;
 }
 export interface GithubComMmtaeeOcservDashboardBackendInternalUsecaseAdminApiDashboardGeneralInfo {
   "Active sessions"?: number;
@@ -1445,7 +1433,7 @@ export const HomeApiFp = function (configuration?: Configuration) {
       (
         axios?: AxiosInstance,
         basePath?: string,
-      ) => AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerService>
+      ) => AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerStats>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.homeContainerStatsGet(
@@ -1588,7 +1576,7 @@ export const HomeApiFactory = function (
     homeContainerStatsGet(
       requestParameters: HomeApiHomeContainerStatsGetRequest,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerService> {
+    ): AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerStats> {
       return localVarFp
         .homeContainerStatsGet(requestParameters.authorization, options)
         .then((request) => request(axios, basePath));
@@ -1655,7 +1643,7 @@ export interface HomeApiInterface {
   homeContainerStatsGet(
     requestParameters: HomeApiHomeContainerStatsGetRequest,
     options?: RawAxiosRequestConfig,
-  ): AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerService>;
+  ): AxiosPromise<GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiDashboardDockerStats>;
 
   /**
    * Content of home

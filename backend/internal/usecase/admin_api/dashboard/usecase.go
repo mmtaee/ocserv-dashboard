@@ -144,60 +144,26 @@ func (u *Usecase) SystemUsage(ctx context.Context) (*ServerStatusResponse, error
 	return &stats, nil
 }
 
-func (u *Usecase) ContainerUsage(ctx context.Context) (*DockerService, error) {
+func (u *Usecase) ContainerUsage(ctx context.Context) (*DockerStats, error) {
 	if _, err := os.Stat("/.dockerenv"); err != nil {
-		return &DockerService{}, nil
+		return &DockerStats{}, nil
 	}
 	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
 	defer dockerClient.Close()
-	containers, err := dockerClient.ContainerList(ctx, container.ListOptions{})
+	stats, err := dockerClient.ContainerStats(ctx, "ocserv", false)
 	if err != nil {
 		return nil, err
 	}
-	targets := map[string]bool{"ocserv": true, "backend": true, "web": true, "ocserv-postgres": true}
-	results := make(chan DockerStats, len(containers))
-	group, groupCtx := errgroup.WithContext(ctx)
-	group.SetLimit(5)
-	for _, item := range containers {
-		item := item
-		if len(item.Names) == 0 || !targets[strings.TrimPrefix(item.Names[0], "/")] {
-			continue
-		}
-		group.Go(func() error {
-			stats, err := dockerClient.ContainerStats(groupCtx, item.ID, false)
-			if err != nil {
-				return nil
-			}
-			defer stats.Body.Close()
-			var value container.StatsResponse
-			if err := json.NewDecoder(stats.Body).Decode(&value); err != nil {
-				return nil
-			}
-			results <- containerStats(strings.TrimPrefix(item.Names[0], "/"), value)
-			return nil
-		})
-	}
-	if err := group.Wait(); err != nil {
+	defer stats.Body.Close()
+	var value container.StatsResponse
+	if err := json.NewDecoder(stats.Body).Decode(&value); err != nil {
 		return nil, err
 	}
-	close(results)
-	var services DockerService
-	for result := range results {
-		switch result.Name {
-		case "ocserv-postgres":
-			services.Postgres = result
-		case "ocserv":
-			services.Ocserv = result
-		case "backend":
-			services.Backend = result
-		case "web":
-			services.Web = result
-		}
-	}
-	return &services, nil
+	result := containerStats("ocserv", value)
+	return &result, nil
 }
 
 func containerStats(name string, value container.StatsResponse) DockerStats {
