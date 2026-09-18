@@ -90,6 +90,7 @@ Easily manage users, groups, and server configurations while keeping your VPN se
 - **Branch name:** [legacy](https://github.com/mmtaee/ocserv-dashboard/tree/legacy)
 - **Old version:** Developed using **Python backend** with **Vue 2 frontend**.
 - **Features:** Minimal, limited functionality compared to the current version — only basic user and group management existed.
+- **Migration:** Convert a legacy SQLite database into current backup JSON with [`scripts/legacy-migrate`](scripts/legacy-migrate/README.md), then restore it from **System → Restore**.
 
 ---
 
