@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+legacy-backup/
+generated_passwords.tsv
+ocpasswd.merged
