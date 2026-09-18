@@ -7,7 +7,6 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/utils"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sync"
 )
@@ -68,7 +67,7 @@ func (g *OcservGroup) Delete(name string) error {
 		wg.Add(1)
 		go func(u string) {
 			defer wg.Done()
-			_, _ = exec.Command(utils.OcpasswdExec, "-g", "", "-c", utils.OcpasswdPath, u).CombinedOutput()
+			_, _ = utils.RunOcpasswd("-g", "", "-c", utils.OcpasswdPath, u)
 		}(user)
 	}
 	wg.Wait()

@@ -2,12 +2,10 @@ package user
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/utils"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -60,15 +58,11 @@ func (u *OcservUser) Create(group, username, password string, config *models.Ocs
 	if group != "" && group != "defaults" {
 		args = append([]string{"-g", group}, args...)
 	}
-	cmd := exec.Command(utils.OcpasswdExec, args...)
-
-	cmd.Stdin = bytes.NewBufferString(password + "\n" + password + "\n")
-	_, err := cmd.CombinedOutput()
-	if err != nil {
+	if _, err := utils.RunOcpasswdWithStdin(password+"\n"+password+"\n", args...); err != nil {
 		return err
 	}
 
-	if err = u.SyncConfig(username, group, config); err != nil {
+	if err := u.SyncConfig(username, group, config); err != nil {
 		return err
 	}
 	return nil

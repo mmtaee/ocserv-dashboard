@@ -269,71 +269,58 @@ func (b *BackupRepository) OcservUserRestore(ctx context.Context, owner string, 
 	}
 
 	var toInsert []models.OcservUser
-	var insertedNames []string
 
 	for _, u := range *users {
 		if _, found := existingMap[u.Username]; !found {
 			toInsert = append(toInsert, u)
-			insertedNames = append(insertedNames, u.Username)
 		}
 	}
 
+	var insertedNames []string
 	if len(toInsert) == 0 {
 		return &insertedNames, &dbExisting, nil
 	}
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, len(toInsert))
-	sem := make(chan struct{}, 10)
+	var errs []string
 
 	for _, u := range toInsert {
-		wg.Add(1)
+		if err = ctx.Err(); err != nil {
+			errs = append(errs, err.Error())
+			break
+		}
 
-		go func(u models.OcservUser) {
-			defer wg.Done()
+		if u.Owner == "" {
+			u.Owner = owner
+		}
 
-			sem <- struct{}{}
-			defer func() { <-sem }()
-
-			if u.Owner == "" {
-				u.Owner = owner
+		txErr := b.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			res := tx.Create(&u)
+			if res.Error != nil {
+				return res.Error
+			}
+			if res.RowsAffected == 0 {
+				return nil
 			}
 
-			txErr := b.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-				res := tx.Create(&u)
-				if res.Error != nil {
-					return res.Error
-				}
-				if res.RowsAffected == 0 {
-					return nil
-				}
+			if err = b.commonOcservUserRepo.Create(u.Group, u.Username, u.Password, u.Config); err != nil {
+				return err
+			}
 
-				if err = b.commonOcservUserRepo.Create(u.Group, u.Username, u.Password, u.Config); err != nil {
+			if u.Certificate != nil {
+				if err = b.commonOcservUserRepo.RestoreCertificateBackup(u.Username, u.Certificate); err != nil {
+					_, _ = b.commonOcservUserRepo.Delete(u.Username)
 					return err
 				}
-
-				if u.Certificate != nil {
-					if err = b.commonOcservUserRepo.RestoreCertificateBackup(u.Username, u.Certificate); err != nil {
-						_, _ = b.commonOcservUserRepo.Delete(u.Username)
-						return err
-					}
-				}
-
-				return nil
-			})
-
-			if txErr != nil {
-				errCh <- fmt.Errorf("user %s: %w", u.Username, txErr)
 			}
-		}(u)
-	}
 
-	wg.Wait()
-	close(errCh)
+			return nil
+		})
 
-	var errs []string
-	for e := range errCh {
-		errs = append(errs, e.Error())
+		if txErr != nil {
+			errs = append(errs, fmt.Sprintf("user %s: %v", u.Username, txErr))
+			continue
+		}
+		insertedNames = append(insertedNames, u.Username)
 	}
 
 	if len(errs) > 0 {
