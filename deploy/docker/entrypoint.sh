@@ -4,6 +4,36 @@
 
 set -Eeuo pipefail
 
+strip_surrounding_quotes() {
+    local value="$1"
+
+    if [[ "${#value}" -ge 2 ]] && \
+       { [[ "${value:0:1}" == '"' && "${value: -1}" == '"' ]] || \
+         [[ "${value:0:1}" == "'" && "${value: -1}" == "'" ]]; }; then
+        value="${value:1:-1}"
+    fi
+    printf '%s\n' "${value}"
+}
+
+normalize_container_environment() {
+    local variable
+    local value
+    local -a variables=(
+        AGENT_NODE ALLOW_ORIGINS BACKEND_HOST BACKEND_PORT CURRENT_RELEASE DEBUG
+        CUSTOMER_API_ENABLED ETH HTTP_PORT NGINX_ENABLED OCSERV_BANNER OCSERV_DEBUG
+        OCSERV_PRE_LOGIN_BANNER OCSERV_REGENERATE_CONFIG RUN_MIGRATIONS SECRET_KEY
+        SUPERADMIN_PASSWORD SUPERADMIN_USERNAME SYSTEMD TELEGRAM_BOT_ENABLED
+        TELEGRAM_RECEIPTS_DIR
+    )
+
+    for variable in "${variables[@]}"; do
+        [[ -v "${variable}" ]] || continue
+        value="$(strip_surrounding_quotes "${!variable}")"
+        printf -v "${variable}" '%s' "${value}"
+        export "${variable}"
+    done
+}
+
 : "${OCSERV_PORT:=443}"
 : "${OC_NET:=172.16.24.0/24}"
 : "${OCSERV_DNS:=1.1.1.1}"
@@ -12,8 +42,30 @@ set -Eeuo pipefail
 : "${SSL_EXPIRE:=3650}"
 : "${OCSERV_PRESERVE_CONFIG:=false}"
 : "${PGDATA:=/var/lib/postgresql/18/docker}"
+: "${POSTGRES_HOST:=127.0.0.1}"
+: "${POSTGRES_PORT:=5432}"
+: "${POSTGRES_USER:=ocserv}"
+: "${POSTGRES_DB:=ocserv_db}"
+: "${POSTGRES_SSLMODE:=disable}"
+: "${POSTGRES_PASSWORD:=}"
 
-export PGDATA
+OCSERV_PORT="$(strip_surrounding_quotes "${OCSERV_PORT}")"
+OC_NET="$(strip_surrounding_quotes "${OC_NET}")"
+OCSERV_DNS="$(strip_surrounding_quotes "${OCSERV_DNS}")"
+SSL_CN="$(strip_surrounding_quotes "${SSL_CN}")"
+SSL_ORG="$(strip_surrounding_quotes "${SSL_ORG}")"
+SSL_EXPIRE="$(strip_surrounding_quotes "${SSL_EXPIRE}")"
+OCSERV_PRESERVE_CONFIG="$(strip_surrounding_quotes "${OCSERV_PRESERVE_CONFIG}")"
+PGDATA="$(strip_surrounding_quotes "${PGDATA}")"
+POSTGRES_HOST="$(strip_surrounding_quotes "${POSTGRES_HOST}")"
+POSTGRES_PORT="$(strip_surrounding_quotes "${POSTGRES_PORT}")"
+POSTGRES_USER="$(strip_surrounding_quotes "${POSTGRES_USER}")"
+POSTGRES_DB="$(strip_surrounding_quotes "${POSTGRES_DB}")"
+POSTGRES_SSLMODE="$(strip_surrounding_quotes "${POSTGRES_SSLMODE}")"
+POSTGRES_PASSWORD="$(strip_surrounding_quotes "${POSTGRES_PASSWORD}")"
+
+export PGDATA POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_DB POSTGRES_SSLMODE POSTGRES_PASSWORD
+normalize_container_environment
 
 readonly OCSERV_CONF=/etc/ocserv/ocserv.conf
 readonly OCSERV_SSL_DIR=/etc/ocserv/ssl
@@ -60,10 +112,14 @@ ensure_client_pki() {
     touch "${OCSERV_SSL_DIR}/revoked.pem" "${OCSERV_SSL_DIR}/suspended.pem"
     chmod 600 "${OCSERV_SSL_DIR}/revoked.pem" "${OCSERV_SSL_DIR}/suspended.pem"
 
-    if [[ -f "${OCSERV_CA_CERT}" && ! -f "${OCSERV_CA_KEY}" ]] || \
-       [[ ! -f "${OCSERV_CA_CERT}" && -f "${OCSERV_CA_KEY}" ]]; then
-        log "client CA is incomplete; both ${OCSERV_CA_CERT} and ${OCSERV_CA_KEY} are required"
-        exit 1
+    if [[ -f "${OCSERV_CA_CERT}" && -f "${OCSERV_CA_KEY}" ]] && \
+       ! certtool --certificate-info --infile "${OCSERV_CA_CERT}" >/dev/null 2>&1; then
+        log "client CA certificate is invalid; regenerating the client PKI"
+        rm -f "${OCSERV_CA_CERT}" "${OCSERV_CA_KEY}" "${OCSERV_CRL}"
+    elif [[ -f "${OCSERV_CA_CERT}" && ! -f "${OCSERV_CA_KEY}" ]] || \
+         [[ ! -f "${OCSERV_CA_CERT}" && -f "${OCSERV_CA_KEY}" ]]; then
+        log "client CA is incomplete; regenerating the client PKI"
+        rm -f "${OCSERV_CA_CERT}" "${OCSERV_CA_KEY}" "${OCSERV_CRL}"
     fi
 
     if [[ ! -f "${OCSERV_CA_CERT}" ]]; then

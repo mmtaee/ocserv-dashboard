@@ -138,6 +138,7 @@ set_env_value() {
 
 prepare_environment() {
     local current_mode
+    local postgres_password
     if [[ ! -f "${ENV_FILE}" ]]; then
         [[ -f "${PROJECT_ROOT}/.env.example" ]] || die ".env.example is missing"
         command -v openssl >/dev/null 2>&1 || die "openssl is required to generate initial secrets"
@@ -156,6 +157,12 @@ prepare_environment() {
             die "existing environment was not changed"
     fi
     set_env_value AGENT_NODE "${agent_node}"
+    postgres_password="$(env_value POSTGRES_PASSWORD '')"
+    if [[ "${postgres_password}" == "replace-with-a-strong-database-password" ]]; then
+        command -v openssl >/dev/null 2>&1 || die "openssl is required to replace the sample PostgreSQL password"
+        set_env_value POSTGRES_PASSWORD "\"$(openssl rand -hex 32)\""
+        log "replaced the sample POSTGRES_PASSWORD with a generated secret"
+    fi
     chmod 600 "${ENV_FILE}"
 }
 
@@ -169,6 +176,34 @@ check_docker() {
         die "cannot connect to the Docker daemon"
     fi
     [[ -c /dev/net/tun ]] || die "/dev/net/tun is unavailable; load the tun kernel module"
+}
+
+create_docker_volumes() {
+    local data_root="$1"
+    local existing_parent="${data_root}"
+    local -a volume_dirs=(
+        "${data_root}/postgresql18"
+        "${data_root}/ocserv"
+        "${data_root}/cron_journal"
+        "${data_root}/telegram_receipts"
+    )
+
+    while [[ ! -e "${existing_parent}" ]]; do
+        existing_parent="$(dirname -- "${existing_parent}")"
+    done
+    [[ -d "${existing_parent}" ]] || die "deployment volume parent is not a directory: ${existing_parent}"
+
+    # The default data root is below /opt, which is normally writable only by
+    # root. Select sudo before attempting mkdir so a successful install does
+    # not first print spurious permission-denied errors. For a custom path,
+    # inspect its nearest existing parent so a new user-owned path needs no sudo.
+    if [[ "${EUID}" -eq 0 || ( -w "${existing_parent}" && -x "${existing_parent}" ) ]]; then
+        mkdir -p "${volume_dirs[@]}"
+        return
+    fi
+
+    command -v sudo >/dev/null 2>&1 || die "cannot create deployment volumes under ${data_root}; sudo is required"
+    sudo mkdir -p "${volume_dirs[@]}"
 }
 
 install_docker() {
@@ -197,14 +232,10 @@ install_docker() {
     check_docker
     [[ -f "${dockerfile}" ]] || die "Dockerfile not found: ${dockerfile}"
     if "${docker_cmd[@]}" container inspect "${container}" >/dev/null 2>&1; then
-        die "container ${container} already exists; remove it explicitly before reinstalling"
+        log "removing existing container ${container} before reinstalling"
+        "${docker_cmd[@]}" container rm --force "${container}"
     fi
-    if ! mkdir -p "${data_root}/postgresql18" "${data_root}/ocserv" \
-        "${data_root}/cron_journal" "${data_root}/telegram_receipts"; then
-        command -v sudo >/dev/null 2>&1 || die "cannot create deployment volumes under ${data_root}"
-        sudo mkdir -p "${data_root}/postgresql18" "${data_root}/ocserv" \
-            "${data_root}/cron_journal" "${data_root}/telegram_receipts"
-    fi
+    create_docker_volumes "${data_root}"
 
     "${docker_cmd[@]}" build \
         --build-arg "GO_VERSION=$(env_value GO_VERSION 1.26.0)" \
@@ -237,6 +268,8 @@ install_docker() {
         "${service_publish_args[@]}" \
         "${image}"
     log "started Docker ${node_mode} node in container ${container}"
+    log "following container logs; press Ctrl-C to stop following"
+    "${docker_cmd[@]}" logs -f "${container}"
 }
 
 install_systemd() {

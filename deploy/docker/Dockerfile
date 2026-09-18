@@ -52,43 +52,84 @@ ARG AGENT_NODE=false
 ARG CUSTOMER_API_ENABLED=true
 ARG TELEGRAM_BOT_ENABLED=true
 
-# TODO: to install ocserv, use  `deploy/common/ocserv_binary_install.sh`
-# COPY --chmod=0755 ../deploy/common/ocserv_binary_install.sh  /ocserv_binary_install.sh
-# RUN /ocserv_binary_install.sh
-# Dependencies for ocserv binary installtion are: 
-# apt install -y --no-install-recommends \
-    ## runtime deps
-    # sudo ca-certificates procps gnutls-bin iptables \
-    # openssl less dnsutils jq curl iproute2\
-    # \
-    ## build deps (needed for ocserv build)
-    # build-essential meson ninja-build pkg-config git \
-    # libgnutls28-dev libev-dev libreadline-dev libtasn1-bin \
-    # libpam0g-dev liblz4-dev libseccomp-dev \
-    # libnl-route-3-dev libkrb5-dev libradcli-dev \
-    # libcurl4-gnutls-dev libcjose-dev libjansson-dev liboath-dev \
-    # libprotobuf-c-dev libtalloc-dev libllhttp-dev protobuf-c-compiler \
-    # gperf ipcalc
-
-## remove build deps after install (important)
-# apt purge -y \
-#         build-essential meson ninja-build pkg-config git protobuf-c-compiler gperf \
-#     && apt-get autoremove -y \
-#     \
-#     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /ocserv_binary_install.sh
-
-
+COPY --chmod=0755 deploy/common/ocserv_binary_install.sh /usr/local/bin/ocserv-binary-install
+# Ocserv is installed outside of dpkg, so preserve packages providing its linked
+# shared libraries before the build dependencies are autoremoved.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        build-essential \
         ca-certificates \
         curl \
+        dnsutils \
+        git \
         gnutls-bin \
+        gperf \
+        ipcalc \
         iproute2 \
         iptables \
+        jq \
+        less \
+        libcjose-dev \
+        libcurl4-gnutls-dev \
+        libev-dev \
+        libgnutls28-dev \
+        libjansson-dev \
+        libkrb5-dev \
+        libllhttp-dev \
+        liblz4-dev \
+        libnl-route-3-dev \
+        liboath-dev \
+        libpam0g-dev \
+        libprotobuf-c-dev \
+        libradcli-dev \
+        libreadline-dev \
+        libseccomp-dev \
+        libtasn1-bin \
+        libtalloc-dev \
+        meson \
+        ninja-build \
         nginx \
+        openssl \
+        pkg-config \
         procps \
+        protobuf-c-compiler \
+        sudo \
         tini \
-    && rm -rf /var/lib/apt/lists/* \
+    && /usr/local/bin/ocserv-binary-install \
+    && for binary in occtl ocpasswd; do \
+        binary_path="$(command -v "${binary}")"; \
+        if [ "${binary_path}" != "/usr/bin/${binary}" ]; then \
+            ln -sf "${binary_path}" "/usr/bin/${binary}"; \
+        fi; \
+    done \
+    && runtime_packages="$(ldd /usr/sbin/ocserv /usr/bin/occtl /usr/bin/ocpasswd | awk '/=> \// { print $3 }' | xargs -r -n 1 readlink -f | xargs -r dpkg-query -S | cut -d: -f1 | sort -u)" \
+    && apt-mark manual ${runtime_packages} \
+    && apt-get purge -y --auto-remove \
+        build-essential \
+        gperf \
+        git \
+        libcjose-dev \
+        libcurl4-gnutls-dev \
+        libev-dev \
+        libgnutls28-dev \
+        libjansson-dev \
+        libkrb5-dev \
+        libllhttp-dev \
+        liblz4-dev \
+        libnl-route-3-dev \
+        liboath-dev \
+        libpam0g-dev \
+        libprotobuf-c-dev \
+        libradcli-dev \
+        libreadline-dev \
+        libseccomp-dev \
+        libtalloc-dev \
+        meson \
+        ninja-build \
+        pkg-config \
+        protobuf-c-compiler \
+    && /usr/bin/occtl --version >/dev/null \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/local/bin/ocserv-binary-install \
     && rm -f /etc/nginx/sites-enabled/default \
     && rm -rf /usr/share/nginx/html/*
 
@@ -97,8 +138,8 @@ WORKDIR /app
 COPY --from=backend-builder /out/backend /usr/local/bin/backend
 COPY --from=web-builder /out/admin/ /usr/share/nginx/html/
 COPY --from=web-builder /out/customer/ /usr/share/nginx/html/customer/
-COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint
-COPY --chmod=755 deploy/docker/common/server.sh /usr/local/bin/container-server
+COPY --chmod=755 deploy/docker/entrypoint.sh /usr/local/bin/container-entrypoint
+COPY --chmod=755 deploy/docker/server.sh /usr/local/bin/container-server
 
 ENV OCSERV_PORT=${OCSERV_PORT:-443} \
     AGENT_NODE=${AGENT_NODE} \
