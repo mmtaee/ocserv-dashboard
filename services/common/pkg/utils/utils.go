@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/logger"
+	"io"
 	"math"
 	"os"
 	"os/exec"
@@ -14,6 +15,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
@@ -350,11 +352,30 @@ func GetOCCTLVersion() string {
 	return finalOutput
 }
 
+var ocpasswdMu sync.Mutex
+
 // RunOcpasswd runs the ocpasswd command with the given arguments.
 // Returns combined output and error. If the command fails without
 // output, the error string is used as output.
 func RunOcpasswd(args ...string) (string, error) {
+	return runOcpasswd(nil, args...)
+}
+
+// RunOcpasswdWithStdin runs ocpasswd and writes stdin to the process.
+// ocpasswd uses a process-wide .tmp lock file, so all invocations are
+// serialized to avoid "file is locked" races and lost updates.
+func RunOcpasswdWithStdin(stdin string, args ...string) (string, error) {
+	return runOcpasswd(strings.NewReader(stdin), args...)
+}
+
+func runOcpasswd(stdin io.Reader, args ...string) (string, error) {
+	ocpasswdMu.Lock()
+	defer ocpasswdMu.Unlock()
+
 	cmd := exec.Command(OcpasswdExec, args...)
+	if stdin != nil {
+		cmd.Stdin = stdin
+	}
 	out, err := cmd.CombinedOutput()
 	output := string(out)
 	if err != nil {
