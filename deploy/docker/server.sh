@@ -18,6 +18,9 @@ set -Eeuo pipefail
 : "${CUSTOMER_API_ENABLED:=true}"
 : "${TELEGRAM_BOT_ENABLED:=false}"
 : "${NGINX_ENABLED:=true}"
+: "${WEB_PORT:=3000}"
+: "${API_PORT:=8000}"
+: "${HOST:=127.0.0.1}"
 
 backend_pid=''
 nginx_pid=''
@@ -179,22 +182,29 @@ configure_nginx() {
         log "nginx and UI routes disabled"
         return
     fi
+    [[ "${WEB_PORT}" =~ ^[0-9]+$ ]] || { log "WEB_PORT must be numeric"; return 1; }
+    [[ "${API_PORT}" =~ ^[0-9]+$ ]] || { log "API_PORT must be numeric"; return 1; }
 
     {
-        cat <<'EOF'
+        cat <<EOF
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
+    listen ${WEB_PORT} ssl default_server;
+    listen [::]:${WEB_PORT} ssl default_server;
+    server_name ${HOST};
     root /usr/share/nginx/html;
+
+    ssl_certificate /etc/ocserv/certs/cert.pem;
+    ssl_certificate_key /etc/ocserv/certs/cert.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    error_page 497 =301 https://\$host:${WEB_PORT}\$request_uri;
 
     location /api/ {
         proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     location = /health {
@@ -232,6 +242,27 @@ EOF
 
     location / {
         try_files $uri $uri/ /index.html;
+    }
+}
+EOF
+        cat <<EOF
+
+server {
+    listen ${API_PORT} ssl;
+    listen [::]:${API_PORT} ssl;
+    server_name ${HOST};
+
+    ssl_certificate /etc/ocserv/certs/cert.pem;
+    ssl_certificate_key /etc/ocserv/certs/cert.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF

@@ -136,6 +136,48 @@ set_env_value() {
     mv "${temporary}" "${ENV_FILE}"
 }
 
+detect_host_ip() {
+    local host_ip
+
+    host_ip="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '/src/ { for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit } }')"
+    if [[ -z "${host_ip}" ]]; then
+        host_ip="$(hostname -I 2>/dev/null | awk '{ print $1 }')"
+    fi
+    [[ "${host_ip}" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || \
+        die "could not determine a host IPv4 address; set HOST in ${ENV_FILE}"
+    printf '%s\n' "${host_ip}"
+}
+
+configure_host() {
+    local host
+    local value
+    local key
+
+    host="$(env_value HOST '')"
+    if [[ -z "${host}" ]]; then
+        host="$(detect_host_ip)"
+        set_env_value HOST "${host}"
+        log "set HOST=${host}"
+    fi
+    [[ "${host}" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ ]] || \
+        die "HOST must be an IPv4 address or hostname"
+
+    for key in ALLOW_ORIGINS SSL_CN; do
+        value="$(env_value "${key}" '')"
+        if [[ "${value}" == *'{HOST}'* ]]; then
+            value="${value//\{HOST\}/${host}}"
+            set_env_value "${key}" "\"${value}\""
+        fi
+    done
+
+    if [[ "$(env_value ALLOW_ORIGINS '')" == "https://127.0.0.1:3000,https://localhost:3000" ]]; then
+        set_env_value ALLOW_ORIGINS "\"https://${host}:3000\""
+    fi
+    if [[ "$(env_value SSL_CN '')" == "ocserv-dashboard" ]]; then
+        set_env_value SSL_CN "\"${host}\""
+    fi
+}
+
 prepare_environment() {
     local current_mode
     local postgres_password
@@ -147,6 +189,7 @@ prepare_environment() {
         set_env_value POSTGRES_PASSWORD "\"$(openssl rand -hex 32)\""
         set_env_value SUPERADMIN_PASSWORD "\"$(openssl rand -base64 24 | tr -d '\n')\""
         set_env_value AGENT_NODE "${agent_node}"
+        configure_host
         log "created ${ENV_FILE} with generated secrets; review it before exposing the service"
         return
     fi
@@ -163,6 +206,7 @@ prepare_environment() {
         set_env_value POSTGRES_PASSWORD "\"$(openssl rand -hex 32)\""
         log "replaced the sample POSTGRES_PASSWORD with a generated secret"
     fi
+    configure_host
     chmod 600 "${ENV_FILE}"
 }
 
@@ -213,20 +257,26 @@ install_docker() {
     local dockerfile="${PROJECT_ROOT}/deploy/docker/Dockerfile"
     local customer_api_enabled
     local telegram_bot_enabled
-    local http_port
+    local web_port
+    local api_port
     local ocserv_port
     local -a service_publish_args
 
     customer_api_enabled="$(normalized_bool "$(env_value CUSTOMER_API_ENABLED true)")"
     telegram_bot_enabled="$(normalized_bool "$(env_value TELEGRAM_BOT_ENABLED false)")"
-    http_port="$(env_value HTTP_PORT 80)"
+    web_port="$(env_value WEB_PORT 3000)"
+    api_port="$(env_value API_PORT 8000)"
     ocserv_port="$(env_value OCSERV_PORT 443)"
-    [[ "${http_port}" =~ ^[0-9]+$ ]] || die "HTTP_PORT must be numeric"
+    [[ "${web_port}" =~ ^[0-9]+$ ]] || die "WEB_PORT must be numeric"
+    [[ "${api_port}" =~ ^[0-9]+$ ]] || die "API_PORT must be numeric"
     [[ "${ocserv_port}" =~ ^[0-9]+$ ]] || die "OCSERV_PORT must be numeric"
     if [[ "${agent_node}" == true ]]; then
         service_publish_args=(--publish 8080:8080/tcp)
     else
-        service_publish_args=(--publish "${http_port}:80/tcp")
+        service_publish_args=(
+            --publish "${web_port}:${web_port}/tcp"
+            --publish "${api_port}:${api_port}/tcp"
+        )
     fi
 
     check_docker

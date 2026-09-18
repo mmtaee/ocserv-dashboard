@@ -176,7 +176,7 @@ RUN mkdir -p \
         /etc/ocserv/users \
         /usr/share/nginx/html/customer
 
-EXPOSE 80/tcp 443/tcp 443/udp 5432/tcp 8080/tcp
+EXPOSE 443/tcp 443/udp 3000/tcp 8000/tcp
 
 VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/opt/ocserv_dashboard/uploads/receipts"]
 
@@ -186,7 +186,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
     CMD if [ "$AGENT_NODE" = "true" ]; then \
         curl --fail --silent http://127.0.0.1:8080/health >/dev/null; \
     else \
-        curl --fail --silent http://127.0.0.1/health >/dev/null; \
+        curl --fail --silent --insecure https://127.0.0.1:3000/health >/dev/null; \
     fi
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/container-entrypoint"]
