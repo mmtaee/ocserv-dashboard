@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+set -Eeuo pipefail
 
 INSTALL_PREFIX="/usr"
 SRC_DIR="/tmp/ocserv"

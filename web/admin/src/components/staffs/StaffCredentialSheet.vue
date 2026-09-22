@@ -39,7 +39,7 @@ const usernameError = computed(() =>
     : "",
 );
 const passwordError = computed(() =>
-  attempted.value && (form.password.length < 4 || form.password.length > 16)
+  attempted.value && (form.password.length < 4 || form.password.length > 32)
     ? t("staffs.passwordInvalid")
     : "",
 );
@@ -121,7 +121,7 @@ function submit(): void {
               :autocomplete="mode === 'create' ? 'new-password' : 'off'"
               :disabled="pending"
               minlength="4"
-              maxlength="16"
+              maxlength="32"
               required
               type="password"
             />

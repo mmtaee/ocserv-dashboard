@@ -43,7 +43,7 @@ export default {
     newPassword: "新密码",
     confirmPassword: "确认密码",
     secretKeyLength: "密钥必须包含 16 至 64 个字符。",
-    passwordLength: "密码必须包含 4 至 16 个字符。",
+    passwordLength: "密码必须包含 4 至 32 个字符。",
     passwordMismatch: "两次输入的密码不一致。",
     promoTitle: "安全的基础设施管理",
     promoDescription: "在一个面板中监控会话、用户、代理和系统健康状态。",

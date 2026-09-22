@@ -41,7 +41,7 @@ const en = {
     newPassword: "New password",
     confirmPassword: "Confirm password",
     secretKeyLength: "Secret key must contain 16 to 64 characters.",
-    passwordLength: "Password must contain 4 to 16 characters.",
+    passwordLength: "Password must contain 4 to 32 characters.",
     passwordMismatch: "Passwords do not match.",
     promoTitle: "Secure infrastructure administration",
     promoDescription:

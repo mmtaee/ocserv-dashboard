@@ -44,7 +44,7 @@ export default {
     newPassword: "Nuova password",
     confirmPassword: "Conferma password",
     secretKeyLength: "La chiave segreta deve contenere da 16 a 64 caratteri.",
-    passwordLength: "La password deve contenere da 4 a 16 caratteri.",
+    passwordLength: "La password deve contenere da 4 a 32 caratteri.",
     passwordMismatch: "Le password non coincidono.",
     promoTitle: "Amministrazione sicura dell'infrastruttura",
     promoDescription:

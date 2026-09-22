@@ -45,7 +45,7 @@ export default {
     newPassword: "Новый пароль",
     confirmPassword: "Подтвердите пароль",
     secretKeyLength: "Секретный ключ должен содержать от 16 до 64 символов.",
-    passwordLength: "Пароль должен содержать от 4 до 16 символов.",
+    passwordLength: "Пароль должен содержать от 4 до 32 символов.",
     passwordMismatch: "Пароли не совпадают.",
     promoTitle: "Безопасное управление инфраструктурой",
     promoDescription:

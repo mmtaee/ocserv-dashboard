@@ -260,6 +260,7 @@ install_docker() {
     local web_port
     local api_port
     local ocserv_port
+    local host
     local -a service_publish_args
 
     customer_api_enabled="$(normalized_bool "$(env_value CUSTOMER_API_ENABLED true)")"
@@ -267,6 +268,7 @@ install_docker() {
     web_port="$(env_value WEB_PORT 3000)"
     api_port="$(env_value API_PORT 8000)"
     ocserv_port="$(env_value OCSERV_PORT 443)"
+    host="$(env_value HOST '')"
     [[ "${web_port}" =~ ^[0-9]+$ ]] || die "WEB_PORT must be numeric"
     [[ "${api_port}" =~ ^[0-9]+$ ]] || die "API_PORT must be numeric"
     [[ "${ocserv_port}" =~ ^[0-9]+$ ]] || die "OCSERV_PORT must be numeric"
@@ -318,8 +320,14 @@ install_docker() {
         "${service_publish_args[@]}" \
         "${image}"
     log "started Docker ${node_mode} node in container ${container}"
-    log "following container logs; press Ctrl-C to stop following"
-    "${docker_cmd[@]}" logs -f "${container}"
+    log "Ocserv: ${host}:${ocserv_port} (TCP/UDP)"
+    if [[ "${agent_node}" == false ]]; then
+        log "UI: https://${host}:${web_port}"
+    fi
+
+    # log "following container logs; press Ctrl-C to stop following"
+    log "following container logs, run ${docker_cmd[*]} logs -f ${container}"
+    # "${docker_cmd[@]}" logs -f "${container}"
 }
 
 install_systemd() {

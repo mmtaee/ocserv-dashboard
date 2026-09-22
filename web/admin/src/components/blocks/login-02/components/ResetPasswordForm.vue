@@ -40,7 +40,7 @@ const secretKeyError = computed(() =>
 );
 const passwordError = computed(() =>
   attempted.value &&
-  (form.new_password.length < 4 || form.new_password.length > 16)
+  (form.new_password.length < 4 || form.new_password.length > 32)
     ? t("auth.passwordLength")
     : "",
 );
@@ -141,7 +141,7 @@ onBeforeUnmount(() => {
           type="password"
           autocomplete="new-password"
           minlength="4"
-          maxlength="16"
+          maxlength="32"
           required
           :aria-invalid="Boolean(passwordError)"
           :disabled="pending || success"

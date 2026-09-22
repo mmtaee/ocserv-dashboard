@@ -43,7 +43,7 @@ export default {
     newPassword: "新密碼",
     confirmPassword: "確認密碼",
     secretKeyLength: "密鑰必須包含 16 至 64 個字元。",
-    passwordLength: "密碼必須包含 4 至 16 個字元。",
+    passwordLength: "密碼必須包含 4 至 32 個字元。",
     passwordMismatch: "密碼不相符。",
     promoTitle: "安全的基礎設施管理",
     promoDescription:

@@ -34,12 +34,12 @@ const MOCK_EXPIRED_SECRET_KEY = "mock-expired-secret-key-2026";
 export async function resetMockAdminPassword(
   request: ResetAdminPasswordRequest,
 ): Promise<ResetAdminPasswordResponse> {
-  if (request.new_password.length < 4 || request.new_password.length > 16) {
-    throw new ApiError("Password must contain 4 to 16 characters.", {
+  if (request.new_password.length < 4 || request.new_password.length > 32) {
+    throw new ApiError("Password must contain 4 to 32 characters.", {
       status: 400,
       data: {
         error: ["invalid_password"],
-        message: ["Password must contain 4 to 16 characters."],
+        message: ["Password must contain 4 to 32 characters."],
       },
     });
   }

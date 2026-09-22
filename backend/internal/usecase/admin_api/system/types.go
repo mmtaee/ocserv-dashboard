@@ -45,7 +45,7 @@ type PatchSystemUpdateData struct {
 
 type LoginData struct {
 	Username   string `json:"username" validate:"required,min=2,max=16" example:"john_doe" `
-	Password   string `json:"password" validate:"required,min=2,max=16" example:"doe123456"`
+	Password   string `json:"password" validate:"required,min=2,max=32" example:"doe123456"`
 	RememberMe bool   `json:"remember_me" desc:"remember for a month"`
 	Token      string `json:"token" desc:"captcha v2 token"`
 }
@@ -57,7 +57,7 @@ type UserLoginResponse struct {
 
 type CreateUserData struct {
 	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required,min=4,max=16"`
+	Password string `json:"password" validate:"required,min=4,max=32"`
 	//Admin    bool   `json:"admin"`
 }
 
@@ -67,12 +67,12 @@ type UsersResponse struct {
 }
 
 type ChangeUserPassword struct {
-	Password string `json:"password" validate:"required,min=4,max=16"`
+	Password string `json:"password" validate:"required,min=4,max=32"`
 }
 
 type ChangeUserPasswordBySelf struct {
-	OldPassword string `json:"old_password" validate:"required,min=4,max=16"`
-	NewPassword string `json:"new_password" validate:"required,min=4,max=16"`
+	OldPassword string `json:"old_password" validate:"required,min=4,max=32"`
+	NewPassword string `json:"new_password" validate:"required,min=4,max=32"`
 }
 
 type ResetPasswordResponse struct {
@@ -85,6 +85,6 @@ type DashboardRelease struct {
 }
 
 type ResetAdminPassword struct {
-	NewPassword string `json:"new_password" validate:"required,min=4,max=16"`
+	NewPassword string `json:"new_password" validate:"required,min=4,max=32"`
 	SecretKey   string `json:"secret_key" validate:"required,min=16,max=64"`
 }

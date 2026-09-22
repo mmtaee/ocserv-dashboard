@@ -44,7 +44,7 @@ export default {
     newPassword: "كلمة المرور الجديدة",
     confirmPassword: "تأكيد كلمة المرور",
     secretKeyLength: "يجب أن يتكون المفتاح السري من 16 إلى 64 حرفاً.",
-    passwordLength: "يجب أن تتكون كلمة المرور من 4 إلى 16 حرفاً.",
+    passwordLength: "يجب أن تتكون كلمة المرور من 4 إلى 32 حرفاً.",
     passwordMismatch: "كلمتا المرور غير متطابقتين.",
     promoTitle: "إدارة آمنة للبنية التحتية",
     promoDescription:

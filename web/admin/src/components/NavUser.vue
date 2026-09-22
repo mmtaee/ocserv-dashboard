@@ -94,13 +94,13 @@ const initials = computed(() =>
 );
 const oldPasswordError = computed(() =>
   attempted.value &&
-  (form.oldPassword.length < 4 || form.oldPassword.length > 16)
+  (form.oldPassword.length < 4 || form.oldPassword.length > 32)
     ? t("navUser.passwordLength")
     : "",
 );
 const passwordError = computed(() =>
   attempted.value &&
-  (form.newPassword.length < 4 || form.newPassword.length > 16)
+  (form.newPassword.length < 4 || form.newPassword.length > 32)
     ? t("navUser.passwordLength")
     : "",
 );
@@ -217,7 +217,7 @@ async function submitPassword(): Promise<void> {
               v-model="form.oldPassword"
               type="password"
               minlength="4"
-              maxlength="16"
+              maxlength="32"
               required
               :aria-invalid="Boolean(oldPasswordError)"
               :disabled="pending"
@@ -234,7 +234,7 @@ async function submitPassword(): Promise<void> {
               v-model="form.newPassword"
               type="password"
               minlength="4"
-              maxlength="16"
+              maxlength="32"
               required
               :aria-invalid="Boolean(passwordError)"
               :disabled="pending"

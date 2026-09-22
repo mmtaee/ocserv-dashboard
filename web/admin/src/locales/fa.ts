@@ -44,7 +44,7 @@ export default {
     newPassword: "گذرواژهٔ جدید",
     confirmPassword: "تأیید گذرواژه",
     secretKeyLength: "کلید محرمانه باید ۱۶ تا ۶۴ نویسه داشته باشد.",
-    passwordLength: "گذرواژه باید ۴ تا ۱۶ نویسه داشته باشد.",
+    passwordLength: "گذرواژه باید ۴ تا ۳۲ نویسه داشته باشد.",
     passwordMismatch: "گذرواژه‌ها یکسان نیستند.",
     promoTitle: "مدیریت امن زیرساخت",
     promoDescription:
