@@ -29,19 +29,37 @@ If PostgreSQL, Ocserv, or the backend exits unexpectedly, the remaining processe
 
 ## Guided installation
 
-Run the root installer and choose Docker or systemd first, then Master or Agent:
+Download and run the installer, then choose Docker or systemd first and Master or Agent:
 
 ```bash
-./install.sh
+curl -fsSLO https://raw.githubusercontent.com/mmtaee/ocserv-dashboard/master/install.sh
+bash install.sh
 ```
+
+Or with wget:
+
+```bash
+wget -q https://raw.githubusercontent.com/mmtaee/ocserv-dashboard/master/install.sh -O install.sh
+bash install.sh
+```
+
+The bootstrap installer downloads the latest tagged release into `./ocserv-dashboard`, records its tag in `.release`, then starts `setup.sh`.
+
+From an existing repository checkout, run the guided installer directly:
+
+```bash
+./setup.sh
+```
+
+The terminal GUI lets you choose Install or Upgrade, go back between deployment and node choices, and edit the main `.env` settings before installation. Choose **Upgrade** to automatically detect the running Docker container or systemd service, fetch a newer release when available, and upgrade without deployment prompts. You can also run `./setup.sh --update`.
 
 The installer creates `.env` from `.env.example` only when it is missing, generates initial secrets, and asks before changing an existing `AGENT_NODE` value. Non-interactive selection is also supported:
 
 ```bash
-./install.sh --deployment docker --node master
-./install.sh --deployment docker --node agent
-./install.sh --deployment systemd --node master
-./install.sh --deployment systemd --node agent
+./setup.sh --deployment docker --node master
+./setup.sh --deployment docker --node agent
+./setup.sh --deployment systemd --node master
+./setup.sh --deployment systemd --node agent
 ```
 
 Master selects `AGENT_NODE=false`; Agent selects `AGENT_NODE=true`.
@@ -122,7 +140,7 @@ services:
       context: .
       dockerfile: deploy/docker/Dockerfile
       args:
-        GO_VERSION: ${GO_VERSION:-1.26.0}
+        GO_VERSION: ${GO_VERSION:-1.27.1}
         NODE_VERSION: ${NODE_VERSION:-24}
         AGENT_NODE: ${AGENT_NODE:-false}
         CUSTOMER_API_ENABLED: ${CUSTOMER_API_ENABLED:-true}
@@ -179,7 +197,7 @@ Build the image without Compose:
 
 ```bash
 sudo docker build \
-  --build-arg GO_VERSION=1.26.0 \
+  --build-arg GO_VERSION=1.27.1 \
   --build-arg NODE_VERSION=24 \
   --build-arg AGENT_NODE=false \
   --build-arg CUSTOMER_API_ENABLED=true \
@@ -284,7 +302,7 @@ services:
       context: .
       dockerfile: deploy/docker/Dockerfile.dev
       args:
-        GO_VERSION: ${GO_VERSION:-1.26.0}
+        GO_VERSION: ${GO_VERSION:-1.27.1}
     environment:
       HOST_PROC: /host/proc
       HOST_SYS: /host/sys
@@ -344,7 +362,7 @@ Build the development image without Compose:
 
 ```bash
 sudo docker build \
-  --build-arg GO_VERSION=1.26.0 \
+  --build-arg GO_VERSION=1.27.1 \
   -f deploy/docker/Dockerfile.dev \
   -t ocserv-dashboard-dev:latest \
   .
@@ -408,7 +426,7 @@ No separate Telegram executable or container is required.
 For a native Debian or Ubuntu deployment, use the guided installer:
 
 ```bash
-./install.sh
+./setup.sh
 ```
 
 The installer can provision local PostgreSQL when `INSTALL_POSTGRES=true`. It runs migrations and the idempotent `backend create-superadmin` command before startup using `SUPERADMIN_USERNAME` and `SUPERADMIN_PASSWORD`. Set `INSTALL_POSTGRES=false` and configure the PostgreSQL connection variables when using an existing server.

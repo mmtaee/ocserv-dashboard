@@ -44,3 +44,5 @@ db/
 .release
 draft_prompt.md
 old_codes
+
+.release

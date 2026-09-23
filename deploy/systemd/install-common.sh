@@ -86,15 +86,17 @@ load_environment() {
     API_PORT="${API_PORT:-8000}"
     CUSTOMER_API_ENABLED="${CUSTOMER_API_ENABLED:-true}"
     INSTALL_POSTGRES="${INSTALL_POSTGRES:-true}"
+    GO_VERSION="${GO_VERSION:-1.27.1}"
     INSTALL_DIR="${SYSTEMD_INSTALL_DIR:-/opt/ocserv-dashboard}"
     # Cobra maintenance commands load this file with godotenv when run from INSTALL_DIR.
     INSTALLED_ENV_FILE="${INSTALL_DIR}/.env"
 
     [[ "${BACKEND_HOST}" =~ ^[a-zA-Z0-9.:%_-]+$ ]] || die "BACKEND_HOST contains unsupported characters"
     [[ "${BACKEND_PORT}" =~ ^[0-9]+$ ]] || die "BACKEND_PORT must be numeric"
-    [[ "${HOST:-}" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ ]] || die "HOST must be an IPv4 address or hostname"
+    [[ "${HOST:-}" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ ]] || die "HOST must be an IPv4 address or hostname; current value: ${HOST:-<empty>}"
     [[ "${WEB_PORT}" =~ ^[0-9]+$ ]] || die "WEB_PORT must be numeric"
     [[ "${API_PORT}" =~ ^[0-9]+$ ]] || die "API_PORT must be numeric"
+    [[ "${GO_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "GO_VERSION must be a semantic version"
     [[ "${INSTALL_DIR}" =~ ^/[a-zA-Z0-9._/-]+$ ]] || die "SYSTEMD_INSTALL_DIR must be an absolute path without spaces"
 }
 
@@ -104,8 +106,8 @@ install_packages() {
         build-essential
         curl
         git
+        gperf
         gnutls-bin
-        golang-go
         iproute2
         iptables
         iptables-persistent
@@ -146,12 +148,52 @@ install_packages() {
     apt-get update
     apt-get install -y --no-install-recommends "${packages[@]}"
 
-    command -v go >/dev/null 2>&1 || die "Go installation failed"
+    install_go
     if is_true "${DEPLOYMENT_AGENT_NODE}"; then
         return
     fi
     command -v corepack >/dev/null 2>&1 || die "Node.js installation did not provide corepack"
     corepack enable
+}
+
+install_go() {
+    local archive
+    local architecture
+    local installed_version
+    local install_path="/usr/local/lib/go-${GO_VERSION}"
+    local version_output
+    local work_dir
+
+    if command -v go >/dev/null 2>&1; then
+        version_output="$(go version 2>/dev/null || true)"
+        if [[ "${version_output}" =~ go([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            installed_version="${BASH_REMATCH[1]}"
+            if dpkg --compare-versions "${installed_version}" ge "${GO_VERSION}"; then
+                log "using installed Go ${installed_version}"
+                return
+            fi
+        fi
+    fi
+
+    case "$(dpkg --print-architecture)" in
+        amd64) architecture=amd64 ;;
+        arm64) architecture=arm64 ;;
+        *) die "Go ${GO_VERSION} is unsupported on this CPU architecture" ;;
+    esac
+    if [[ ! -x "${install_path}/bin/go" ]]; then
+        archive="$(mktemp)"
+        work_dir="$(mktemp -d)"
+        log "installing Go ${GO_VERSION}"
+        curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${architecture}.tar.gz" -o "${archive}" || \
+            die "could not download Go ${GO_VERSION}; install Go ${GO_VERSION} or newer and rerun"
+        install -d -m 755 /usr/local/lib
+        tar -C "${work_dir}" -xzf "${archive}"
+        mv "${work_dir}/go" "${install_path}"
+        rm -f "${archive}"
+        rmdir "${work_dir}"
+    fi
+    ln -sfn "${install_path}/bin/go" /usr/local/bin/go
+    go version | grep -Fq "go${GO_VERSION}" || die "Go ${GO_VERSION} installation failed"
 }
 
 install_ocserv_binary() {
