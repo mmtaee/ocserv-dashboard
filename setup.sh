@@ -285,7 +285,7 @@ apply_static_defaults() {
     set_env_default SSL_ORG "\"ocserv-dashboard\""
     set_env_default SSL_EXPIRE 3650
     set_env_default ETH "\"\""
-    set_env_default TELEGRAM_BOT_ENABLED false
+    set_env_default TELEGRAM_BOT_ENABLED true
     set_env_default CUSTOMER_API_ENABLED true
     set_env_default BACKEND_HOST "\"0.0.0.0\""
     set_env_default BACKEND_PORT 8080
@@ -311,6 +311,10 @@ apply_static_defaults() {
     set_env_default TELEGRAM_BOT_I18N_PATH "\"\""
     set_env_default TELEGRAM_BOT_METADATA_LOCALES_PATH "\"\""
     set_env_default GO_VERSION "\"1.27.1\""
+    if dpkg --compare-versions "$(env_value GO_VERSION 0)" lt 1.27.1; then
+        log "updating GO_VERSION to 1.27.1 (required by the backend)"
+        set_env_value GO_VERSION "\"1.27.1\""
+    fi
     set_env_default NODE_VERSION "\"24\""
     set_env_default RUN_MIGRATIONS true
     set_env_default MIGRATION_MAX_ATTEMPTS 30
@@ -694,6 +698,8 @@ install_docker() {
     log "Ocserv: ${host}:${ocserv_port} (TCP/UDP)"
     if [[ "${agent_node}" == false ]]; then
         log "UI: https://${host}:${web_port}"
+        log "dashboard username: $(env_value SUPERADMIN_USERNAME admin)"
+        log "dashboard password: $(env_value SUPERADMIN_PASSWORD '')"
     fi
 
     # log "following container logs; press Ctrl-C to stop following"

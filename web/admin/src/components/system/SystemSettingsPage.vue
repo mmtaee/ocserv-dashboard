@@ -631,63 +631,8 @@ onMounted(refresh);
             </tbody>
           </table>
         </div>
-        <FieldGroup v-if="false"
-          ><Field
-            ><FieldLabel for="agent-name">{{
-              t("systemSettings.agentName")
-            }}</FieldLabel
-            ><Input
-              id="agent-name"
-              v-model="agent.name"
-              :disabled="saving !== null" /></Field
-          ><Field
-            ><FieldLabel for="agent-address">{{
-              t("systemSettings.agentAddress")
-            }}</FieldLabel
-            ><Input
-              id="agent-address"
-              v-model="agent.address"
-              :disabled="saving !== null" /></Field
-          ><Field
-            ><FieldLabel for="agent-type">{{
-              t("systemSettings.addressType")
-            }}</FieldLabel
-            ><select
-              id="agent-type"
-              v-model="agent.address_type"
-              class="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
-              :disabled="saving !== null"
-            >
-              <option :value="ModelsAgentAddressType.AgentAddressTypeDomain">
-                {{ t("systemSettings.domain") }}
-              </option>
-              <option :value="ModelsAgentAddressType.AgentAddressTypeIP">
-                {{ t("systemSettings.ip") }}
-              </option>
-            </select></Field
-          ><Field
-            ><FieldLabel for="agent-token">{{
-              t("systemSettings.agentToken")
-            }}</FieldLabel
-            ><Input
-              id="agent-token"
-              v-model="agent.token"
-              type="password"
-              :disabled="saving !== null" /></Field></FieldGroup></CardContent
-      ><CardFooter v-if="false"
-        ><Button type="button" :disabled="saving !== null" @click="saveAgent"
-          ><Spinner v-if="saving === 'agent'" data-icon="inline-start" /><Save
-            v-else
-            data-icon="inline-start"
-          />{{
-            t(
-              editingAgentId === null
-                ? "systemSettings.createAgent"
-                : "systemSettings.updateAgent",
-            )
-          }}</Button
-        ></CardFooter
-      ></Card
+        </CardContent>
+      </Card>
     >
     <Sheet v-model:open="agentDialogOpen"
       ><SheetContent class="overflow-y-auto"

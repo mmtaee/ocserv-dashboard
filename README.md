@@ -144,7 +144,7 @@ services:
         NODE_VERSION: ${NODE_VERSION:-24}
         AGENT_NODE: ${AGENT_NODE:-false}
         CUSTOMER_API_ENABLED: ${CUSTOMER_API_ENABLED:-true}
-        TELEGRAM_BOT_ENABLED: ${TELEGRAM_BOT_ENABLED:-false}
+        TELEGRAM_BOT_ENABLED: ${TELEGRAM_BOT_ENABLED:-true}
     env_file:
       - ./.env
     environment:
@@ -201,7 +201,7 @@ sudo docker build \
   --build-arg NODE_VERSION=24 \
   --build-arg AGENT_NODE=false \
   --build-arg CUSTOMER_API_ENABLED=true \
-  --build-arg TELEGRAM_BOT_ENABLED=false \
+  --build-arg TELEGRAM_BOT_ENABLED=true \
   -f deploy/docker/Dockerfile \
   -t ocserv-dashboard:master \
   .

@@ -140,7 +140,7 @@ install_packages() {
         packages+=(postgresql)
     fi
     if ! is_true "${DEPLOYMENT_AGENT_NODE}"; then
-        packages+=(nginx nodejs npm)
+        packages+=(nginx nodejs)
     fi
 
     log "installing PostgreSQL, backend, UI, nginx, and Ocserv build dependencies"
@@ -159,13 +159,19 @@ install_packages() {
 install_go() {
     local archive
     local architecture
+    local go_binary
     local installed_version
     local install_path="/usr/local/lib/go-${GO_VERSION}"
     local version_output
     local work_dir
 
-    if command -v go >/dev/null 2>&1; then
-        version_output="$(go version 2>/dev/null || true)"
+    export PATH="/usr/local/go/bin:${PATH}"
+    go_binary="$(command -v go 2>/dev/null || true)"
+    if [[ -z "${go_binary}" && -x /usr/local/go/bin/go ]]; then
+        go_binary=/usr/local/go/bin/go
+    fi
+    if [[ -n "${go_binary}" ]]; then
+        version_output="$("${go_binary}" version 2>/dev/null || true)"
         if [[ "${version_output}" =~ go([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             installed_version="${BASH_REMATCH[1]}"
             if dpkg --compare-versions "${installed_version}" ge "${GO_VERSION}"; then
@@ -378,6 +384,7 @@ EOF
     ln -sf "${NGINX_SITE}" /etc/nginx/sites-enabled/ocserv-dashboard
     nginx -t
     systemctl enable --now nginx.service
+    systemctl reload nginx.service
 }
 
 run_backend_migrations() {
@@ -505,9 +512,11 @@ verify_services() {
     fi
 
     log "installation complete"
-    log "backend: http://${BACKEND_HOST}:${BACKEND_PORT}"
+    log "backend: http://${HOST}:${BACKEND_PORT}"
     if ! is_true "${DEPLOYMENT_AGENT_NODE}"; then
         log "UI: https://${HOST}:${WEB_PORT}"
+        log "dashboard username: ${SUPERADMIN_USERNAME}"
+        log "dashboard password: ${SUPERADMIN_PASSWORD}"
     fi
     log "status: systemctl status ocserv ocserv-dashboard"
 }

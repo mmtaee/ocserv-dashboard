@@ -42,11 +42,11 @@ const props = defineProps<{
 }>();
 
 const { locale, t } = useI18n({ useScope: "global" });
-const chartConfig = {
+const chartConfig: ChartConfig = {
   value: { label: "GB", color: "var(--chart-1)" },
   rx: { label: "RX", color: "var(--chart-1)" },
   tx: { label: "TX", color: "var(--chart-2)" },
-} satisfies ChartConfig;
+};
 
 const chartData = computed<BandwidthPoint[]>(() => [
   { direction: "rx", value: Number(props.total?.rx ?? 0) },
