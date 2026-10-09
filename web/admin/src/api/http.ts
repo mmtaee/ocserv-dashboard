@@ -2,7 +2,6 @@ import axios, { AxiosError, type AxiosInstance } from "axios";
 
 import { clearAccessToken, getAccessToken } from "@/api/auth-token";
 import { isTestMode } from "@/api/environment";
-import { telegramBotEnabled } from "@/config/features";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 type UnauthorizedHandler = () => void | Promise<unknown>;
@@ -88,10 +87,6 @@ export function setApiBaseUrl(baseUrl: string): void {
 }
 
 httpClient.interceptors.request.use((config) => {
-  if (!telegramBotEnabled && config.url?.startsWith("/telegram")) {
-    return Promise.reject(new ApiError("Telegram feature is disabled."));
-  }
-
   if (isTestMode) {
     return Promise.reject(
       new ApiError("Network requests are disabled while test mode is active."),

@@ -2,7 +2,6 @@ import type { Pinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { getAccessToken } from "@/api/auth-token";
-import { telegramBotEnabled } from "@/config/features";
 import { dashboardRoutes } from "@/router/dashboard-routes";
 import { useAuthStore } from "@/stores/auth";
 import { useSystemInitStore } from "@/stores/system-init";
@@ -90,7 +89,7 @@ export function installRouterGuards(pinia: Pinia): void {
     const systemInit = useSystemInitStore(pinia);
     const auth = useAuthStore(pinia);
 
-    if (to.meta.telegramOnly && !telegramBotEnabled) {
+    if (to.meta.telegramOnly && !systemInit.telegramBotEnabled) {
       return { name: "home" };
     }
 

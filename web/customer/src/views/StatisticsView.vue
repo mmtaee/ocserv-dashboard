@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, shallowRef } from "vue";
+import { computed, onMounted, reactive, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Bandwidth, DailyTraffic } from "@/api/generated";
 import { normalizeApiError } from "@/api/http";
@@ -12,6 +12,25 @@ const stats = shallowRef<DailyTraffic[]>([]);
 const total = shallowRef<Bandwidth | null>(null);
 const loading = shallowRef(false);
 const error = shallowRef("");
+const chartItems = computed(() => {
+  const peak = Math.max(
+    ...stats.value.map((item) => (item.rx ?? 0) + (item.tx ?? 0)),
+    1,
+  );
+  return stats.value.map((item) => {
+    const rx = item.rx ?? 0;
+    const tx = item.tx ?? 0;
+    const date = item.date ?? "";
+    return {
+      date,
+      label: date.slice(5),
+      rx,
+      tx,
+      rxHeight: `${(rx / peak) * 100}%`,
+      txHeight: `${(tx / peak) * 100}%`,
+    };
+  });
+});
 async function load(): Promise<void> {
   loading.value = true;
   error.value = "";
@@ -56,6 +75,63 @@ onMounted(load);
         {{ t("statistics.rx") }}: {{ total.rx }} · {{ t("statistics.tx") }}:
         {{ total.tx }}
       </p>
+      <div
+        v-if="chartItems.length"
+        class="mt-5"
+        role="img"
+        :aria-label="t('statistics.title')"
+      >
+        <div
+          class="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"
+        >
+          <span class="inline-flex items-center gap-1.5">
+            <i class="size-2 rounded-sm bg-primary" aria-hidden="true" />
+            {{ t("statistics.rx") }}
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <i class="size-2 rounded-sm bg-emerald-500" aria-hidden="true" />
+            {{ t("statistics.tx") }}
+          </span>
+        </div>
+        <div class="flex h-40 items-end gap-1 border-b border-border pt-2">
+          <div
+            v-for="item in chartItems"
+            :key="item.date"
+            class="flex h-full min-w-0 flex-1 flex-col justify-end"
+            :title="
+              item.date +
+              ': ' +
+              t('statistics.rx') +
+              ' ' +
+              item.rx +
+              ' · ' +
+              t('statistics.tx') +
+              ' ' +
+              item.tx
+            "
+          >
+            <div
+              class="min-h-px rounded-t-sm bg-emerald-500"
+              :style="{ height: item.txHeight }"
+            />
+            <div
+              class="min-h-px rounded-t-sm bg-primary"
+              :style="{ height: item.rxHeight }"
+            />
+          </div>
+        </div>
+        <div
+          class="mt-2 flex gap-1 text-center text-[10px] text-muted-foreground"
+        >
+          <span
+            v-for="item in chartItems"
+            :key="item.date + '-label'"
+            class="min-w-0 flex-1 truncate"
+          >
+            {{ item.label }}
+          </span>
+        </div>
+      </div>
     </article>
     <p v-if="loading">{{ t("common.loading") }}</p>
     <p v-else-if="!stats.length" class="card">{{ t("common.empty") }}</p>

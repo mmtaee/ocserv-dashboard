@@ -27,6 +27,18 @@ func TestServiceFlagDefaultsAndBooleanParsing(t *testing.T) {
 	config.Init(false, "", 0)
 }
 
+func TestConfigValidateRequiresStrongSecretKey(t *testing.T) {
+	for _, secretKey := range []string{"", "too-short"} {
+		t.Setenv("SECRET_KEY", secretKey)
+		config.Init(false, "", 0)
+		require.Error(t, config.Validate())
+	}
+
+	t.Setenv("SECRET_KEY", "0123456789abcdef0123456789abcdef")
+	config.Init(false, "", 0)
+	require.NoError(t, config.Validate())
+}
+
 func TestTelegramRoutesFollowServiceFlag(t *testing.T) {
 	t.Setenv("AGENT_NODE", "true")
 	config.Init(false, "", 0)

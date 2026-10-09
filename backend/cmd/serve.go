@@ -54,6 +54,9 @@ func serve() error {
 	}()
 
 	config.Init(debugMode, serverHost, serverPort)
+	if err := config.Validate(); err != nil {
+		return err
+	}
 	cfg := config.Get()
 	if err := database.Connect(); err != nil {
 		return err

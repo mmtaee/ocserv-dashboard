@@ -59,7 +59,7 @@ export async function getActivities(
 export async function getStats(
   params: DateRangeQuery,
 ): Promise<DailyTraffic[]> {
-  if (isTestMode) return mockCustomers.stats();
+  if (isTestMode) return mockCustomers.stats(params);
   return (
     (await httpClient.get<DailyTraffic[] | null>(path + "/stats", { params }))
       .data ?? []
@@ -67,7 +67,7 @@ export async function getStats(
 }
 export async function getBandwidth(params: DateRangeQuery): Promise<Bandwidth> {
   return isTestMode
-    ? mockCustomers.bandwidth()
+    ? mockCustomers.bandwidth(params)
     : (await httpClient.get<Bandwidth>(path + "/bandwidth", { params })).data;
 }
 export async function getCiscoSetup(): Promise<CiscoSetup> {

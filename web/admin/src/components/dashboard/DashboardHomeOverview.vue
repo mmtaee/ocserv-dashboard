@@ -4,8 +4,8 @@ import { useI18n } from "vue-i18n";
 
 import type { DashboardOverview } from "@/api/services/dashboard";
 import TelegramStatus from "@/components/dashboard/TelegramStatus.vue";
-import { telegramBotEnabled } from "@/config/features";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useSystemInitStore } from "@/stores/system-init";
 
 const props = defineProps<{
   overview: DeepReadonly<DashboardOverview> | null;
@@ -14,6 +14,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n({ useScope: "global" });
+const systemInit = useSystemInitStore();
 </script>
 
 <template>
@@ -24,9 +25,9 @@ const { t } = useI18n({ useScope: "global" });
       }}</AlertDescription>
     </Alert>
     <TelegramStatus
-      :available="telegramBotEnabled"
+      :available="systemInit.telegramBotEnabled"
       :service="props.overview?.telegram_service ?? null"
-      :loading="telegramBotEnabled && loading"
+      :loading="systemInit.telegramBotEnabled && loading"
     />
   </section>
 </template>

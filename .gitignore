@@ -43,6 +43,7 @@ note
 db/
 .release
 draft_prompt.md
+PULL_NOTE.md
 old_codes
 
 .release

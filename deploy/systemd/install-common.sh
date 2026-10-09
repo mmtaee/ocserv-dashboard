@@ -117,7 +117,7 @@ install_packages() {
         libgnutls28-dev
         libjansson-dev
         libkrb5-dev
-        libllhttp-dev
+        libhttp-parser-dev
         liblz4-dev
         libnl-route-3-dev
         liboath-dev

@@ -8,14 +8,7 @@ import { useAuthStore } from "@/stores/auth";
 const { t } = useI18n({ useScope: "global" });
 const router = useRouter();
 const auth = useAuthStore();
-const links = [
-  "summary",
-  "sessions",
-  "activity",
-  "statistics",
-  "downloads",
-  "password",
-] as const;
+const links = ["home", "sessions", "activity", "statistics"] as const;
 async function logout(): Promise<void> {
   auth.signOut();
   await router.replace({ name: "login" });

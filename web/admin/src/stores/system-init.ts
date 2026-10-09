@@ -14,6 +14,9 @@ export const useSystemInitStore = defineStore("system-init", () => {
   const captchaSiteKey = computed(
     () => config.value?.google_captcha_site_key?.trim() ?? "",
   );
+  const telegramBotEnabled = computed(
+    () => config.value?.telegram_bot_enabled === true,
+  );
 
   function applyConfig(nextConfig: SystemInitConfig): void {
     config.value = { ...config.value, ...nextConfig };
@@ -47,5 +50,6 @@ export const useSystemInitStore = defineStore("system-init", () => {
     isAvailable,
     isInitialized,
     isLoading,
+    telegramBotEnabled,
   };
 });

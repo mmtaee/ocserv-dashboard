@@ -10,7 +10,7 @@ const router = useRouter();
 const auth = useAuthStore();
 const form = reactive({ username: "", password: "" });
 async function submit(): Promise<void> {
-  if (await auth.signIn(form)) await router.replace({ name: "summary" });
+  if (await auth.signIn(form)) await router.replace({ name: "home" });
 }
 </script>
 

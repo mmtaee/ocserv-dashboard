@@ -50,7 +50,7 @@ onMounted(load);
 
 <template>
   <section class="flex flex-col gap-4">
-    <h1 class="text-2xl font-semibold">{{ t("downloads.title") }}</h1>
+    <h2 class="text-xl font-semibold">{{ t("downloads.title") }}</h2>
     <StatusMessage :error="error" />
     <p v-if="loading">{{ t("common.loading") }}</p>
     <div v-else class="grid gap-4 md:grid-cols-2">

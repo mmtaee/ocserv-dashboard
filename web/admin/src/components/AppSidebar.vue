@@ -9,18 +9,19 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import NavMain from "@/components/NavMain.vue";
-import { telegramBotEnabled } from "@/config/features";
 import { dashboardRoutes } from "@/router/dashboard-routes";
 import { useAuthStore } from "@/stores/auth";
+import { useSystemInitStore } from "@/stores/system-init";
 
 const props = defineProps<SidebarProps>();
 const { t } = useI18n({ useScope: "global" });
 const auth = useAuthStore();
+const systemInit = useSystemInitStore();
 
 const groups = computed(() => {
   const visibleRoutes = dashboardRoutes.filter(
     (route) =>
-      (!route.telegramOnly || telegramBotEnabled) &&
+      (!route.telegramOnly || systemInit.telegramBotEnabled) &&
       (auth.user?.superadmin || route.adminVisible),
   );
   const sectionKeys = [

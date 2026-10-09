@@ -19,7 +19,7 @@ export const router = createRouter({
       children: [
         {
           path: "",
-          name: "summary",
+          name: "home",
           component: () => import("@/views/SummaryView.vue"),
         },
         {
@@ -37,16 +37,6 @@ export const router = createRouter({
           name: "statistics",
           component: () => import("@/views/StatisticsView.vue"),
         },
-        {
-          path: "downloads",
-          name: "downloads",
-          component: () => import("@/views/DownloadsView.vue"),
-        },
-        {
-          path: "password",
-          name: "password",
-          component: () => import("@/views/PasswordView.vue"),
-        },
       ],
     },
     { path: "/:pathMatch(.*)*", redirect: "/" },
@@ -58,7 +48,7 @@ export function installRouterGuards(pinia: Pinia): void {
     const auth = useAuthStore(pinia);
     if (getAccessToken() && !auth.isAuthenticated) await auth.restoreSession();
     if (!to.meta.public && !auth.isAuthenticated) return { name: "login" };
-    if (to.name === "login" && auth.isAuthenticated) return { name: "summary" };
+    if (to.name === "login" && auth.isAuthenticated) return { name: "home" };
     return true;
   });
 }

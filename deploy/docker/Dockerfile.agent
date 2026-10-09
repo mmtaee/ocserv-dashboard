@@ -17,7 +17,6 @@ FROM node:${NODE_VERSION}-bookworm AS web-builder
 
 ARG AGENT_NODE=true
 ARG CUSTOMER_API_ENABLED=true
-ARG TELEGRAM_BOT_ENABLED=false
 WORKDIR /src
 COPY web/admin/ ./web/admin/
 COPY web/customer/ ./web/customer/
@@ -25,8 +24,8 @@ RUN mkdir -p /out/admin /out/customer \
     && if [ "${AGENT_NODE}" != "true" ]; then \
         corepack enable; \
         cd /src/web/admin; \
-        TELEGRAM_BOT_ENABLED="${TELEGRAM_BOT_ENABLED}" VITE_API_BASE_URL=/api yarn install --immutable; \
-        TELEGRAM_BOT_ENABLED="${TELEGRAM_BOT_ENABLED}" VITE_API_BASE_URL=/api yarn build; \
+        VITE_API_BASE_URL=/api yarn install --immutable; \
+        VITE_API_BASE_URL=/api yarn build; \
         cp -a dist/. /out/admin/; \
         if [ "${CUSTOMER_API_ENABLED}" = "true" ]; then \
             cd /src/web/customer; \

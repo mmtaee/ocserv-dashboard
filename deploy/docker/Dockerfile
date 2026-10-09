@@ -17,7 +17,6 @@ RUN go build -trimpath -ldflags="-s -w" -o /out/backend ./main.go
 FROM node:${NODE_VERSION}-bookworm AS web-builder
 
 ARG CUSTOMER_API_ENABLED=true
-ARG TELEGRAM_BOT_ENABLED=true
 
 WORKDIR /src
 COPY web/admin/ ./web/admin/
@@ -75,7 +74,7 @@ RUN apt-get update \
         libgnutls28-dev \
         libjansson-dev \
         libkrb5-dev \
-        libllhttp-dev \
+        libhttp-parser-dev \
         liblz4-dev \
         libnl-route-3-dev \
         liboath-dev \
@@ -114,7 +113,7 @@ RUN apt-get update \
         libgnutls28-dev \
         libjansson-dev \
         libkrb5-dev \
-        libllhttp-dev \
+        libhttp-parser-dev \
         liblz4-dev \
         libnl-route-3-dev \
         liboath-dev \

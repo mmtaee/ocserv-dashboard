@@ -4,7 +4,7 @@ const en = {
   app: "Ocserv Customer",
   language: "Language",
   nav: {
-    summary: "Summary",
+    home: "Home",
     sessions: "Sessions",
     activity: "Activity",
     statistics: "Statistics",
@@ -98,7 +98,7 @@ const translations = {
     app: "Cliente Ocserv",
     language: "Lingua",
     nav: {
-      summary: "Riepilogo",
+      home: "Home",
       sessions: "Sessioni",
       activity: "Attività",
       statistics: "Statistiche",
@@ -190,7 +190,7 @@ const translations = {
     app: "Ocserv 客户中心",
     language: "语言",
     nav: {
-      summary: "概览",
+      home: "首页",
       sessions: "会话",
       activity: "活动",
       statistics: "统计",
@@ -282,7 +282,7 @@ const translations = {
     app: "Ocserv 客戶中心",
     language: "語言",
     nav: {
-      summary: "摘要",
+      home: "首頁",
       sessions: "工作階段",
       activity: "活動",
       statistics: "統計",
@@ -374,7 +374,7 @@ const translations = {
     app: "Кабинет Ocserv",
     language: "Язык",
     nav: {
-      summary: "Сводка",
+      home: "Главная",
       sessions: "Сеансы",
       activity: "Активность",
       statistics: "Статистика",
@@ -466,7 +466,7 @@ const translations = {
     app: "پنل مشتری Ocserv",
     language: "زبان",
     nav: {
-      summary: "خلاصه",
+      home: "خانه",
       sessions: "نشست‌ها",
       activity: "فعالیت‌ها",
       statistics: "آمار",
@@ -558,7 +558,7 @@ const translations = {
     app: "بوابة عميل Ocserv",
     language: "اللغة",
     nav: {
-      summary: "الملخص",
+      home: "الرئيسية",
       sessions: "الجلسات",
       activity: "النشاط",
       statistics: "الإحصاءات",

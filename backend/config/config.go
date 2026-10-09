@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -32,10 +33,7 @@ type PostgresConfig struct {
 var cfg *Config
 
 func Init(debug bool, host string, port int) {
-	secretKey := os.Getenv("SECRET_KEY")
-	if secretKey == "" {
-		secretKey = "SECRET_KEY122456"
-	}
+	secretKey := strings.TrimSpace(os.Getenv("SECRET_KEY"))
 
 	allowOrigins := os.Getenv("ALLOW_ORIGINS")
 	if allowOrigins == "" {
@@ -75,6 +73,13 @@ func loadDatabaseEnv() PostgresConfig {
 
 func Get() *Config {
 	return cfg
+}
+
+func Validate() error {
+	if cfg == nil || len(cfg.SecretKey) < 32 {
+		return errors.New("SECRET_KEY must be set to a random value of at least 32 characters")
+	}
+	return nil
 }
 
 func getEnv(key, fallback string) string {

@@ -36,8 +36,8 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <section class="flex max-w-lg flex-col gap-4">
-    <h1 class="text-2xl font-semibold">{{ t("password.title") }}</h1>
+  <section class="flex flex-col gap-4">
+    <h2 class="text-xl font-semibold">{{ t("password.title") }}</h2>
     <StatusMessage :error="error" :success="success" />
     <form class="card flex flex-col gap-4" @submit.prevent="submit">
       <label class="flex flex-col gap-2"
