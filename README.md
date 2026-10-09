@@ -98,6 +98,8 @@ After installation, open `https://YOUR_DOMAIN_OR_IP:3000/` and sign in with the 
 
 Every pushed release tag (`v*`) publishes multi-architecture images for `linux/amd64` and `linux/arm64` to Docker Hub and GitHub Container Registry. Docker Hub is the default in the examples below; GHCR is an equivalent alternative.
 
+Browse published images: [Docker Hub](https://hub.docker.com/r/mmtaee/ocserv-dashboard) · [GitHub Container Registry](https://ghcr.io/mmtaee/ocserv-dashboard)
+
 ```bash
 mkdir ocserv-dashboard && cd ocserv-dashboard
 docker pull mmtaee/ocserv-dashboard:v1.0.0
