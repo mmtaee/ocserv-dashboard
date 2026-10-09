@@ -44,6 +44,7 @@ db/
 .release
 draft_prompt.md
 PULL_NOTE.md
+RELEASE.md
 old_codes
 
 .release

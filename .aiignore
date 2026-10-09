@@ -6,6 +6,7 @@
 *.log
 *.tmp
 PULL_NOTE.md
+RELEASE.md
 
 # or folders
 dist/

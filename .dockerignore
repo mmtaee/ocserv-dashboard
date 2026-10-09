@@ -37,6 +37,7 @@ docs/
 # IDE/editor junk
 .release
 PULL_NOTE.md
+RELEASE.md
 *.txt
 *.md
 *.log
