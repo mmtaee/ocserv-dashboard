@@ -5,6 +5,11 @@ version: 2
 # (build artifacts, dependencies, i18n files)
 # =====================================
 paths-ignore:
+  # Test suites and colocated Go tests
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/*_test.go"
+
   # Web dashboard i18n
   - "web/src/locales/**"
 

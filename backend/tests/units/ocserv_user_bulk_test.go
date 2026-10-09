@@ -81,19 +81,17 @@ func (tx *bulkUserTx) UnLock(_ context.Context, id uint) error {
 }
 
 type bulkAccountState struct {
-	group    string
-	password string
-	locked   bool
+	group  string
+	locked bool
 }
 
 type bulkAccountStore struct {
 	accounts map[string]bulkAccountState
 }
 
-func (s *bulkAccountStore) Create(group, username, password string, _ *models.OcservUserConfig) error {
+func (s *bulkAccountStore) Create(group, username, _ string, _ *models.OcservUserConfig) error {
 	state := s.accounts[username]
 	state.group = group
-	state.password = password
 	s.accounts[username] = state
 	return nil
 }
@@ -284,12 +282,12 @@ func TestBulkUpdateRequiresExplicitResetAfterFirstConnection(t *testing.T) {
 
 func newBulkFixture() (*bulkUserRepository, *bulkAccountStore, *ocservuser.BulkUsecase) {
 	repo := &bulkUserRepository{users: map[uint]models.OcservUser{
-		10: {ID: 10, OwnerID: 7, Username: "alice", Password: "alice-pass", Group: "defaults"},
-		20: {ID: 20, OwnerID: 8, Username: "bob", Password: "bob-pass", Group: "defaults"},
+		10: {ID: 10, OwnerID: 7, Username: "alice", Group: "defaults"},
+		20: {ID: 20, OwnerID: 8, Username: "bob", Group: "defaults"},
 	}}
 	accounts := &bulkAccountStore{accounts: map[string]bulkAccountState{
-		"alice": {group: "defaults", password: "alice-pass"},
-		"bob":   {group: "defaults", password: "bob-pass"},
+		"alice": {group: "defaults"},
+		"bob":   {group: "defaults"},
 	}}
 	return repo, accounts, ocservuser.NewBulk(repo, accounts, bulkRuntime{})
 }
