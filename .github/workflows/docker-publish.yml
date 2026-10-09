@@ -9,9 +9,9 @@ permissions:
   contents: read
   packages: write
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+concurrency:
+  group: docker-publish
+  cancel-in-progress: false
 
 jobs:
   build-and-push:
@@ -19,41 +19,129 @@ jobs:
 
     steps:
       - name: Checkout
+        id: checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up QEMU
+        id: qemu
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Identify stable release
+      - name: Validate release tag and identify stable release
         id: release
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          if [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::Release tag must be vMAJOR.MINOR, vMAJOR.MINOR.PATCH, or a valid prerelease; for example v5.0, v5.0.0, or v5.0.0-beta.1."
+            exit 1
+          fi
+
+          if [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?$ ]]; then
             echo "is_stable=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_stable=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Decide whether to publish latest
+        id: latest
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          IS_STABLE: ${{ steps.release.outputs.is_stable }}
+        run: |
+          if [[ "$IS_STABLE" != "true" ]]; then
+            echo "publish_latest=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          version_is_newer() {
+            local candidate="${1#v}"
+            local current="${RELEASE_TAG#v}"
+            local candidate_major candidate_minor candidate_patch
+            local current_major current_minor current_patch
+
+            IFS=. read -r candidate_major candidate_minor candidate_patch <<< "$candidate"
+            IFS=. read -r current_major current_minor current_patch <<< "$current"
+            candidate_patch="${candidate_patch:-0}"
+            current_patch="${current_patch:-0}"
+
+            ((10#$candidate_major > 10#$current_major)) ||
+              ((10#$candidate_major == 10#$current_major && 10#$candidate_minor > 10#$current_minor)) ||
+              ((10#$candidate_major == 10#$current_major && 10#$candidate_minor == 10#$current_minor && 10#$candidate_patch > 10#$current_patch))
+          }
+
+          while IFS= read -r tag; do
+            [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?$ ]] || continue
+            if version_is_newer "$tag"; then
+              echo "::notice::A newer stable tag ($tag) exists; $RELEASE_TAG will not update latest."
+              echo "publish_latest=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done < <(git tag --list)
+
+          echo "publish_latest=true" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Docker Hub credentials
+        id: dockerhub_credentials
+        shell: bash
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [[ -z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_TOKEN" ]]; then
+            echo "::error::DOCKERHUB_USERNAME and DOCKERHUB_TOKEN GitHub Secrets must both be configured."
+            exit 1
+          fi
+
+      - name: Normalize image names
+        id: image_names
+        shell: bash
+        env:
+          GHCR_REPOSITORY: ${{ github.repository }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: |
+          ghcr_image="ghcr.io/${GHCR_REPOSITORY,,}"
+          dockerhub_image="docker.io/${DOCKERHUB_USERNAME,,}/${REPOSITORY_NAME,,}"
+
+          echo "ghcr_image=$ghcr_image" >> "$GITHUB_OUTPUT"
+          echo "dockerhub_image=$dockerhub_image" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        id: login_ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        id: login_dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ steps.image_names.outputs.ghcr_image }}
+            ${{ steps.image_names.outputs.dockerhub_image }}
           tags: |
             type=raw,value=${{ github.ref_name }}
-            type=raw,value=latest,enable=${{ steps.release.outputs.is_stable == 'true' }}
+            type=raw,value=latest,enable=${{ steps.latest.outputs.publish_latest == 'true' }}
 
       - name: Build and push
+        id: build_and_push
         uses: docker/build-push-action@v6
         with:
           context: .
