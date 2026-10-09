@@ -94,13 +94,14 @@ Use `--node agent` for an agent node. The installer sets `AGENT_NODE=true` for a
 
 After installation, open `https://YOUR_DOMAIN_OR_IP:3000/` and sign in with the superadmin credentials configured in `.env` (or use your configured `WEB_PORT`).
 
-## 📦 Pre-built Docker image (GHCR)
+## 📦 Pre-built Docker images
 
-Every pushed release tag (`v*`) publishes a multi-architecture image for `linux/amd64` and `linux/arm64` to GitHub Container Registry. The following creates a standalone production deployment using a pinned release image.
+Every pushed release tag (`v*`) publishes multi-architecture images for `linux/amd64` and `linux/arm64` to Docker Hub and GitHub Container Registry. Docker Hub is the default in the examples below; GHCR is an equivalent alternative.
 
 ```bash
 mkdir ocserv-dashboard && cd ocserv-dashboard
-docker pull ghcr.io/mmtaee/ocserv-dashboard:v1.0.0
+docker pull mmtaee/ocserv-dashboard:v1.0.0
+# Alternative: docker pull ghcr.io/mmtaee/ocserv-dashboard:v1.0.0
 ```
 
 Create `.env`, replace every placeholder, and protect the file:
@@ -136,7 +137,7 @@ Create `compose.yml` alongside it:
 services:
   ocserv:
     container_name: ocserv
-    image: ghcr.io/mmtaee/ocserv-dashboard:v1.0.0
+    image: mmtaee/ocserv-dashboard:v1.0.0
     env_file: .env
     environment:
       HOST_PROC: /host/proc
@@ -197,20 +198,20 @@ sudo docker run -d \
   -p 443:443/udp \
   -p 3000:3000 \
   --restart unless-stopped \
-  ghcr.io/mmtaee/ocserv-dashboard:v1.0.0
+  mmtaee/ocserv-dashboard:v1.0.0
 ```
 
 Use `sudo docker logs -f ocserv` to follow startup. If you change `OCSERV_PORT` or `WEB_PORT` in `.env`, change the matching `-p` mappings too.
 
 Open `https://vpn.example.com:3000/` after initialization. `ETH` must be the host interface that carries VPN traffic; use `ip route get 1.1.1.1` to identify it. The Docker socket mount is required for application features that read ocserv logs, and grants the container significant host access.
 
-Stable tags such as `v1.0.0` also update `ghcr.io/mmtaee/ocserv-dashboard:latest`; prereleases such as `v1.0.0-beta.1` do not. Initially, GitHub Container Registry packages may be private. A repository owner can open the package page, select **Package settings**, then **Change visibility** and choose **Public**. Public GHCR images can be pulled without signing in.
+Stable tags such as `v1.0.0` also update `mmtaee/ocserv-dashboard:latest` and `ghcr.io/mmtaee/ocserv-dashboard:latest`; prereleases such as `v1.0.0-beta.1` do not. Initially, GitHub Container Registry packages may be private. A repository owner can open the package page, select **Package settings**, then **Change visibility** and choose **Public**. Public GHCR images can be pulled without signing in.
 
 ## 🛰️ Agent nodes
 
 An agent node is a separate ocserv server managed alongside a master deployment. It serves VPN traffic on its own `443/tcp` and `443/udp` endpoints and exposes its backend API on `8080/tcp`; it does not serve the admin dashboard, customer portal, nginx, or Telegram bot.
 
-The published GHCR image is a full-node image. Build agent nodes through the installer, which builds the image with `AGENT_NODE=true`:
+The published Docker Hub and GHCR images are full-node images. Build agent nodes through the installer, which builds the image with `AGENT_NODE=true`:
 
 ```bash
 git clone --branch v1.0.0 --depth 1 https://github.com/mmtaee/ocserv-dashboard.git
