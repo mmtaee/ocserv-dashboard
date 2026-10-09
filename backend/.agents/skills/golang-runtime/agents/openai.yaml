@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go Runtime"
+  short_description: "CLI, bootstrap, routing, and shutdown"
+  default_prompt: "Use $golang-runtime to update this project's startup, wiring, routing, or shutdown behavior."
+policy:
+  allow_implicit_invocation: true

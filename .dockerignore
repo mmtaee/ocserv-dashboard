@@ -1,6 +1,10 @@
 # Ignore everything sensitive / big
 .git/
 **/git
+.github/
+.idea/
+.vscode/
+.code/
 
 node_modules/
 **/node_modules
@@ -8,7 +12,17 @@ node_modules/
 dist/
 **/dist
 
+.volume/
+old_refs/
+old_files/
+docs/
+
 *.backup
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # Ignore all env files by default
 .env
@@ -20,21 +34,9 @@ dist/
 .env*
 **/.env*
 
-.env.sample
-**/.env.sample
-
-# But allow a specific one (copied into image)
-!env.production
-
-# Allow README.md to be copied
-README.md
-
 # IDE/editor junk
-.idea/
-.vscode/
-.code/
-
 .release
+PULL_NOTE.md
 *.txt
 *.md
 *.log

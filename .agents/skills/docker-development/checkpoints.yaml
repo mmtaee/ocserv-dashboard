@@ -1,0 +1,260 @@
+# Checkpoints for docker-development skill
+# Evaluates Docker configuration best practices
+
+version: 1
+skill_id: docker-development
+
+# Only run this skill for repos that actually use Docker. Without this gate
+# the skill reports Dockerfile/compose errors against TYPO3 extensions,
+# libraries, skill repos, and other non-containerised projects.
+# Uses chained `||` (not `test -o`, which is obsolescent in POSIX) and matches
+# the patterns the existing checkpoints look for.
+preconditions:
+  - type: command
+    pattern: "test -f Dockerfile || test -f Containerfile || test -f docker-compose.yml || test -f docker-compose.yaml || test -f compose.yml || test -f compose.yaml || test -f docker-bake.hcl"
+
+mechanical:
+  # === DOCKERFILE/COMPOSE EXISTENCE ===
+  - id: DC-01
+    type: file_exists
+    target: Dockerfile
+    scope: application
+    severity: error
+    desc: "Dockerfile must exist"
+
+  - id: DC-02
+    type: file_exists
+    target: docker-compose.yml
+    scope: application
+    severity: warning
+    desc: "docker-compose.yml should exist for local development"
+
+  - id: DC-03
+    type: file_exists
+    target: .dockerignore
+    scope: application
+    severity: warning
+    desc: ".dockerignore should exist to exclude unnecessary files"
+
+  # === MULTI-STAGE BUILD CHECKS ===
+  - id: DC-04
+    type: regex
+    target: Dockerfile
+    scope: application
+    pattern: "FROM .+ AS .+"
+    severity: warning
+    desc: "Dockerfile should use multi-stage builds"
+
+  - id: DC-05
+    type: regex
+    target: Dockerfile
+    scope: application
+    pattern: "COPY --from="
+    severity: warning
+    desc: "Dockerfile should copy artifacts from build stages"
+
+  # === SECURITY: NON-ROOT USER ===
+  - id: DC-06
+    type: regex
+    target: Dockerfile
+    scope: application
+    pattern: "(USER [^r]|useradd|adduser)"
+    severity: warning
+    desc: "Dockerfile should run as non-root user"
+
+  - id: DC-07
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: "USER root"
+    severity: warning
+    desc: "Dockerfile should not explicitly run as root"
+
+  # === HEALTH CHECK ===
+  - id: DC-08
+    type: contains
+    target: Dockerfile
+    scope: application
+    pattern: "HEALTHCHECK"
+    severity: warning
+    desc: "Dockerfile should define a HEALTHCHECK instruction"
+
+  - id: DC-09
+    type: regex
+    target: docker-compose.yml
+    scope: application
+    pattern: "healthcheck:"
+    severity: warning
+    desc: "docker-compose.yml should define healthcheck for services"
+
+  # === SECURITY: NO SECRETS IN DOCKERFILE ===
+  - id: DC-10
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: "ENV.*PASSWORD"
+    severity: error
+    desc: "Dockerfile must not contain hardcoded passwords in ENV"
+
+  - id: DC-11
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: "ENV.*SECRET"
+    severity: error
+    desc: "Dockerfile must not contain hardcoded secrets in ENV"
+
+  - id: DC-12
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: "ENV.*API_KEY"
+    severity: error
+    desc: "Dockerfile must not contain hardcoded API keys in ENV"
+
+  - id: DC-13
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: "ARG.*PASSWORD"
+    severity: warning
+    desc: "Dockerfile should not pass passwords as build args"
+
+  # === BEST PRACTICES ===
+  - id: DC-14
+    type: contains
+    target: .dockerignore
+    scope: application
+    pattern: ".git"
+    severity: warning
+    desc: ".dockerignore should exclude .git directory"
+
+  - id: DC-15
+    type: contains
+    target: .dockerignore
+    scope: application
+    pattern: "node_modules"
+    severity: info
+    desc: ".dockerignore should exclude node_modules if applicable"
+
+  - id: DC-16
+    type: regex
+    target: Dockerfile
+    scope: application
+    pattern: "LABEL.*maintainer|MAINTAINER"
+    severity: info
+    desc: "Dockerfile should have maintainer information"
+
+  - id: DC-17
+    type: not_contains
+    target: Dockerfile
+    scope: application
+    pattern: ":latest"
+    severity: warning
+    desc: "Dockerfile should pin base image versions, not use :latest"
+
+  # === .DOCKERIGNORE SECURITY ===
+  - id: DC-18
+    type: contains
+    target: .dockerignore
+    scope: application
+    pattern: ".env"
+    severity: warning
+    desc: ".dockerignore should exclude .env files to prevent secret leakage"
+
+  - id: DC-19
+    type: command
+    scope: application
+    pattern: "test -f .dockerignore && grep -qE '\\*\\.pem|\\*\\.key' .dockerignore || true"
+    severity: info
+    desc: ".dockerignore should exclude private key files (*.pem, *.key)"
+
+  # === COMPOSE HEALTH CHECK ORDERING ===
+  - id: DC-24
+    type: command
+    scope: application
+    pattern: "test -f docker-compose.yml && grep -q 'condition:' docker-compose.yml || test -f compose.yml && grep -q 'condition:' compose.yml || true"
+    severity: info
+    desc: "Compose depends_on should use condition: service_healthy for startup ordering"
+
+  # === MODERN COMPOSE FILENAME ===
+  - id: DC-25
+    type: command
+    scope: application
+    pattern: "test -f docker-compose.yml || test -f compose.yml"
+    severity: warning
+    desc: "Docker Compose file should exist (docker-compose.yml or compose.yml)"
+
+  # === LAYER OPTIMIZATION: CLEANUP IN RUN ===
+  - id: DC-26
+    type: command
+    scope: application
+    pattern: "! grep -q 'apt-get install' Dockerfile 2>/dev/null || grep -q 'rm -rf /var/lib/apt/lists' Dockerfile"
+    severity: info
+    desc: "Dockerfile should clean apt cache in the same RUN layer as install"
+
+  # === INTERNAL NETWORKS ===
+  - id: DC-27
+    type: command
+    scope: application
+    pattern: "test -f docker-compose.yml && grep -q 'internal:' docker-compose.yml || test -f compose.yml && grep -q 'internal:' compose.yml || true"
+    severity: info
+    desc: "Compose should use internal networks for database isolation"
+
+llm_reviews:
+  # === SUBJECTIVE CHECKS (require LLM judgment) ===
+  - id: DC-20
+    domain: docker-security
+    prompt: |
+      Review the Dockerfile for security best practices:
+      - Base image is from a trusted source (official images, verified publishers)
+      - Minimal base image is used (alpine, distroless, slim variants)
+      - No sensitive data or credentials are embedded
+      - Proper permission handling (chmod, chown)
+      - No unnecessary packages installed
+
+      Report any security concerns found.
+    severity: warning
+    desc: "Review Dockerfile security configuration"
+
+  - id: DC-21
+    domain: docker-security
+    prompt: |
+      Check docker-compose.yml for security issues:
+      - No secrets or passwords in plain text
+      - Proper use of environment files or secrets management
+      - Network isolation between services
+      - No privileged containers unless absolutely necessary
+      - No host volume mounts that could be exploited
+
+      Report any security concerns found.
+    severity: warning
+    desc: "Review docker-compose.yml security configuration"
+
+  - id: DC-22
+    domain: docker-efficiency
+    prompt: |
+      Evaluate the Dockerfile for build efficiency:
+      - Proper layer ordering (dependencies before application code)
+      - Use of .dockerignore to minimize context
+      - Combining RUN commands to reduce layers
+      - Proper use of build cache
+      - Cleanup of temporary files and package caches
+
+      Report optimization opportunities.
+    severity: info
+    desc: "Review Dockerfile build efficiency"
+
+  - id: DC-23
+    domain: docker-development
+    prompt: |
+      Evaluate docker-compose.yml for development ergonomics:
+      - Volume mounts for live code reloading
+      - Environment variables for configuration
+      - Proper service dependencies with depends_on
+      - Reasonable default resource limits
+      - Development-specific overrides available
+
+      Report areas for improvement.
+    severity: info
+    desc: "Review docker-compose.yml development setup"

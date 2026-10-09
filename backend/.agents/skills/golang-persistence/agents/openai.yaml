@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go Persistence"
+  short_description: "GORM, PostgreSQL, and migration rules"
+  default_prompt: "Use $golang-persistence to implement a PostgreSQL or GORM persistence change."
+policy:
+  allow_implicit_invocation: true

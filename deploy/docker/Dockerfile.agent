@@ -1,0 +1,111 @@
+# syntax=docker/dockerfile:1.7
+
+ARG GO_VERSION=1.27.1
+ARG NODE_VERSION=24
+
+FROM golang:${GO_VERSION}-bookworm AS backend-builder
+
+ENV CGO_ENABLED=0 \
+    GOOS=linux
+WORKDIR /src/backend
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+COPY backend/ ./
+RUN go build -trimpath -ldflags="-s -w" -o /out/backend ./main.go
+
+FROM node:${NODE_VERSION}-bookworm AS web-builder
+
+ARG AGENT_NODE=true
+ARG CUSTOMER_API_ENABLED=true
+WORKDIR /src
+COPY web/admin/ ./web/admin/
+COPY web/customer/ ./web/customer/
+RUN mkdir -p /out/admin /out/customer \
+    && if [ "${AGENT_NODE}" != "true" ]; then \
+        corepack enable; \
+        cd /src/web/admin; \
+        VITE_API_BASE_URL=/api yarn install --immutable; \
+        VITE_API_BASE_URL=/api yarn build; \
+        cp -a dist/. /out/admin/; \
+        if [ "${CUSTOMER_API_ENABLED}" = "true" ]; then \
+            cd /src/web/customer; \
+            VITE_API_BASE_URL=/api yarn install --immutable; \
+            VITE_API_BASE_URL=/api yarn build --base=/customer/; \
+            cp -a dist/. /out/customer/; \
+        fi; \
+    fi
+
+FROM postgres:18-trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG AGENT_NODE=false
+ARG CUSTOMER_API_ENABLED=true
+ARG TELEGRAM_BOT_ENABLED=false
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        gnutls-bin \
+        iproute2 \
+        iptables \
+        nginx \
+        ocserv \
+        procps \
+        tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default \
+    && rm -rf /usr/share/nginx/html/*
+
+WORKDIR /app
+
+COPY --from=backend-builder /out/backend /usr/local/bin/backend
+COPY --from=web-builder /out/admin/ /usr/share/nginx/html/
+COPY --from=web-builder /out/customer/ /usr/share/nginx/html/customer/
+COPY --chmod=755 deploy/docker/common/entrypoint.sh /usr/local/bin/container-entrypoint
+COPY --chmod=755 deploy/docker/common/server.sh /usr/local/bin/container-server
+
+ENV OCSERV_PORT=${OCSERV_PORT:-443} \
+    AGENT_NODE=${AGENT_NODE} \
+    IMAGE_AGENT_NODE=${AGENT_NODE} \
+    IMAGE_CUSTOMER_API_ENABLED=${CUSTOMER_API_ENABLED} \
+    SYSTEMD=${SYSTEMD:-false} \
+    TELEGRAM_BOT_ENABLED=${TELEGRAM_BOT_ENABLED} \
+    CUSTOMER_API_ENABLED=${CUSTOMER_API_ENABLED} \
+    OC_NET=${OC_NET:-172.16.24.0/24} \
+    OCSERV_DNS=${OCSERV_DNS:-1.1.1.1} \
+    SSL_CN=${SSL_CN:-ocserv-dashboard} \
+    SSL_ORG=${SSL_ORG:-ocserv-dashboard} \
+    SSL_EXPIRE=${SSL_EXPIRE:-3650} \
+    OCSERV_PRESERVE_CONFIG=${OCSERV_PRESERVE_CONFIG:-false} \
+    PGDATA=/var/lib/postgresql/18/docker \
+    POSTGRES_HOST=${POSTGRES_HOST:-127.0.0.1} \
+    POSTGRES_PORT=${POSTGRES_PORT:-5432} \
+    POSTGRES_USER=${POSTGRES_USER:-ocserv} \
+    POSTGRES_DB=${POSTGRES_DB:-ocserv_db} \
+    POSTGRES_SSLMODE=${POSTGRES_SSLMODE:-disable} \
+    POSTGRES_READY_MAX_ATTEMPTS=60 \
+    POSTGRES_READY_RETRY_SECONDS=1 \
+    RUN_MIGRATIONS=true \
+    MIGRATION_MAX_ATTEMPTS=30 \
+    MIGRATION_RETRY_SECONDS=2 \
+    TELEGRAM_RECEIPTS_DIR=/opt/ocserv_dashboard/uploads/receipts \
+    OCSERV_DEBUG=999
+
+RUN mkdir -p \
+        /app/cron_journal \
+        /opt/ocserv_dashboard/uploads/receipts \
+        /etc/ocserv/defaults \
+        /etc/ocserv/groups \
+        /etc/ocserv/users \
+        /usr/share/nginx/html/customer
+
+EXPOSE 80/tcp 443/tcp 443/udp 5432/tcp 8080/tcp
+
+VOLUME ["/var/lib/postgresql", "/etc/ocserv", "/app/cron_journal", "/opt/ocserv_dashboard/uploads/receipts"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
+    CMD-SHELL if [ "$AGENT_NODE" = "true" ]; then curl --fail --silent http://127.0.0.1:8080/health >/dev/null; else curl --fail --silent http://127.0.0.1/health >/dev/null; fi
+
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/container-entrypoint"]
+CMD ["/usr/local/bin/container-server"]

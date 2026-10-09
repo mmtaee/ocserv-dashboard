@@ -1,0 +1,4890 @@
+basePath: /api
+consumes:
+- application/json
+definitions:
+  auth.Session:
+    properties:
+      created_at:
+        type: string
+      expire_at:
+        type: string
+      id:
+        type: integer
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  backup.RestoreResponse:
+    properties:
+      existing:
+        items:
+          type: string
+        type: array
+      inserted:
+        items:
+          type: string
+        type: array
+    type: object
+  customer.CiscoSetup:
+    properties:
+      certificate_import_uri:
+        type: string
+      certificate_password:
+        type: string
+      connection_create_uri:
+        type: string
+      connection_name:
+        type: string
+      server_address:
+        type: string
+      server_port:
+        type: integer
+    type: object
+  customer.Customer:
+    properties:
+      certificate_available:
+        type: boolean
+      certificate_enabled:
+        type: boolean
+      deactivated_at:
+        type: string
+      expire_at:
+        type: string
+      expire_days_after_first_connection:
+        type: integer
+      expiry_mode:
+        $ref: '#/definitions/models.ExpiryMode'
+      first_connected_at:
+        type: string
+      is_locked:
+        type: boolean
+      owner:
+        type: string
+      running_rx:
+        type: integer
+      running_tx:
+        type: integer
+      traffic_size:
+        type: integer
+      traffic_type:
+        $ref: '#/definitions/models.TrafficType'
+      username:
+        type: string
+    type: object
+  customer.Usage:
+    properties:
+      bandwidths:
+        $ref: '#/definitions/repository.TotalBandwidths'
+      date_end:
+        type: string
+      date_start:
+        type: string
+    type: object
+  customerapi.ActivitiesResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUserSessionLog'
+        type: array
+    required:
+    - meta
+    type: object
+  customerapi.ChangePasswordInput:
+    properties:
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - password
+    type: object
+  customerapi.LoginData:
+    properties:
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  customerapi.LoginResponse:
+    properties:
+      expires_at:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/customer.Customer'
+    required:
+    - expires_at
+    - token
+    - user
+    type: object
+  customerapi.SummaryResponse:
+    properties:
+      ocserv_user:
+        $ref: '#/definitions/customer.Customer'
+      usage:
+        $ref: '#/definitions/customer.Usage'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_auth.SessionsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/auth.Session'
+        type: array
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats:
+    properties:
+      cpu:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
+      name:
+        type: string
+      ram:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
+    required:
+    - name
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse:
+    properties:
+      ip_bans:
+        items:
+          $ref: '#/definitions/models.IPBanPoints'
+        type: array
+      statistics:
+        items:
+          $ref: '#/definitions/models.DailyTraffic'
+        type: array
+      telegram_service:
+        allOf:
+        - $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus'
+        description: TelegramService is a lightweight snapshot for the admin dashboard
+          (no outbound Telegram calls).
+      top_bandwidth_user:
+        $ref: '#/definitions/repository.TopBandwidthUsers'
+      total_bandwidth:
+        $ref: '#/definitions/repository.TotalBandwidths'
+      users:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse:
+    properties:
+      current_stats:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats'
+      general_info:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse:
+    properties:
+      cpu:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU'
+      disk:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk'
+      ram:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM'
+      swap:
+        $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap'
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword:
+    properties:
+      password:
+        maxLength: 16
+        minLength: 4
+        type: string
+    required:
+    - password
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf:
+    properties:
+      new_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      old_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData:
+    properties:
+      password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease:
+    properties:
+      current:
+        type: string
+      latest:
+        type: string
+    required:
+    - current
+    - latest
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse:
+    properties:
+      first_init:
+        type: boolean
+      google_captcha_site_key:
+        type: string
+      telegram_bot_enabled:
+        type: boolean
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse:
+    properties:
+      auto_delete_inactive_users:
+        type: boolean
+      client_profile_connection_name:
+        type: string
+      client_profile_server_address:
+        type: string
+      client_profile_server_port:
+        type: integer
+      first_init:
+        type: boolean
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      keep_inactive_user_days:
+        type: integer
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData:
+    properties:
+      password:
+        example: doe123456
+        maxLength: 16
+        minLength: 2
+        type: string
+      remember_me:
+        type: boolean
+      token:
+        type: string
+      username:
+        example: john_doe
+        maxLength: 16
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData:
+    properties:
+      auto_delete_inactive_users:
+        type: boolean
+      client_profile_connection_name:
+        type: string
+      client_profile_server_address:
+        type: string
+      client_profile_server_port:
+        type: integer
+      google_captcha_secret_key:
+        type: string
+      google_captcha_site_key:
+        type: string
+      keep_inactive_user_days:
+        type: integer
+    required:
+    - auto_delete_inactive_users
+    - client_profile_connection_name
+    - client_profile_server_address
+    - client_profile_server_port
+    - google_captcha_secret_key
+    - google_captcha_site_key
+    - keep_inactive_user_days
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword:
+    properties:
+      new_password:
+        maxLength: 16
+        minLength: 4
+        type: string
+      secret_key:
+        maxLength: 64
+        minLength: 16
+        type: string
+    required:
+    - new_password
+    - secret_key
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    required:
+    - token
+    - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    required:
+    - meta
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+      card_holder:
+        maxLength: 128
+        type: string
+      card_number:
+        description: Optional overrides; empty strings fall back to Telegram settings
+          card_number/card_holder.
+        maxLength: 64
+        type: string
+      reply_to_user:
+        maxLength: 1024
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+      group:
+        maxLength: 16
+        type: string
+      override_password:
+        maxLength: 64
+        minLength: 4
+        type: string
+      override_username:
+        maxLength: 64
+        minLength: 3
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData:
+    properties:
+      days:
+        maximum: 3650
+        minimum: 1
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        maxLength: 64
+        type: string
+      title:
+        maxLength: 128
+        minLength: 2
+        type: string
+      traffic_size_gb:
+        maximum: 100000
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+    required:
+    - days
+    - title
+    - traffic_type
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData:
+    properties:
+      days:
+        maximum: 3650
+        minimum: 1
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        maxLength: 64
+        type: string
+      title:
+        maxLength: 128
+        minLength: 2
+        type: string
+      traffic_size_gb:
+        maximum: 100000
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData:
+    properties:
+      admin_chat_id:
+        type: integer
+      bot_token:
+        type: string
+      card_holder:
+        maxLength: 128
+        type: string
+      card_number:
+        maxLength: 64
+        type: string
+      default_language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      enabled:
+        type: boolean
+      low_quota_threshold_mb:
+        maximum: 10240
+        minimum: 10
+        type: integer
+      ocserv_host:
+        type: string
+      support_username:
+        description: SupportUsername must be a Telegram handle without @ (5–32 chars,
+          a–z 0–9 _).
+        maxLength: 64
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData:
+    properties:
+      admin_note:
+        maxLength: 1024
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.TelegramRequest'
+        type: array
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse:
+    properties:
+      admin_chat_id:
+        type: integer
+      bot_token:
+        type: string
+      bot_username:
+        type: string
+      card_holder:
+        type: string
+      card_number:
+        type: string
+      default_language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      enabled:
+        type: boolean
+      low_quota_threshold_mb:
+        type: integer
+      ocserv_host:
+        type: string
+      support_username:
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData:
+    properties:
+      message:
+        type: string
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CPU:
+    properties:
+      avg_percent:
+        type: number
+      total:
+        type: integer
+      used_units:
+        type: number
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.CurrentStats:
+    properties:
+      _Last stats reset:
+        type: string
+      Authentication failures:
+        type: integer
+      Average auth time:
+        type: string
+      Average session time:
+        type: string
+      Closed due to error sessions:
+        type: integer
+      Last stats reset:
+        type: string
+      Max auth time:
+        type: string
+      Max session time:
+        type: string
+      RX:
+        type: string
+      Sessions handled:
+        type: integer
+      TX:
+        type: string
+      Timed out (idle) sessions:
+        type: integer
+      Timed out sessions:
+        type: integer
+      raw_avg_auth_time:
+        type: integer
+      raw_avg_session_time:
+        type: integer
+      raw_last_stats_reset:
+        type: integer
+      raw_max_auth_time:
+        type: integer
+      raw_max_session_time:
+        type: integer
+      raw_rx:
+        description: raw fields if you want
+        type: integer
+      raw_tx:
+        type: integer
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Disk:
+    properties:
+      total:
+        type: number
+      used:
+        type: number
+      used_percent:
+        type: number
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GeneralInfo:
+    properties:
+      _Up since:
+        type: string
+      Active sessions:
+        type: integer
+      IPs in ban list:
+        type: integer
+      Median latency:
+        type: string
+      STDEV latency:
+        type: string
+      Sec-mod PID:
+        type: integer
+      Sec-mod instance count:
+        type: integer
+      Server PID:
+        type: integer
+      Status:
+        type: string
+      Total authentication failures:
+        type: integer
+      Total sessions:
+        type: integer
+      Up since:
+        type: string
+      raw_median_latency:
+        description: raw fields if you want
+        type: integer
+      raw_stdev_latency:
+        type: integer
+      raw_up_since:
+        type: integer
+      uptime:
+        type: integer
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.GetHomeUser:
+    properties:
+      online_users_session:
+        items:
+          $ref: '#/definitions/models.OnlineUserSession'
+        type: array
+      total:
+        type: integer
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.RAM:
+    properties:
+      total:
+        type: number
+      used:
+        type: number
+      used_percent:
+        type: number
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.Swap:
+    properties:
+      total:
+        type: number
+      used:
+        type: number
+      used_percent:
+        type: number
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_usecase_admin_api_dashboard.TelegramServiceStatus:
+    properties:
+      bot_username:
+        type: string
+      enabled:
+        type: boolean
+      has_bot_token:
+        type: boolean
+    type: object
+  group.UnsyncedGroup:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+      path:
+        type: string
+    required:
+    - config
+    - name
+    type: object
+  middlewares.PermissionDenied:
+    properties:
+      error:
+        type: string
+    type: object
+  middlewares.Unauthorized:
+    properties:
+      error:
+        type: string
+    type: object
+  models.AgentAddressType:
+    enum:
+    - ip
+    - domain
+    type: string
+    x-enum-varnames:
+    - AgentAddressTypeIP
+    - AgentAddressTypeDomain
+  models.DailyTraffic:
+    properties:
+      date:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      rx:
+        description: in GiB
+        type: number
+      tx:
+        description: in GiB
+        type: number
+    type: object
+  models.ExpiryMode:
+    enum:
+    - unlimited
+    - fixed
+    - first_connection
+    type: string
+    x-enum-varnames:
+    - ExpiryModeUnlimited
+    - ExpiryModeFixed
+    - ExpiryModeFirstConnection
+  models.IPBanPoints:
+    properties:
+      _Since:
+        type: string
+      IP:
+        type: string
+      Score:
+        type: integer
+      Since:
+        type: string
+    type: object
+  models.OcservAgent:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 128
+        type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
+      token:
+        maxLength: 512
+        type: string
+      updated_at:
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
+    type: object
+  models.OcservGroup:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.OcservGroupConfig:
+    properties:
+      cgroup:
+        description: 'Linux control group to assign the VPN worker process to. Format:
+          ''controller,subsystem:name''. Example: ''cpuset,cpu:test'''
+        type: string
+      deny-roaming:
+        description: 'Disconnect client if its IP changes (e.g., due to network switch).
+          Example: true'
+        type: boolean
+      dns:
+        description: 'Comma-separated list of DNS servers to assign to the client.
+          Example: ''8.8.8.8,1.1.1.1'''
+        items:
+          type: string
+        type: array
+      dpd:
+        description: 'Dead Peer Detection timeout in seconds. Example: 90'
+        type: integer
+      explicit-ipv4:
+        description: 'Static IPv4 address to assign to client. Example: ''192.168.100.10'''
+        type: string
+      idle-timeout:
+        description: 'Time in seconds before disconnecting idle clients. Example:
+          600'
+        type: integer
+      ipv4-network:
+        description: 'The pool of addresses that leases will be given from. Example:
+          ''192.168.1.0/24'''
+        type: string
+      iroute:
+        description: 'Internal route available only via VPN. Format: ''IP/prefix''.
+          Example: ''10.0.0.0/8'''
+        type: string
+      keepalive:
+        description: 'Interval in seconds to send keep-alive pings. Example: 60'
+        type: integer
+      max-same-clients:
+        description: 'Maximum simultaneous logins per user. Example: 2'
+        type: integer
+      mobile-dpd:
+        description: 'DPD timeout specifically for mobile clients. Example: 300'
+        type: integer
+      mobile-idle-timeout:
+        description: 'Idle timeout for mobile clients. Example: 900'
+        type: integer
+      mtu:
+        description: 'Tunnel interface MTU to avoid fragmentation. Example: 1400'
+        type: integer
+      nbns:
+        description: 'NetBIOS Name Servers (WINS) for Windows clients. Example: ''192.168.1.1'''
+        type: string
+      net-priority:
+        description: 'Priority for routes; lower is higher priority. Example: 1'
+        type: integer
+      no-route:
+        description: 'List of networks to exclude from VPN routing. Each entry should
+          be in ''IP/prefix'' format. Example: [''192.168.0.0/16'', ''10.0.0.0/8'']'
+        items:
+          type: string
+        type: array
+      no-udp:
+        description: 'Disables UDP, enforcing TCP-only VPN connection. Example: true'
+        type: boolean
+      restrict-user-to-ports:
+        description: 'Comma-separated list of allowed (or blocked, if negated) protocols
+          and ports. Supports ''tcp(port)'', ''udp(port)'', ''icmp()'', ''icmpv6()'',
+          and negation with ''!()''. Example: ''tcp(443), tcp(80), udp(53)'', or ''!(tcp(22),
+          udp(1194))'''
+        type: string
+      restrict-user-to-routes:
+        description: 'Allow client access only to defined routes. Example: true'
+        type: boolean
+      route:
+        description: 'Routes pushed to the client for routing traffic. Example: [''0.0.0.0/0'',
+          ''10.10.0.0/16'']'
+        items:
+          type: string
+        type: array
+      rx-data-per-sec:
+        description: 'Maximum receive bandwidth in bytes per second. Example: ''100000''
+          for 100 KB/s'
+        type: integer
+      session-timeout:
+        description: 'Max session time in seconds before forced disconnect. Example:
+          3600'
+        type: integer
+      split-dns:
+        description: 'List of domains over which the provided DNS servers should be
+          used. Example: [''example.com'', ''internal.company.com'']'
+        items:
+          type: string
+        type: array
+      stats-report-time:
+        description: 'Interval in seconds for stats reporting. Example: 300'
+        type: integer
+      tunnel-all-dns:
+        description: 'Force all DNS traffic through the VPN tunnel. Example: true'
+        type: boolean
+      tx-data-per-sec:
+        description: 'Maximum transmit bandwidth in bytes per second. Example: ''200000''
+          for 200 KB/s'
+        type: integer
+    type: object
+  models.OcservGroupWithTraffic:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      id:
+        type: integer
+      name:
+        type: string
+      total_rx:
+        description: Aggregated current received traffic in bytes.
+        type: integer
+      total_tx:
+        description: Aggregated current transmitted traffic in bytes.
+        type: integer
+    required:
+    - name
+    type: object
+  models.OcservInfo:
+    properties:
+      status:
+        type: string
+      version:
+        $ref: '#/definitions/models.ServerVersion'
+    required:
+    - status
+    - version
+    type: object
+  models.OcservUser:
+    properties:
+      certificate:
+        $ref: '#/definitions/models.OcservUserCertificateBackup'
+      certificate_available:
+        type: boolean
+      certificate_enabled:
+        type: boolean
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      created_at:
+        type: string
+      deactivated_at:
+        type: string
+      description:
+        type: string
+      expire_at:
+        description: |-
+          ExpireAt is the effective expiry instant. It remains nil for a
+          first-connection account until the worker observes its first session.
+        type: string
+      expire_days_after_first_connection:
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+      first_connected_at:
+        type: string
+      group:
+        type: string
+      id:
+        type: integer
+      is_locked:
+        type: boolean
+      is_online:
+        type: boolean
+      online_sessions:
+        items:
+          $ref: '#/definitions/models.OnlineUserSession'
+        type: array
+      owner:
+        $ref: '#/definitions/models.User'
+      owner_id:
+        type: integer
+      password:
+        type: string
+      running_rx:
+        description: Current received bytes since the last usage reset
+        type: integer
+      running_tx:
+        description: Current transmitted bytes since the last usage reset
+        type: integer
+      traffic_size:
+        description: in bytes
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - created_at
+    - expiry_mode
+    - group
+    - id
+    - is_locked
+    - is_online
+    - online_sessions
+    - owner_id
+    - password
+    - running_rx
+    - running_tx
+    - traffic_size
+    - traffic_type
+    - username
+    type: object
+  models.OcservUserCertificateBackup:
+    properties:
+      cert_pem:
+        type: string
+      key_pem:
+        type: string
+      p12_base64:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.OcservUserCertificateStatus'
+        enum:
+        - active
+        - suspended
+    required:
+    - status
+    type: object
+  models.OcservUserCertificateStatus:
+    enum:
+    - active
+    - suspended
+    type: string
+    x-enum-varnames:
+    - OcservUserCertificateStatusActive
+    - OcservUserCertificateStatusSuspended
+  models.OcservUserConfig:
+    properties:
+      dns:
+        description: 'Comma-separated list of DNS servers to assign to the user. Example:
+          ''8.8.8.8,1.1.1.1'''
+        items:
+          type: string
+        type: array
+      explicit-ipv4:
+        description: 'Static IPv4 address to assign to the user. Example: ''192.168.100.10'''
+        type: string
+      idle-timeout:
+        description: 'Time in seconds before disconnecting idle users. Example: 600'
+        type: integer
+      ipv4-network:
+        description: 'The pool of addresses from which to assign to the user. Example:
+          ''192.168.1.0/24'''
+        type: string
+      iroute:
+        description: 'Internal route available only via VPN. Example: ''10.0.0.0/8'''
+        type: string
+      mobile-idle-timeout:
+        description: 'Idle timeout in seconds for mobile users. Example: 900'
+        type: integer
+      nbns:
+        description: 'NetBIOS Name Servers (WINS) for Windows clients. Example: ''192.168.1.1'''
+        type: string
+      no-route:
+        description: 'List of networks to exclude from VPN routing. Example: [''192.168.0.0/16'',
+          ''10.0.0.0/8'']'
+        items:
+          type: string
+        type: array
+      rekey-time:
+        description: 'Rekey time in seconds; triggers key renegotiation. Example:
+          86400 for 24 hours'
+        type: integer
+      restrict-to-ports:
+        description: 'Comma-separated list of allowed or blocked ports/protocols.
+          Supports ''tcp(port)'', ''udp(port)'', ''icmp()'', ''icmpv6()'', and negation
+          with ''!()''. Example: ''tcp(443), udp(53)'' or ''!(tcp(22), udp(1194))'''
+        type: string
+      restrict-to-routes:
+        description: 'Allow user access only to defined routes. Example: true'
+        type: boolean
+      route:
+        description: 'Routes pushed to the user for routing traffic. Example: [''0.0.0.0/0'',
+          ''10.10.0.0/16'']'
+        items:
+          type: string
+        type: array
+      session-timeout:
+        description: 'Maximum session time in seconds before forced disconnect. Example:
+          3600'
+        type: integer
+      split-dns:
+        description: 'List of domains over which the provided DNS servers should be
+          used. Example: [''example.com'', ''internal.company.com'']'
+        items:
+          type: string
+        type: array
+    type: object
+  models.OcservUserSessionEvent:
+    enum:
+    - user-agent
+    - handshake
+    - periodic-stats
+    - disconnect
+    type: string
+    x-enum-varnames:
+    - EventUseragent
+    - EventHandshake
+    - EventPeriodicStats
+    - EventDisconnect
+  models.OcservUserSessionLog:
+    properties:
+      created_at:
+        type: string
+      event:
+        allOf:
+        - $ref: '#/definitions/models.OcservUserSessionEvent'
+        enum:
+        - user-agent
+        - handshake
+        - periodic-stats
+        - disconnect
+      ip:
+        type: string
+      message:
+        type: string
+      username:
+        type: string
+    required:
+    - created_at
+    - event
+    - message
+    - username
+    type: object
+  models.OnlineUserSession:
+    properties:
+      _Last connected at:
+        type: string
+      Average RX:
+        type: string
+      Average TX:
+        type: string
+      Device:
+        type: string
+      Groupname:
+        type: string
+      ID:
+        type: integer
+      IPv4:
+        type: string
+      Session started at:
+        type: string
+      Username:
+        type: string
+      vhost:
+        type: string
+    required:
+    - Device
+    - ID
+    - IPv4
+    - Session started at
+    - vhost
+    type: object
+  models.ServerVersion:
+    properties:
+      occtl_version:
+        type: string
+      ocserv_version:
+        type: string
+    type: object
+  models.TelegramAccount:
+    properties:
+      chat_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      language:
+        allOf:
+        - $ref: '#/definitions/models.TelegramLanguage'
+        enum:
+        - en
+        - fa
+        - ar
+        - ru
+        - zh-cn
+        - zh-tw
+        - it
+      last_low_quota_notified_at:
+        type: string
+      ocserv_user_id:
+        type: integer
+      telegram_username:
+        type: string
+    required:
+    - language
+    type: object
+  models.TelegramLanguage:
+    enum:
+    - en
+    - fa
+    - ar
+    - ru
+    - zh-cn
+    - zh-tw
+    - it
+    type: string
+    x-enum-varnames:
+    - TelegramLanguageEN
+    - TelegramLanguageFA
+    - TelegramLanguageAR
+    - TelegramLanguageRU
+    - TelegramLanguageZHCN
+    - TelegramLanguageZHTW
+    - TelegramLanguageIT
+  models.TelegramPackage:
+    properties:
+      created_at:
+        type: string
+      days:
+        type: integer
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      price_text:
+        type: string
+      title:
+        type: string
+      traffic_size_gb:
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      updated_at:
+        type: string
+    required:
+    - traffic_type
+    type: object
+  models.TelegramRequest:
+    properties:
+      admin_note:
+        type: string
+      awaiting_payment_message_id:
+        description: |-
+          AwaitingPaymentMessageID is the Telegram message_id of the bot message sent when
+          the request moved to awaiting_payment (may contain card details). Used to delete
+          that message if the request is later rejected.
+        type: integer
+      chat_id:
+        type: integer
+      created_at:
+        type: string
+      delivered_at:
+        type: string
+      desired_username:
+        type: string
+      id:
+        type: integer
+      package_id:
+        type: integer
+      receipt_file_path:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.TelegramRequestStatus'
+        enum:
+        - pending
+        - awaiting_payment
+        - payment_uploaded
+        - approved
+        - rejected
+        - delivered
+      target_ocserv_user_id:
+        type: integer
+      telegram_username:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.TelegramRequestType'
+        enum:
+        - new
+        - renew
+      updated_at:
+        type: string
+      user_message:
+        type: string
+    required:
+    - status
+    - type
+    type: object
+  models.TelegramRequestStatus:
+    enum:
+    - pending
+    - awaiting_payment
+    - payment_uploaded
+    - approved
+    - rejected
+    - delivered
+    type: string
+    x-enum-varnames:
+    - TelegramRequestStatusPending
+    - TelegramRequestStatusAwaitingPayment
+    - TelegramRequestStatusPaymentUploaded
+    - TelegramRequestStatusApproved
+    - TelegramRequestStatusRejected
+    - TelegramRequestStatusDelivered
+  models.TelegramRequestType:
+    enum:
+    - new
+    - renew
+    type: string
+    x-enum-varnames:
+    - TelegramRequestTypeNew
+    - TelegramRequestTypeRenew
+  models.TrafficType:
+    enum:
+    - Free
+    - MonthlyTransmit
+    - MonthlyReceive
+    - MonthlyRxTx
+    - TotallyTransmit
+    - TotallyReceive
+    - TotallyRxTx
+    type: string
+    x-enum-varnames:
+    - Free
+    - MonthlyTransmit
+    - MonthlyReceive
+    - MonthlyRxTx
+    - TotallyTransmit
+    - TotallyReceive
+    - TotallyRxTx
+  models.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      last_login:
+        type: string
+      superadmin:
+        type: boolean
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - id
+    - last_login
+    - superadmin
+    - username
+    type: object
+  models.UsersLookup:
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+    required:
+    - id
+    - username
+    type: object
+  ocserv_agent.CreateInput:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      name:
+        maxLength: 128
+        type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
+      token:
+        maxLength: 512
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
+    type: object
+  ocserv_agent.UpdateInput:
+    properties:
+      address:
+        maxLength: 255
+        type: string
+      address_type:
+        allOf:
+        - $ref: '#/definitions/models.AgentAddressType'
+        enum:
+        - ip
+        - domain
+      name:
+        maxLength: 128
+        type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
+      token:
+        maxLength: 512
+        type: string
+    required:
+    - address
+    - address_type
+    - name
+    - token
+    type: object
+  ocserv_group.CreateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+      name:
+        type: string
+    required:
+    - config
+    - name
+    type: object
+  ocserv_group.OcservGroupsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservGroupWithTraffic'
+        type: array
+    required:
+    - meta
+    type: object
+  ocserv_group.SyncGroupRequest:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/group.UnsyncedGroup'
+        type: array
+    required:
+    - groups
+    type: object
+  ocserv_group.UpdateOcservGroupData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservGroupConfig'
+    required:
+    - config
+    type: object
+  ocserv_user.ActivateUserData:
+    properties:
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: fixed
+      reset_first_connection:
+        example: false
+        type: boolean
+    type: object
+  ocserv_user.BulkDeleteResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  ocserv_user.BulkGroupRequest:
+    properties:
+      group:
+        maxLength: 16
+        type: string
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  ocserv_user.BulkIDsRequest:
+    properties:
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  ocserv_user.BulkStatusRequest:
+    properties:
+      enabled:
+        type: boolean
+      ids:
+        items:
+          type: integer
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - enabled
+    - ids
+    type: object
+  ocserv_user.BulkUpdateRequest:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/ocservuser.BulkUpdateItem'
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - users
+    type: object
+  ocserv_user.BulkUsersResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    type: object
+  ocserv_user.CreateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: fixed
+      group:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - config
+    - group
+    - password
+    - traffic_type
+    - username
+    type: object
+  ocserv_user.OcservUsersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    required:
+    - meta
+    type: object
+  ocserv_user.UpdateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: first_connection
+      group:
+        example: default
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      reset_first_connection:
+        example: false
+        type: boolean
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+    type: object
+  ocservuser.BulkUpdateItem:
+    properties:
+      changes:
+        $ref: '#/definitions/ocservuser.UpdateOcservUserData'
+      id:
+        type: integer
+    required:
+    - changes
+    - id
+    type: object
+  ocservuser.UpdateOcservUserData:
+    properties:
+      config:
+        $ref: '#/definitions/models.OcservUserConfig'
+      description:
+        example: User for testing VPN access
+        maxLength: 1024
+        type: string
+      expire_at:
+        example: "2025-12-31"
+        type: string
+      expire_days_after_first_connection:
+        example: 30
+        type: integer
+      expiry_mode:
+        allOf:
+        - $ref: '#/definitions/models.ExpiryMode'
+        enum:
+        - unlimited
+        - fixed
+        - first_connection
+        example: first_connection
+      group:
+        example: default
+        type: string
+      password:
+        maxLength: 32
+        minLength: 2
+        type: string
+      reset_first_connection:
+        example: false
+        type: boolean
+      traffic_size:
+        description: 10 GiB
+        example: 10737418240
+        minimum: 0
+        type: integer
+      traffic_type:
+        allOf:
+        - $ref: '#/definitions/models.TrafficType'
+        enum:
+        - Free
+        - MonthlyTransmit
+        - MonthlyReceive
+        - MonthlyRxTx
+        - TotallyTransmit
+        - TotallyReceive
+        - TotallyRxTx
+      unlimited:
+        default: false
+        example: false
+        type: boolean
+    type: object
+  reports.OcservUserReportResponse:
+    properties:
+      active:
+        type: integer
+      deactivated:
+        type: integer
+      locked:
+        type: integer
+      online:
+        type: integer
+    type: object
+  reports.SessionLogsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/request.Meta'
+      result:
+        items:
+          $ref: '#/definitions/models.OcservUserSessionLog'
+        type: array
+    required:
+    - meta
+    type: object
+  repository.TopBandwidthUsers:
+    properties:
+      top_rx:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+      top_tx:
+        items:
+          $ref: '#/definitions/models.OcservUser'
+        type: array
+    type: object
+  repository.TotalBandwidths:
+    properties:
+      rx:
+        type: number
+      tx:
+        type: number
+    required:
+    - rx
+    - tx
+    type: object
+  request.ErrorResponse:
+    properties:
+      error:
+        items:
+          type: string
+        type: array
+      message:
+        items:
+          type: string
+        type: array
+    required:
+    - error
+    - message
+    type: object
+  request.Meta:
+    properties:
+      page:
+        type: integer
+      size:
+        type: integer
+      total_records:
+        type: integer
+    required:
+    - page
+    - size
+    - total_records
+    type: object
+  runtime.ConfigResponse:
+    properties:
+      allow_update:
+        type: boolean
+      auth_timeout:
+        type: integer
+      ban_reset_time:
+        type: integer
+      banner:
+        type: string
+      cisco_client_compat:
+        type: boolean
+      cookie_timeout:
+        type: integer
+      deny_roaming:
+        type: boolean
+      dns:
+        items:
+          type: string
+        type: array
+      dpd:
+        type: integer
+      dtls_legacy:
+        type: boolean
+      ipv4_network:
+        type: string
+      keepalive:
+        type: integer
+      log_level:
+        type: integer
+      max_ban_score:
+        type: integer
+      max_clients:
+        type: integer
+      max_same_clients:
+        type: integer
+      min_reauth_time:
+        type: integer
+      mobile_dpd:
+        type: integer
+      mtu:
+        type: integer
+      ping_leases:
+        type: boolean
+      pre_login_banner:
+        type: string
+      predictable_ips:
+        type: boolean
+      rate_limit_ms:
+        type: integer
+      rekey_method:
+        allOf:
+        - $ref: '#/definitions/system.RekeyMethod'
+        enum:
+        - ssl
+        - new-tunnel
+      rekey_time:
+        type: integer
+      switch_to_tcp_timeout:
+        type: integer
+      tcp_port:
+        type: integer
+      try_mtu_discovery:
+        type: boolean
+      tunnel_all_dns:
+        type: boolean
+      udp_port:
+        type: integer
+    type: object
+  runtime.OcservConfig:
+    properties:
+      auth_timeout:
+        type: integer
+      ban_reset_time:
+        type: integer
+      banner:
+        type: string
+      cisco_client_compat:
+        type: boolean
+      cookie_timeout:
+        type: integer
+      deny_roaming:
+        type: boolean
+      dns:
+        items:
+          type: string
+        type: array
+      dpd:
+        type: integer
+      dtls_legacy:
+        type: boolean
+      ipv4_network:
+        type: string
+      keepalive:
+        type: integer
+      log_level:
+        type: integer
+      max_ban_score:
+        type: integer
+      max_clients:
+        type: integer
+      max_same_clients:
+        type: integer
+      min_reauth_time:
+        type: integer
+      mobile_dpd:
+        type: integer
+      mtu:
+        type: integer
+      ping_leases:
+        type: boolean
+      pre_login_banner:
+        type: string
+      predictable_ips:
+        type: boolean
+      rate_limit_ms:
+        type: integer
+      rekey_method:
+        allOf:
+        - $ref: '#/definitions/system.RekeyMethod'
+        enum:
+        - ssl
+        - new-tunnel
+      rekey_time:
+        type: integer
+      switch_to_tcp_timeout:
+        type: integer
+      tcp_port:
+        type: integer
+      try_mtu_discovery:
+        type: boolean
+      tunnel_all_dns:
+        type: boolean
+      udp_port:
+        type: integer
+    type: object
+  servicecontrol.Action:
+    enum:
+    - restart
+    - enable
+    - disable
+    type: string
+    x-enum-varnames:
+    - ActionRestart
+    - ActionEnable
+    - ActionDisable
+  servicecontrol.ActionResponse:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  servicecontrol.StatusResponse:
+    properties:
+      active_state:
+        type: string
+      allowed_actions:
+        items:
+          $ref: '#/definitions/servicecontrol.Action'
+          enum:
+          - restart
+          - enable
+          - disable
+        type: array
+      cpu_usage_nsec:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      main_pid:
+        type: integer
+      memory:
+        type: integer
+      start_time:
+        type: string
+      sub_state:
+        type: string
+      tasks:
+        type: integer
+      unit_file_state:
+        type: string
+    type: object
+  system.RekeyMethod:
+    enum:
+    - ssl
+    - new-tunnel
+    type: string
+    x-enum-varnames:
+    - RekeyMethodSSL
+    - RekeyMethodNewTunnel
+info:
+  contact: {}
+  description: Administrative API for managing Ocserv Dashboard users, groups, reports,
+    runtime, backups, system settings, Telegram integrations, and agent nodes.
+  title: Ocserv Dashboard Admin API
+  version: "1.0"
+paths:
+  /auth/logout:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Logout current session
+      tags:
+      - Auth
+  /auth/sessions:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_auth.SessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List active user sessions
+      tags:
+      - Auth
+  /auth/sessions/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Revoke user session
+      tags:
+      - Auth
+  /backup/ocserv_groups:
+    get:
+      description: Download gzip compressed JSON backup of all ocserv groups including
+        default group configuration
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      - application/gzip
+      responses:
+        "200":
+          description: ocserv_groups_backup.json.gz
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Backup ocserv groups
+      tags:
+      - System(Backup)
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload JSON or gzip-compressed (.json.gz) backup of ocserv groups
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: JSON or JSON.GZ file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/backup.RestoreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Restore ocserv groups
+      tags:
+      - System(Restore)
+  /backup/ocserv_users:
+    get:
+      description: Download gzip compressed JSON backup of all ocserv users
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      - application/gzip
+      responses:
+        "200":
+          description: ocserv_users_backup.json.gz
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Backup ocserv users
+      tags:
+      - System(Backup)
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload JSON or gzip-compressed (.json.gz) backup of ocserv users
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: JSON or JSON.GZ file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/backup.RestoreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Restore ocserv users
+      tags:
+      - System(Restore)
+  /customers/activities:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - description: Start date
+        format: date
+        in: query
+        name: date_start
+        type: string
+      - description: End date
+        format: date
+        in: query
+        name: date_end
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customerapi.ActivitiesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer activity list
+      tags:
+      - Customers
+  /customers/bandwidth:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Start date
+        format: date
+        in: query
+        name: date_start
+        type: string
+      - description: End date
+        format: date
+        in: query
+        name: date_end
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.TotalBandwidths'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer bandwidth
+      tags:
+      - Customers
+  /customers/certificate:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Download customer certificate
+      tags:
+      - Customers
+  /customers/disconnect_sessions:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "202":
+          description: Accepted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Disconnect all customer sessions
+      tags:
+      - Customers
+  /customers/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ocserv credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/customerapi.LoginData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customerapi.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer login
+      tags:
+      - Customers
+  /customers/password:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: New password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/customerapi.ChangePasswordInput'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Change customer Ocserv password
+      tags:
+      - Customers
+  /customers/sessions:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OnlineUserSession'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer online sessions
+      tags:
+      - Customers
+  /customers/setup/cisco:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.CiscoSetup'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Build Cisco Secure Client setup data
+      tags:
+      - Customers
+  /customers/setup/cisco/certificate:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Download Cisco setup certificate
+      tags:
+      - Customers
+  /customers/stats:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Start date
+        format: date
+        in: query
+        name: date_start
+        type: string
+      - description: End date
+        format: date
+        in: query
+        name: date_end
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DailyTraffic'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer traffic statistics
+      tags:
+      - Customers
+  /customers/summary:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customerapi.SummaryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Customer account summary
+      tags:
+      - Customers
+  /customers/terminate_sessions:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "202":
+          description: Accepted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Terminate all customer sessions
+      tags:
+      - Customers
+  /home:
+    get:
+      description: Content of home
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.GetHomeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Content of home
+      tags:
+      - Home
+  /home/container-stats:
+    get:
+      description: Content of docker system usage stats (cpu, ram, swap)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.DockerStats'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Content of docker system usage stats
+      tags:
+      - Home
+  /home/ocserv-stats:
+    get:
+      description: Content of ocserv server stats
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.OcservStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Content of ocserv server stats
+      tags:
+      - Home
+  /home/system-stats:
+    get:
+      description: Content of os system usage stats (cpu, ram, swap)
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_dashboard.ServerStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Content of os system usage stats
+      tags:
+      - Home
+  /occtl/commands:
+    get:
+      consumes:
+      - application/json
+      description: Occtl Commands
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Command Action ID (1 to 15)
+        in: query
+        name: action
+        required: true
+        type: integer
+      - description: Optional parameter depending on command
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Occtl Commands
+      tags:
+      - OCCTL
+  /occtl/server_info:
+    get:
+      consumes:
+      - application/json
+      description: Server information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Server information
+      tags:
+      - OCCTL
+  /ocserv/agents:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OcservAgent'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Ocserv agents
+      tags:
+      - Ocserv Agents
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_agent.CreateInput'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create Ocserv agent
+      tags:
+      - Ocserv Agents
+  /ocserv/agents/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Ocserv agent
+      tags:
+      - Ocserv Agents
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Ocserv agent
+      tags:
+      - Ocserv Agents
+    patch:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Agent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_agent.UpdateInput'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservAgent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Ocserv agent
+      tags:
+      - Ocserv Agents
+  /ocserv/groups:
+    get:
+      consumes:
+      - application/json
+      description: List of Ocserv groups
+      parameters:
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_group.OcservGroupsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: List of Ocserv groups
+      tags:
+      - Ocserv(Groups)
+    post:
+      consumes:
+      - application/json
+      description: Ocserv Group creation
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv group create data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.CreateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group creation
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Ocserv Group delete
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group delete
+      tags:
+      - Ocserv(Groups)
+    get:
+      consumes:
+      - application/json
+      description: Ocserv group detail
+      parameters:
+      - description: Ocserv Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv group detail
+      tags:
+      - Ocserv(Groups)
+    patch:
+      consumes:
+      - application/json
+      description: Ocserv Group update
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ocserv group create data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Group update
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/defaults:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Defaults Group config
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Defaults Group config
+      tags:
+      - Ocserv(Groups)
+    patch:
+      consumes:
+      - application/json
+      description: Update Ocserv Defaults Group
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ocserv group default data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.UpdateOcservGroupData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Update Ocserv Defaults Group
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/lookup:
+    get:
+      consumes:
+      - application/json
+      description: List of Ocserv group names
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: List of Ocserv group names
+      tags:
+      - Ocserv(Groups)
+  /ocserv/groups/sync:
+    post:
+      consumes:
+      - application/json
+      description: Ocserv Groups from file
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: list of groups with config to sync in db
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_group.SyncGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Groups from file
+      tags:
+      - Ocserv(UnsyncedGroup)
+  /ocserv/groups/unsynced:
+    get:
+      consumes:
+      - application/json
+      description: list of Unsynced Groups
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/group.UnsyncedGroup'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: list of Unsynced Groups
+      tags:
+      - Ocserv(UnsyncedGroup)
+  /ocserv/users:
+    get:
+      parameters:
+      - description: Return users expiring within the next N days
+        in: query
+        minimum: 1
+        name: expire_in_days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.OcservUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      tags:
+      - Ocserv(Users)
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user and expiry configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.CreateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}:
+    delete:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Ocserv user and expiry changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.UpdateOcservUserData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/activate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New expiry configuration; omitted values reset to unlimited
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.ActivateUserData'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/certificate:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+    post:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/disconnect_by_id:
+    post:
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/lock:
+    post:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/reset-usage:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OcservUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Reset Ocserv user usage
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/session_logs:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/statistics:
+    get:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/terminate_by_id:
+    post:
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{id}/unlock:
+    post:
+      parameters:
+      - description: Ocserv User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{username}/disconnect:
+    post:
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/{username}/terminate:
+    post:
+      responses: {}
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.BulkIDsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.BulkDeleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk delete Ocserv users
+      tags:
+      - Ocserv(Users)
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Bulk user updates
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.BulkUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk update Ocserv users
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk/group:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user IDs and group; empty group removes assignment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.BulkGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk assign or remove an Ocserv group
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/bulk/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user IDs and enabled state
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ocserv_user.BulkStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ocserv_user.BulkUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/middlewares.PermissionDenied'
+      summary: Bulk enable or disable Ocserv users
+      tags:
+      - Ocserv(Users)
+  /ocserv/users/ocpasswd:
+    get:
+      responses: {}
+      tags:
+      - Ocserv(Ocpasswd)
+  /ocserv/users/ocpasswd/sync:
+    post:
+      responses: {}
+      tags:
+      - Ocserv(Ocpasswd)
+  /reports/session_logs:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv session logs
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - description: Field to order by
+        in: query
+        name: order
+        type: string
+      - description: Sort order, either ASC or DESC
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reports.SessionLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv session logs
+      tags:
+      - Report
+  /reports/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Users Statistics
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        required: true
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DailyTraffic'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users Statistics
+      tags:
+      - Report
+  /reports/total-bandwidth:
+    get:
+      consumes:
+      - application/json
+      description: Ocserv Users TotalBandwidth calculating
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: date_start
+        in: query
+        name: date_start
+        required: true
+        type: string
+      - description: date_end
+        in: query
+        name: date_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.TotalBandwidths'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Ocserv Users TotalBandwidth calculating
+      tags:
+      - Report
+  /reports/users:
+    get:
+      consumes:
+      - application/json
+      description: Result of all user reports
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reports.OcservUserReportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Result of all user reports
+      tags:
+      - Report
+  /system:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Get panel System Config
+      tags:
+      - System
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: update system config data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.PatchSystemUpdateData'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Update panel System Config
+      tags:
+      - System
+  /system/init:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemInitResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get panel System init Config
+      tags:
+      - System
+  /system/ocserv-config:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/runtime.ConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get structured Ocserv configuration
+      tags:
+      - System
+    patch:
+      consumes:
+      - application/json
+      description: Available only in normal/systemd mode; Docker deployments reject
+        updates.
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Supported Ocserv configuration changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/runtime.OcservConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/runtime.OcservConfig'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update structured Ocserv configuration
+      tags:
+      - System
+  /system/release:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Dashboard the current and latest release
+      tags:
+      - System
+  /system/user/reset-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Reset admin password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetPasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Reset admin password by secret key
+      tags:
+      - System(User)
+  /system/users:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UsersResponse'
+      summary: List of Admin or simple users
+      tags:
+      - System(Users)
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create user
+      tags:
+      - System(Users)
+  /system/users/{id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete simple user
+      tags:
+      - System(Users)
+  /system/users/{id}/password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: user new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change user password by admin
+      tags:
+      - System(Users)
+  /system/users/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: login data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.LoginData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Admin users login
+      tags:
+      - System(Users)
+  /system/users/lookup:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UsersLookup'
+            type: array
+      summary: List of Users Lookup
+      tags:
+      - System(Users)
+  /system/users/password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: user new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf'
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change user password by self
+      tags:
+      - System(Users)
+  /system/users/profile:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Get User Profile
+      tags:
+      - System(Users)
+  /systemd/disable:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/servicecontrol.ActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Disable Ocserv runtime
+      tags:
+      - Service Control
+  /systemd/enable:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/servicecontrol.ActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Enable Ocserv runtime
+      tags:
+      - Service Control
+  /systemd/restart:
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/servicecontrol.ActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Restart Ocserv runtime
+      tags:
+      - Service Control
+  /systemd/status:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/servicecontrol.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Ocserv runtime status
+      tags:
+      - Service Control
+  /telegram/accounts:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ocserv user ID
+        in: query
+        minimum: 1
+        name: ocserv_user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TelegramAccount'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram accounts for an Ocserv user
+      tags:
+      - Telegram
+  /telegram/accounts/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram account ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram account link
+      tags:
+      - Telegram
+  /telegram/packages:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Include inactive packages
+        in: query
+        name: include_inactive
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TelegramPackage'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram packages
+      tags:
+      - Telegram
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram package
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.CreatePackageData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.TelegramPackage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Create Telegram package
+      tags:
+      - Telegram
+  /telegram/packages/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Package ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram package
+      tags:
+      - Telegram
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Package ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Telegram package changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchPackageData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramPackage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Telegram package
+      tags:
+      - Telegram
+  /telegram/requests:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number, starting from 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      - default: created_at
+        description: Field to order by
+        in: query
+        name: order
+        type: string
+      - default: DESC
+        description: Sort order
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: sort
+        type: string
+      - description: Request status
+        enum:
+        - pending
+        - awaiting_payment
+        - payment_uploaded
+        - approved
+        - rejected
+        - delivered
+        in: query
+        name: status
+        type: string
+      - description: Request type
+        enum:
+        - new
+        - renew
+        in: query
+        name: type
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RequestsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: List Telegram requests
+      tags:
+      - Telegram
+  /telegram/requests/{id}:
+    delete:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Delete Telegram request
+      tags:
+      - Telegram
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Telegram request
+      tags:
+      - Telegram
+  /telegram/requests/{id}/approve:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Approval details
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ApproveData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Approve Telegram request
+      tags:
+      - Telegram
+  /telegram/requests/{id}/confirm-payment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Delivery overrides
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.ConfirmPaymentData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Confirm Telegram request payment
+      tags:
+      - Telegram
+  /telegram/requests/{id}/receipt:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Receipt file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Download Telegram request receipt
+      tags:
+      - Telegram
+  /telegram/requests/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Rejection details
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.RejectData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Reject Telegram request
+      tags:
+      - Telegram
+  /telegram/settings:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Get Telegram settings
+      tags:
+      - Telegram
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Telegram settings changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.PatchSettingsData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.SettingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Update Telegram settings
+      tags:
+      - Telegram
+  /telegram/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Optional test message
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_telegram.TestData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+      summary: Test Telegram bot delivery
+      tags:
+      - Telegram
+produces:
+- application/json
+swagger: "2.0"

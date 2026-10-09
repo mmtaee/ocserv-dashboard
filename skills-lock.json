@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "bash-master": {
+      "source": "josiahsiegel/claude-plugin-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/bash-master/skills/bash-master/SKILL.md",
+      "computedHash": "e3ad466526a42d15a729f0e8f24e6ca726fdd056dc0235832d7aba5d3701a1e1"
+    },
+    "devops": {
+      "source": "H3nSte1n/skills",
+      "sourceType": "github",
+      "skillPath": "skills/devops/SKILL.md",
+      "computedHash": "2eddb8dc6f74f7f8be8ca0b04b00d7e039f829ba874abcbbb481f661e18fad91"
+    },
+    "docker-development": {
+      "source": "netresearch/docker-development-skill",
+      "sourceType": "github",
+      "skillPath": "skills/docker-development/SKILL.md",
+      "computedHash": "812a0ed9b8724d9425a8479d84cfcedc1de286877cd4c6853b04e73221ca5fc4"
+    }
+  }
+}

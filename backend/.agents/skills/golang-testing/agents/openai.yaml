@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go Testing"
+  short_description: "Go test strategy and completion checks"
+  default_prompt: "Use $golang-testing to add tests and verify a Go change in this repository."
+policy:
+  allow_implicit_invocation: true

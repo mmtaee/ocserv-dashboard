@@ -1,0 +1,16 @@
+{
+  "generatorName": "typescript-axios",
+  "inputSpec": "../../backend/docs/swagger.json",
+  "outputDir": "src/api/generated",
+  "validateSpec": false,
+  "globalProperties": {
+    "apiDocs": "false",
+    "modelDocs": "false"
+  },
+  "additionalProperties": {
+    "supportsES6": true,
+    "withInterfaces": true,
+    "useSingleRequestParameter": true,
+    "npmName": "@ocserv-dashboard/admin-api"
+  }
+}

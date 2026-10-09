@@ -1,0 +1,18 @@
+# An .aiignore file follows the same syntax as a .gitignore file.
+# .gitignore documentation: https://git-scm.com/docs/gitignore
+
+# you can ignore files
+.DS_Store
+*.log
+*.tmp
+PULL_NOTE.md
+
+# or folders
+dist/
+build/
+out/
+
+!draft_prompt.md
+!old_codes
+!notes
+web

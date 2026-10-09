@@ -1,0 +1,37 @@
+{
+  "name": "customer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:test": "NODE_ENV=test vite --mode test",
+    "build": "vue-tsc -b && vite build",
+    "build:test": "NODE_ENV=test vite build --mode test",
+    "type-check": "vue-tsc -b --noEmit",
+    "preview": "vite preview",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.37.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@vue/devtools-api": "^8.2.1",
+    "axios": "^1.20.0",
+    "pinia": "^4.0.3",
+    "reka-ui": "^2.10.4",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.41",
+    "vue-i18n": "^11.4.10",
+    "vue-router": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/tsconfig": "^0.9.1",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.2",
+    "vue-tsc": "^3.3.11"
+  },
+  "packageManager": "yarn@4.18.0+sha512.fcb8716fe7cd0eece141ffc18b92193a9df9204c1ba83189c288835223fc0bbe64af473bab0d5e9927a7daeb5caf2bb07eb2787cc9338ca040ea125f2a1f2f7e"
+}
