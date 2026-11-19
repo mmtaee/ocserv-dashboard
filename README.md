@@ -430,6 +430,10 @@ For a new translation key, update all supported language catalogs in the same ch
 
 This project is licensed under the [MIT License](LICENSE).
 
+## 👥 Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=mmtaee/ocserv-dashboard)](https://github.com/mmtaee/ocserv-dashboard/graphs/contributors)
+
 ## ⭐ Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=mmtaee/ocserv-dashboard&type=Date)](https://www.star-history.com/#mmtaee/ocserv-dashboard&Date)
