@@ -59,7 +59,12 @@ source_release() {
 }
 
 write_installed_release() {
-    source_release >"${RELEASE_FILE}"
+    if [[ "${EUID}" -eq 0 ]]; then
+        source_release >"${RELEASE_FILE}"
+        return
+    fi
+    command -v sudo >/dev/null 2>&1 || die "sudo is required to write ${RELEASE_FILE}"
+    source_release | sudo tee "${RELEASE_FILE}" >/dev/null
 }
 
 parse_arguments() {
