@@ -117,7 +117,7 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 			repository.NewSystemRepository(), userRepository, sessionRepository, captcha.NewGoogleVerifier(), crypto.NewCustomPassword(),
 			systemusecase.Options{
 				SecretKey: cfg.SecretKey, CurrentRelease: os.Getenv("CURRENT_RELEASE"), TelegramEnabled: telegramRoutes,
-				ReleaseTimeout: 5 * time.Second,
+				ReleaseTimeout: 5 * time.Second, InstallDir: "/opt/ocserv-dashboard", SourceDir: "/opt/ocserv-dashboard/source", DockerMode: dockerMode, AgentNode: cfg.AgentNode,
 			},
 		)),
 		runtime:        runtimecontroller.New(runtimeUC),

@@ -1,5 +1,4 @@
 import type {
-  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemResponse,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemDashboardRelease,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemPatchSystemUpdateData,
@@ -10,13 +9,16 @@ import type {
 } from "@/api/generated";
 import { ApiError } from "@/api/http";
 import type { OcservConfigResponse } from "@/api/services/system";
+import type { SystemUpdateStatus } from "@/api/services/system";
 import { cloneMock } from "@/mocks/utils";
 
 export const mockSystemInit = {
   first_init: true,
   google_captcha_site_key: "",
+  latest_version: "v1.1.0",
   telegram_bot_enabled: true,
-} satisfies GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse;
+  update_available: true,
+};
 
 export const mockSystemConfig = {
   auto_delete_inactive_users: true,
@@ -114,6 +116,27 @@ export async function getMockRelease(): Promise<GithubComMmtaeeOcservDashboardBa
   return scenario() === "up-to-date"
     ? { current: "v1.0.0", latest: "v1.0.0" }
     : { current: "v1.0.0", latest: "v1.1.0" };
+}
+
+let updatePolls = 0;
+let updateStatus: SystemUpdateStatus = { state: "idle" };
+
+export async function startMockSystemUpdate(): Promise<SystemUpdateStatus> {
+  await wait();
+  updatePolls = 0;
+  updateStatus = {
+    state: "running",
+    target: "v1.1.0",
+    message: "Downloading update",
+  };
+  return { ...updateStatus };
+}
+
+export async function getMockSystemUpdateStatus(): Promise<SystemUpdateStatus> {
+  await wait();
+  if (updateStatus.state === "running" && ++updatePolls > 2)
+    updateStatus = { state: "succeeded", target: "v1.1.0" };
+  return { ...updateStatus };
 }
 export async function getMockAgents(): Promise<ModelsOcservAgent[]> {
   await wait();

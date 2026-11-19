@@ -22,6 +22,7 @@ import {
   type OcservAgent,
   type OcservAgentCreate,
   type SystemConfig,
+  type SystemRelease,
   type SystemUpdateData,
 } from "@/api/services/system";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -77,7 +78,7 @@ const loading = shallowRef(true),
   saving = shallowRef<"system" | "ocserv" | "agent" | "delete" | null>(null),
   error = shallowRef(""),
   success = shallowRef("");
-const release = shallowRef<{ current: string; latest: string } | null>(null),
+const release = shallowRef<SystemRelease | null>(null),
   ocservOriginal = shallowRef<RuntimeOcservConfig>({}),
   allowOcservUpdate = shallowRef(false),
   ocservError = shallowRef(""),
@@ -136,7 +137,10 @@ const textFields: (keyof RuntimeOcservConfig)[] = [
   "pre_login_banner",
 ];
 const updateAvailable = computed(() =>
-  Boolean(release.value && release.value.current !== release.value.latest),
+  Boolean(
+    release.value &&
+    (release.value.available ?? release.value.current !== release.value.latest),
+  ),
 );
 const agentValid = computed(() =>
   Boolean(

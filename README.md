@@ -78,7 +78,7 @@ Or, from a repository checkout:
 ./setup.sh
 ```
 
-The installer creates `.env` only if it does not already exist, generates initial secrets, and supports upgrades. For an unattended installation, select both options explicitly:
+The installer stores runtime files and `.release` in `/opt/ocserv-dashboard` and the Git checkout in `/opt/ocserv-dashboard/source`. It creates `.env` only if it does not already exist, generates initial secrets, and supports upgrades. For an unattended installation, select both options explicitly:
 
 ```bash
 ./setup.sh --deployment docker --node master --yes
@@ -88,7 +88,7 @@ The installer creates `.env` only if it does not already exist, generates initia
 Use `--node agent` for an agent node. The installer sets `AGENT_NODE=true` for agents and `false` for masters. To upgrade an installed deployment, run:
 
 ```bash
-./setup.sh --update
+sudo /opt/ocserv-dashboard/source/setup.sh --update
 ```
 
 After installation, open `https://YOUR_DOMAIN_OR_IP:3000/` and sign in with the superadmin credentials configured in `.env` (or use your configured `WEB_PORT`).

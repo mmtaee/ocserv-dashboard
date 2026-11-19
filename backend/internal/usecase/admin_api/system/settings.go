@@ -18,10 +18,16 @@ func (u *Usecase) Init(ctx context.Context) (*GetSystemInitResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	release, releaseErr := u.Release(ctx)
+	if releaseErr != nil {
+		release = &DashboardRelease{}
+	}
 	return &GetSystemInitResponse{
 		GoogleCaptchaSiteKey: settings.GoogleCaptchaSiteKey,
 		TelegramBotEnabled:   u.telegramEnabled,
 		FirstInit:            settings.FirstInit,
+		UpdateAvailable:      release.Available,
+		LatestVersion:        release.Latest,
 	}, nil
 }
 

@@ -17,6 +17,12 @@ export const useSystemInitStore = defineStore("system-init", () => {
   const telegramBotEnabled = computed(
     () => config.value?.telegram_bot_enabled === true,
   );
+  const updateAvailable = computed(
+    () => config.value?.update_available === true,
+  );
+  const latestVersion = computed(
+    () => config.value?.latest_version?.trim() ?? "",
+  );
 
   function applyConfig(nextConfig: SystemInitConfig): void {
     config.value = { ...config.value, ...nextConfig };
@@ -50,6 +56,8 @@ export const useSystemInitStore = defineStore("system-init", () => {
     isAvailable,
     isInitialized,
     isLoading,
+    latestVersion,
     telegramBotEnabled,
+    updateAvailable,
   };
 });

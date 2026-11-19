@@ -2,6 +2,9 @@
 
 set -Eeuo pipefail
 
+readonly INSTALL_BASE='/opt/ocserv-dashboard'
+readonly INSTALL_ROOT="${INSTALL_BASE}/source"
+readonly RELEASE_FILE="${INSTALL_BASE}/.release"
 readonly PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly ENV_FILE="${ENV_FILE:-${PROJECT_ROOT}/.env}"
 
@@ -31,6 +34,32 @@ Usage: ./setup.sh [--deployment docker|systemd] [--node master|agent] [--update]
 Without flags, choose Install or Upgrade. Install then asks for the deployment type and node mode.
 --update detects the running deployment and updates it without prompts.
 EOF
+}
+
+ensure_install_root() {
+    [[ "${PROJECT_ROOT}" == "${INSTALL_ROOT}" ]] && return
+    [[ ! -e "${INSTALL_ROOT}" ]] || die "installation source already exists: ${INSTALL_ROOT}"
+    if [[ "${EUID}" -eq 0 ]]; then
+        install -d -m 755 "${INSTALL_BASE}"
+        cp -a -- "${PROJECT_ROOT}" "${INSTALL_ROOT}"
+        exec bash "${INSTALL_ROOT}/setup.sh" "$@"
+    fi
+    command -v sudo >/dev/null 2>&1 || die "sudo is required to install under /opt"
+    sudo install -d -m 755 "${INSTALL_BASE}"
+    sudo cp -a -- "${PROJECT_ROOT}" "${INSTALL_ROOT}"
+    exec sudo bash "${INSTALL_ROOT}/setup.sh" "$@"
+}
+
+source_release() {
+    local release
+
+    release="$(git -C "${PROJECT_ROOT}" describe --tags --exact-match HEAD 2>/dev/null || \
+        git -C "${PROJECT_ROOT}" rev-parse --short HEAD 2>/dev/null || printf 'unknown')"
+    printf '%s\n' "${release}"
+}
+
+write_installed_release() {
+    source_release >"${RELEASE_FILE}"
 }
 
 parse_arguments() {
@@ -99,22 +128,27 @@ choose_install_options() {
 update_source() {
     local current_release=''
     local latest_release
+    local checked_out_release
 
     command -v git >/dev/null 2>&1 || die "git is required to update"
     latest_release="$(git ls-remote --tags --refs --sort=-version:refname origin 'v*' | awk -F/ 'NR == 1 { print $3 }')"
     [[ "${latest_release}" =~ ^v[0-9]+(\.[0-9]+)*$ ]] || die "could not determine the latest release tag"
-    if [[ -f "${PROJECT_ROOT}/.release" ]]; then
-        current_release="$(<"${PROJECT_ROOT}/.release")"
+    if [[ -f "${RELEASE_FILE}" ]]; then
+        current_release="$(<"${RELEASE_FILE}")"
     fi
     if [[ "${current_release}" == "${latest_release}" ]]; then
         log "already on release ${latest_release}"
+        return
+    fi
+    checked_out_release="$(source_release)"
+    if [[ "${checked_out_release}" == "${latest_release}" ]]; then
+        log "source is ready for release ${latest_release}"
         return
     fi
     git diff --quiet && git diff --cached --quiet || die "source changes must be committed or discarded before updating"
     log "updating ${current_release:-current source} to ${latest_release}"
     git fetch --tags --force origin
     git checkout --detach "${latest_release}"
-    printf '%s\n' "${latest_release}" >"${PROJECT_ROOT}/.release"
     exec bash "${PROJECT_ROOT}/setup.sh" --update
 }
 
@@ -262,11 +296,11 @@ set_env_default() {
 }
 
 apply_static_defaults() {
-    local release='unknown'
+    local release
 
-    [[ -f "${PROJECT_ROOT}/.release" ]] && release="$(<"${PROJECT_ROOT}/.release")"
+    release="$(source_release)"
     set_env_default ALLOW_ORIGINS "\"https://$(env_value HOST ''):3000\""
-    set_env_default CURRENT_RELEASE "\"${release}\""
+    set_env_value CURRENT_RELEASE "\"${release}\""
     if [[ -z "$(env_value SECRET_KEY '')" ]]; then
         command -v openssl >/dev/null 2>&1 || die "openssl is required to generate the application secret"
         set_env_value SECRET_KEY "\"$(openssl rand -hex 32)\""
@@ -597,6 +631,23 @@ check_docker() {
     [[ -c /dev/net/tun ]] || die "/dev/net/tun is unavailable; load the tun kernel module"
 }
 
+wait_for_docker_container() {
+    local container="$1"
+    local attempt
+    local status
+
+    for ((attempt = 0; attempt < 60; attempt++)); do
+        status="$("${docker_cmd[@]}" container inspect --format \
+            '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${container}" 2>/dev/null || true)"
+        case "${status}" in
+            healthy|running) return 0 ;;
+            unhealthy|exited|dead) return 1 ;;
+        esac
+        sleep 2
+    done
+    return 1
+}
+
 create_docker_volumes() {
     local data_root="$1"
     local existing_parent="${data_root}"
@@ -628,6 +679,7 @@ create_docker_volumes() {
 install_docker() {
     local image="ocserv-dashboard:${node_mode}"
     local container="${CONTAINER_NAME:-ocserv}"
+    local previous_container="${container}-previous"
     local data_root="${DEPLOY_DATA_ROOT:-/opt/ocserv_dashboard/docker_volumes}"
     local dockerfile="${PROJECT_ROOT}/deploy/docker/Dockerfile"
     local customer_api_enabled
@@ -636,6 +688,7 @@ install_docker() {
     local api_port
     local ocserv_port
     local host
+    local had_previous=false
     local -a service_publish_args
 
     customer_api_enabled="$(normalized_bool "$(env_value CUSTOMER_API_ENABLED true)")"
@@ -658,10 +711,6 @@ install_docker() {
 
     check_docker
     [[ -f "${dockerfile}" ]] || die "Dockerfile not found: ${dockerfile}"
-    if "${docker_cmd[@]}" container inspect "${container}" >/dev/null 2>&1; then
-        log "removing existing container ${container} before reinstalling"
-        "${docker_cmd[@]}" container rm --force "${container}"
-    fi
     create_docker_volumes "${data_root}"
 
     "${docker_cmd[@]}" build \
@@ -673,7 +722,18 @@ install_docker() {
         --file "${dockerfile}" \
         --tag "${image}" \
         "${PROJECT_ROOT}"
-    "${docker_cmd[@]}" run --detach \
+    if "${docker_cmd[@]}" container inspect "${container}" >/dev/null 2>&1; then
+        ! "${docker_cmd[@]}" container inspect "${previous_container}" >/dev/null 2>&1 || \
+            die "rollback container already exists: ${previous_container}"
+        log "stopping existing container ${container} after the new image was built"
+        "${docker_cmd[@]}" container stop "${container}"
+        if ! "${docker_cmd[@]}" container rename "${container}" "${previous_container}"; then
+            "${docker_cmd[@]}" container start "${container}" >/dev/null || true
+            die "could not prepare the existing container for replacement"
+        fi
+        had_previous=true
+    fi
+    if ! "${docker_cmd[@]}" run --detach \
         --name "${container}" \
         --restart unless-stopped \
         --env-file "${ENV_FILE}" \
@@ -686,6 +746,7 @@ install_docker() {
         --volume /var/run/docker.sock:/var/run/docker.sock:ro \
         --volume /proc:/host/proc:ro \
         --volume /sys:/host/sys:ro \
+        --volume "${INSTALL_BASE}:${INSTALL_BASE}" \
         --volume "${data_root}/ocserv:/etc/ocserv" \
         --volume "${data_root}/telegram_receipts:/opt/ocserv_dashboard/uploads/receipts" \
         --volume "${data_root}/postgresql18:/var/lib/postgresql" \
@@ -693,13 +754,36 @@ install_docker() {
         --publish "${ocserv_port}:${ocserv_port}/tcp" \
         --publish "${ocserv_port}:${ocserv_port}/udp" \
         "${service_publish_args[@]}" \
-        "${image}"
+        "${image}"; then
+        if [[ "${had_previous}" == true ]]; then
+            "${docker_cmd[@]}" container rm --force "${container}" >/dev/null 2>&1 || true
+            "${docker_cmd[@]}" container rename "${previous_container}" "${container}" || true
+            "${docker_cmd[@]}" container start "${container}" >/dev/null || true
+            die "new Docker container failed to start; the previous container was restored"
+        fi
+        die "new Docker container failed to start"
+    fi
+    if ! wait_for_docker_container "${container}"; then
+        "${docker_cmd[@]}" container rm --force "${container}" >/dev/null 2>&1 || true
+        if [[ "${had_previous}" == true ]]; then
+            "${docker_cmd[@]}" container rename "${previous_container}" "${container}" || true
+            "${docker_cmd[@]}" container start "${container}" >/dev/null || true
+            die "new Docker container did not become healthy; the previous container was restored"
+        fi
+        die "new Docker container did not become healthy"
+    fi
+    if [[ "${had_previous}" == true ]]; then
+        "${docker_cmd[@]}" container rm "${previous_container}" >/dev/null || \
+            log "warning: remove stale rollback container ${previous_container} manually"
+    fi
     log "started Docker ${node_mode} node in container ${container}"
     log "Ocserv: ${host}:${ocserv_port} (TCP/UDP)"
     if [[ "${agent_node}" == false ]]; then
         log "UI: https://${host}:${web_port}"
-        log "dashboard username: $(env_value SUPERADMIN_USERNAME admin)"
-        log "dashboard password: $(env_value SUPERADMIN_PASSWORD '')"
+        if [[ "${update}" == false ]]; then
+            log "dashboard username: $(env_value SUPERADMIN_USERNAME admin)"
+            log "dashboard password: $(env_value SUPERADMIN_PASSWORD '')"
+        fi
     fi
 
     # log "following container logs; press Ctrl-C to stop following"
@@ -711,17 +795,20 @@ install_systemd() {
     local installer="${PROJECT_ROOT}/deploy/systemd/${node_mode}/install.sh"
     [[ -x "${installer}" ]] || die "systemd installer not found or not executable: ${installer}"
     if [[ "${EUID}" -eq 0 ]]; then
-        ENV_FILE="${ENV_FILE}" "${installer}"
+        ENV_FILE="${ENV_FILE}" UPDATE_MODE="${update}" "${installer}"
         return
     fi
     command -v sudo >/dev/null 2>&1 || die "sudo is required for systemd installation"
-    sudo env "ENV_FILE=${ENV_FILE}" "${installer}"
+    sudo env "ENV_FILE=${ENV_FILE}" "UPDATE_MODE=${update}" "${installer}"
 }
 
 main() {
     local argument_count=$#
 
     parse_arguments "$@"
+    if [[ "${dry_run}" == false ]]; then
+        ensure_install_root "$@"
+    fi
     if ((argument_count == 0)); then
         graphical=true
         ensure_whiptail
@@ -773,6 +860,7 @@ main() {
             install_systemd
             ;;
     esac
+    write_installed_release
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

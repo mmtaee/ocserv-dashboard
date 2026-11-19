@@ -13,4 +13,5 @@ type ChangeUserPassword = systemusecase.ChangeUserPassword
 type ChangeUserPasswordBySelf = systemusecase.ChangeUserPasswordBySelf
 type ResetPasswordResponse = systemusecase.ResetPasswordResponse
 type DashboardRelease = systemusecase.DashboardRelease
+type UpdateStatus = systemusecase.UpdateStatus
 type ResetAdminPassword = systemusecase.ResetAdminPassword
