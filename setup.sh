@@ -38,7 +38,7 @@ EOF
 
 ensure_install_root() {
     [[ "${PROJECT_ROOT}" == "${INSTALL_ROOT}" ]] && return
-    [[ ! -e "${INSTALL_ROOT}" ]] || die "installation source already exists: ${INSTALL_ROOT}"
+    [[ -e "${INSTALL_ROOT}" ]] && return
     if [[ "${EUID}" -eq 0 ]]; then
         install -d -m 755 "${INSTALL_BASE}"
         cp -a -- "${PROJECT_ROOT}" "${INSTALL_ROOT}"

@@ -19,7 +19,19 @@ if [[ "${EUID}" -ne 0 ]]; then
 else
     root=()
 fi
-[[ ! -e "${INSTALL_ROOT}" ]] || die "installation directory already exists: ${INSTALL_ROOT}"
+if [[ -e "${SOURCE_DIR}" ]]; then
+    printf '[install] installation source already exists: %s\n' "${SOURCE_DIR}"
+    printf '  1. Clear it and download the latest release\n  2. Continue setup with the existing source\n'
+    read -r -p 'Selection: ' selection </dev/tty || die 'could not read selection from the terminal'
+    case "${selection}" in
+        1) "${root[@]}" rm -rf -- "${SOURCE_DIR}" ;;
+        2)
+            [[ -f "${SOURCE_DIR}/setup.sh" ]] || die "setup script not found: ${SOURCE_DIR}/setup.sh"
+            exec "${root[@]}" bash "${SOURCE_DIR}/setup.sh" "$@"
+            ;;
+        *) die 'invalid selection' ;;
+    esac
+fi
 
 release="$(git ls-remote --tags --refs --sort=-version:refname "${REPOSITORY}" 'v*' | awk -F/ 'NR == 1 { print $3 }')"
 [[ "${release}" =~ ^v[0-9]+(\.[0-9]+)*$ ]] || die 'could not determine the latest release tag'
