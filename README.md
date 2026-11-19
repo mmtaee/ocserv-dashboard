@@ -69,8 +69,7 @@ Replace `3000` with your configured `WEB_PORT`. The portal is served over the sa
 The installer fetches the latest tagged release, then guides you through deployment type (Docker or systemd), node mode (master or agent), and environment configuration.
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/mmtaee/ocserv-dashboard/main/install.sh
-bash install.sh
+curl -fsSL https://raw.githubusercontent.com/mmtaee/ocserv-dashboard/master/install.sh | bash -
 ```
 
 Or, from a repository checkout:
