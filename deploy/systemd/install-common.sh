@@ -13,6 +13,8 @@ readonly NGINX_SITE=/etc/nginx/sites-available/ocserv-dashboard
 readonly UI_DIR=/var/www/ocserv-dashboard
 
 temporary_binary=''
+previous_binary=''
+install_succeeded=false
 INSTALL_DIR=''
 INSTALLED_ENV_FILE=''
 
@@ -37,6 +39,13 @@ is_true() {
 cleanup() {
     if [[ -n "${temporary_binary}" && -f "${temporary_binary}" ]]; then
         rm -f -- "${temporary_binary}"
+    fi
+    if [[ -n "${previous_binary}" && -f "${previous_binary}" ]]; then
+        if [[ "${install_succeeded}" != true ]]; then
+            install -m 755 "${previous_binary}" "${INSTALL_DIR}/backend"
+            systemctl restart ocserv-dashboard.service 2>/dev/null || true
+        fi
+        rm -f -- "${previous_binary}"
     fi
 }
 
@@ -255,6 +264,10 @@ build_backend() {
     )
 
     install -d -m 750 "${INSTALL_DIR}" "${INSTALL_DIR}/cron_journal" "${INSTALL_DIR}/uploads/receipts"
+    if is_true "${UPDATE_MODE:-false}" && [[ -f "${INSTALL_DIR}/backend" ]]; then
+        previous_binary="$(mktemp)"
+        cp -a "${INSTALL_DIR}/backend" "${previous_binary}"
+    fi
     install -m 755 "${temporary_binary}" "${INSTALL_DIR}/backend"
     if [[ "$(readlink -f "${SOURCE_ENV_FILE}")" != "$(readlink -m "${INSTALLED_ENV_FILE}")" ]]; then
         install -m 600 "${SOURCE_ENV_FILE}" "${INSTALLED_ENV_FILE}"
@@ -515,8 +528,10 @@ verify_services() {
     log "backend: http://${HOST}:${BACKEND_PORT}"
     if ! is_true "${DEPLOYMENT_AGENT_NODE}"; then
         log "UI: https://${HOST}:${WEB_PORT}"
-        log "dashboard username: ${SUPERADMIN_USERNAME}"
-        log "dashboard password: ${SUPERADMIN_PASSWORD}"
+        if ! is_true "${UPDATE_MODE:-false}"; then
+            log "dashboard username: ${SUPERADMIN_USERNAME}"
+            log "dashboard password: ${SUPERADMIN_PASSWORD}"
+        fi
     fi
     log "status: systemctl status ocserv ocserv-dashboard"
 }
@@ -536,6 +551,7 @@ main() {
     write_systemd_units
     configure_nginx
     verify_services
+    install_succeeded=true
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

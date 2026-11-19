@@ -4,6 +4,8 @@ ARG GO_VERSION=1.27.1
 ARG NODE_VERSION=24
 ARG POSTGRES_VERSION=18
 
+FROM docker:28.5.2-cli AS docker-cli
+
 FROM golang:${GO_VERSION}-bookworm AS backend-builder
 
 ENV CGO_ENABLED=0 \
@@ -106,7 +108,6 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove \
         build-essential \
         gperf \
-        git \
         libcjose-dev \
         libcurl4-gnutls-dev \
         libev-dev \
@@ -135,6 +136,7 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=backend-builder /out/backend /usr/local/bin/backend
+COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=web-builder /out/admin/ /usr/share/nginx/html/
 COPY --from=web-builder /out/customer/ /usr/share/nginx/html/customer/
 COPY --chmod=755 deploy/docker/entrypoint.sh /usr/local/bin/container-entrypoint

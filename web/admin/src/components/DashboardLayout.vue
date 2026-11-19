@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 
 import AppSidebar from "@/components/AppSidebar.vue";
 import SiteHeader from "@/components/SiteHeader.vue";
+import SystemUpdateNotice from "@/components/system/SystemUpdateNotice.vue";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { isRtlLocale } from "@/locales";
 
@@ -21,6 +22,7 @@ const sidebarSide = computed(() =>
         <AppSidebar :side="sidebarSide" collapsible="icon" />
         <SidebarInset>
           <main class="flex flex-1 flex-col p-4 pb-14 lg:p-6 lg:pb-14">
+            <SystemUpdateNotice />
             <slot />
           </main>
         </SidebarInset>

@@ -44,6 +44,8 @@ func (s *Service) registerSystemRoutes(e *echo.Group) {
 
 	admin := e.Group("/system", s.authenticate, middlewares.SuperadminPermission())
 	admin.PATCH("", s.system.SystemUpdate)
+	admin.POST("/update", s.system.StartUpdate)
+	admin.GET("/update", s.system.UpdateStatus)
 	admin.POST("/users", s.system.CreateUser)
 	admin.GET("/users", s.system.Users)
 	admin.GET("/users/lookup", s.system.UsersLookup)

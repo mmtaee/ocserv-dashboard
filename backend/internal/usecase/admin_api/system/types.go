@@ -14,12 +14,19 @@ type Options struct {
 	TelegramEnabled bool
 	ReleaseTimeout  time.Duration
 	HTTPClient      *http.Client
+	InstallDir      string
+	SourceDir       string
+	DockerMode      bool
+	AgentNode       bool
+	UpdateStarter   func(string) error
 }
 
 type GetSystemInitResponse struct {
 	GoogleCaptchaSiteKey string `json:"google_captcha_site_key" validate:"omitempty"`
 	TelegramBotEnabled   bool   `json:"telegram_bot_enabled" validate:"omitempty"`
 	FirstInit            bool   `json:"first_init" validate:"omitempty"`
+	UpdateAvailable      bool   `json:"update_available"`
+	LatestVersion        string `json:"latest_version,omitempty"`
 }
 
 type GetSystemResponse struct {
@@ -80,8 +87,15 @@ type ResetPasswordResponse struct {
 	Token string       `json:"token" validate:"required"`
 }
 type DashboardRelease struct {
-	Current string `json:"current" validate:"required"`
-	Latest  string `json:"latest" validate:"required"`
+	Current   string `json:"current" validate:"required"`
+	Latest    string `json:"latest" validate:"required"`
+	Available bool   `json:"available"`
+}
+
+type UpdateStatus struct {
+	State   string `json:"state" validate:"required"`
+	Target  string `json:"target,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 type ResetAdminPassword struct {

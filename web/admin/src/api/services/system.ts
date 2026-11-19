@@ -1,7 +1,7 @@
 import { requireAuthorizationHeader } from "@/api/auth-token";
 import { api } from "@/api/client";
 import { isTestMode } from "@/api/environment";
-import { apiBaseUrl } from "@/api/http";
+import { apiBaseUrl, httpClient } from "@/api/http";
 import type {
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse,
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemResponse,
@@ -20,15 +20,20 @@ import {
   getMockOcservConfig,
   getMockSystemConfig,
   getMockRelease,
+  getMockSystemUpdateStatus,
   mockSystemInit,
   mutateMockAgent,
+  startMockSystemUpdate,
   updateMockOcservConfig,
   updateMockSystemConfig,
 } from "@/mocks";
 import { getMockRuntimeStatus, runMockRuntimeAction } from "@/mocks/runtime";
 
 export type SystemInitConfig =
-  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse;
+  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemGetSystemInitResponse & {
+    latest_version?: string;
+    update_available?: boolean;
+  };
 
 export type SystemUpdateData =
   GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemPatchSystemUpdateData;
@@ -39,7 +44,14 @@ export type OcservConfigResponse = RuntimeOcservConfig & {
   allow_update: boolean;
 };
 export type SystemRelease =
-  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemDashboardRelease;
+  GithubComMmtaeeOcservDashboardBackendInternalServicesAdminApiSystemDashboardRelease & {
+    available?: boolean;
+  };
+export type SystemUpdateStatus = {
+  state: "idle" | "running" | "succeeded" | "failed";
+  target?: string;
+  message?: string;
+};
 export type OcservAgent = ModelsOcservAgent;
 export type OcservAgentCreate = OcservAgentCreateInput;
 export type OcservAgentUpdate = OcservAgentUpdateInput;
@@ -126,6 +138,16 @@ export async function updateOcservConfig(
 export async function getSystemRelease(): Promise<SystemRelease> {
   if (isTestMode) return getMockRelease();
   return (await api.system.systemReleaseGet()).data;
+}
+
+export async function startSystemUpdate(): Promise<SystemUpdateStatus> {
+  if (isTestMode) return startMockSystemUpdate();
+  return (await httpClient.post<SystemUpdateStatus>("/system/update")).data;
+}
+
+export async function getSystemUpdateStatus(): Promise<SystemUpdateStatus> {
+  if (isTestMode) return getMockSystemUpdateStatus();
+  return (await httpClient.get<SystemUpdateStatus>("/system/update")).data;
 }
 
 export async function getOcservAgents(): Promise<OcservAgent[]> {

@@ -1,6 +1,3 @@
-basePath: /api
-consumes:
-- application/json
 definitions:
   auth.Session:
     properties:
@@ -200,7 +197,7 @@ definitions:
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPassword:
     properties:
       password:
-        maxLength: 16
+        maxLength: 32
         minLength: 4
         type: string
     required:
@@ -209,11 +206,11 @@ definitions:
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ChangeUserPasswordBySelf:
     properties:
       new_password:
-        maxLength: 16
+        maxLength: 32
         minLength: 4
         type: string
       old_password:
-        maxLength: 16
+        maxLength: 32
         minLength: 4
         type: string
     required:
@@ -223,7 +220,7 @@ definitions:
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.CreateUserData:
     properties:
       password:
-        maxLength: 16
+        maxLength: 32
         minLength: 4
         type: string
       username:
@@ -234,6 +231,8 @@ definitions:
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.DashboardRelease:
     properties:
+      available:
+        type: boolean
       current:
         type: string
       latest:
@@ -248,7 +247,11 @@ definitions:
         type: boolean
       google_captcha_site_key:
         type: string
+      latest_version:
+        type: string
       telegram_bot_enabled:
+        type: boolean
+      update_available:
         type: boolean
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.GetSystemResponse:
@@ -274,7 +277,7 @@ definitions:
     properties:
       password:
         example: doe123456
-        maxLength: 16
+        maxLength: 32
         minLength: 2
         type: string
       remember_me:
@@ -318,7 +321,7 @@ definitions:
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.ResetAdminPassword:
     properties:
       new_password:
-        maxLength: 16
+        maxLength: 32
         minLength: 4
         type: string
       secret_key:
@@ -338,6 +341,17 @@ definitions:
     required:
     - token
     - user
+    type: object
+  github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus:
+    properties:
+      message:
+        type: string
+      state:
+        type: string
+      target:
+        type: string
+    required:
+    - state
     type: object
   github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UserLoginResponse:
     properties:
@@ -1997,10 +2011,6 @@ definitions:
     - RekeyMethodNewTunnel
 info:
   contact: {}
-  description: Administrative API for managing Ocserv Dashboard users, groups, reports,
-    runtime, backups, system settings, Telegram integrations, and agent nodes.
-  title: Ocserv Dashboard Admin API
-  version: "1.0"
 paths:
   /auth/logout:
     post:
@@ -3943,6 +3953,59 @@ paths:
       summary: Get Dashboard the current and latest release
       tags:
       - System
+  /system/update:
+    get:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+      summary: Get dashboard update status
+      tags:
+      - System
+    post:
+      parameters:
+      - description: Bearer TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/request.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middlewares.Unauthorized'
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Start dashboard update
+      tags:
+      - System
   /system/user/reset-password:
     post:
       consumes:
@@ -4885,6 +4948,4 @@ paths:
       summary: Test Telegram bot delivery
       tags:
       - Telegram
-produces:
-- application/json
 swagger: "2.0"

@@ -5,12 +5,6 @@ import "github.com/swaggo/swag"
 
 const docTemplate = `{
     "schemes": {{ marshal .Schemes }},
-    "consumes": [
-        "application/json"
-    ],
-    "produces": [
-        "application/json"
-    ],
     "swagger": "2.0",
     "info": {
         "description": "{{escape .Description}}",
@@ -2959,6 +2953,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/update": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get dashboard update status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Start dashboard update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer TOKEN",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/request.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middlewares.Unauthorized"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/system/user/reset-password": {
             "post": {
                 "consumes": [
@@ -4689,7 +4764,7 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 4
                 }
             }
@@ -4703,12 +4778,12 @@ const docTemplate = `{
             "properties": {
                 "new_password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 4
                 },
                 "old_password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 4
                 }
             }
@@ -4722,7 +4797,7 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 4
                 },
                 "username": {
@@ -4737,6 +4812,9 @@ const docTemplate = `{
                 "latest"
             ],
             "properties": {
+                "available": {
+                    "type": "boolean"
+                },
                 "current": {
                     "type": "string"
                 },
@@ -4754,7 +4832,13 @@ const docTemplate = `{
                 "google_captcha_site_key": {
                     "type": "string"
                 },
+                "latest_version": {
+                    "type": "string"
+                },
                 "telegram_bot_enabled": {
+                    "type": "boolean"
+                },
+                "update_available": {
                     "type": "boolean"
                 }
             }
@@ -4797,7 +4881,7 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 2,
                     "example": "doe123456"
                 },
@@ -4859,7 +4943,7 @@ const docTemplate = `{
             "properties": {
                 "new_password": {
                     "type": "string",
-                    "maxLength": 16,
+                    "maxLength": 32,
                     "minLength": 4
                 },
                 "secret_key": {
@@ -4881,6 +4965,23 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "github_com_mmtaee_ocserv-dashboard_backend_internal_services_admin_api_system.UpdateStatus": {
+            "type": "object",
+            "required": [
+                "state"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
                 }
             }
         },
@@ -7247,12 +7348,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Ocserv Dashboard Admin API",
-	Description:      "Administrative API for managing Ocserv Dashboard users, groups, reports, runtime, backups, system settings, Telegram integrations, and agent nodes.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

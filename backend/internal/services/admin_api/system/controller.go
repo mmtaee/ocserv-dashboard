@@ -35,6 +35,39 @@ func (ctl *Controller) DashboardRelease(c *echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+// StartUpdate starts a detached dashboard update.
+// @Summary Start dashboard update
+// @Tags System
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Failure 400 {object} request.ErrorResponse
+// @Failure 401 {object} middlewares.Unauthorized
+// @Failure 409 {object} map[string]string
+// @Success 202 {object} UpdateStatus
+// @Router /system/update [post]
+func (ctl *Controller) StartUpdate(c *echo.Context) error {
+	result, err := ctl.system.StartUpdate(c.Request().Context())
+	if errors.Is(err, systemusecase.ErrUpdateRunning) {
+		return echo.NewHTTPError(http.StatusConflict, err.Error())
+	}
+	if err != nil {
+		return ctl.request.BadRequest(c, err)
+	}
+	return c.JSON(http.StatusAccepted, result)
+}
+
+// UpdateStatus returns dashboard update progress.
+// @Summary Get dashboard update status
+// @Tags System
+// @Produce json
+// @Param Authorization header string true "Bearer TOKEN"
+// @Failure 401 {object} middlewares.Unauthorized
+// @Success 200 {object} UpdateStatus
+// @Router /system/update [get]
+func (ctl *Controller) UpdateStatus(c *echo.Context) error {
+	return c.JSON(http.StatusOK, ctl.system.UpdateStatus())
+}
+
 // ResetAdminPassword resets an admin password using the application secret.
 // @Summary Reset admin password by secret key
 // @Tags System(User)
