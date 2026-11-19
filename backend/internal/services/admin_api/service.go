@@ -87,14 +87,15 @@ func New(telegramRoutes, dockerMode bool) (*Service, error) {
 		telegram = telegramcontroller.New(telegramUC)
 	}
 	dashboardUC := dashboardusecase.New(occtlUC, reportUC, telegramUC, telegramRoutes)
+	systemdEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true")
 	runtimeService, err := servicecontrolcontroller.NewRuntime(
 		dockerMode,
-		strings.EqualFold(strings.TrimSpace(os.Getenv("SYSTEMD")), "true"),
+		systemdEnabled,
 	)
 	if err != nil {
 		return nil, err
 	}
-	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath), !dockerMode)
+	runtimeUC := runtimeusecase.New(runtimeService, runtimecontroller.NewConfigFile(runtimecontroller.DefaultOcservConfigPath), dockerMode || systemdEnabled)
 	var agents *agentcontroller.Controller
 	if !cfg.AgentNode {
 		agents = agentcontroller.New(agentusecase.New(repository.NewOcservAgentRepository()))

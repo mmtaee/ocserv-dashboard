@@ -237,11 +237,11 @@ func TestOcservConfigWriteAndRestartErrors(t *testing.T) {
 	require.Equal(t, 1, runtime.restarts)
 }
 
-func TestDockerModeOcservConfigIsReadOnly(t *testing.T) {
+func TestDockerModeOcservConfigAllowsUpdates(t *testing.T) {
 	port := 443
 	runtime := &managementRuntime{}
 	store := &managementConfigStore{config: systemusecase.OcservConfig{TCPPort: &port}}
-	controller := runtimeservice.New(systemusecase.New(runtime, store, false))
+	controller := runtimeservice.New(systemusecase.New(runtime, store, true))
 	config.Init(false, "", 0)
 	token := managementToken(t, true)
 
@@ -250,13 +250,29 @@ func TestDockerModeOcservConfigIsReadOnly(t *testing.T) {
 	require.Equal(t, http.StatusOK, recorder.Code)
 	var response systemusecase.ConfigResponse
 	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &response))
-	require.False(t, response.AllowUpdate)
+	require.True(t, response.AllowUpdate)
 	require.Equal(t, 443, *response.TCPPort)
 
 	body := bytes.NewBufferString(`{"tcp_port":444}`)
 	recorder, err = runManagementHandler(http.MethodPatch, "/system/ocserv-config", body, token, controller.UpdateConfig)
 	require.NoError(t, err)
-	require.Equal(t, http.StatusBadRequest, recorder.Code)
+	require.Equal(t, http.StatusOK, recorder.Code)
+	require.Equal(t, 1, store.writes)
+	require.Equal(t, 1, runtime.restarts)
+}
+
+func TestUnmanagedModeOcservConfigIsReadOnly(t *testing.T) {
+	port := 443
+	runtime := &managementRuntime{}
+	store := &managementConfigStore{config: systemusecase.OcservConfig{TCPPort: &port}}
+	usecase := systemusecase.New(runtime, store, false)
+
+	response, err := usecase.Config(context.Background())
+	require.NoError(t, err)
+	require.False(t, response.AllowUpdate)
+
+	_, err = usecase.UpdateConfig(context.Background(), systemusecase.OcservConfig{TCPPort: &port})
+	require.ErrorIs(t, err, systemusecase.ErrUpdateNotAllowed)
 	require.Zero(t, store.writes)
 	require.Zero(t, runtime.restarts)
 }
@@ -357,11 +373,17 @@ func TestSystemdModeUsesExistingRestartClient(t *testing.T) {
 	require.Equal(t, "ocserv.service", status.ID)
 	require.Equal(t, 42, status.MainPID)
 	require.Equal(t, int64(1024), status.Memory)
-	require.NoError(t, runtime.Restart(context.Background()))
+	port := 444
+	store := &managementConfigStore{}
+	configUsecase := systemusecase.New(runtime, store, true)
+	_, err = configUsecase.UpdateConfig(context.Background(), systemusecase.OcservConfig{TCPPort: &port})
+	require.NoError(t, err)
+	require.Equal(t, 1, store.writes)
 	require.Equal(t, 1, client.restarts)
 
 	client.err = errors.New("systemctl restart failed")
-	require.ErrorContains(t, runtime.Restart(context.Background()), "systemctl restart failed")
+	_, err = configUsecase.UpdateConfig(context.Background(), systemusecase.OcservConfig{TCPPort: &port})
+	require.ErrorContains(t, err, "systemctl restart failed")
 }
 
 func managementToken(t *testing.T, superadmin bool) string {
