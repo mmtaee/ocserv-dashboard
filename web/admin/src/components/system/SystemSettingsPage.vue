@@ -633,7 +633,6 @@ onMounted(refresh);
         </div>
         </CardContent>
       </Card>
-    >
     <Sheet v-model:open="agentDialogOpen"
       ><SheetContent class="overflow-y-auto"
         ><form class="flex flex-col gap-6" @submit.prevent="saveAgent">
